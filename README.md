@@ -6,7 +6,7 @@ the proposed API:
 
 ## Installing a controller
 
-Assume the folling is osted at `http://example.com/index.html`:
+Assume the following is hosted at `http://example.com/index.html`:
 
 ```html
 <!DOCTYPE html>
