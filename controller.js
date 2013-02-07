@@ -73,6 +73,12 @@
 //      of data (instead of opening a new window), Controllers also have access
 //      to a list of top-level window objects whose URLs fall within the scope
 //      of the URLs "owned" by the controller
+//
+//  DBK brings up some great points:
+//    1.) UAs must ensure that they give controller scripts whatever level of
+//    durability in their HTTP caches that they grant to existing AppCache
+//    resources and manifests.
+//    2.) If
 
 
 ////////////////////////////////////////////////////////////////////////////////
