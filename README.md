@@ -113,7 +113,6 @@ this.onrequest = function(e) {
 };
 
 ```
-
 ## One Controller Per Application, not Origin
 
 Like the legacy AppCache, controllers are not installed globally for an origin. Instead, they "claim" some bit of URL space in the origin of the page which installs them. Each page, then, matches to one or zero custom controllers at any time. The easiest way to think of this is that there is *always* a controller available (the default one provided by the browser). It's how applications get bootstrapped. Once there, apps can install their own controllers which pass through to the default controller if they choose not to respond to a request.
