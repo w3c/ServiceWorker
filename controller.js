@@ -78,7 +78,10 @@
 //    1.) UAs must ensure that they give controller scripts whatever level of
 //    durability in their HTTP caches that they grant to existing AppCache
 //    resources and manifests.
-//    2.) If
+//    2.) If resources are evicted from the cache, we should notify (perhaps
+//    with a special type of update event or message) the controller so that it
+//    can handle the situation on next start. There's no mechanism in place for
+//    that now.
 
 
 ////////////////////////////////////////////////////////////////////////////////
