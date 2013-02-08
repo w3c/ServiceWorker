@@ -20,7 +20,7 @@ Assume the following is hosted at `http://example.com/index.html`:
       // "/ctrl.js" is cached and not invalidated, you'll simply start up the
       // controller and be handed a reference to it in your callback, just the same
       // way you would by calling .ready().then(...);
-      window.controller.register("/*", "/ctrl.js").then(
+      navigator.controller.register("/*", "/ctrl.js").then(
         function(controller) {
           controller.postMessage("OH HAI");
         },

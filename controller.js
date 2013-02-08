@@ -66,7 +66,7 @@
 //      load and does not affect default caching behavior in any way, there is
 //      no risk of cache poisioning.
 //    * Pages can open up channels to controllers via:
-//        window.controller.ready.then();
+//        navigator.controller.ready.then();
 //    * Controllers are the only bits of the system that have access to cache
 //      groups
 //    * In order to handle bringing an app into focus and navigating to some bit
@@ -88,7 +88,7 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
-window.controller.register = function(/*URL|String*/ scope,
+navigator.controller.register = function(/*URL|String*/ scope,
                                        /*URL|String*/ url) {
   // Install the controller specified at the URL.
   // This future is rejected if:
@@ -105,7 +105,7 @@ window.controller.register = function(/*URL|String*/ scope,
   return new Future();
 };
 
-window.controller.ready = function() {
+navigator.controller.ready = function() {
   // Resolves successfully when a controller is found and initialized for the
   // document. If no controller is registered, the "update" event for it fails,
   // or the URL is cross-origin, we reject. If no controller is currently
