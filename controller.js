@@ -29,10 +29,6 @@
 //      resource loading, and navigation initiated by script or by user action,
 //      e.g. clicking a link:
 //        - The list of special messages (with payloads defined below) is:
-//          "hashchange"
-//            Sent for non-page transition navigations, and only in the case
-//            when a browser does not prevetDefault() on a page-level hashchange
-//            event.
 //          "request"
 //            All forms of resource loading loading including top-level
 //            navigations. These are distinguished internally in the Event
@@ -152,6 +148,14 @@ class Request {
   // TODO
 }
 
+class Response {
+  // TODO
+}
+
+class CachedResponse extends Response {
+  // TODO
+}
+
 class RequestEvent extends Event {
   constructor() {
     super();
@@ -174,14 +178,6 @@ class RequestEvent extends Event {
     this.respondWith = function(/*Response*/ r) { };
     this.redirectTo = function(urlOrString) { };
   }
-}
-
-class Response {
-  // TODO
-}
-
-class CachedResponse extends Response {
-  // TODO
 }
 
 // This largely describes the current Application Cache API. It's only available
