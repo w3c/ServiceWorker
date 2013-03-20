@@ -90,7 +90,7 @@ navigator.controller.register = function(/*URL|String*/ scope,
   // This future is rejected if:
   //    - the URL is not same-origin
   //    - no scope is provided or the scope does not resolve/parse correctly
-  //    - fetching the controller returns with an eror
+  //    - fetching the controller returns with an error
   //    - installing the controller (the event the controller is sent) fails
   //      with an unhandled exception
   // TBD: possible error values upon rejection
