@@ -53,7 +53,7 @@
 //    * "toplevel" requests are *only* dispatched to a handler for URLs that
 //      fall within the declared set of URLs "owned" by a controller. This is a
 //      subset of "same-origin" and akin to the visibility of cookies.
-//    * "resource" requrests are dispatched for *ALL* resources of a a
+//    * "resource" requrests are dispatched for *ALL* resources of a
 //      document claimed by a navigation controller, regardless of the domain of
 //      the sub-resource. This is to say, a controller for foo.com/*, in
 //      response to a "request" event dispatched from and instance of the
