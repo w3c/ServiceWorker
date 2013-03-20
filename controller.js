@@ -62,7 +62,7 @@
 //      load and does not affect default caching behavior in any way, there is
 //      no risk of cache poisioning.
 //    * Pages can open up channels to controllers via:
-//        navigator.controller.ready.then();
+//        navigator.controller.ready().then();
 //    * Controllers are the only bits of the system that have access to cache
 //      groups
 //    * In order to handle bringing an app into focus and navigating to some bit
