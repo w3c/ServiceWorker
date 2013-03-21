@@ -14,12 +14,12 @@ Assume the following is hosted at `http://example.com/index.html`:
   <head>
     <script>
       // All top-level navigation requests for example.com/* will be routed to
-      // the controller once it successfully installs
+      // the controller for pages which are navigated to once it is installed.
 
       // Note: it's safe to call register() instead of ready() in most cases. If
       // "/ctrl.js" is cached and not invalidated, you'll simply start up the
-      // controller and be handed a reference to it in your callback, just the same
-      // way you would by calling .ready().then(...);
+      // controller and be handed a reference to it in your callback, just the
+      // same way you would by calling .ready().then(...);
       navigator.controller.register("/*", "/ctrl.js").then(
         function(controller) {
           controller.postMessage("OH HAI");
@@ -127,6 +127,6 @@ TODO(slightlyoff)
 
 A Controller acts like a single "server" for (potentially) many pages (tabs, roughly). A page has a  Communications between these pages and the server is entirely asynchronous to ensure that one badly behaving page (or controller) can't sink many others. Browsers will place tight timeout deadlines on controllers, bypassing them if they do not respond quickly enough, so the key to writing a good controller is to ensure that your `onresource` handlers return quickly. That doesn't mean they need to hand back a response immediately, but if they are likely to do a lot of work in the process of responding, that should happen asynchronously.
 
-Controllers may come and go based on the whim of browsers, a key reason why `controller.register` and `controller.ready` are asynchronous.
+Controllers may come and go based on the whim of browsers, a key reason why `controller.register()` and `controller.ready()` are asynchronous.
 
 TODO(slightlyoff)
