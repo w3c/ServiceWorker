@@ -1,6 +1,6 @@
 <h2>Navigation Controller Design Sketch</h2>
 
-See `controller.js` for the nitty-gritty. Examples with the proposed API:
+See `controller.ts` for the nitty-gritty. Examples with the proposed API:
 
 [toc]
 
