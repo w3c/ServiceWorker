@@ -3,6 +3,34 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var Map = (function () {
+    function Map(iterable) {
+    }
+    Map.prototype.get = function (key) {
+    };
+    Map.prototype.has = function (key) {
+        return true;
+    };
+    Map.prototype.set = function (key, val) {
+    };
+    Map.prototype.clear = function () {
+    };
+    Map.prototype.delete = function (key) {
+        return true;
+    };
+    Map.prototype.forEach = function (callback, thisArg) {
+    };
+    Map.prototype.items = function () {
+        return [];
+    };
+    Map.prototype.keys = function () {
+        return [];
+    };
+    Map.prototype.values = function () {
+        return [];
+    };
+    return Map;
+})();
 var _Event = (function () {
     function _Event(type, eventInitDict) {
         this.bubbles = false;
@@ -32,38 +60,6 @@ var _EventTarget = (function () {
     };
     return _EventTarget;
 })();
-var UpgradeEvent = (function (_super) {
-    __extends(UpgradeEvent, _super);
-    function UpgradeEvent() {
-        _super.apply(this, arguments);
-
-    }
-    return UpgradeEvent;
-})(_Event);
-var Map = (function () {
-    function Map(iterable) {
-    }
-    Map.prototype.get = function (key) {
-    };
-    Map.prototype.has = function (key) {
-        return true;
-    };
-    Map.prototype.set = function (key, val) {
-    };
-    Map.prototype.delete = function (key) {
-        return true;
-    };
-    Map.prototype.items = function () {
-        return [];
-    };
-    Map.prototype.keys = function () {
-        return [];
-    };
-    Map.prototype.values = function () {
-        return [];
-    };
-    return Map;
-})();
 var Resolver = (function () {
     function Resolver() { }
     Resolver.prototype.accept = function (v) {
@@ -79,10 +75,11 @@ var Future = (function () {
     }
     return Future;
 })();
-var WindowList = (function () {
-    function WindowList() { }
-    return WindowList;
-})();
+function accepted() {
+    return new Future(function (r) {
+        r.accept(true);
+    });
+}
 var SharedWorker = (function (_super) {
     __extends(SharedWorker, _super);
     function SharedWorker(url, name) {
@@ -90,25 +87,49 @@ var SharedWorker = (function (_super) {
     }
     return SharedWorker;
 })(_EventTarget);
+var WindowList = (function () {
+    function WindowList() { }
+    return WindowList;
+})();
 navigator.controller = {
     register: function (scope, url) {
-        return new Future(function (r) {
-        });
+        return accepted();
     },
     ready: function () {
-        return new Future(function (r) {
-        });
+        return accepted();
     }
 };
+var InstalledEvent = (function (_super) {
+    __extends(InstalledEvent, _super);
+    function InstalledEvent() {
+        _super.apply(this, arguments);
+
+    }
+    return InstalledEvent;
+})(_Event);
+var ReplacedEvent = (function (_super) {
+    __extends(ReplacedEvent, _super);
+    function ReplacedEvent() {
+        _super.apply(this, arguments);
+
+    }
+    return ReplacedEvent;
+})(_Event);
 var ControllerScope = (function (_super) {
     __extends(ControllerScope, _super);
     function ControllerScope(url, upgrading) {
-        this.onLine = true;
         _super.call(this, url);
         if(upgrading) {
             this.dispatchEvent(new _CustomEvent("update"));
         }
     }
+    Object.defineProperty(ControllerScope.prototype, "windows", {
+        get: function () {
+            return new WindowList();
+        },
+        enumerable: true,
+        configurable: true
+    });
     return ControllerScope;
 })(SharedWorker);
 var Request = (function () {
@@ -119,14 +140,24 @@ var Response = (function () {
     function Response() { }
     return Response;
 })();
-var CachedResponse = (function (_super) {
-    __extends(CachedResponse, _super);
-    function CachedResponse() {
+var XDomainResponse = (function (_super) {
+    __extends(XDomainResponse, _super);
+    function XDomainResponse() {
+        _super.apply(this, arguments);
+
+        this.data = null;
+        this.headers = null;
+    }
+    return XDomainResponse;
+})(Response);
+var ResponseFuture = (function (_super) {
+    __extends(ResponseFuture, _super);
+    function ResponseFuture() {
         _super.apply(this, arguments);
 
     }
-    return CachedResponse;
-})(Response);
+    return ResponseFuture;
+})(Future);
 var RequestEvent = (function (_super) {
     __extends(RequestEvent, _super);
     function RequestEvent() {
@@ -137,9 +168,17 @@ var RequestEvent = (function (_super) {
         this.type = "navigate";
         this.window = null;
     }
+    RequestEvent.prototype.respdondWith = function (r) {
+        return accepted();
+    };
     RequestEvent.prototype.respondWith = function (r) {
+        return accepted();
     };
     RequestEvent.prototype.redirectTo = function (url) {
+        return accepted();
+    };
+    RequestEvent.prototype.redirectTo = function (url) {
+        return accepted();
     };
     return RequestEvent;
 })(_Event);
@@ -154,24 +193,28 @@ var Cache = (function (_super) {
         }
         _super.call(this);
     }
-    Cache.prototype.match = function (urlOrString) {
-        if(urlOrString) {
-            return this.items[urlOrString];
+    Cache.prototype.match = function (name) {
+        if(name) {
+            return this.items[name.toString()];
         }
     };
-    Cache.prototype.add = function (urlOrStringOrResponse) {
+    Cache.prototype.add = function (response) {
         return new Future(function (r) {
         });
     };
-    Cache.prototype.remove = function (urlOrStringOrResponse) {
-        return new Future(function (r) {
-        });
-    };
-    Cache.prototype.swapCache = function () {
+    Cache.prototype.remove = function (response) {
         return new Future(function (r) {
         });
     };
     Cache.prototype.update = function () {
+        var urls = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            urls[_i] = arguments[_i + 0];
+        }
+        return new Future(function (r) {
+        });
+    };
+    Cache.prototype.swapCache = function () {
         return new Future(function (r) {
         });
     };

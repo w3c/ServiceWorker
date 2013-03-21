@@ -142,6 +142,11 @@ interface InitCallback { (init:Function[]); }
 class Future {
   constructor(init : InitCallback) {}
 }
+function accepted() {
+  return new Future(function(r) {
+    r.accept(true);
+  });
+}
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers-and-the-sharedworker-interface
 class SharedWorker extends _EventTarget {
   constructor(url: String, name?: String) {
@@ -171,7 +176,7 @@ navigator.controller = {
     // Else the future resolves successfully when controller.ready()'s Future
     // would
 
-    return new Future(function(r) {});
+    return accepted();
   },
 
   ready: function(): Future {
@@ -179,7 +184,7 @@ navigator.controller = {
     // document. If no controller is registered, the "update" event for it fails,
     // or the URL is cross-origin, we reject. If no controller is currently
     // running but one is registered, this method starts it.
-    return new Future(function(r) {});
+    return accepted();
   }
 };
 
@@ -187,17 +192,12 @@ navigator.controller = {
 // The Controller
 ////////////////////////////////////////////////////////////////////////////////
 
-class ResponseFuture extends Future {}
-
 class InstalledEvent extends _Event {}
 interface InstalledEventHandler { (e:InstalledEvent); }
 
 class ReplacedEvent extends _Event {}
 interface ReplacedEventHandler { (e:ReplacedEvent); }
 
-class RequestEvent extends _Event {
-  respdondWith(response : ResponseFuture) {}
-}
 interface RequestEventHandler { (e:RequestEvent); }
 
 // The scope in which controller code is executed
@@ -233,6 +233,8 @@ class Request {
   // TODO
 }
 
+// FIXME: do we need XDomainRequest? do http-only cookies solve it?
+
 class Response {
   url: URL;
   statusCode: Number;
@@ -246,18 +248,20 @@ class Response {
 }
 
 class XDomainResponse extends Response {
-  get data(): void {
-    throw new Error("Illegal access to cross-origin resource");
-  }
+  data: Object = null; // always null
+  headers: Object = null;
   // FIXME: what other invariants? Should headers still be visible?
 }
 
+class ResponseFuture extends Future {}
 class RequestEvent extends _Event {
   request: Request;
   type: String = "navigate";
   window: any;
-  respondWith(r: Response) {};
-  redirectTo(url : String /* or URL */) { };
+  respdondWith(r: ResponseFuture) : Future { return accepted(); };
+  respondWith(r: Response) : Future { return accepted(); };
+  redirectTo(url: URL) : Future { return accepted(); };
+  redirectTo(url: String) : Future { return accepted(); };
 
   constructor() {
     super("request", { cancelable: true, bubbles: false });
@@ -342,8 +346,8 @@ class Cache extends _EventTarget {
   // currently in the cache and updating with new versions if the current item
   // is expired. New items may be added to the cache with the urls that can be
   // passed.
-  update(...urls?:URL[]) : Future;
-  update(...urls?:String[]) : Future { return new Future(function(r) {}); }
+  update(...urls:URL[]) : Future;
+  update(...urls:String[]) : Future { return new Future(function(r) {}); }
 
   // FIXME: not sure we want to keep swapCache!
   swapCache() : Future { return new Future(function(r) {}); }
