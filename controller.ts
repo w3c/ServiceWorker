@@ -278,6 +278,13 @@ class RequestEvent extends _Event {
   }
 }
 
+// Design notes:
+//  - Caches are atomic: they are not complete until all of their resources are
+//    fetched
+//  - Updates are also atomic: the old contents are visible until all new
+//    contents are fetched/installed.
+//  - Caches should have version numbers and "update" should set/replace it
+
 // This largely describes the current Application Cache API. It's only available
 // inside controller instances (not in regular documents), meaning that caching
 // is a feature of the controller.
@@ -330,7 +337,13 @@ class Cache extends _EventTarget {
   }
 
   // For the below, see current AppCache, although we extend with sane returns
-  update() : Future { return new Future(function(r) {}); }
+
+  // Update has the effect of checking the HTTP cache validity of all items
+  // currently in the cache and updating with new versions if the current item
+  // is expired. New items may be added to the cache with the urls that can be
+  // passed.
+  update(...urls?:URL[]) : Future;
+  update(...urls?:String[]) : Future { return new Future(function(r) {}); }
 
   // FIXME: not sure we want to keep swapCache!
   swapCache() : Future { return new Future(function(r) {}); }
