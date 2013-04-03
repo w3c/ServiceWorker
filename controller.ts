@@ -25,6 +25,9 @@
 //        http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers
 //    * All communication with the controller happens through events and
 //      postMessage. We do need a new MessagePort abstraction to ensure that
+//      handshaking isn't left as an exercise as a user. For a survey of the
+//      current pain, see the dances around init in Oasis:
+//        https://github.com/tildeio/oasis.js/blob/master/lib/oasis.js
 //    * We define events for installation and upgrade of the controller,
 //      resource loading, and navigation initiated by script or by user action,
 //      e.g. clicking a link:
@@ -39,7 +42,7 @@
 //                time.
 //              "resource"
 //                All sub-resource requests for a page are of this type.
-//             Requets are modeled by the Request class (defined below).
+//             Requests are modeled by the Request class (defined below).
 //             Responses need not be provided synchronously.
 //          "update"
 //            A new controller receives this message upon installation. This can
@@ -53,7 +56,7 @@
 //    * "toplevel" requests are *only* dispatched to a handler for URLs that
 //      fall within the declared set of URLs "owned" by a controller. This is a
 //      subset of "same-origin" and akin to the visibility of cookies.
-//    * "resource" requrests are dispatched for *ALL* resources of a a
+//    * "resource" requests are dispatched for *ALL* resources of a a
 //      document claimed by a navigation controller, regardless of the domain of
 //      the sub-resource. This is to say, a controller for foo.com/*, in
 //      response to a "request" event dispatched from and instance of the
@@ -138,9 +141,8 @@ class Resolver {
   public reject(v:any): void {}
   public resolve(v:any): void {}
 }
-interface InitCallback { (init:Function[]); }
 class Future {
-  constructor(init : InitCallback) {}
+  constructor(init : (r:Resolver)) {}
 }
 function accepted() {
   return new Future(function(r) {
@@ -243,14 +245,14 @@ class Response {
   method: String;
   headers: {};
   cookies: Map;
-  // FIXME: should this be named "data", "payload", or "body"?
-  data: any; /*TypedArray? String?*/
+  body: any; /*TypedArray? String?*/
 }
 
 class XDomainResponse extends Response {
-  data: Object = null; // always null
+  body: Object = null; // always null
   headers: Object = null;
-  // FIXME: what other invariants? Should headers still be visible?
+  cookies: Object = null;
+  // FIXME: what other things do we need to hide?
 }
 
 class ResponseFuture extends Future {}
