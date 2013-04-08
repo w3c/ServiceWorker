@@ -2,8 +2,6 @@
 
 See `controller.ts` for the nitty-gritty. Examples with the proposed API:
 
-[toc]
-
 ## Installing A Controller
 
 Assume the following is hosted at `http://example.com/index.html`:
@@ -38,15 +36,12 @@ Assume the following is hosted at `http://example.com/ctrl.js`:
 
 ```js
 "use strict"
-this.onconnect = function(e) {
-  // Whenver a new window from a URL we control is created, a connect message is
-  // automatically sent. From here, we can send messages back to that window
-  // or any other on the same origin
-};
 
-this.onupdate = function(e) {
+var CACHE_NAME = "exampleApp v1";
+
+this.oninstalled = function(e) {
   // The controller has be installed or updated, so install the caches we need:
-  if (!this.caches.get("exampleApp")) {
+  if (!this.caches.get(CACHE_NAME)) {
     // Note that we could host this list in an external file by XHR-ing it in.
     var c = new Cache([
       // Relative URLs are resolved based on the location of ctrl.js
@@ -59,7 +54,7 @@ this.onupdate = function(e) {
       // Our fallback for /browse:
       "/browse/fallback.html"
     ]);
-    this.caches.set("exampleApp", c);
+    this.caches.set(CACHE_NAME, c);
   }
 };
 
@@ -67,7 +62,7 @@ this.onupdate = function(e) {
 // processed, but that doesn't mean all the resources are in our cache yet. We
 // still need to check to see if our cache is complete before trying to use it.
 this.onrequest = function(e) {
-  var exampleAppCache = this.caches.get("exampleApp");
+  var exampleAppCache = this.caches.get(CACHE_NAME);
   // Look for top-level requests for "/browse" and, if offline, serve up the
   // fallback if we have one:
   if (e.request.url == (new Url("/browse")) && !this.onLine) {
@@ -97,12 +92,14 @@ this.onrequest = function(e) {
       var apps = this.windows.filter(function(w) {
         return w.location == appUrl;
       });
+
       if(apps.length) {
         // Pick one and focus it.
         var a = apps[0];
         // Cancel the navigation
         e.preventDefault();
         // Focus the existing app
+        // NOTE: focus() is the root of some dispute and may not be added.
         a.focus();
         // And tell it what's going on:
         a.postMessage("someAppSpecificFocusPayload");
@@ -112,16 +109,21 @@ this.onrequest = function(e) {
   }
 };
 
+this.onconnect = function(e) {
+  // Whenver a new window from a URL we control is created, a connect message is
+  // automatically sent. From here, we can send messages back to that window
+  // or any other on the same origin
+};
 ```
-## One Controller Per Application, not Origin
+
+## The Controller Model
 
 Like the legacy AppCache, controllers are not installed globally for an origin. Instead, they "claim" some bit of URL space in the origin of the page which installs them. Each page, then, matches to one or zero custom controllers at any time. The easiest way to think of this is that there is *always* a controller available (the default one provided by the browser). It's how applications get bootstrapped. Once there, apps can install their own controllers which pass through to the default controller if they choose not to respond to a request.
 
-TODO(slightlyoff)
 
 ## Origin Restrictions
 
-TODO(slightlyoff)
+Controller scripts can be _from_ any origin. Likewise, resources in a `Cache` can be from any origin, and readable when allowed via CORS headers.
 
 ## Understanding Controller/Page Mapping
 

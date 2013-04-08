@@ -104,7 +104,13 @@ var InstalledEvent = (function (_super) {
     function InstalledEvent() {
         _super.apply(this, arguments);
 
+        this.previousVersion = "";
     }
+    InstalledEvent.prototype.replace = function () {
+    };
+    InstalledEvent.prototype.waitUntil = function (f) {
+        return accepted();
+    };
     return InstalledEvent;
 })(_Event);
 var ReplacedEvent = (function (_super) {
@@ -119,6 +125,7 @@ var ControllerScope = (function (_super) {
     __extends(ControllerScope, _super);
     function ControllerScope(url, upgrading) {
         _super.call(this, url);
+        this.version = "";
         if(upgrading) {
             this.dispatchEvent(new _CustomEvent("update"));
         }
@@ -145,8 +152,9 @@ var XDomainResponse = (function (_super) {
     function XDomainResponse() {
         _super.apply(this, arguments);
 
-        this.data = null;
+        this.body = null;
         this.headers = null;
+        this.cookies = null;
     }
     return XDomainResponse;
 })(Response);
@@ -166,18 +174,13 @@ var RequestEvent = (function (_super) {
     bubbles: false
 });
         this.type = "navigate";
+        this.isTopLevel = false;
         this.window = null;
     }
-    RequestEvent.prototype.respdondWith = function (r) {
-        return accepted();
-    };
     RequestEvent.prototype.respondWith = function (r) {
         return accepted();
     };
-    RequestEvent.prototype.redirectTo = function (url) {
-        return accepted();
-    };
-    RequestEvent.prototype.redirectTo = function (url) {
+    RequestEvent.prototype.forwardTo = function (url) {
         return accepted();
     };
     return RequestEvent;

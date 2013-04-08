@@ -109,6 +109,11 @@ interface _EventInit {
   bubbles: Boolean;
   cancelable: Boolean;
 }
+
+// the TS compiler is unhappy *both* with re-defining DOM types and with direct
+// sublassing of most of them. This is sane (from a regular TS pespective), if
+// frustrating. As a result, we describe the built-in Event type with a prefixed
+// name so that we can subclass it later.
 class _Event {
   type: String;
   target: any;
@@ -124,33 +129,48 @@ class _Event {
   preventDefault(): void {}
   constructor(type : String, eventInitDict?: _EventInit) {}
 }
+
 class _CustomEvent extends _Event {
   // Constructor(DOMString type, optional EventInit eventInitDict
   constructor(type : String, eventInitDict?: _EventInit) {
     super(type, eventInitDict);
   }
 }
+
 class _EventTarget {
   dispatchEvent(e:_Event): Boolean {
     return true;
   }
 }
+
 // https://github.com/slightlyoff/DOMFuture/blob/master/DOMFuture.idl
 class Resolver {
   public accept(v:any): void {}
   public reject(v:any): void {}
   public resolve(v:any): void {}
 }
+
 class Future {
-  constructor(init : (r:Resolver)) {}
+  // Callback type decl:
+  //  callback : (n : number) => number
+  constructor(init : (r:Resolver) => void ) {
+
+  }
 }
-function accepted() {
+
+function accepted() : Future {
   return new Future(function(r) {
     r.accept(true);
   });
 }
+
+interface ConnectEventHandler { (e:_Event); }
+
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers-and-the-sharedworker-interface
 class SharedWorker extends _EventTarget {
+  // To make it clear where onconnect comes from
+  onconnect: ConnectEventHandler;
+
   constructor(url: String, name?: String) {
     super();
   }
@@ -173,7 +193,7 @@ navigator.controller = {
     //    - fetching the controller returns with an eror
     //    - installing the controller (the event the controller is sent) fails
     //      with an unhandled exception
-    // TBD: possible error values upon rejection
+  // TBD: possible error values upon rejection
     //
     // Else the future resolves successfully when controller.ready()'s Future
     // would
@@ -194,13 +214,26 @@ navigator.controller = {
 // The Controller
 ////////////////////////////////////////////////////////////////////////////////
 
-class InstalledEvent extends _Event {}
-interface InstalledEventHandler { (e:InstalledEvent); }
+class InstalledEvent extends _Event {
+  previousVersion: String = "";
 
+  // Ensures that the controller is used in place of existing controllers for
+  // the currently controlled set of window instances.
+  replace(): void {}
+
+  // Delay treating the installing controller until the passed Future resolves
+  // successfully. This is primarlialy used to ensure that a
+  // NavigationController is not active until all of the "core" Caches it
+  // depends on are populated.
+  waitUntil(f: Future): Future { return accepted(); }
+}
+
+interface InstalledEventHandler { (e:InstalledEvent); }
 class ReplacedEvent extends _Event {}
 interface ReplacedEventHandler { (e:ReplacedEvent); }
-
 interface RequestEventHandler { (e:RequestEvent); }
+interface OnlineEventHandler { (e:_Event); }
+interface OfflineEventHandler { (e:_Event); }
 
 // The scope in which controller code is executed
 class ControllerScope extends SharedWorker {
@@ -213,9 +246,33 @@ class ControllerScope extends SharedWorker {
     return new WindowList();
   }
 
-  // New events:
+  // Set by the controller and used to communicate to newer versions what they
+  // are replaceing (see InstalledEvent::previousVersion)
+  version: String = "";
+
+  //
+  // Events
+  //
+
+  // Legacy Events
+
+  // These mirror window.online and window.offline in browsing contexts.
+  online: OnlineEventHandler;
+  offline: OfflineEventHandler;
+
+  // New Events
+
+  // Called when a controller is downloaded and being setup to handle
+  // navigations.
   oninstalled: InstalledEventHandler;
+
+  // Called when an updated controller verion decides that it wants to take over
+  // responsibility for the windows this controller is associated with via
+  // InstalledEventHandler::replace()
   onreplaced: ReplacedEventHandler;
+
+  // Called whenever this controller is meant to decide the disposition of a
+  // request.
   onrequest: RequestEventHandler;
 
   constructor(url: String, upgrading: Boolean) {
@@ -251,19 +308,35 @@ class Response {
 class XDomainResponse extends Response {
   body: Object = null; // always null
   headers: Object = null;
-  cookies: Object = null;
+  cookies: Map = null;
   // FIXME: what other things do we need to hide?
 }
 
 class ResponseFuture extends Future {}
 class RequestEvent extends _Event {
+  // The body of the request.
   request: Request;
+  // Can be one of:
+  //  "navigate"
+  //  "fetch"
   type: String = "navigate";
+
+  // The window issuing the request.
   window: any;
-  respdondWith(r: ResponseFuture) : Future { return accepted(); };
-  respondWith(r: Response) : Future { return accepted(); };
-  redirectTo(url: URL) : Future { return accepted(); };
-  redirectTo(url: String) : Future { return accepted(); };
+
+  // Informs the Controller wether or not the request corresponds to navigation
+  // of the top-level window, e.g. reloading a tab or typing a URL into the URL
+  // bar.
+  isTopLevel: Boolean = false;
+
+  respondWith(r: ResponseFuture) : Future;
+  respondWith(r: Response) : Future;
+  // To make the TS compiler happy:
+  respondWith(r: any) : Future { return accepted(); }
+
+  forwardTo(url: URL) : Future;
+  forwardTo(url: String) : Future;
+  forwardTo(url: any) : Future { return accepted(); }
 
   constructor() {
     super("request", { cancelable: true, bubbles: false });
@@ -279,7 +352,7 @@ class RequestEvent extends _Event {
     //    default, responding does not need to be synchronous. That is to say,
     //    you can do something async (like fetch contents, go to IDB, whatever)
     //    within whatever the network time out is and as long as you still have
-    //    the RequestEvent instance, you can fulfill the request later.
+    //    the   RequestEvent instance, you can fulfill the request later.
     this.window = null; // to allow postMessage, window.topLevel, etc
   }
 }
@@ -309,7 +382,8 @@ class Cache extends _EventTarget {
 
   // Allow arrays of URLs or strings
   constructor(...urls:URL[]);
-  constructor(...urls:String[]) {
+  constructor(...urls:string[]);
+  constructor(...urls:any[]) {
     // Note that items may ONLY contain Response instasnces
     if (urls.length) {
       // Begin fetching on the URLs and storing them in this.items
@@ -319,25 +393,29 @@ class Cache extends _EventTarget {
 
   // Match a URL or a string
   match(name:URL);
-  match(name:String) {
+  match(name:string);
+  match(name:any) {
     // name matches something in items
     if (name) {
       return this.items[name.toString()];
     }
   }
+  // Make the TS compiler happy:
 
   // Cribbed from Mozilla's proposal, but with sane returns
-  add(response:String): Future;
+  add(response:string): Future;
   add(response:URL): Future;
-  add(response:Response) : Future {
+  add(response:Response) : Future;
+  add(response:any) : Future {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
     // items upon successful fetching
     return new Future(function(r) {});
   }
 
-  remove(response:String): Future;
+  remove(response:string): Future;
   remove(response:URL): Future;
-  remove(response:Response) : Future {
+  remove(response:Response) : Future;
+  remove(response:any) : Future {
     // FIXME: does this need to be async?
     return new Future(function(r) {});
   }
