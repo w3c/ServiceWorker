@@ -370,6 +370,10 @@ class CacheList extends Map {
     // Overrides to prevent non-URLs to be added go here.
     super();
   }
+  
+  // Convenience method to get ResponseFuture from named cache.
+  request(cacheName: String, url: URL) : RequestFuture;
+  request(cacheName: String, url: String) : RequestFuture;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
