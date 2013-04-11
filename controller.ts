@@ -192,6 +192,7 @@ class ControllerScope extends SharedWorker {
 // Controller APIs
 ////////////////////////////////////////////////////////////////////////////////
 
+// http://fetch.spec.whatwg.org/#requests
 class Request {
   url: URL;
   method: string = "GET";
@@ -206,12 +207,20 @@ class Request {
   body: any; /*TypedArray? String?*/
 }
 
-class BaseResponse {
+// http://fetch.spec.whatwg.org/#responses
+class Response {
   constructor() {}
 }
 
+class CORSCrossOriginResponse extends Response {
+  // This class represents the result of cross-origin fetched resources that are tainted,
+  // such as <img src=http://cross-origin.example/test.png>
+}
+
 // FIXME: do we need the x-domain stuff? do http-only cookies solve it?
-class Response extends BaseResponse {
+class CORSSameOriginResponse extends Response {
+  // This class represents the result of all other fetched resources, including
+  // cross-origin fetched resources using the CORS fetching mode.
   statusCode: Number;
   statusText: string;
   // Explicitly omitting httpVersion
@@ -219,18 +228,6 @@ class Response extends BaseResponse {
   method: string;
   headers: Map; // Needs filtering!
   body: any; /*TypedArray? String?*/
-}
-
-class CORSXOriginResponse extends BaseResponse {
-}
-
-class CORSSameOriginResponse extends BaseResponse {
-  statusCode: Number;
-  statusText: string;
-  encoding: string;
-  method: string;
-  headers: Map;
-  body: any;
 }
 
 class ResponseFuture extends Future {}
@@ -370,7 +367,7 @@ class CacheList extends Map {
     // Overrides to prevent non-URLs to be added go here.
     super();
   }
-  
+
   // Convenience method to get ResponseFuture from named cache.
   request(cacheName: String, url: URL) : RequestFuture;
   request(cacheName: String, url: String) : RequestFuture;
