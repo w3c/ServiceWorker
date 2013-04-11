@@ -99,6 +99,14 @@ var ResponseFuture = (function (_super) {
     }
     return ResponseFuture;
 })(Future);
+var RequestFuture = (function (_super) {
+    __extends(RequestFuture, _super);
+    function RequestFuture() {
+        _super.apply(this, arguments);
+
+    }
+    return RequestFuture;
+})(Future);
 var FetchEvent = (function (_super) {
     __extends(FetchEvent, _super);
     function FetchEvent() {
@@ -111,11 +119,25 @@ var FetchEvent = (function (_super) {
         this.window = null;
     }
     FetchEvent.prototype.respondWith = function (r) {
-        return accepted();
+        if(!(r instanceof Response) || !(r instanceof Future)) {
+            throw new Error("Faux NetworkError because DOM is currently b0rken");
+        }
+        if(r instanceof Response) {
+            r = new Future(function (resolver) {
+                resolver.resolve(r);
+            });
+        }
     };
     FetchEvent.prototype.forwardTo = function (url) {
-        var r = new Response();
-        return accepted();
+        if(!(url instanceof _URL) || typeof url != "string") {
+            throw new Error("Faux NetworkError because DOM is currently b0rken");
+        }
+        return new Future(function (resolver) {
+            var r = new Response();
+            r.statusCode = 302;
+            r.headers.set("Location", url.toString());
+            resolver.resolve(r);
+        });
     };
     return FetchEvent;
 })(_Event);
@@ -167,8 +189,17 @@ var CacheList = (function (_super) {
     function CacheList(iterable) {
         _super.call(this);
     }
+    CacheList.prototype.request = function (cacheName, url) {
+        return new RequestFuture(function () {
+        });
+    };
     return CacheList;
 })(Map);
+var _URL = (function () {
+    function _URL(url, base) {
+    }
+    return _URL;
+})();
 var Map = (function () {
     function Map(iterable) {
     }

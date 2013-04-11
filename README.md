@@ -61,7 +61,7 @@ this.oninstalled = function(e) {
 // No "request" events are dispatched until after the "update" event is
 // processed, but that doesn't mean all the resources are in our cache yet. We
 // still need to check to see if our cache is complete before trying to use it.
-this.onrequest = function(e) {
+this.onfetch = function(e) {
   var exampleAppCache = this.caches.get(CACHE_NAME);
   // Look for top-level requests for "/browse" and, if offline, serve up the
   // fallback if we have one:

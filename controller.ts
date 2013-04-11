@@ -96,7 +96,7 @@ navigator.controller = {
     //    - fetching the controller returns with an eror
     //    - installing the controller (the event the controller is sent) fails
     //      with an unhandled exception
-  // TBD: possible error values upon rejection
+    // TBD: possible error values upon rejection
     //
     // Else the future resolves successfully when controller.ready()'s Future
     // would
@@ -231,6 +231,7 @@ class CORSSameOriginResponse extends Response {
 }
 
 class ResponseFuture extends Future {}
+class RequestFuture extends Future {}
 
 class FetchEvent extends _Event {
   // The body of the request.
@@ -250,26 +251,34 @@ class FetchEvent extends _Event {
 
   // Future must resolve with a Response. A Network Error is thrown for other
   // resolution types/values.
-  respondWith(r: Future) : Future;
-  respondWith(r: Response) : Future;
+  respondWith(r: Future) : void;
+  respondWith(r: Response) : void;
   // To make the TS compiler happy:
-  respondWith(r: any) : Future { return accepted(); }
+  respondWith(r: any) : void {
+    if (!(r instanceof Response) || !(r instanceof Future)) {
+      throw new Error("Faux NetworkError because DOM is currently b0rken");
+    }
+    if (r instanceof Response) {
+      r = new Future(function(resolver) { resolver.resolve(r); });
+    }
+    // ...
+  }
 
   forwardTo(url: URL) : Future;
   forwardTo(url: string) : Future;
   forwardTo(url: any) : Future {
-    var r = new Response();
-    /*
-    statusCode: Number;
-    statusText: string;
-    // Explicitly omitting httpVersion
-    encoding: string;
-    method: string;
-    headers: Map; // Needs filtering
-    body: any;
-    */
+    if (!(url instanceof _URL) || typeof url != "string") {
+      // Should *actually* be a DOMException.NETWORK_ERR
+      // Can't be today because DOMException isn't currently constructable
+      throw new Error("Faux NetworkError because DOM is currently b0rken");
+    }
 
-    return accepted();
+    return new Future(function(resolver){
+      var r = new Response();
+      r.statusCode = 302;
+      r.headers.set("Location", url.toString());
+      resolver.resolve(r);
+    });
   }
 
   constructor() {
@@ -371,11 +380,19 @@ class CacheList extends Map {
   // Convenience method to get ResponseFuture from named cache.
   request(cacheName: String, url: URL) : RequestFuture;
   request(cacheName: String, url: String) : RequestFuture;
+  request(cacheName: any, url: any) : RequestFuture {
+    return new RequestFuture(function(){});
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
+
+// Cause, you know, the stock definition claims that URL isn't a class. FML.
+class _URL {
+  constructor(url, base) {}
+}
 
 // http://tc39wiki.calculist.org/es6/map-set/
 // http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
