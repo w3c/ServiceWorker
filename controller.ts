@@ -104,6 +104,10 @@ navigator.controller = {
     return accepted();
   },
 
+  unregister: function(scope: string /* or URL */) : Future {
+    return accepted();
+  },
+
   ready: function(): Future {
     // Resolves successfully when a controller is found and initialized for the
     // document. If no controller is registered, the "update" event for it fails,
@@ -274,7 +278,7 @@ class FetchEvent extends _Event {
     }
 
     return new Future(function(resolver){
-      var r = new Response();
+      var r = new CORSSameOriginResponse();
       r.statusCode = 302;
       r.headers.set("Location", url.toString());
       resolver.resolve(r);

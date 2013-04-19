@@ -7,6 +7,9 @@ navigator.controller = {
     register: function (scope, url) {
         return accepted();
     },
+    unregister: function (scope) {
+        return accepted();
+    },
     ready: function () {
         return accepted();
     }
@@ -62,27 +65,19 @@ var Request = (function () {
     }
     return Request;
 })();
-var BaseResponse = (function () {
-    function BaseResponse() {
-    }
-    return BaseResponse;
-})();
-var Response = (function (_super) {
-    __extends(Response, _super);
+var Response = (function () {
     function Response() {
-        _super.apply(this, arguments);
-
     }
     return Response;
-})(BaseResponse);
-var CORSXOriginResponse = (function (_super) {
-    __extends(CORSXOriginResponse, _super);
-    function CORSXOriginResponse() {
+})();
+var CORSCrossOriginResponse = (function (_super) {
+    __extends(CORSCrossOriginResponse, _super);
+    function CORSCrossOriginResponse() {
         _super.apply(this, arguments);
 
     }
-    return CORSXOriginResponse;
-})(BaseResponse);
+    return CORSCrossOriginResponse;
+})(Response);
 var CORSSameOriginResponse = (function (_super) {
     __extends(CORSSameOriginResponse, _super);
     function CORSSameOriginResponse() {
@@ -90,7 +85,7 @@ var CORSSameOriginResponse = (function (_super) {
 
     }
     return CORSSameOriginResponse;
-})(BaseResponse);
+})(Response);
 var ResponseFuture = (function (_super) {
     __extends(ResponseFuture, _super);
     function ResponseFuture() {
@@ -133,7 +128,7 @@ var FetchEvent = (function (_super) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
         return new Future(function (resolver) {
-            var r = new Response();
+            var r = new CORSSameOriginResponse();
             r.statusCode = 302;
             r.headers.set("Location", url.toString());
             resolver.resolve(r);
