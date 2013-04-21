@@ -216,13 +216,37 @@ class Response {
   constructor() {}
 }
 
-class CORSCrossOriginResponse extends Response {
+class CrossOriginResponse extends Response {
   // This class represents the result of cross-origin fetched resources that are tainted,
   // such as <img src=http://cross-origin.example/test.png>
 }
 
 // FIXME: do we need the x-domain stuff? do http-only cookies solve it?
-class CORSSameOriginResponse extends Response {
+class SameOriginResponse extends Response {
+  constructor(params?) {
+    if (params) {
+      if (typeof params.statusCode != "undefined") {
+        this.statusCode = params.statusCode;
+      }
+      if (typeof params.stausText != "undefined") {
+        this.statusText = params.statusText;
+      }
+      if (typeof params.encoding != "undefined") {
+        this.encoding = params.encoding;
+      }
+      if (typeof params.method != "undefined") {
+        this.method = params.method;
+      }
+      if (typeof params.headers != "undefined") {
+        this.headers = params.headers;
+      }
+      if (typeof params.body != "undefined") {
+        this.body = params.body;
+      }
+    }
+    super();
+  }
+
   // This class represents the result of all other fetched resources, including
   // cross-origin fetched resources using the CORS fetching mode.
   statusCode: Number;
@@ -230,7 +254,24 @@ class CORSSameOriginResponse extends Response {
   // Explicitly omitting httpVersion
   encoding: string;
   method: string;
-  headers: Map; // Needs filtering!
+  // NOTE: the internal "_headers" is not meant to be exposed. Only here for
+  //       pseudo-impl purposes.
+  _headers: Map; // FIXME: Needs filtering!
+  get headers() {
+    return this._headers;
+  }
+  set headers(items) {
+    if (items instanceof Map) {
+      items.forEach((value, key, map) => this._headers.set(key, value))
+    } else {
+      // Enumerate own properties and treat them as key/value pairs
+      for (var x in items) {
+        (function(x) {
+          if (items.hasOwnProperty(x)) { this._headers.set(x, items[x]); }
+        }).call(this, x);
+      }
+    }
+  }
   body: any; /*TypedArray? String?*/
 }
 

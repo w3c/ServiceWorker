@@ -80,10 +80,52 @@ var CORSCrossOriginResponse = (function (_super) {
 })(Response);
 var CORSSameOriginResponse = (function (_super) {
     __extends(CORSSameOriginResponse, _super);
-    function CORSSameOriginResponse() {
-        _super.apply(this, arguments);
-
+    function CORSSameOriginResponse(params) {
+        if(params) {
+            if(typeof params.statusCode != "undefined") {
+                this.statusCode = params.statusCode;
+            }
+            if(typeof params.stausText != "undefined") {
+                this.statusText = params.statusText;
+            }
+            if(typeof params.encoding != "undefined") {
+                this.encoding = params.encoding;
+            }
+            if(typeof params.method != "undefined") {
+                this.method = params.method;
+            }
+            if(typeof params.headers != "undefined") {
+                this.headers = params.headers;
+            }
+            if(typeof params.body != "undefined") {
+                this.body = params.body;
+            }
+        }
+        _super.call(this);
     }
+    Object.defineProperty(CORSSameOriginResponse.prototype, "headers", {
+        get: function () {
+            return this._headers;
+        },
+        set: function (items) {
+            var _this = this;
+            if(items instanceof Map) {
+                items.forEach(function (value, key, map) {
+                    return _this._headers.set(key, value);
+                });
+            } else {
+                for(var x in items) {
+                    (function (x) {
+                        if(items.hasOwnProperty(x)) {
+                            this._headers.set(x, items[x]);
+                        }
+                    }).call(this, x);
+                }
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
     return CORSSameOriginResponse;
 })(Response);
 var ResponseFuture = (function (_super) {
