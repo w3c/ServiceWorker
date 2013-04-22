@@ -651,12 +651,13 @@ So what if a new tab is created? Which controller does it get, v1 or v2?
 
 The default policy is that this new tab will be controlled by v1. This is done
 to prevent the crazy-town scenario of multiple controller versions running at
-the same, possibly creating conflicts for IndexedDB schemas, content caches, and
-the like. Yes, there's a small window during `oninstall` when v2 will be running
-at the same time as v1, but they won't both be serving content. The advice then
-is: _don't do irreversable things during `oninstall`_. It's a good place to get
-a jump on populating caches (hopefully with unique names!), but a bad place to
-do things like schema and model upgrades for your app.
+the same time, possibly creating conflicts for IndexedDB schemas, content caches,
+and the like. Yes, there's a small window during `oninstall` when v2 will be
+running at the same time as v1, but they won't both be serving content. The
+advice then is: _don't do irreversible things during `oninstall`_. It's a good
+place to get a jump on populating caches (with unique names if the new content
+is reliant on the new controller), but a bad place to do things like schema and
+model upgrades for your app.
 
 The alternative scenario is one in which the new version of your controller is
 discovered and installed and no documents are running against v1. This could
