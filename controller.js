@@ -202,6 +202,9 @@ var Cache = (function () {
         }
         return accepted();
     };
+    Cache.prototype.addResponse = function (url, response) {
+        return accepted();
+    };
     Cache.prototype.remove = function () {
         var response = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
