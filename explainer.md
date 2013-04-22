@@ -188,11 +188,12 @@ First, the second rule of Navigation Controllers:
 > Navigation Controllers may be killed at any time.
 
 That's right, the browser might uncerimonously kill your Controller if it's idle,
-or even stop it mid-work and re-issue some request. There are zero gaurantees
-about how long a Controller will run. That means that all Controller scripts
-must be written in such a way as to avoid holding lots of global state. This
-simply can't be stressed enough: _write your controllers as though they expect
-to die after every request, only to be revived for the next one_.
+or even stop it mid-work and re-issue the request to a new instance of the
+controller. There are zero gaurantees about how long a Controller will run. That
+means that all Controller scripts must be written in such a way as to avoid
+holding lots of global state. This simply can't be stressed enough: _write your
+controllers as though they expect to die after every request, only to be revived
+for the next one_.
 
 Lastly, remember that _Navigation Controllers are shared resources_. A single
 controller might be servicing requests from multiple tabs or documents. Never
