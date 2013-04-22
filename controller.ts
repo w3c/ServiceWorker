@@ -314,8 +314,6 @@ class Cache {
   // Cribbed from Mozilla's proposal, but with sane returns
   add(...response:string[]) : Future;
   add(...response:URL[]) : Future;
-  // FIXME: Response instances don't have URLs!
-  add(...response:Response[]) : Future;
   // "any" to make the TS compiler happy:
   add(...response:any[]) : Future {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
@@ -323,16 +321,18 @@ class Cache {
     return accepted();
   }
 
+  // Needed because Response objects don't have URLs.
+  addResponse(url, response:Response) : Future {
+    return accepted();
+  }
+
   remove(...response:string[]) : Future;
   remove(...response:URL[]) : Future;
-  // FIXME: Response instances don't have URLs!
-  remove(...response:Response[]) : Future;
   // "any" to make the TS compiler happy:
   remove(...response:any[]) : Future {
     // FIXME: does this need to be async?
     return accepted();
   }
-
 
   // For the below, see current AppCache, although we extend with sane returns
 
