@@ -85,9 +85,9 @@ later in this document. Once it is successfully installed, our `success!`
 message will be sent to the console and, crucially, the next time the user
 visits `index.html` or any other page located at `http://videos.example.com/`,
 `ctrl.js` will be consulted about what to do and what content to load -- even if
-the browser is offline. On pages that are "controlled" in this way, other
-resources (like the image in the body) are also requested first from `ctrl.js`
-before the normal browser cache is consulted for them.
+the device has no internet connection is offline. On pages that are "controlled"
+in this way, other resources (like the image in the body) are also requested
+first from `ctrl.js` before the normal browser cache is consulted for them.
 
 ### Controlled vs. Uncontrolled Documents
 
