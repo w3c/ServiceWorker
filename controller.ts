@@ -156,7 +156,7 @@ class ControllerScope extends SharedWorker {
 
   // Set by the controller and used to communicate to newer versions what they
   // are replaceing (see InstalledEvent::previousVersion)
-  version: string = "";
+  version: any = 0; // NOTE: versions must be structured-cloneable!
 
   //
   // Events
@@ -173,6 +173,10 @@ class ControllerScope extends SharedWorker {
   // Called when a controller is downloaded and being setup to handle
   // navigations.
   oninstalled: InstalledEventHandler;
+
+  // FIXME(slightlyoff): do we need an "onselected" that happens before the
+  // first request is serviced? Else onfetch might bear too much of the brunt
+  // for "do ephermeral upgrade work" in the wait-for-restart case.
 
   // Called when an updated controller verion decides that it wants to take over
   // responsibility for the windows this controller is associated with via
@@ -321,10 +325,10 @@ class FetchEvent extends _Event {
     }
 
     return new Future(function(resolver){
-      var r = new SameOriginResponse();
-      r.statusCode = 302;
-      r.headers.set("Location", url.toString());
-      resolver.resolve(r);
+      resolver.resolve(new SameOriginResponse({
+        statusCode: 302,
+        headers: { "Location": url.toString() }
+      }));
     });
   }
 

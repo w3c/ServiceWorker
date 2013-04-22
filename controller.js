@@ -41,7 +41,7 @@ var ControllerScope = (function (_super) {
     __extends(ControllerScope, _super);
     function ControllerScope(url, upgrading) {
         _super.call(this, url);
-        this.version = "";
+        this.version = 0;
         if(upgrading) {
             this.dispatchEvent(new _CustomEvent("update"));
         }
@@ -171,10 +171,12 @@ var FetchEvent = (function (_super) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
         return new Future(function (resolver) {
-            var r = new SameOriginResponse();
-            r.statusCode = 302;
-            r.headers.set("Location", url.toString());
-            resolver.resolve(r);
+            resolver.resolve(new SameOriginResponse({
+                statusCode: 302,
+                headers: {
+                    "Location": url.toString()
+                }
+            }));
         });
     };
     return FetchEvent;
