@@ -306,7 +306,8 @@ one umbrella might find it very difficult to coordinate if they hadn't started b
 To break what might otherwise be ties when matching URLs, navigations are mapped
 to controllers by longest-prefix-match. Note that the `*` can only occur _at the
 end_ of a matching rule, so attempts to register `/foo/*/bar` or `*bar` will
-throw exceptions. Similarly, anything after a "?" or "#" in a registration will be ignored, meaning that `/foo?*` and `/foo#thinger*` are the same as `/foo`.
+throw exceptions. Similarly, anything after a "?" or "#" in a registration will
+be ignored, meaning that `/foo?*` and `/foo#thinger*` are the same as `/foo`.
 
 In the above example with registrations for `/foo*` and `/foo/bar*`, the
 following matches would be made when navigating to the following URLs under
