@@ -155,7 +155,8 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-This simple example will always produce the following output at the console when we load a tab with `http://videos.example.com/index.html`:
+This simple example will always produce the following output at the console when
+we load a tab with `http://videos.example.com/index.html`:
 
 ```
 > http://videos.example.com/index.html
@@ -181,7 +182,8 @@ that are "offline by default" once installed.
 
 ## Mental Notes
 
-Before we get into the nitty-gritty of controllers, a few things to keep in mind. First, the second rule of Navigation Controllers:
+Before we get into the nitty-gritty of controllers, a few things to keep in mind.
+First, the second rule of Navigation Controllers:
 
 > Navigation Controllers may be killed at any time.
 
