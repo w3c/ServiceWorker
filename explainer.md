@@ -430,7 +430,7 @@ When this happens, v2 instantly becomes the active controller, so the next time 
 
 Indeed, v2 will become the active controller _just as soon as all v1 documents are closed_.
 
-<!-- FIXME: update with decisions about whatever the .refresh() API might be -->
+When v2 *does* become the active controller, another event -- `onactivate` -- is sent to v2. This happens _before any fetches are dispatched_. This is the ideal time to upgrade database schemas and the like, but be careful not to do too much work. Applications will be blocked from loading while `onactivate` is being serviced (including any extensions asked for via `e.waitUntil()`, which is also available to `onactivate` handlers). Treat `onactivate` as a time to stake your claim as the new version but beware doing more than that lest you make your app unavailable!
 
 <!-- FIXME(slightlyoff):
   Add a graphic here to explain the wait-until-restart lifetime
