@@ -518,7 +518,7 @@ set of resources is cached and ready. Pretty neat.
 
 ### Serving Cached Resources
 
-Now that we've got some resources in a cache...what can we do with 'em?
+Now that we've got some resources in a cache, what can we do with 'em?
 
 Most of the Navigation Controller interfaces that can take `Response` instances
 are designed to also work with `Future`s that wrap `Response`s. Here's an
