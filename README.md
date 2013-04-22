@@ -132,3 +132,25 @@ A Controller acts like a single "server" for (potentially) many pages (tabs, rou
 Controllers may come and go based on the whim of browsers, a key reason why `controller.register()` and `controller.ready()` are asynchronous.
 
 TODO(slightlyoff)
+
+## Building & contributing
+
+Make edits in the typescript file (controller.ts), the JavaScript file is built from it. Building the JS version yourself isn't essential, but here's how:
+
+Requirements:
+
+* [Node.js](http://nodejs.org/) v0.8.15+
+
+Installing dependencies:
+
+```sh
+# From the root of the project directory
+npm install
+```
+
+Building:
+
+```sh
+# From the root of the project directory
+./build.sh
+```
