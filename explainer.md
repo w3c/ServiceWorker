@@ -491,15 +491,14 @@ only-if all the there resources in the cache are downloaded.
 // caching.js
 this.version = 1;
 
-var base = "http://videos.example.com";
-
 this.addEventListener("install", function(e) {
   // Create a cache of resources. Begins the process of fetching them.
+  // URLs are relative to the controller
   var shellResources = new Cache(
-    base + "/assets/v1/base.css",
-    base + "/assets/v1/app.js",
-    base + "/assets/v1/logo.png",
-    base + "/assets/v1/intro_video.webm",
+    "/assets/v1/base.css",
+    "/assets/v1/app.js",
+    "/assets/v1/logo.png",
+    "/assets/v1/intro_video.webm",
   );
 
   // Add Cache to the global so it can be used later during onfetch
