@@ -202,6 +202,11 @@ need to care about where a request is coming from or going to, use the `.window`
 property of the `onfetch` event; but don't create state that you care about
 without serializing it somewhere like IndexedDB.
 
+This pattern should be familiar if you've developed content servers using
+Django, Rails, Java, Node etc. A single instance handles connections from many
+clients (documents in our case) but data persistance is handled by something
+else, typically a database.
+
 ### Resources vs. Navigations
 
 Since loading documents and apps on the web boils down to an [HTTP
