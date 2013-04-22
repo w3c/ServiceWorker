@@ -529,20 +529,18 @@ URLs in question:
 // chaching.js
 this.version = 1;
 
-var base = "http://videos.example.com";
-
 this.addEventListener("install", function(e) {
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
-    base + "/app.html",
-    base + "/assets/v1/base.css",
-    base + "/assets/v1/app.js",
-    base + "/assets/v1/logo.png",
-    base + "/assets/v1/intro_video.webm",
+    "/app.html",
+    "/assets/v1/base.css",
+    "/assets/v1/app.js",
+    "/assets/v1/logo.png",
+    "/assets/v1/intro_video.webm",
   );
 
   // Add Cache to the global so it can be used later during onfetch
-  this.caches.set("v1 shell resources", shellResources);
+  this.caches.set("shell-v1", shellResources);
 
   // The coast is only clear when all the resources are ready.
   e.waitUntil(shellResources.ready());
@@ -552,7 +550,7 @@ this.addEventListener("fetch", function(e) {
   // No "onfetch" events are dispatched to the controller until it successfully
   // installs.
 
-  var shellResources = this.caches.get("v1 shell resources");
+  var shellResources = this.caches.get("shell-v1");
 
   // All operations on caches are async, including matching URLs, so we use
   // Futures heavily. e.respondWith() even takes Futures to enable this:
@@ -574,7 +572,7 @@ takes two (the cache name and the URL):
 ```js
 this.addEventListener("fetch", function(e) {
   // Abbreviated onfetch handler
-  e.respondWith(this.caches.match("v1 shell resources", e.request.url));
+  e.respondWith(this.caches.match("shell-v1", e.request.url));
 });
 ```
 
