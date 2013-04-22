@@ -14,21 +14,29 @@ navigator.controller = {
         return accepted();
     }
 };
+var InstallPhaseEvent = (function (_super) {
+    __extends(InstallPhaseEvent, _super);
+    function InstallPhaseEvent() {
+        _super.apply(this, arguments);
+
+        this.previousVersion = 0;
+    }
+    InstallPhaseEvent.prototype.waitUntil = function (f) {
+        return accepted();
+    };
+    return InstallPhaseEvent;
+})(_Event);
 var InstalledEvent = (function (_super) {
     __extends(InstalledEvent, _super);
     function InstalledEvent() {
         _super.apply(this, arguments);
 
-        this.previousVersion = "";
         this.previous = null;
     }
     InstalledEvent.prototype.replace = function () {
     };
-    InstalledEvent.prototype.waitUntil = function (f) {
-        return accepted();
-    };
     return InstalledEvent;
-})(_Event);
+})(InstallPhaseEvent);
 var ReplacedEvent = (function (_super) {
     __extends(ReplacedEvent, _super);
     function ReplacedEvent() {
@@ -159,6 +167,7 @@ var FetchEvent = (function (_super) {
         if(!(r instanceof Response) || !(r instanceof Future)) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
+        this.stopImmediatePropagation();
         if(r instanceof Response) {
             r = new Future(function (resolver) {
                 resolver.resolve(r);
@@ -170,6 +179,7 @@ var FetchEvent = (function (_super) {
         if(!(url instanceof _URL) || typeof url != "string") {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
+        this.stopImmediatePropagation();
         return new Future(function (resolver) {
             resolver.resolve(new SameOriginResponse({
                 statusCode: 302,

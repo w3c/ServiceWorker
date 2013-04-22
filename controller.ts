@@ -57,7 +57,7 @@ class InstalledEvent extends InstallPhaseEvent {
 
   // Ensures that the controller is used in place of existing controllers for
   // the currently controlled set of window instances.
-  replace(): void {}  
+  replace(): void {}
 }
 
 interface InstalledEventHandler { (e:InstalledEvent); }
@@ -100,7 +100,7 @@ class ControllerScope extends SharedWorker {
   oninstalled: InstalledEventHandler;
 
   // Called when a controller becomes the active controller for a mapping
-  onactivate: ActivateEventHandler,
+  onactivate: ActivateEventHandler;
 
   // Called when an updated controller verion decides that it wants to take over
   // responsibility for the windows this controller is associated with via
@@ -149,7 +149,6 @@ class CrossOriginResponse extends Response {
   // such as <img src=http://cross-origin.example/test.png>
 }
 
-// FIXME: do we need the x-domain stuff? do http-only cookies solve it?
 class SameOriginResponse extends Response {
   constructor(params?) {
     if (params) {
@@ -231,6 +230,9 @@ class FetchEvent extends _Event {
     if (!(r instanceof Response) || !(r instanceof Future)) {
       throw new Error("Faux NetworkError because DOM is currently b0rken");
     }
+
+    this.stopImmediatePropagation();
+
     if (r instanceof Response) {
       r = new Future(function(resolver) { resolver.resolve(r); });
     }
@@ -247,6 +249,8 @@ class FetchEvent extends _Event {
       // Can't be today because DOMException isn't currently constructable
       throw new Error("Faux NetworkError because DOM is currently b0rken");
     }
+
+    this.stopImmediatePropagation();
 
     return new Future(function(resolver){
       resolver.resolve(new SameOriginResponse({
