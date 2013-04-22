@@ -580,7 +580,7 @@ Handy!
 
 ### Redirects
 
-HTTP redirects happen whenever a browser recevies a `3xx` status code, most
+HTTP redirects happen whenever a browser receives a `3xx` status code, most
 often [`302`](http://en.wikipedia.org/wiki/HTTP_302).
 
 Redirection is a fact of life in modern networks, so Navigation Controllers must
@@ -631,7 +631,9 @@ The biggest scenario that hasn't been touched on yet is upgrades. Recall that
 browsers check for updated versions of controller scripts roughly once a day.
 What happens if they find a new version?
 
-For the new version (we'll call it "2"), nothing much changes about the process. `oninstall` is dispatched (which it can handle or not) and, if no error occurs, it's the new controller-in-waiting.
+For the new version (we'll call it "2"), nothing much changes about the process.
+`oninstall` is dispatched (which it can handle or not) and, if no error occurs,
+it's the new controller-in-waiting.
 
 Wait, "controller-in-waiting"?
 
