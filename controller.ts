@@ -298,7 +298,7 @@ class FetchEvent extends _Event {
   // resolution types/values.
   respondWith(r: Future) : void;
   respondWith(r: Response) : void;
-  // To make the TS compiler happy:
+  // "any" to make the TS compiler happy:
   respondWith(r: any) : void {
     if (!(r instanceof Response) || !(r instanceof Future)) {
       throw new Error("Faux NetworkError because DOM is currently b0rken");
@@ -306,11 +306,13 @@ class FetchEvent extends _Event {
     if (r instanceof Response) {
       r = new Future(function(resolver) { resolver.resolve(r); });
     }
-    // ...
+    r.then(_useControllerResponse,
+           _defaultToBrowserHTTP);
   }
 
   forwardTo(url: URL) : Future;
   forwardTo(url: string) : Future;
+  // "any" to make the TS compiler happy:
   forwardTo(url: any) : Future {
     if (!(url instanceof _URL) || typeof url != "string") {
       // Should *actually* be a DOMException.NETWORK_ERR
@@ -361,6 +363,7 @@ class Cache {
   // Allow arrays of URLs or strings
   constructor(...urls:URL[]);
   constructor(...urls:string[]);
+  // "any" to make the TS compiler happy:
   constructor(...urls:any[]) {
     // Note that items may ONLY contain Response instasnces
     if (urls.length) {
@@ -371,7 +374,7 @@ class Cache {
   // Match a URL or a string
   match(name:URL) : Future;
   match(name:string) : Future;
-  // Make the TS compiler happy:
+  // "any" to make the TS compiler happy:
   match(name:any) : Future {
     // name matches something in items
     if (name) {
@@ -386,6 +389,7 @@ class Cache {
   add(...response:URL[]) : Future;
   // FIXME: Response instances don't have URLs!
   add(...response:Response[]) : Future;
+  // "any" to make the TS compiler happy:
   add(...response:any[]) : Future {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
     // items upon successful fetching
@@ -396,6 +400,7 @@ class Cache {
   remove(...response:URL[]) : Future;
   // FIXME: Response instances don't have URLs!
   remove(...response:Response[]) : Future;
+  // "any" to make the TS compiler happy:
   remove(...response:any[]) : Future {
     // FIXME: does this need to be async?
     return accepted();
@@ -425,9 +430,10 @@ class CacheList extends Map {
   }
 
   // Convenience method to get ResponseFuture from named cache.
-  request(cacheName: String, url: URL) : RequestFuture;
-  request(cacheName: String, url: String) : RequestFuture;
-  request(cacheName: any, url: any) : RequestFuture {
+  match(cacheName: String, url: URL) : RequestFuture;
+  match(cacheName: String, url: String) : RequestFuture;
+  // "any" to make the TS compiler happy
+  match(cacheName: any, url: any) : RequestFuture {
     return new RequestFuture(function(){});
   }
 }
@@ -549,3 +555,5 @@ class AsyncMap {
   values(): Future { return accepted(); }
 }
 
+var _useControllerResponse = function() {};
+var _defaultToBrowserHTTP = function() {};

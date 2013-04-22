@@ -164,6 +164,7 @@ var FetchEvent = (function (_super) {
                 resolver.resolve(r);
             });
         }
+        r.then(_useControllerResponse, _defaultToBrowserHTTP);
     };
     FetchEvent.prototype.forwardTo = function (url) {
         if(!(url instanceof _URL) || typeof url != "string") {
@@ -226,7 +227,7 @@ var CacheList = (function (_super) {
     function CacheList(iterable) {
         _super.call(this);
     }
-    CacheList.prototype.request = function (cacheName, url) {
+    CacheList.prototype.match = function (cacheName, url) {
         return new RequestFuture(function () {
         });
     };
@@ -356,3 +357,7 @@ var AsyncMap = (function () {
     };
     return AsyncMap;
 })();
+var _useControllerResponse = function () {
+};
+var _defaultToBrowserHTTP = function () {
+};
