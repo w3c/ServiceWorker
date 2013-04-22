@@ -64,6 +64,8 @@ This means that if a document starts life _without_ a controller, even if one is
 This is good for a couple of important reasons:
 
   - Graceful fallback. Browsers that don't yet understand controllers will still understand these pages.
+  - Related: [good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with a controller should do sane things without one when users navigate to those locations. This is key to "URL-friendly" apps that exhibit the ur-social behaviors that make the web so good for collaboration, sharing, and all the rest.
+  - It forces you to have URLs! Some modern apps platforms have foresaken this core principle of the web and suffer for it. The web should never make the same mistake.
   - Developers are less likely to paint themselves into a corner by relying on controllers when they shouldn't. If it doesn't work without the controller, it'll be obvious the first time a new page is loaded or by unregistering the controller. Not ideal for testing, but it beats AppCache and can be made better with tools over time.
   - Reasoning about a page that gets a controller halfway through its lifetime -- or worse, loses its controller -- is incredibly painful. If an uncontrolled page could become controlled, there's a natural tendency to stuff core app behavior into the controller and then try to "block" until the controller is installed. This isn't webby and it's not a good user experience. And given that there's no obvious way to synchronize on controller installation gracefully, the patterns that would emerge are ghastly even to think about.
 
@@ -516,6 +518,8 @@ FIXME(slightlyoff): cover messaging:
 -->
 
 ## Cross-Origin Controllers And Resources
+
+Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to make your
 
 ### `importScripts()` and 3rd-party Routers
 
