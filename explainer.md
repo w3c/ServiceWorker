@@ -430,14 +430,14 @@ happens outside of the "controlled" world, for better and for worse.
 
 #### Last-Registration-Wins
 
-The registration system is also last-registraion-wins. That means if two pages
-on `www.example.com` set a registration to control `/*`, the one a user vists
+The registration system is also last-registration-wins. That means if two pages
+on `www.example.com` set a registration to control `/*`, the one a user visits
 second (assuming the first doesn't interfere) will be installed and over-write
 the previous registration.
 
 This makes sense because registration is the same as replacement. That is to
 say, if you have content that wants to replace the existing controller with one
-at a different URL (perhaps a heavy-handed form of "new version"), registring
+at a different URL (perhaps a heavy-handed form of "new version"), registering
 the new URL is the way that you indicate that the old registration is no longer
 the preferred one.
 
@@ -456,7 +456,7 @@ developers expend great care when working to compose HTML, CSS, and scripts that
 can be distributed to CDNs and perform well.
 
 A major challenge for developers attempting to bring web apps to the offline
-world has been the unfriendlyness of existing solutions to the workflow of "put
+world has been the unfriendliness of existing solutions to the workflow of "put
 things on disk, visit URL, hit ctrl-r". Navigation Controllers, in contrast,
 enable a straightforward model that gives developers explicit control over
 what/when/how to cache resources without adding layers of indirection which they
@@ -467,7 +467,7 @@ In fact, our first example controller, coupled with
 be all that's *technically* necessary to build a programmatic offline solution.
 It would, however, be a royal pain in the ass to use -- either because
 developers would need to make or find large-ish libraries to managed
-fetching/storing/retreiving resources or because XHR doesn't provie all the
+fetching/storing/retreiving resources or because XHR doesn't provide all the
 power that's strictly necessary.
 
 This is where the global `caches` map comes in. Each Controller has a global
@@ -479,16 +479,16 @@ network.
 _NOTE: You might know "Future" by the name "Promise". If not, see the [case for
 Futures in
 DOM](https://github.com/slightlyoff/DOMFuture/blob/master/README.md#futures-
-promises-i-dont-speak-your-crazy-moon-language) or an explination
+promises-i-dont-speak-your-crazy-moon-language) or an explanation
 [here](http://www.xanthir.com/b4PY0)._
 
 Using `Cache`s is perhaps simpler than talking about them, so here's some tiny
 example code that implements the `oninstall` event, starts populating a single
 `Cache` with content, and tells the system that the Controller is ready if-and-
-only-if all the ther esources in the cache are downloaded.
+only-if all the there resources in the cache are downloaded.
 
 ```js
-// chaching.js
+// caching.js
 this.version = 1;
 
 var base = "http://videos.example.com";
