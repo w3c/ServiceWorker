@@ -347,7 +347,7 @@ back to the browser's built-in network behavior.
 
 It's important to understand that `navigator.controller.register()` _only
 affects navigations_. Lets imagine for just a minute that we have a server that
-will hand back HTML or JSON for a given URL depending on wether the query
+will hand back HTML or JSON for a given URL depending on whether the query
 parameter `?json=1` is included. Lets say this resource is hosted at
 `http://www.example.com/services/data`.
 
@@ -399,7 +399,7 @@ for longest-prefix, an instance of `/services/data/ctrl.js` is started and a
 single `onfetch` is dispatched ot it. The script loading, on the other hand, is
 a sub-resource request and not a navigation, so it's send to the instance of
 `/ctrl.js` that was started when the user initially navigated to
-`http://www.example.com/index.html`, either by typing it into the addres bar or
+`http://www.example.com/index.html`, either by typing it into the address bar or
 clicking on a link that took them there. Since resource requests (not
 navigations) are always sent to the controller for the document it is issued
 from, and since documents always map to the controllers they're born with, our
@@ -409,7 +409,7 @@ script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
   Add a graphic here to explain the fetching/matching
 -->
 
-#### Controllers Do Not Controll Requests For Controllers
+#### Controllers Do Not Control Requests For Controllers
 
 At this point it might seem as though a bit of script executing a registration
 from a page that is itself controlled might generate a sub-resource request for
