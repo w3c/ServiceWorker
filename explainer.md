@@ -118,12 +118,14 @@ Before we get into the nitty-gritty of controllers, a few things to keep in mind
 
 That's right, the browser might uncerimonously kill your Controller if it's idle, or even stop it mid-work and re-issue the request to a different instance of the controller. There are zero gaurantees about how long a Controller will run. That means that all Controller scripts must be written in such a way as to avoid holding lots of global state. This simply can't be stressed enough: _write your controllers as though they expect to die after every request, only to be revived for the next one_.
 
-Lastly, remember that _Navigation Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document can talk to an instance of a controller. If you need to care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like IndexedDB.
+Also, remember that _Navigation Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document can talk to an instance of a controller. If you need to care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like IndexedDB.
 
 This pattern should be familiar if you've developed content servers using
 Django, Rails, Java, Node etc. A single instance handles connections from many
-clients (documents in our case) but data persistance is handled by something
+clients (documents in our case) but data persistence is handled by something
 else, typically a database.
+
+Lastly, this might seem obvious, but if syntax errors prevent running a controller script, or if an exception is thrown in the event handler, the controller won't be considered successfully installed and won't be used on subsequent navigations. It pays to lint and test.
 
 ### Resources vs. Navigations
 
@@ -153,7 +155,7 @@ The `type` attribute is a string that can be either `"navigate"` or `"fetch"`. N
 
 Now that we've started to talks about iframes, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a controller using `navigator.controller.register("/*", "/ctrl.js")`?
 
-`video.example.com` and `www.example.net` are clearly different domains...should the controller for `video.example.com` get a crack at it? Because the web's same-origin security model gaurantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
+`video.example.com` and `www.example.net` are clearly different domains...should the controller for `video.example.com` get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
 What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the controller located at `http://www.example.net/ctrl.js`. The document on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
 
@@ -519,13 +521,60 @@ FIXME(slightlyoff): cover messaging:
 
 ## Cross-Origin Controllers And Resources
 
-Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to make your
+Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound, to say nothing of being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
 
-### `importScripts()` and 3rd-party Routers
+One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Can Navigation Controllers be hosted on CDNs?
 
-## Acknowledgements
+Yes!
+
+Turns out that controllers act like regular `<script>` includes for most origin-related purposes: they can be hosted elsewhere but run in the context of the domain that they are included with. Unlike normal scripts, there's no document to tie the Controller's domain to, but all `navigator.controller.register()` calls happen in the context of some domain, and *that* is the domain that the registered controller will be executed in -- even if it's hosted someplace else entirely.
+
+Lets make it concrete. Imagine a generic controller that both `evil.com` and `good.com` want to use. There's no problem at all with them both serving a page that includes:
+
+```html
+<!DOCTYPE html>
+<!-- served at both:
+  http://good.com/app.html
+  http://evil.com/bad.html
+-->
+<html>
+  <head>
+    <script>
+      navigator.controller.register("/*", "http://cdn.exmaple.com/ctrl.js");
+    </script>
+  </head>
+</html>
+```
+
+Second navigations to each URL will result in `ctrl.js` being executed, but in the context of `good.com` and `evil.com` respectively. Nothing is shared between them and they update independently. The rule to remember then is:
+
+> Controllers run in the domain they're registered from.
+
+Third-party cached resources are another interesting area. What if we want to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
+
+Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items so long as they are enabled for it via CORS. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stores are `CrossOriginResponse` instances. These provide a much less expressive API; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. This flexibility, albiet restricted, allows applications to avoid re-architecting in most cases.
+
+### `importScripts()` & 3rd-party Routers
+
+Thus far all examples have used `this.addEventListener("fetch", ...)` instead of the perhaps more direct `this.onfetch = ...` syntax. The later is clearly exclusive while the former isn't. So what happens if we have multiple listeners registered?
+
+Turns out allowing multiple handlers is a feature, not a bug. It enables bits of the overall application to be handled by different handlers.
+
+In `onfetch`, `e.respondWith()` and `e.forwardTo()` behave as though [`e.stopImmediatePropigation()`](https://developer.mozilla.org/en-US/docs/DOM/event.stopImmediatePropagation) has been called, meaning the first handler to respond wins.
+
+In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure that the overall operation isn't considered a success until _all_ the passed `Future`s are resolved successfully.
+
+This all becomes more relevant when you consider that Navigation Controllers support the general Web Worker API [`importScripts()`](https://developer.mozilla.org/en-US/docs/DOM/Worker/Functions_available_to_workers#Worker-specific_functions). It's important to note that _only the scripts that have been imported the first time the worker is run will be cached along side it by the browser_. The upside is that imported scripts _will_ be downloaded and cached alongside the main controller script.
+
+What does that imply? Lots of good stuff. First, Controllers can import libraries from elsewhere, including other origins and CDNs. Next, Since these scripts can register their own handlers, they can manage bits of the world that they are written to. For instance, a Controller can include the Controller bit for a third-party set of widgets or analytics without worrying about the details of the URLs they manage or need.
+
+## Conclusion
+
+This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. Nor does it cover what will likley emerge as best practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
+
+## Acknowledgments
 
 <!-- TODO: add others who provide feedback! -->
 
-Many thanks to Jake (a.k.a: "B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Chris Wilson, and  for their comments and contributions to this document and to the discussions that have informed it.
+Many thanks to Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Chris Wilson, and  for their comments and contributions to this document and to the discussions that have informed it.
 
