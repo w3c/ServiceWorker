@@ -145,13 +145,12 @@ this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   console.log(url);
   if (url == inventory) {
-    var inventoryResponse = new SameOriginResponse({
+    e.respondWith(new SameOriginResponse({
       statusCode: 200,
       body: JSON.stringify({
         videos: { /* ... */ }
       })
-    });
-    e.respondWith(inventoryResponse);
+    }));
   }
 });
 ```
