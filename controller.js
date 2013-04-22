@@ -70,17 +70,17 @@ var Response = (function () {
     }
     return Response;
 })();
-var CORSCrossOriginResponse = (function (_super) {
-    __extends(CORSCrossOriginResponse, _super);
-    function CORSCrossOriginResponse() {
+var CrossOriginResponse = (function (_super) {
+    __extends(CrossOriginResponse, _super);
+    function CrossOriginResponse() {
         _super.apply(this, arguments);
 
     }
-    return CORSCrossOriginResponse;
+    return CrossOriginResponse;
 })(Response);
-var CORSSameOriginResponse = (function (_super) {
-    __extends(CORSSameOriginResponse, _super);
-    function CORSSameOriginResponse(params) {
+var SameOriginResponse = (function (_super) {
+    __extends(SameOriginResponse, _super);
+    function SameOriginResponse(params) {
         if(params) {
             if(typeof params.statusCode != "undefined") {
                 this.statusCode = params.statusCode;
@@ -103,7 +103,7 @@ var CORSSameOriginResponse = (function (_super) {
         }
         _super.call(this);
     }
-    Object.defineProperty(CORSSameOriginResponse.prototype, "headers", {
+    Object.defineProperty(SameOriginResponse.prototype, "headers", {
         get: function () {
             return this._headers;
         },
@@ -126,7 +126,7 @@ var CORSSameOriginResponse = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    return CORSSameOriginResponse;
+    return SameOriginResponse;
 })(Response);
 var ResponseFuture = (function (_super) {
     __extends(ResponseFuture, _super);
@@ -170,7 +170,7 @@ var FetchEvent = (function (_super) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
         return new Future(function (resolver) {
-            var r = new CORSSameOriginResponse();
+            var r = new SameOriginResponse();
             r.statusCode = 302;
             r.headers.set("Location", url.toString());
             resolver.resolve(r);

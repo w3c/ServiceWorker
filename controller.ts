@@ -287,7 +287,7 @@ class FetchEvent extends _Event {
   type: string = "navigate";
 
   // The window issuing the request.
-  window: any;
+  window: any; // FIXME: should this also have an ID for easier use in ES5?
 
   // Informs the Controller wether or not the request corresponds to navigation
   // of the top-level window, e.g. reloading a tab or typing a URL into the URL
@@ -319,7 +319,7 @@ class FetchEvent extends _Event {
     }
 
     return new Future(function(resolver){
-      var r = new CORSSameOriginResponse();
+      var r = new SameOriginResponse();
       r.statusCode = 302;
       r.headers.set("Location", url.toString());
       resolver.resolve(r);
@@ -384,6 +384,7 @@ class Cache {
   // Cribbed from Mozilla's proposal, but with sane returns
   add(...response:string[]) : Future;
   add(...response:URL[]) : Future;
+  // FIXME: Response instances don't have URLs!
   add(...response:Response[]) : Future;
   add(...response:any[]) : Future {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
@@ -393,6 +394,7 @@ class Cache {
 
   remove(...response:string[]) : Future;
   remove(...response:URL[]) : Future;
+  // FIXME: Response instances don't have URLs!
   remove(...response:Response[]) : Future;
   remove(...response:any[]) : Future {
     // FIXME: does this need to be async?
