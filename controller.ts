@@ -43,15 +43,8 @@ navigator.controller = {
 ////////////////////////////////////////////////////////////////////////////////
 // The Controller
 ////////////////////////////////////////////////////////////////////////////////
-
-class InstalledEvent extends _Event {
-  previousVersion: string = "";
-  previous: MessagePort = null;
-
-  // Ensures that the controller is used in place of existing controllers for
-  // the currently controlled set of window instances.
-  replace(): void {}
-
+class InstallPhaseEvent extends _Event {
+  previousVersion: any = 0;
   // Delay treating the installing controller until the passed Future resolves
   // successfully. This is primarlialy used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
@@ -59,7 +52,16 @@ class InstalledEvent extends _Event {
   waitUntil(f: Future): Future { return accepted(); }
 }
 
+class InstalledEvent extends InstallPhaseEvent {
+  previous: MessagePort = null;
+
+  // Ensures that the controller is used in place of existing controllers for
+  // the currently controlled set of window instances.
+  replace(): void {}  
+}
+
 interface InstalledEventHandler { (e:InstalledEvent); }
+interface ActivateEventHandler { (e:InstallPhaseEvent); }
 class ReplacedEvent extends _Event {}
 interface ReplacedEventHandler { (e:ReplacedEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
@@ -97,9 +99,8 @@ class ControllerScope extends SharedWorker {
   // navigations.
   oninstalled: InstalledEventHandler;
 
-  // FIXME(slightlyoff): do we need an "onselected" that happens before the
-  // first request is serviced? Else onfetch might bear too much of the brunt
-  // for "do ephermeral upgrade work" in the wait-for-restart case.
+  // Called when a controller becomes the active controller for a mapping
+  onactivate: ActivateEventHandler,
 
   // Called when an updated controller verion decides that it wants to take over
   // responsibility for the windows this controller is associated with via
