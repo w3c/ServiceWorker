@@ -484,3 +484,17 @@ class AsyncMap {
 
 var _useControllerResponse = function() {};
 var _defaultToBrowserHTTP = function() {};
+
+interface NavigatorController {
+  controller: Object;
+}
+
+interface Navigator extends NavigatorController,
+  NavigatorID,
+  NavigatorOnLine,
+  NavigatorDoNotTrack,
+  NavigatorAbilities,
+  NavigatorGeolocation,
+  MSNavigatorAbilities {
+
+}
