@@ -420,14 +420,13 @@ as "naked" fetches against the browser's default HTTP behavior.
 
 A minor caveat is that Navigation Controller scripts are never [heuristically
 cached](http://www-archive.mozilla.org/projects/netlib/http/http-caching-
-faq.html) and browsers automatically check for updated versions of controllers
-via HTTP a minimum of once every 24 hours. But those features only ensure that
-apps can't screw themselves over with one ill- placed `Expires` header. If the
-browser checks for an updated version and doesn't find anything different (i.e.,
-they're the same bytes) or can't fetch it at all for some reason (an HTTP error
-code), nothing happens. If an updated version is found, the upgrade process is
-started (see below). All of this happens outside of the "controlled" world, for
-better and for worse.
+faq.html) and when updated are assumed stale if last fetched over 24 hours ago.
+But those features only ensure that apps can't screw themselves over with one
+ill-placed `Expires` header. If the browser checks for an updated version and
+doesn't find anything different (i.e., they're the same bytes) or can't fetch
+it at all for some reason (an HTTP error code), nothing happens. If an updated
+version is found, the upgrade process is started (see below). All of this
+happens outside of the "controlled" world, for better and for worse.
 
 #### Last-Registration-Wins
 
