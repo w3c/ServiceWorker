@@ -339,6 +339,10 @@ following matches would be made when navigating to the following URLs under
 -- the thing controllers defer to when they don't handle a fetch with
 `e.respondWith()`.
 
+Note: if `e.respondWith()` isn't called when handling a connection in
+`/foo/barController.js`, it does not cascade to `/fooController.js`, it falls
+back to the browser's built-in network behavior.
+
 #### Registrations Map Navigations, Documents Map Fetches
 
 It's important to understand that `navigator.controller.register()` _only
