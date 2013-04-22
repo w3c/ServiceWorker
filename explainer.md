@@ -239,10 +239,9 @@ this.addEventListener("fetch", function(e) {
 The `type` attribute is a string that can be either `"navigate"` or `"fetch"`.
 Navigations happen any time a resource request corresponds to the location of a
 document changing. Note that in the first draft of this spec, this doesn't
-include "internal" navigations such as hash-change events, but most link clicks
-and assigments to `window.location` will create `"navigate"` fetches. This is
-true for iframes as well as for top-level documents, so the `isTopLevel` flag
-helps us distinguish between them.
+include "internal" navigations such as hash-change events, only navigations
+that require an http(s) response. This is true for iframes as well as for
+top-level documents, so the `isTopLevel` flag helps us distinguish between them.
 
 ### URLs, Domains, and Registrations
 
