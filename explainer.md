@@ -231,7 +231,7 @@ version would look:
 // top-level-only-controller.js
 this.addEventListener("fetch", function(e) {
   if (e.type == "navigate" && e.isTopLevel == true) {
-    e.respondWith(...);
+    e.respondWith( /* ... */ );
   }
 });
 ```
