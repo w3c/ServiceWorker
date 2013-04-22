@@ -502,7 +502,7 @@ this.addEventListener("install", function(e) {
   );
 
   // Add Cache to the global so it can be used later during onfetch
-  this.caches.set("v1 shell resources", shellResources);
+  this.caches.set("shell-v1", shellResources);
 
   // The coast is only clear when all the resources are ready.
   e.waitUntil(shellResources.ready());
