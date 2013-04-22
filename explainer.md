@@ -713,6 +713,7 @@ this.addEventListener("install", function(e) {
   // Add Cache to the global so it can be used later during onfetch
   this.caches.set(shellCacheName, shellResources);
 
+  // Prepare an additional cache that we can add items to later
   if (!this.caches.has(contentCacheName)) {
     this.caches.set(contentCacheName, new Cache());
   }
@@ -723,6 +724,8 @@ this.addEventListener("install", function(e) {
   // If and only if we're less than one major version ahead, cut-in and start
   // serving resources.
   if (parseInt(e.previousVersion) == parseInt(this.version)) {
+    // Note: replacement won't happen until the future passed to
+    // e.waitUntil resolves
     e.replace();
   }
 });
