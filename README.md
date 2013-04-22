@@ -152,5 +152,5 @@ Building:
 
 ```sh
 # From the root of the project directory
-./build.sh
+make
 ```
