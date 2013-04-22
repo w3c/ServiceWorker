@@ -741,7 +741,9 @@ obviously, not to make it something that can't be cloned or which varies.
 
 What of the old controller? What happens to it?
 
+The upgrade dance isn't unilatteral. In most cases it's a good idea for the old version to do whatever cleanup it might want to do before handing the reigns to the new whippersnapper. Since replacement is a bit more hairy than wait-for-restart, a separate `onreplaced` event is sent to controllers that are about to be replaced.
 
+In all cases, the replacing controller can send a message to the old contorller in `oninstalled` using `e.previous.postMessage()`. This can blossom into a bi-directional discussion if both sides [have registered `onmessage` handlers](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage), but that's out of the scope of this document for now.
 
 ### On Sane Versioning
 
