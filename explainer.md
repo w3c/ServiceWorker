@@ -34,6 +34,7 @@ Navigation Controllers are installed by web pages. A user must visit a page or a
         function(controller) {
           console.log("success!");
           controller.postMessage("Howdy from your installing page.");
+          // To use the controller immediately, you might call window.location.reload()
         },
         function(why) {
           console.error("Installing the controller failed!:", why);
@@ -51,7 +52,7 @@ Navigation Controllers are installed by web pages. A user must visit a page or a
 
 The controller itself is a bit of JavaScript that runs in a context that's very much like a [shared worker](http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers "HTML5 Shared Workers").
 
-The browser now attempts to download and "install" `ctrl.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection is offline. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
+The browser now attempts to download and "install" `ctrl.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
 
 ### Controlled vs. Uncontrolled Documents
 
@@ -71,7 +72,7 @@ This is good for a couple of important reasons:
 
 ## A Quick Game of `onfetch`
 
-Navigation Controllers, once installed, can choose to handle resource loading. Before going to the normal HTTP cache, a controller is consulted for each request generated for a document, including the initial document payload itself.
+Navigation Controllers, once installed, can choose to handle resource loading. Before going to the network, a Controller is consulted for each request generated for a document, including the initial document payload itself.
 
 Here's an example of a controller that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
@@ -138,7 +139,7 @@ document and an `<iframe>`?
 
 A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a Navigation Controller is only natural.
 
-Lets say we want a controller that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's the most minimal version would look:
+Lets say we want a controller that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
 
 ```js
 // top-level-only-controller.js
@@ -153,11 +154,11 @@ The `type` attribute is a string that can be either `"navigate"` or `"fetch"`. N
 
 ### URLs, Domains, and Registrations
 
-Now that we've started to talks about iframes, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a controller using `navigator.controller.register("/*", "/ctrl.js")`?
+Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a controller using `navigator.controller.register("/*", "/ctrl.js")`?
 
 `video.example.com` and `www.example.net` are clearly different domains...should the controller for `video.example.com` get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
-What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the controller located at `http://www.example.net/ctrl.js`. The document on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
+What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the controller located at `http://www.example.net/ctrl.js`. The document on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
 
 Another interesting question: what happens if there are two registrations that might match?
 
@@ -260,7 +261,7 @@ What happens when we visit `http://www.example.com/index.html` that includes:
 
 Assuming a user visits them in order and both controllers install successfully, what happens the next time that user visits `/index.html`? What controller is invoked for `/services/data?json=1`?
 
-The answer hinges on how requests map to controllers. The second rule of Navigation Controllers is:
+The answer hinges on how requests map to controllers. The third rule of Navigation Controllers is:
 
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ controller.
@@ -330,7 +331,7 @@ Now that we've got some resources in a cache, what can we do with 'em?
 Most of the Navigation Controller interfaces that can take `Response` instances are designed to also work with `Future`s that wrap `Response`s. Here's an expanded version of `caching.js` that adds an `onfetch` handler to serve the URLs in question:
 
 ```js
-// chaching.js
+// caching.js
 this.version = 1;
 
 this.addEventListener("install", function(e) {
@@ -388,9 +389,9 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-The important thing to note is that redirects behave the way they would as if the browser had requested second resource. That is to say, if it's a top-level navigation and a Controller redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the controller again.
+The important thing to note is that redirects behave the way they would as if the browser had requested the second resource directly. That is to say, if it's a top-level navigation and a Controller redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the controller again.
 
-But wait, doesn't this open up the potential for a loop? It does, but this is a case browsers already detect and terminate fetching for. The same will happen to your requests should you create a loop.
+But wait, doesn't this open up the potential for a loop? It does, but this is a case browsers already detect and handle by terminating the loop after some number of iterations. The same will happen to your requests should you create a loop.
 
 <!-- FIXME(slightlyoff):
   Add a graphic here to show circular fetching and off-domain navigation
@@ -399,7 +400,7 @@ But wait, doesn't this open up the potential for a loop? It does, but this is a 
 
 ### Fallback Content & Offline
 
-<!-- TODO(slightlyoff) -->
+TODO(slightlyoff)
 
 ## Controller Installation & Upgrade
 
@@ -540,27 +541,27 @@ Lets make it concrete. Imagine a generic controller that both `evil.com` and `go
 <html>
   <head>
     <script>
-      navigator.controller.register("/*", "http://cdn.exmaple.com/ctrl.js");
+      navigator.controller.register("/*", "http://cdn.example.com/ctrl.js");
     </script>
   </head>
 </html>
 ```
 
-Second navigations to each URL will result in `ctrl.js` being executed, but in the context of `good.com` and `evil.com` respectively. Nothing is shared between them and they update independently. The rule to remember then is:
+Subsequent navigations to each URL will result in `ctrl.js` being executed, but in the context of `good.com` and `evil.com` respectively. Nothing is shared between them and they update independently. The fourth Rule of Navigation Controllers, then, is that:
 
 > Controllers run in the domain they're registered from.
 
 Third-party cached resources are another interesting area. What if we want to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
 
-Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items so long as they are enabled for it via CORS. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stores are `CrossOriginResponse` instances. These provide a much less expressive API; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. This flexibility, albiet restricted, allows applications to avoid re-architecting in most cases.
+Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items so long as they are enabled for it via CORS. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stored are `Future`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
 
 ### `importScripts()` & 3rd-party Routers
 
-Thus far all examples have used `this.addEventListener("fetch", ...)` instead of the perhaps more direct `this.onfetch = ...` syntax. The later is clearly exclusive while the former isn't. So what happens if we have multiple listeners registered?
+Thus far all examples have used `this.addEventListener("fetch", ...)` instead of the perhaps more direct `this.onfetch = ...` syntax. The latter is clearly exclusive while the former isn't. So what happens if we have multiple listeners registered?
 
 Turns out allowing multiple handlers is a feature, not a bug. It enables bits of the overall application to be handled by different handlers.
 
-In `onfetch`, `e.respondWith()` and `e.forwardTo()` behave as though [`e.stopImmediatePropigation()`](https://developer.mozilla.org/en-US/docs/DOM/event.stopImmediatePropagation) has been called, meaning the first handler to respond wins.
+In `onfetch`, `e.respondWith()` and `e.forwardTo()` behave as though [`e.stopImmediatePropagation()`](https://developer.mozilla.org/en-US/docs/DOM/event.stopImmediatePropagation) has been called, meaning the first handler to respond wins.
 
 In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure that the overall operation isn't considered a success until _all_ the passed `Future`s are resolved successfully.
 
@@ -570,11 +571,11 @@ What does that imply? Lots of good stuff. First, Controllers can import librarie
 
 ## Conclusion
 
-This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. Nor does it cover what will likley emerge as best practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
+This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
 
 ## Acknowledgments
 
 <!-- TODO: add others who provide feedback! -->
 
-Many thanks to Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Chris Wilson, and  for their comments and contributions to this document and to the discussions that have informed it.
+Many thanks to Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Chris Wilson, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
 
