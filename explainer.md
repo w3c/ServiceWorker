@@ -694,12 +694,11 @@ the versions to ensure that they aren't so far apart that stepping in would
 break things. Here we'll consider v1.3 vs. v1.0:
 
 ```js
-// chaching.js
+// caching.js
 this.version = 1.3;
 
-var base = "http://videos.example.com";
-var assetBase = base + "/assets/v" + parseInt(this.version) + "/";
-var shellCacheName = parseInt(this.version) + " shell resources";
+var assetBase = "/assets/v" + parseInt(this.version) + "/";
+var shellCacheName = "shell-v" + parseInt(this.version);
 var contentCacheName = "content";
 
 this.addEventListener("install", function(e) {
