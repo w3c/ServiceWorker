@@ -261,7 +261,7 @@ The answer hinges on how requests map to controllers. The second rule of Navigat
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ controller.
 
-Looking back at our `index.html`, we see two different request types: a navigation for an iframe and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched ot it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there. Since resource requests (not navigations) are always sent to the controller for the document it is issued from, and since documents always map to the controllers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
+Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched ot it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there. Since resource requests (not navigations) are always sent to the controller for the document it is issued from, and since documents always map to the controllers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
 
 <!-- FIXME(slightlyoff):
   Add a graphic here to explain the fetching/matching
@@ -486,9 +486,9 @@ The `previousVersion` field of the event is filled in using a [structured clone]
 
 What of the old controller? What happens to it?
 
-The upgrade dance isn't unilatteral. In most cases it's a good idea for the old version to do whatever cleanup it might want to do before handing the reigns to the new whippersnapper. Since replacement is a bit more hairy than wait-for-restart, a separate `onreplaced` event is sent to controllers that are about to be replaced.
+The upgrade dance isn't unilateral. In most cases it's a good idea for the old version to do whatever cleanup it might want to do before handing the reigns to the new whippersnapper. Since replacement is a bit more hairy than wait-for-restart, a separate `onreplaced` event is sent to controllers that are about to be replaced.
 
-In all cases, the replacing controller can send a message to the old contorller in `oninstalled` using `e.previous.postMessage()`. This can blossom into a bi-directional discussion if both sides [have registered `onmessage` handlers](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage), but that's out of the scope of this document for now.
+In all cases, the replacing controller can send a message to the old controller in `oninstalled` using `e.previous.postMessage()`. This can blossom into a bi-directional discussion if both sides [have registered `onmessage` handlers](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage), but that's out of the scope of this document for now.
 
 ### On Sane Versioning
 
