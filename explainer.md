@@ -445,7 +445,9 @@ When v2 *does* become the active controller, another event -- `onactivate` -- is
 
 An alternative policy is available for the daring: a new controller can choose to cut-in and replace an existing one. And before you ask, yes, this does break the first rule. But not much.
 
-To replace an existing controller, use the `.replace()` method of the `oninstall` event during the event dispatch. In this example, we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things. Here we'll consider v1.3 vs. v1.0:
+To replace an existing controller, use the `.replace()` method of the `oninstall` event during the event dispatch. In fact, you can even call `.replace()` on the very first install of a controller, which will now make your controller the proud owner of all windows/tabs whose URLs match the registration origin and scope -- including the page that registered it.
+
+Lets clarify with an example: here we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things; leaving the old controller in place if the version skew is too great and taking over if it's a difference our new version is confident it can handle. Consider v1.3 vs. v1.0:
 
 ```js
 // caching.js
