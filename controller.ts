@@ -145,8 +145,10 @@ class Response {
 }
 
 class CrossOriginResponse extends Response {
-  // This class represents the result of cross-origin fetched resources that are tainted,
-  // such as <img src=http://cross-origin.example/test.png>
+  // This class represents the result of cross-origin fetched resources that are
+  // tainted, e.g. <img src="http://cross-origin.example/test.png">
+
+  // TODO: slightlyoff: make CORS headers readable but not setable?
 }
 
 class SameOriginResponse extends Response {
