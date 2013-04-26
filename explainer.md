@@ -1,8 +1,20 @@
+<!-- TODO(slightlyoff)
+  - Cover cache updating and controller caching
+  - Add a way to default-to-network in the API. Perhaps respondWith() without arguments?
+-->
 <h2>Navigation Controllers Explained</h2>
 
 <!-- patterned after:
 https://dvcs.w3.org/hg/webcomponents/raw-file/d7d1b718de45/explainer/index.html
 -->
+
+## What's All This Then?
+
+Navigation Controllers are a new feature for the web platform that lets a script persistently cache resources and handle all resource requests for an application -- even when the network isn't available. Putting it all together, Navigation Controllers give you a way to build applications that work offline.
+
+You might now be thinking "yeah, but what about the [HTML5 Application Cache (aka "AppCache")](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html)"...didn't it solve this? Good question. AppCache is declarative -- you give the browser a manifest and magic happens. This has [well-documented limitations](http://alistapart.com/article/application-cache-is-a-douchebag) that Navigation Controllers work around by giving developers the lower-level primitives that AppCache might be described in terms of. Navigation Controllers, then, are the explanation for the magic of AppCache.
+
+This document is designed to help you understand the basic concepts of Navigation Controllers, how they interact, and how to start thinking about building apps with them in mind.
 
 ## From Pages to Apps
 
@@ -304,14 +316,15 @@ Using `Cache`s is perhaps simpler than talking about them, so here's some tiny e
 // caching.js
 this.version = 1;
 
+var base = "http://videos.example.com";
 this.addEventListener("install", function(e) {
   // Create a cache of resources. Begins the process of fetching them.
   // URLs are relative to the controller
   var shellResources = new Cache(
-    "/assets/v1/base.css",
-    "/assets/v1/app.js",
-    "/assets/v1/logo.png",
-    "/assets/v1/intro_video.webm",
+    base + "/assets/v1/base.css",
+    base + "/assets/v1/app.js",
+    base + "/assets/v1/logo.png",
+    base + "/assets/v1/intro_video.webm",
   );
 
   // Add Cache to the global so it can be used later during onfetch
@@ -397,10 +410,6 @@ But wait, doesn't this open up the potential for a loop? It does, but this is a 
   Add a graphic here to show circular fetching and off-domain navigation
   redirects
 -->
-
-### Fallback Content & Offline
-
-TODO(slightlyoff)
 
 ## Controller Installation & Upgrade
 
@@ -573,9 +582,9 @@ This all becomes more relevant when you consider that Navigation Controllers sup
 
 What does that imply? Lots of good stuff. First, Controllers can import libraries from elsewhere, including other origins and CDNs. Next, Since these scripts can register their own handlers, they can manage bits of the world that they are written to. For instance, a Controller can include the Controller bit for a third-party set of widgets or analytics without worrying about the details of the URLs they manage or need.
 
-## Conclusion
+## Conclusions
 
-This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
+This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. If you have more questions, they might be asnwered in the [Advanced Topics Explainer](advanced_topics.md). Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
 
 ## Acknowledgments
 
