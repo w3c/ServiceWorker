@@ -66,7 +66,7 @@ The controller itself is a bit of JavaScript that runs in a context that's very 
 
 The browser now attempts to download and "install" `ctrl.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
 
-### Controlled vs. Uncontrolled Documents
+### Controlled & Uncontrolled Documents
 
 The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `ctrl.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new controller script won't be consulted about loading `logo.png`. This is down to the first rule of Navigation Controllers:
 
@@ -133,21 +133,13 @@ That's right, the browser might uncerimonously kill your Controller if it's idle
 
 Also, remember that _Navigation Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document can talk to an instance of a controller. If you need to care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like IndexedDB.
 
-This pattern should be familiar if you've developed content servers using
-Django, Rails, Java, Node etc. A single instance handles connections from many
-clients (documents in our case) but data persistence is handled by something
-else, typically a database.
+This pattern should be familiar if you've developed content servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
 
 Lastly, this might seem obvious, but if syntax errors prevent running a controller script, or if an exception is thrown in the event handler, the controller won't be considered successfully installed and won't be used on subsequent navigations. It pays to lint and test.
 
-### Resources vs. Navigations
+### Resources & Navigations
 
-Since loading documents and apps on the web boils down to an [HTTP
-request](http://shop.oreilly.com/product/9781565925090.do) the same way that any
-other sort of resource loading does, an interesting question arises: how do we
-distingiush loading a document from loading, say, an image or a CSS file that's
-a sub-resource for a document? And how can we distinguish between a top-level
-document and an `<iframe>`?
+Since loading documents and apps on the web boils down to an [HTTP request](http://shop.oreilly.com/product/9781565925090.do) the same way that any other sort of resource loading does, an interesting question arises: how do we distingiush loading a document from loading, say, an image or a CSS file that's a sub-resource for a document? And how can we distinguish between a top-level document and an `<iframe>`?
 
 A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a Navigation Controller is only natural.
 
@@ -402,7 +394,7 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-The important thing to note is that redirects behave the way they would as if the browser had requested the second resource directly. That is to say, if it's a top-level navigation and a Controller redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the controller again.
+The important thing to note is that redirects behave the way they would as if a server had responded with a redirect: the browser will fetch the second resource directly as though it were creating a new request from the new URL. That is to say, if it's a top-level navigation and a Controller redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the controller again.
 
 But wait, doesn't this open up the potential for a loop? It does, but this is a case browsers already detect and handle by terminating the loop after some number of iterations. The same will happen to your requests should you create a loop.
 
@@ -410,6 +402,36 @@ But wait, doesn't this open up the potential for a loop? It does, but this is a 
   Add a graphic here to show circular fetching and off-domain navigation
   redirects
 -->
+
+### Offline & Fallback Content
+
+So now we've got a mechanism to cache things and a way to serve up those cached resources without any server requests...heeeeeey...wait a minute! That sounds like offline!
+
+_Indeed_
+
+Navigation Controllers get first crack at requests, so if an app caches its "shell" (the stuff needed to bootstrap enough UI for navigating content), it's possible to make offline apps using Navigation Controllers. More excitingly still, offline support just sort of falls out of the system naturally. Building Navigation Controller-based apps inverts the model: apps don't have to care about "offline" independently of "just building the app". Cached resources can be used instead of going to the network _all_ the time.
+
+But what to do when some content isn't available? Assume for a second that the video app is loaded and the user tries to visit a library of videos for sale or download -- a list that's far too big and dynamic to reasonably cache client-side, to say nothing of the videos themselves. How do we fallback gracefully and provide a "library not available when offline" message to users?
+
+The error handler in our response `Future` holds the key:
+
+```js
+var base = "http://videos.example.com";
+var inventory = new URL("/services/inventory/data.json", base);
+var fallbackInventory = new URL("/assets/v1/inventory_fallback.json", base);
+var shellResources = this.caches.get("shell-v1");
+
+// ...
+
+this.addEventListener("fetch", function(e) {
+  var url = e.request.url;
+  if (url.toString() == inventoryURL.toString()) {
+    e.respondWith(networkFetch(url).catch(
+      shellResources.match.bind(shellResources, fallbackInventory)
+    ));
+  }
+});
+```
 
 ## Controller Installation & Upgrade
 
