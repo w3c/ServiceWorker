@@ -113,6 +113,8 @@ class ControllerScope extends SharedWorker {
   // request.
   onfetch: FetchEventHandler;
 
+  // TODO: cache eviction events
+
   networkFetch(url?) : Future {
     return new Future(function(r) {
       r.resolve(_defaultToBrowserHTTP(url));
