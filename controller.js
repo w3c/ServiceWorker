@@ -61,6 +61,11 @@ var ControllerScope = (function (_super) {
         enumerable: true,
         configurable: true
     });
+    ControllerScope.prototype.networkFetch = function (url) {
+        return new Future(function (r) {
+            r.resolve(_defaultToBrowserHTTP(url));
+        });
+    };
     return ControllerScope;
 })(SharedWorker);
 var Request = (function () {
@@ -173,7 +178,7 @@ var FetchEvent = (function (_super) {
                 resolver.resolve(r);
             });
         }
-        r.then(_useControllerResponse, _defaultToBrowserHTTP);
+        r.done(_useControllerResponse, _defaultToBrowserHTTP);
     };
     FetchEvent.prototype.forwardTo = function (url) {
         if(!(url instanceof _URL) || typeof url != "string") {
@@ -373,6 +378,8 @@ var AsyncMap = (function () {
     return AsyncMap;
 })();
 var _useControllerResponse = function () {
+    return accepted();
 };
-var _defaultToBrowserHTTP = function () {
+var _defaultToBrowserHTTP = function (url) {
+    return accepted();
 };

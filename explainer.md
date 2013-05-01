@@ -98,7 +98,7 @@ var inventory = new URL("/services/inventory/data.json", base);
 this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   console.log(url);
-  if (url == inventory) {
+  if (url.toString() == inventory.toString()) {
     e.respondWith(new SameOriginResponse({
       statusCode: 200,
       body: JSON.stringify({
@@ -389,7 +389,9 @@ Redirection is a fact of life in modern networks, so Navigation Controllers must
 
 ```js
 this.addEventListener("fetch", function(e) {
-  if (e.request.url == oldURL) { e.forwardTo(newURL); }
+  if (e.request.url.toString() == oldURL.toString()) {
+    e.forwardTo(newURL);
+  }
   // ...
 });
 ```

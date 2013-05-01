@@ -111,6 +111,12 @@ class ControllerScope extends SharedWorker {
   // request.
   onfetch: FetchEventHandler;
 
+  networkFetch(url?) : Future {
+    return new Future(function(r) {
+      r.resolve(_defaultToBrowserHTTP(url));
+    });
+  }
+
   constructor(url: string, upgrading: Boolean) {
     // Execute user-provided code in this context via super
     super(url);
@@ -238,7 +244,7 @@ class FetchEvent extends _Event {
     if (r instanceof Response) {
       r = new Future(function(resolver) { resolver.resolve(r); });
     }
-    r.then(_useControllerResponse,
+    r.done(_useControllerResponse,
            _defaultToBrowserHTTP);
   }
 
@@ -489,8 +495,8 @@ class AsyncMap {
   values(): Future { return accepted(); }
 }
 
-var _useControllerResponse = function() {};
-var _defaultToBrowserHTTP = function() {};
+var _useControllerResponse = function() : Future { return accepted(); };
+var _defaultToBrowserHTTP = function(url?) : Future { return accepted(); };
 
 interface NavigatorController {
   controller: Object;
