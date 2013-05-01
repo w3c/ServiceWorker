@@ -253,6 +253,43 @@ var CacheList = (function (_super) {
     };
     return CacheList;
 })(Map);
+var StaticRouter = (function (_super) {
+    __extends(StaticRouter, _super);
+    function StaticRouter() {
+        _super.apply(this, arguments);
+
+    }
+    StaticRouter.prototype.add = function (url, sources) {
+    };
+    StaticRouter.prototype.addCache = function (cache, fallbackSources) {
+    };
+    return StaticRouter;
+})(Map);
+var StaticRoute = (function () {
+    function StaticRoute() { }
+    return StaticRoute;
+})();
+var ResponseSource = (function () {
+    function ResponseSource() { }
+    ResponseSource.prototype.get = function () {
+        return acceptedResponse();
+    };
+    return ResponseSource;
+})();
+var CacheSource = (function (_super) {
+    __extends(CacheSource, _super);
+    function CacheSource(cacheName, url) {
+        _super.call(this);
+    }
+    return CacheSource;
+})(ResponseSource);
+var NetworkSource = (function (_super) {
+    __extends(NetworkSource, _super);
+    function NetworkSource(url) {
+        _super.call(this);
+    }
+    return NetworkSource;
+})(ResponseSource);
 var _URL = (function () {
     function _URL(url, base) {
     }
@@ -333,6 +370,11 @@ var Future = (function () {
 function accepted() {
     return new Future(function (r) {
         r.accept(true);
+    });
+}
+function acceptedResponse() {
+    return new ResponseFuture(function (r) {
+        r.accept(new Response());
     });
 }
 var SharedWorker = (function (_super) {

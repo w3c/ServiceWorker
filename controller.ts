@@ -83,6 +83,8 @@ class ControllerScope extends SharedWorker {
   // are replaceing (see InstalledEvent::previousVersion)
   version: any = 0; // NOTE: versions must be structured-cloneable!
 
+  staticRoutes: StaticRouter;
+
   //
   // Events
   //
@@ -378,6 +380,32 @@ class CacheList extends Map {
   }
 }
 
+class StaticRouter extends Map {
+  // when URL is a string & ends in *, it acts as a matching prefix
+  // sources can be ResponseSource, ResponseFuture, or Response, or String
+  // Strings can be 'network', which will fetch the current url from the network
+  add(url: any, sources: Array): void {};
+  // cache can be string name or cache object
+  // fallbackSources are tried if cache extraction fails
+  addCache(cache: any, fallbackSources: Array): void {};
+}
+
+class StaticRoute {
+  sources: Array;
+}
+
+class ResponseSource {
+  get(): ResponseFuture { return acceptedResponse() };
+}
+
+class CacheSource extends ResponseSource {
+  constructor(cacheName: String, url: any) { super(); };
+}
+
+class NetworkSource extends ResponseSource {
+  constructor(url: any) { super(); };
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
@@ -462,6 +490,12 @@ class Future {
 function accepted() : Future {
   return new Future(function(r) {
     r.accept(true);
+  });
+}
+
+function acceptedResponse() : ResponseFuture {
+  return new ResponseFuture(function(r) {
+    r.accept(new Response());
   });
 }
 
