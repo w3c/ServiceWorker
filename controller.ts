@@ -356,7 +356,8 @@ class Cache {
   // Update has the effect of checking the HTTP cache validity of all items
   // currently in the cache and updating with new versions if the current item
   // is expired. New items may be added to the cache with the urls that can be
-  // passed.
+  // passed. The HTTP cache is currently used for these resources but no
+  // heuristic caching is applied for these requests.
   update(...urls:URL[]) : Future;
   update(...urls:string[]) : Future { return accepted(); }
 
