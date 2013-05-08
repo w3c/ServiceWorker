@@ -65,6 +65,11 @@ interface ActivateEventHandler { (e:InstallPhaseEvent); }
 class ReplacedEvent extends _Event {}
 interface ReplacedEventHandler { (e:ReplacedEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
+
+// FIXME: need custom event types!
+interface BeforeCacheEvictionEventHandler { (e:_Event); }
+interface CacheEvictionEventHandler { (e:_Event); }
+
 interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
@@ -113,7 +118,8 @@ class ControllerScope extends SharedWorker {
   // request.
   onfetch: FetchEventHandler;
 
-  // TODO: cache eviction events
+  onbeforeevicted: BeforeCacheEvictionEventHandler;
+  onevicted: CacheEvictionEventHandler;
 
   networkFetch(url?) : Future {
     return new Future(function(r) {
