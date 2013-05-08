@@ -156,6 +156,26 @@ this.addEventListener("fetch", function(e) {
 
 The `type` attribute is a string that can be either `"navigate"` or `"fetch"`. Navigations happen any time a resource request corresponds to the location of a document changing. Note that in the first draft of this spec, this doesn't include "internal" navigations such as hash-change events, only navigations that require an http(s) response. This is true for iframes as well as for top-level documents, so the `isTopLevel` flag helps us distinguish between them.
 
+Why in the world would we want to distinguish navigations from other types of requests? It's all about URL-friendliness: consider the case where a user is sent a link to a video in example.com's app, e.g.: `http://video.example.com/play/nevergonnagiveyouup`. This is the sort of clean, meaningful, long-lived URL that modern apps strive to create. The primary content hosted there (the video and perahps reviews and discussions related to it) are forever bound to that address. This is a Good Thing (TM). But in most server-generated apps, the core content is also mixed with a bunch of templates and context (much of it specific to the user) before it ever hits the wire. Yes, the URL represents the content, but much of what gets sent to the user is "shell" for that content -- the navigation and UI that enable discovery and viewing of that content.
+
+Now, lets say we've built an app in a more modern style; one that builds much of the UI in script and handles the transitions between bits of content via queries against a local data model. What should happen when the user requests that video? And what if it was in a tab/window that was already displaying content, say at `http://video.example.com/play/honeybadger`. The naive, old-skool thing to do is to unload the old page and reload the entire UI. This, as they say, sucks. It's slow, jarring, and overall a crummy experience. Instead, we'd like to engineer a smooth transition. The Navigation Controller is the key: instead of trying to capture `onbeforeunload` and over-ride the behavior of links, the app can simply allow the navigation, counting on the Controller to avoid unloading the current document (by canceling the event and not responding with any content) and sending a message to the source window to have it do an "internal navigation" in which it replaces part of the document's content without unloading and re-loading everything:
+
+```js
+var base = "http://videos.example.com";
+this.addEventListener("fetch", function(e) {
+  if (e.type == "navigate" && e.isTopLevel == true) {
+    // If the app is already loaded in this window, avoid unloading the app
+    // and inform it what to do via postMessage()
+    if (e.window.location.toString().indexOf(base) == 0) {
+      // Note that we don't call e.respondWith() here
+      e.stopImmediatePropagation();
+      e.window.postMessage({ navigateTo: e.url.toString() });
+      return;
+    }
+  }
+});
+```
+
 ### URLs, Domains, and Registrations
 
 Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a controller using `navigator.controller.register("/*", "/ctrl.js")`?
