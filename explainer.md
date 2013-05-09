@@ -659,7 +659,7 @@ FIXME(slightlyoff): cover messaging:
 
 ## Cross-Origin Controllers And Resources
 
-Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound, to say nothing of being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
+Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound. And that's before you get to being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
 
 One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Can Navigation Controllers be hosted on CDNs?
 
