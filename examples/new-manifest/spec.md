@@ -162,7 +162,7 @@ TODO: any way to get all sub manifests for a particular manifest?
 * TODO: can sub manifests have sub manifests?
 * TODO: what if an existing primary manifest is added as the sub manifest of another primary manifest?
 * TODO: how to handle circular dependencies?
-* TODO: if I add a sub manifest that’s also another url’s primary manifest, if I caseURL on one does it affect both?
+* TODO: if I add a sub manifest that’s also another url’s primary manifest, if I `cacheURL()` on one does it affect both?
 * TODO: can submanifests be from another domain?
 * Run update steps for this manifest url
 * On success:
