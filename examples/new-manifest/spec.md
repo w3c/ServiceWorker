@@ -191,7 +191,7 @@ TODO: any way to get all sub manifests for a particular manifest?
     * Add resource to the cache
     * Resolve future
 * On fail:
-* Reject future
+    * Reject future
 
 ## appCache.removeCachedURL(url):Future
 * If url exists in the “cache” key of the manifest
