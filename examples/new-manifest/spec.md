@@ -1,7 +1,7 @@
 This is a very vague spec based on the information in http://lists.w3.org/Archives/Public/public-webapps/2013JanMar/0977.html
 
-TODO: any FALLBACK-like behaviour? Doesn’t look like it
-TODO: no resources from other domains?
+* TODO: any FALLBACK-like behaviour? Doesn’t look like it
+* TODO: no resources from other domains?
 
 # Manifest structure
 
@@ -62,13 +62,13 @@ TODO: no resources from other domains?
         * Let “cached item” equal the item cached from the url in the “page” key
     * If “cached item” set and is younger than “expiration”
         * If “active manifest” “cookie-vary” absent
-        * Serve “cached item” (do not change window.location)
-        * Let “active cache” be the cache used by “active manifest”
-        * Abort these steps
-    * Else if current varying value matches the value used in the original request of “cached item”
-        * Serve “cached item” (do not change window.location)
-        * Let “active cache” be the cache used by “active manifest”
-        * Abort these steps
+            * Serve “cached item” (do not change window.location)
+            * Let “active cache” be the cache used by “active manifest”
+            * Abort these steps
+        * Else if current varying value matches the value used in the original request of “cached item”
+            * Serve “cached item” (do not change window.location)
+            * Let “active cache” be the cache used by “active manifest”
+            * Abort these steps
 * Fetch page from network
 * If request fails due to network failure
     * Undefined
