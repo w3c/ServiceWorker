@@ -128,7 +128,7 @@ Before we get into the nitty-gritty of controllers, a few things to keep in mind
 
 > Navigation Controllers may be killed at any time.
 
-That's right, the browser might uncerimonously kill your Controller if it's idle, or even stop it mid-work and re-issue the request to a different instance of the controller. There are zero gaurantees about how long a Controller will run. That means that all Controller scripts must be written in such a way as to avoid holding lots of global state. This simply can't be stressed enough: _write your controllers as though they expect to die after every request, only to be revived for the next one_.
+That's right, the browser might unceremoniously kill your Controller if it's idle, or even stop it mid-work and re-issue the request to a different instance of the controller. There are zero guarantees about how long a Controller will run. That means that all Controller scripts must be written in such a way as to avoid holding lots of global state. This simply can't be stressed enough: _write your controllers as though they expect to die after every request, only to be revived for the next one_.
 
 Also, remember that _Navigation Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document can talk to an instance of a controller. If you need to care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like IndexedDB.
 
@@ -195,7 +195,7 @@ Turns out this is allowed, largely to prevent controller scripts from becoming a
 
 #### Longest-Prefix Matching
 
-To break what might otherwise be ties when matching URLs, navigations are mapped to controllers by longest-prefix-match. Note that the `*` can only occur _at the end_ of a matching rule, so attempts to register `/foo/*/bar` or `*bar` will throw exceptions. Similarly, anything after a "?" or "#" in a registration will be ignored, meaning that `/foo?*` and `/foo#thinger*` are the same as `/foo`.
+To break what might otherwise be ties when matching URLs, navigations are mapped to controllers by longest-prefix-match. Note that the `*` can only occur _at the end_ of a matching rule, so attempts to register `/foo/*/bar` or `*bar` will throw exceptions. Similarly, registering a pattern that includes a "?" or "#" will also throw exceptions.
 
 In the above example with registrations for `/foo*` and `/foo/bar*`, the following matches would be made when navigating to the following URLs under `http://www.example.com`:
 
@@ -663,18 +663,21 @@ Understanding fetches, caches, installation and upgrades are most of what you'll
 
 One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Can Navigation Controllers be hosted on CDNs?
 
-Yes!
+No, sorry. But they can include resources (via `importScripts()`) that are.
 
-Turns out that controllers act like regular `<script>` includes for most origin-related purposes: they can be hosted elsewhere but run in the context of the domain that they are included with. Unlike normal scripts, there's no document to tie the Controller's domain to, but all `navigator.controller.register()` calls happen in the context of some domain, and *that* is the domain that the registered controller will be executed in -- even if it's hosted someplace else entirely.
+<!--
+Turns out that controllers act like regular `<script>` includes for most origin-related purposes: they can be hosted elsewhere but run in the context of the domain that they are included with. Unlike normal scripts, there's no document to tie the Controller's domain to, but all `navigator.controller.register()` calls happen in the context of some domain, and *that* is the domain that the registered controller will be executed in - even if it's hosted someplace else entirely.
 
 Lets make it concrete. Imagine a generic controller that both `evil.com` and `good.com` want to use. There's no problem at all with them both serving a page that includes:
 
 ```html
 <!DOCTYPE html>
+-->
 <!-- served at both:
   http://good.com/app.html
   http://evil.com/bad.html
 -->
+<!--
 <html>
   <head>
     <script>
@@ -693,6 +696,7 @@ Third-party cached resources are another interesting area. What if we want to ca
 Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stored are `Future`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
 
 Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
+-->
 
 ### `importScripts()` & 3rd-party Routers
 
@@ -716,5 +720,5 @@ This document only scratches the surface of what Navigation Controllers enable, 
 
 <!-- TODO: add others who provide feedback! -->
 
-Many thanks to Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Chris Wilson, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
+Many thanks to (Web Personality of the Year nominee)[http://www.ubelly.com/thecritters/] Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Andrew Betts, Chris Wilson, Aaron Boodman, Dave Herman, Jonas Sicking, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
 
