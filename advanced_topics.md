@@ -57,11 +57,60 @@ this.addEventListener("activate", function(e) {
 // ...onfetch, etc...
 ```
 
-So that's cache "garbage collection" then: it's manual and your app should be mindful of what it doesn't need any more when updating to a new version.
+So that's cache "garbage collection" then: it's manual and your app should be mindful of what it doesn't need any more when updating to a new version. The same thing goes for static routes that your old versions may have set up: it's best to clear them all and re-set them in the latest version of your controller rather than leaving them around as they can lead to terrible gotchas and astonishing disk usage. If you don't want to spend forever debugging, it's best to take care early to ensure that your caches, databases, and static routes are kept neat and tidy.
 
-But what about in-place updates?
+But what about in-place updates of `Cache` objects?
 
-TODO(slightlyoff)
+Remember, `Cache` entries do not update themselves. Whatever versions of content they receive when they are successfully filled are the versions they keep until the developer requests an update. That means it's possible for a controller to be updated regularly, use caches across versions, but still find itself using legacy content in caches...assuming content at the same URL has been updated, a pretty-clear anti-pattern: better to put version #'s in URLs than to update cacheable content at stable URL).
+
+To re-iterate: caches aren't updated automatically. Updates must be manually managed. How? With `.update()`.
+
+```js
+// caching.js
+this.version = 2;
+
+var caches = this.caches;
+var assetBase = "/assets/v" + parseInt(this.version) + "/";
+var shellCacheName = "shell-v" + parseInt(this.version);
+var contentCacheName = "content";
+var currentCaches = [ shellCacheName, contentCacheName ];
+
+this.addEventListener("install", function(e) {
+  // Update the existing caches that we'll eventually keep.
+  caches.forEach(function(cacheName, cache) {
+    if (currentCaches.indexOf(cacheName) >= 0) {
+      e.waitUntil(caches.get(cacheName).update());
+    }
+  });
+
+  // Create a cache of resources. Begins the process of fetching them.
+  var shellResources = new Cache(
+    assetBase + "/base.css",
+    assetBase + "/app.js",
+    assetBase + "/logo.png",
+    assetBase + "/intro_video.webm",
+  );
+  caches.set(shellCacheName, shellResources);
+
+  e.waitUntil(shellResources.ready());
+
+});
+
+this.addEventListener("activate", function(e) {
+  caches.forEach(function(cacheName, cache) {
+    if (currentCaches.indexOf(cacheName) == -1) {
+      caches.delete(cacheName);
+    } else {
+      // Update the existing caches
+      e.waitUntil(caches.get(cacheName).update());
+    }
+  });
+});
+
+// ...onfetch, etc...
+```
+
+A call to `.update()` re-checks the underlying resources against the versions in the HTTP cache using HTTP semantics. If they've expired, a fetch all the way to the network is attempted. If not, the versions in the browser's HTTP cache are used instead.
 
 ## Understanding Controller Caching
 
@@ -71,7 +120,7 @@ It's important to keep in mind that Navigation Controllers are a type of [Shared
 
 But browsers surely must cache Controllers (else how would Controllers run when disconnected?)...so what guarantees do we have about what will be cached and when?
 
-The simplest mental model for this is that your controller and whatever scripts it depends on by the time `onintall` succeeds are added to a browser-managed `Cache` object that is checked for updates once a day.
+The way to think about this is that your controller and whatever scripts it depends on by the time `oninstall` succeeds are added to a browser-managed `Cache` object that is checked for updates once a day.
 
 To repeat: if you `importScripts()` for all of the resources you will need by the time your `oninstall` callback finishes, those resources are going to be part of the implicit cache that the browser maintains.
 
@@ -104,6 +153,10 @@ Many versions of the basic pattern presented here are possible, including callin
 
 _*NOTE: Be mindful that these are global imports running in the context of your app's origin. Like cross-origin scripts included in your app, scripts imported into your controller run with full authority to do everything your controller can -- which is pretty much everything. `importScripts()` only from those you trust!*_
 
+It's also good to know what counts as an "update" to the controller script: when the browser re-fetches the main script, it ignores HTTP heuristic caching and goes all the way to the network, requesting the controller directly from the server and bypassing HTTP caches. Upon getting a new response, the returned script it checked to see if it is byte-for-byte identical. Only when not byte-for-byte identical is the controller considered "updated". Scripts required by `importScripts()` are fetched and validated in the same way, at the same time, but updates to them are not considered to trigger the "ugprade dance" the same way that an update to the main controller does.
+
+The rule then is that if you'd like to update the behavior of controllers, you should update some of the contents of the controller script itself -- even if it's just a small increment to the version number.
+
 ### If You Liked It, You Should Have Put Some SSL On It
 
 Controllers are in effect all the time, but really come into their own when offline. But "offline" is incredibly hard to define, it turns out. Think of the last time you were in a hotel lobby, coffee shop, or airport where some sign advertised "Free WiFi!", only to present you with a captive portal demanding an email address (all the better to spam you with!) or worse, some form of payment to do anything but view some marketing site for the place *you're already in* (but starting to want to leave).
@@ -126,7 +179,7 @@ TODO(slightlyoff): what happens if a controller matches the page's CSP policy bu
 
 They're gone. Just gone.
 
-With the exception of `importScripts()` (covered at length above), Navigation Controllers expose no synchronous APIs. No sync XHR, nothing.
+With the exception of `importScripts()` (covered at length above), Navigation Controllers expose no synchronous APIs. No sync XHR, no sync IDB, nothing.
 
 Why?
 
