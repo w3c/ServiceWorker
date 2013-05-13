@@ -2,7 +2,9 @@
 
 ## What's Going On Here?
 
-Navigation Controllers are a new design for handling what is commonly referred to as the "offline problem" for web applications. Navigation Controllers aren't a new version of the [rightfully-loathed](http://alistapart.com/article/application-cache-is-a-douchebag) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Instead, they provide a new set of scriptable primtives that make it possible for application developers to build URL-friendly, offline-by-default applications in a sane and layered way.
+Navigation Controllers are a new system in browsers that provide scriptable caches and the ability to respond to network requests from certain web pages via script, responding either the contents of these caches or programmatically-generated content.
+
+Controllers aren't a new version of the [rightfully-loathed](http://alistapart.com/article/application-cache-is-a-douchebag) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Instead, they are comprised of scriptable primtives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
 To understand the design and how you might build apps with Navigation Controllers, see the [explainer document](https://github.com/slightlyoff/NavigationController/blob/master/explainer.md)
 
