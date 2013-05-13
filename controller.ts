@@ -45,6 +45,9 @@ navigator.controller = {
 ////////////////////////////////////////////////////////////////////////////////
 class InstallPhaseEvent extends _Event {
   previousVersion: any = 0;
+
+  previousCaches: ReadOnlyCacheList;
+
   // Delay treating the installing controller until the passed Future resolves
   // successfully. This is primarlialy used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
@@ -121,9 +124,16 @@ class ControllerScope extends SharedWorker {
   onbeforeevicted: BeforeCacheEvictionEventHandler;
   onevicted: CacheEvictionEventHandler;
 
-  networkFetch(url?) : Future {
+  // FIXME(slightlyoff): Need to add flags for:
+  //  - custom "accept/reject" handling, perhaps with global config
+  //  - flag to consult the HTTP cache first?
+  networkFetch(request:Request);
+  networkFetch(request:URL); // a URL
+  networkFetch(request:string); // a URL
+
+  networkFetch(request:any) : Future {
     return new Future(function(r) {
-      r.resolve(_defaultToBrowserHTTP(url));
+      r.resolve(_defaultToBrowserHTTP(request));
     });
   }
 
@@ -142,6 +152,41 @@ class ControllerScope extends SharedWorker {
 
 // http://fetch.spec.whatwg.org/#requests
 class Request {
+  constructor(params?) {
+    if (params) {
+      if (typeof params.timeout != "undefined") {
+        this.timeout = params.timeout;
+      }
+      if (typeof params.url != "undefined") {
+        this.url = new URL(params.url);
+      }
+      if (typeof params.synchronous != "undefined") {
+        this.synchronous = params.synchronous;
+      }
+      if (typeof params.encoding != "undefined") {
+        this.encoding = params.encoding;
+      }
+      if (typeof params.forcePreflight != "undefined") {
+        this.forcePreflight = params.forcePreflight;
+      }
+      if (typeof params.omitCredentials != "undefined") {
+        this.omitCredentials = params.omitCredentials;
+      }
+      if (typeof params.method != "undefined") {
+        this.method = params.method;
+      }
+      if (typeof params.headers != "undefined") {
+        this.headers = params.headers;
+      }
+      if (typeof params.body != "undefined") {
+        this.body = params.body;
+      }
+    }
+  }
+
+  encoding: string;
+  // see: http://www.w3.org/TR/XMLHttpRequest/#the-timeout-attribute
+  timeout: Number = 0;
   url: URL;
   method: string = "GET";
   origin: string;
@@ -308,7 +353,7 @@ class FetchEvent extends _Event {
 // inside controller instances (not in regular documents), meaning that caching
 // is a feature of the controller.
 class Cache {
-  items: AsyncMap; // FIXME: can't be sync!
+  items: AsyncMap;
 
   // Allow arrays of URLs or strings
   constructor(...urls:URL[]);
@@ -379,6 +424,28 @@ class CacheList extends Map {
     // Overrides to prevent non-URLs to be added go here.
     super();
   }
+
+  // Convenience method to get ResponseFuture from named cache.
+  match(cacheName: String, url: URL) : RequestFuture;
+  match(cacheName: String, url: String) : RequestFuture;
+  // "any" to make the TS compiler happy
+  match(cacheName: any, url: any) : RequestFuture {
+    return new RequestFuture(function(){});
+  }
+}
+
+// NOTE: does not extend Map! To be a subclass would mean supporting mutation, which this version doesn't.
+class ReadOnlyCacheList {
+  constructor(iterable: Array) {
+  }
+
+  // Includes only:
+  get(key: any): Future { return accepted(); }
+  has(key: any): Future { return accepted(); }
+  forEach(callback: Function, thisArg?: Object): void {}
+  items(): Future { return accepted(); }
+  keys(): Future { return accepted(); }
+  values(): Future { return accepted(); }
 
   // Convenience method to get ResponseFuture from named cache.
   match(cacheName: String, url: URL) : RequestFuture;

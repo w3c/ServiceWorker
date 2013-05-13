@@ -61,20 +61,50 @@ var ControllerScope = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    ControllerScope.prototype.networkFetch = function (url) {
+    ControllerScope.prototype.networkFetch = function (request) {
         return new Future(function (r) {
-            r.resolve(_defaultToBrowserHTTP(url));
+            r.resolve(_defaultToBrowserHTTP(request));
         });
     };
     return ControllerScope;
 })(SharedWorker);
 var Request = (function () {
-    function Request() {
+    function Request(params) {
+        this.timeout = 0;
         this.method = "GET";
         this.synchronous = false;
         this.redirectCount = 0;
         this.forcePreflight = false;
         this.omitCredentials = false;
+        if(params) {
+            if(typeof params.timeout != "undefined") {
+                this.timeout = params.timeout;
+            }
+            if(typeof params.url != "undefined") {
+                this.url = new URL(params.url);
+            }
+            if(typeof params.synchronous != "undefined") {
+                this.synchronous = params.synchronous;
+            }
+            if(typeof params.encoding != "undefined") {
+                this.encoding = params.encoding;
+            }
+            if(typeof params.forcePreflight != "undefined") {
+                this.forcePreflight = params.forcePreflight;
+            }
+            if(typeof params.omitCredentials != "undefined") {
+                this.omitCredentials = params.omitCredentials;
+            }
+            if(typeof params.method != "undefined") {
+                this.method = params.method;
+            }
+            if(typeof params.headers != "undefined") {
+                this.headers = params.headers;
+            }
+            if(typeof params.body != "undefined") {
+                this.body = params.body;
+            }
+        }
     }
     return Request;
 })();
@@ -253,6 +283,32 @@ var CacheList = (function (_super) {
     };
     return CacheList;
 })(Map);
+var ReadOnlyCacheList = (function () {
+    function ReadOnlyCacheList(iterable) {
+    }
+    ReadOnlyCacheList.prototype.get = function (key) {
+        return accepted();
+    };
+    ReadOnlyCacheList.prototype.has = function (key) {
+        return accepted();
+    };
+    ReadOnlyCacheList.prototype.forEach = function (callback, thisArg) {
+    };
+    ReadOnlyCacheList.prototype.items = function () {
+        return accepted();
+    };
+    ReadOnlyCacheList.prototype.keys = function () {
+        return accepted();
+    };
+    ReadOnlyCacheList.prototype.values = function () {
+        return accepted();
+    };
+    ReadOnlyCacheList.prototype.match = function (cacheName, url) {
+        return new RequestFuture(function () {
+        });
+    };
+    return ReadOnlyCacheList;
+})();
 var StaticRouter = (function (_super) {
     __extends(StaticRouter, _super);
     function StaticRouter() {
