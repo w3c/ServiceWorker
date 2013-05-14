@@ -81,7 +81,7 @@ var Request = (function () {
                 this.timeout = params.timeout;
             }
             if(typeof params.url != "undefined") {
-                this.url = new URL(params.url);
+                this.url = params.url;
             }
             if(typeof params.synchronous != "undefined") {
                 this.synchronous = params.synchronous;

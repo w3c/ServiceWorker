@@ -158,7 +158,8 @@ class Request {
         this.timeout = params.timeout;
       }
       if (typeof params.url != "undefined") {
-        this.url = new URL(params.url);
+        // should be "new URL(params.url)" but TS won't allow it
+        this.url = params.url;
       }
       if (typeof params.synchronous != "undefined") {
         this.synchronous = params.synchronous;
