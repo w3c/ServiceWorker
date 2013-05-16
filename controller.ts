@@ -191,7 +191,9 @@ class Request {
   url: URL;
   method: string = "GET";
   origin: string;
+  // FIXME: mode doesn't seem useful here.
   mode: string; // Can be one of "same origin", "tainted x-origin", "CORS"
+  // FIXME: we don't provide anything but async fetching...
   synchronous: Boolean = false;
   redirectCount: Number = 0;
   forcePreflight: Boolean = false;

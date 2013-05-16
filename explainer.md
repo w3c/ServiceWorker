@@ -225,6 +225,8 @@ In the above example with registrations for `/foo*` and `/foo/bar*`, the followi
 
 Note: if `e.respondWith()` isn't called when handling a connection in `/foo/barController.js`, it does not cascade to `/fooController.js`, it falls back to the browser's built-in network behavior.
 
+One more note: Last-registration wins. If two pages on a site are visited in order and both register a controller for `"/*"` (or any other identical path), the second page visited will have its controller installed. Only when the specified controller scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is preformed (see below) and the last registration is now the effective one.
+
 #### Registrations Map Navigations, Documents Map Fetches
 
 It's important to understand that `navigator.controller.register()` _only affects navigations_. Lets imagine for just a minute that we have a server that will hand back HTML or JSON for a given URL depending on whether the query parameter `?json=1` is included. Lets say this resource is hosted at `http://www.example.com/services/data`.
@@ -657,7 +659,7 @@ FIXME(slightlyoff): cover messaging:
   - a simple example of "please upgrade now"
 -->
 
-## Cross-Origin Controllers And Resources
+## Cross-Origin Controllers?
 
 Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use Navigation Controllers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound. And that's before you get to being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
 
@@ -665,38 +667,11 @@ One of the first advanced concerns that major apps hit is "how do I host things 
 
 No, sorry. But they can include resources (via `importScripts()`) that are.
 
-<!--
-Turns out that controllers act like regular `<script>` includes for most origin-related purposes: they can be hosted elsewhere but run in the context of the domain that they are included with. Unlike normal scripts, there's no document to tie the Controller's domain to, but all `navigator.controller.register()` calls happen in the context of some domain, and *that* is the domain that the registered controller will be executed in - even if it's hosted someplace else entirely.
+The reasons for this restriction is that Controllers create the opportunity for a bad actor to turn a bad day into a bad eternity. Imagine an XSS vulnerability anywhere on a site. An attacker that can run a bit of JS can now request a new controller be installed. If that controller is registered from  different origin (say, `evil.com`), the controller itself can prevent updates to content which might dislodge it. Worse, the original application wouldn't be able to help the users who have been stranded.
 
-Lets make it concrete. Imagine a generic controller that both `evil.com` and `good.com` want to use. There's no problem at all with them both serving a page that includes:
+By mandating same-origin restrictions for the controller script, it's possible for an attacked application to help those users. Their browsers will request controller updates from the source origin no less frequently than once a day, meaning an intermittent XSS is a hole that can still be closed.
 
-```html
-<!DOCTYPE html>
--->
-<!-- served at both:
-  http://good.com/app.html
-  http://evil.com/bad.html
--->
-<!--
-<html>
-  <head>
-    <script>
-      navigator.controller.register("/*", "http://cdn.example.com/ctrl.js");
-    </script>
-  </head>
-</html>
-```
-
-Subsequent navigations to each URL will result in `ctrl.js` being executed, but in the context of `good.com` and `evil.com` respectively. Nothing is shared between them and they update independently. The fourth Rule of Navigation Controllers, then, is that:
-
-> Controllers run in the domain they're registered from.
-
-Third-party cached resources are another interesting area. What if we want to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
-
-Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stored are `Future`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
-
-Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
--->
+It may some day be possible to loosen this policy via a new CSP directive, but for now, the best mental model for hosting controllers is that the script you pass to `navigator.controller.register()` must live on the same domain as the document itself. But controllers can use `importScripts()` to include other scripts that are hosted elsewhere, e.g. on a CDN.
 
 ### `importScripts()` & 3rd-party Routers
 
@@ -711,6 +686,20 @@ In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure
 This all becomes more relevant when you consider that Navigation Controllers support the general Web Worker API [`importScripts()`](https://developer.mozilla.org/en-US/docs/DOM/Worker/Functions_available_to_workers#Worker-specific_functions). It's important to note that _only the scripts that have been imported the first time the worker is run will be cached along side it by the browser_. The upside is that imported scripts _will_ be downloaded and cached alongside the main controller script.
 
 What does that imply? Lots of good stuff. First, Controllers can import libraries from elsewhere, including other origins and CDNs. Next, Since these scripts can register their own handlers, they can manage bits of the world that they are written to. For instance, a Controller can include the Controller bit for a third-party set of widgets or analytics without worrying about the details of the URLs they manage or need.
+
+## Cross-Origin Resources
+
+What if an app wants to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
+
+Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stored are `Future`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
+
+Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
+
+A few things to keep in mind regarding cross-origin resources that you may cache or request via `networkFetch()`:
+
+  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A controller that calls `e.respondWith(caches.match('cdn content', 'http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a controller to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
+  * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable in a controller (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.
+  * There's no harm in responding to a cross-origin request with a `new SameOriginResponse()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
 
 ## Conclusions
 
