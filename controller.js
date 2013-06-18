@@ -3,17 +3,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-navigator.controller = {
-    register: function (scope, url) {
-        return accepted();
-    },
-    unregister: function (scope) {
-        return accepted();
-    },
-    ready: function () {
-        return accepted();
-    }
-};
 var InstallPhaseEvent = (function (_super) {
     __extends(InstallPhaseEvent, _super);
     function InstallPhaseEvent() {
@@ -257,9 +246,6 @@ var Cache = (function () {
     Cache.prototype.ready = function () {
         return accepted();
     };
-    Cache.prototype.swapCache = function () {
-        return accepted();
-    };
     return Cache;
 })();
 var CacheList = (function (_super) {
@@ -268,37 +254,11 @@ var CacheList = (function (_super) {
         _super.call(this);
     }
     CacheList.prototype.match = function (cacheName, url) {
-        return new RequestPromise(function () {
+        return new ResponsePromise(function () {
         });
     };
     return CacheList;
 })(Map);
-var ReadOnlyCacheList = (function () {
-    function ReadOnlyCacheList(iterable) {
-    }
-    ReadOnlyCacheList.prototype.get = function (key) {
-        return accepted();
-    };
-    ReadOnlyCacheList.prototype.has = function (key) {
-        return accepted();
-    };
-    ReadOnlyCacheList.prototype.forEach = function (callback, thisArg) {
-    };
-    ReadOnlyCacheList.prototype.items = function () {
-        return accepted();
-    };
-    ReadOnlyCacheList.prototype.keys = function () {
-        return accepted();
-    };
-    ReadOnlyCacheList.prototype.values = function () {
-        return accepted();
-    };
-    ReadOnlyCacheList.prototype.match = function (cacheName, url) {
-        return new RequestPromise(function () {
-        });
-    };
-    return ReadOnlyCacheList;
-})();
 var _URL = (function () {
     function _URL(url, base) {
     }
