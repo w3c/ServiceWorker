@@ -414,10 +414,6 @@ class Cache {
   update(...urls:string[]) : Promise { return accepted(); }
 
   ready(): Promise { return accepted(); }
-
-  // FIXME: not sure we want to keep swapCache!
-  swapCache() : Promise { return accepted(); }
-
 }
 
 class CacheList extends Map {
