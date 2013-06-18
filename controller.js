@@ -37,14 +37,6 @@ var InstalledEvent = (function (_super) {
     };
     return InstalledEvent;
 })(InstallPhaseEvent);
-var ReplacedEvent = (function (_super) {
-    __extends(ReplacedEvent, _super);
-    function ReplacedEvent() {
-        _super.apply(this, arguments);
-
-    }
-    return ReplacedEvent;
-})(_Event);
 var ControllerScope = (function (_super) {
     __extends(ControllerScope, _super);
     function ControllerScope() {

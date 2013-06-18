@@ -76,8 +76,6 @@ class InstalledEvent extends InstallPhaseEvent {
 
 interface InstalledEventHandler { (e:InstalledEvent); }
 interface ActivateEventHandler { (e:InstallPhaseEvent); }
-class ReplacedEvent extends _Event {}
-// interface ReplacedEventHandler { (e:ReplacedEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
 
 // FIXME: need custom event types!
@@ -120,13 +118,6 @@ class ControllerScope extends SharedWorker {
 
   // Called when a controller becomes the active controller for a mapping
   onactivate: ActivateEventHandler;
-
-  /*
-  // Called when an updated controller verion decides that it wants to take over
-  // responsibility for the windows this controller is associated with via
-  // InstalledEventHandler::replace()
-  onreplaced: ReplacedEventHandler;
-  */
 
   // Called whenever this controller is meant to decide the disposition of a
   // request.
