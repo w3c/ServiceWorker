@@ -47,12 +47,10 @@ var ReplacedEvent = (function (_super) {
 })(_Event);
 var ControllerScope = (function (_super) {
     __extends(ControllerScope, _super);
-    function ControllerScope(url, upgrading) {
-        _super.call(this, url);
+    function ControllerScope() {
+        _super.apply(this, arguments);
+
         this.version = 0;
-        if(upgrading) {
-            this.dispatchEvent(new _CustomEvent("update"));
-        }
     }
     Object.defineProperty(ControllerScope.prototype, "windows", {
         get: function () {
@@ -62,7 +60,7 @@ var ControllerScope = (function (_super) {
         configurable: true
     });
     ControllerScope.prototype.networkFetch = function (request) {
-        return new Future(function (r) {
+        return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
@@ -171,22 +169,22 @@ var SameOriginResponse = (function (_super) {
     });
     return SameOriginResponse;
 })(Response);
-var ResponseFuture = (function (_super) {
-    __extends(ResponseFuture, _super);
-    function ResponseFuture() {
+var ResponsePromise = (function (_super) {
+    __extends(ResponsePromise, _super);
+    function ResponsePromise() {
         _super.apply(this, arguments);
 
     }
-    return ResponseFuture;
-})(Future);
-var RequestFuture = (function (_super) {
-    __extends(RequestFuture, _super);
-    function RequestFuture() {
+    return ResponsePromise;
+})(Promise);
+var RequestPromise = (function (_super) {
+    __extends(RequestPromise, _super);
+    function RequestPromise() {
         _super.apply(this, arguments);
 
     }
-    return RequestFuture;
-})(Future);
+    return RequestPromise;
+})(Promise);
 var FetchEvent = (function (_super) {
     __extends(FetchEvent, _super);
     function FetchEvent() {
@@ -199,12 +197,12 @@ var FetchEvent = (function (_super) {
         this.window = null;
     }
     FetchEvent.prototype.respondWith = function (r) {
-        if(!(r instanceof Response) || !(r instanceof Future)) {
+        if(!(r instanceof Response) || !(r instanceof Promise)) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
         this.stopImmediatePropagation();
         if(r instanceof Response) {
-            r = new Future(function (resolver) {
+            r = new Promise(function (resolver) {
                 resolver.resolve(r);
             });
         }
@@ -215,7 +213,7 @@ var FetchEvent = (function (_super) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
         }
         this.stopImmediatePropagation();
-        return new Future(function (resolver) {
+        return new Promise(function (resolver) {
             resolver.resolve(new SameOriginResponse({
                 statusCode: 302,
                 headers: {
@@ -278,7 +276,7 @@ var CacheList = (function (_super) {
         _super.call(this);
     }
     CacheList.prototype.match = function (cacheName, url) {
-        return new RequestFuture(function () {
+        return new RequestPromise(function () {
         });
     };
     return CacheList;
@@ -304,7 +302,7 @@ var ReadOnlyCacheList = (function () {
         return accepted();
     };
     ReadOnlyCacheList.prototype.match = function (cacheName, url) {
-        return new RequestFuture(function () {
+        return new RequestPromise(function () {
         });
     };
     return ReadOnlyCacheList;
@@ -418,18 +416,18 @@ var Resolver = (function () {
     };
     return Resolver;
 })();
-var Future = (function () {
-    function Future(init) {
+var Promise = (function () {
+    function Promise(init) {
     }
-    return Future;
+    return Promise;
 })();
 function accepted() {
-    return new Future(function (r) {
+    return new Promise(function (r) {
         r.accept(true);
     });
 }
 function acceptedResponse() {
-    return new ResponseFuture(function (r) {
+    return new ResponsePromise(function (r) {
         r.accept(new Response());
     });
 }

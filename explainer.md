@@ -83,7 +83,7 @@ This is good for a couple of important reasons:
 
 ## A Quick Game of `onfetch`
 
-Navigation Controllers, once installed, can choose to handle resource loading. Before going to the network, a Controller is consulted for each request generated for a document, including the initial document payload itself.
+Navigation Controllers, once installed, can choose to handle resource loading. Before going to the network to fetch a document that matches the controller's scope, the controller is consulted, including when fetching the document payload itself.
 
 Here's an example of a controller that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
@@ -157,9 +157,9 @@ this.addEventListener("fetch", function(e) {
 
 Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a controller using `navigator.controller.register("/*", "/ctrl.js")`?
 
-`video.example.com` and `www.example.net` are clearly different domains...should the controller for `video.example.com` get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
+`video.example.com` and `www.example.net` are clearly different domains...should the controller for `video.example.com` (registered with the path `/*`) get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
-What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the controller located at `http://www.example.net/ctrl.js`. The document on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
+What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the controller located at `http://www.example.net/ctrl.js`. The controller on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
 
 Another interesting question: what happens if there are two registrations that might match?
 
@@ -269,7 +269,9 @@ The answer hinges on how requests map to controllers. The third rule of Navigati
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ controller.
 
-Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched ot it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there. Since resource requests (not navigations) are always sent to the controller for the document it is issued from, and since documents always map to the controllers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
+Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched ot it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
+
+Since resource requests (not navigations) are always sent to the controller for the document it is issued from, and since documents always map to the controllers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
 
 <!-- FIXME(slightlyoff):
   Add a graphic here to explain the fetching/matching
@@ -297,9 +299,9 @@ A major challenge for developers attempting to bring web apps to the offline wor
 
 In fact, our first example controller, coupled with [IndexedDB](https://developer.mozilla.org/en- US/docs/IndexedDB) and XHR might be all that's *technically* necessary to build a programmatic offline solution. It would, however, be a royal pain in the ass to use -- either because developers would need to make or find large-ish libraries to managed fetching/storing/retreiving resources or because XHR doesn't provide all the power that's strictly necessary.
 
-This is where the global `caches` map comes in. Each Controller has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Future`s which represent `Response`s which may or may not yet be available from the network.
+This is where the global `caches` map comes in. Each Controller has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Promise`s which represent `Response`s which may or may not yet be available from the network.
 
-_NOTE: You might know "Future" by the name "Promise". If not, see the [case for Futures in DOM](https://github.com/slightlyoff/DOMFuture/blob/master/README.md#futures- promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
+_NOTE: You might know "Promise" by the name "Promise". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises- promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
 
 Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the Controller is ready if-and- only-if all the there resources in the cache are downloaded.
 
@@ -326,13 +328,13 @@ this.addEventListener("install", function(e) {
 });
 ```
 
-`Cache` objects contain an `items` map which contains `Future`s for each of the resources, keyed by their absolute URL. When all of the resources added to a cache are downloaded successfully, the `Future` vended by `.ready()` completes successfully. Our example wires that up to the resolution to the completion of installation, meaning this controller won't be "activated" until at least that set of resources is cached and ready. Pretty neat.
+`Cache` objects contain an `items` map which contains `Promise`s for each of the resources, keyed by their absolute URL. When all of the resources added to a cache are downloaded successfully, the `Promise` vended by `.ready()` completes successfully. Our example wires that up to the resolution to the completion of installation, meaning this controller won't be "activated" until at least that set of resources is cached and ready. Pretty neat.
 
 ### Serving Cached Resources
 
 Now that we've got some resources in a cache, what can we do with 'em?
 
-Most of the Navigation Controller interfaces that can take `Response` instances are designed to also work with `Future`s that wrap `Response`s. Here's an expanded version of `caching.js` that adds an `onfetch` handler to serve the URLs in question:
+Most of the Navigation Controller interfaces that can take `Response` instances are designed to also work with `Promise`s that wrap `Response`s. Here's an expanded version of `caching.js` that adds an `onfetch` handler to serve the URLs in question:
 
 ```js
 // caching.js
@@ -362,12 +364,12 @@ this.addEventListener("fetch", function(e) {
   var shellResources = this.caches.get("shell-v1");
 
   // All operations on caches are async, including matching URLs, so we use
-  // Futures heavily. e.respondWith() even takes Futures to enable this:
+  // Promises heavily. e.respondWith() even takes Promises to enable this:
   e.respondWith(shellResources.match(e.request.url));
 });
 ```
 
-The behavior of `respondWith()` is conditional: if the cache returns a valid `Response`, that is what is sent back to the requesting document. If the `Future` generated by `match()` returns anything else or resolves as an error, the request is then routed to the browser's HTTP stack (as would happen without the controller).
+The behavior of `respondWith()` is conditional: if the cache returns a valid `Response`, that is what is sent back to the requesting document. If the `Promise` generated by `match()` returns anything else or resolves as an error, the request is then routed to the browser's HTTP stack (as would happen without the controller).
 
 The `this.caches.get()/.match()` dance is a bit wordy, so to cut this short there's a `match` convenience method on the global `caches` object to make our `onfetch` handler shorter but instead of taking one parameter (the URL), it takes two (the cache name and the URL):
 
@@ -414,7 +416,7 @@ Navigation Controllers get first crack at requests, so if an app caches its "she
 
 But what to do when some content isn't available? Assume for a second that the video app is loaded and the user tries to visit a library of videos for sale or download -- a list that's far too big and dynamic to reasonably cache client-side, to say nothing of the videos themselves. How do we fallback gracefully and provide a "library not available when offline" message to users?
 
-The error handler in our response `Future` holds the key:
+The error handler in our response `Promise` holds the key:
 
 ```js
 var base = "http://videos.example.com";
@@ -437,9 +439,9 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-That might take a bit of explaining, particularly if you don't use Futures (aka "Promises") often, but the long and the sort of it is that the controller:
+That might take a bit of explaining, particularly if you don't use Promises (aka "Promises") often, but the long and the sort of it is that the controller:
 
-  - Gets a `Future` instance from `networkFetch`
+  - Gets a `Promise` instance from `networkFetch`
   - If it resolves successfully (that is, gets what it wanted from the network), that's the value passed to the page. Simple.
   - If not, the `.then()` function adds a callback to handle the error which, in this case, returns some default content. We don't need a callback for the success case here, so that's just specified as `null`.
 
@@ -504,11 +506,11 @@ this.addEventListener("install", function(e) {
 });
 ```
 
-Just like controllers being chosen when a page is loaded, the `*` in the URL is a longest-prefix match. The sources in the array passed as the second argument will be tried in order and can be either the string `"network"`, a `Future` for a `Response`, or an actual `Response` object. In this case, if the network fails, the user gets rickrolled. Win.
+Just like controllers being chosen when a page is loaded, the `*` in the URL is a longest-prefix match. The sources in the array passed as the second argument will be tried in order and can be either the string `"network"`, a `Promise` for a `Response`, or an actual `Response` object. In this case, if the network fails, the user gets rickrolled. Win.
 
 Note that you can't pass a function or other per-request executing code into the list of sources. The array you pass will resolve _once_, and the values used in that mapping thereafter. That means that while the behavior might change in response to some cache item filling or the user going online (or off), the values will be those that you attempt to set up when the route is added. If one of the values succeeds, the Controller itself will never receive an `onfetch` for the request.
 
-One last wrinkle with cache items and fallback sources in mappings: what happens if the `Cache` from which a value is pulled gets updated? Or if the URL itself is deleted from the `Cache`? In our example, we're just handing the mapping a `ResponseFuture` instance, whose value will be cloned and used for all time. This seems bad: our `Caches` can get out of sync from our mappings. _HALP!_
+One last wrinkle with cache items and fallback sources in mappings: what happens if the `Cache` from which a value is pulled gets updated? Or if the URL itself is deleted from the `Cache`? In our example, we're just handing the mapping a `ResponsePromise` instance, whose value will be cloned and used for all time. This seems bad: our `Caches` can get out of sync from our mappings. _HALP!_
 
 To avoid running code on every request while still doing what we expect, two new types make an appearance: `CacheSource` and `NetworkSource`. Here's the previous example, but with two mappings, one that routes stale content to fresh content, and another that's a catchall "try the network', but made resilient to the cache changing:
 
@@ -617,7 +619,7 @@ this.addEventListener("install", function(e) {
   // If and only if we're less than one major version ahead, cut-in and start
   // serving resources.
   if (parseInt(e.previousVersion) == parseInt(this.version)) {
-    // Note: replacement won't happen until the future passed to
+    // Note: replacement won't happen until the Promise passed to
     // e.waitUntil resolves
     e.replace();
   }
@@ -630,9 +632,11 @@ The `previousVersion` field of the event is filled in using a [structured clone]
 
 What of the old controller? What happens to it?
 
+<!--
 The upgrade dance isn't unilateral. In most cases it's a good idea for the old version to do whatever cleanup it might want to do before handing the reigns to the new whippersnapper. Since replacement is a bit more hairy than wait-for-restart, a separate `onreplaced` event is sent to controllers that are about to be replaced.
+-->
 
-In all cases, the replacing controller can send a message to the old controller in `oninstalled` using `e.previous.postMessage()`. This can blossom into a bi-directional discussion if both sides [have registered `onmessage` handlers](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage), but that's out of the scope of this document for now.
+The replacing controller can send a message to the old controller in `oninstalled` using `e.previous.postMessage()`. This can blossom into a bi-directional discussion if both sides [have registered `onmessage` handlers](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage), but that's out of the scope of this document for now.
 
 ### On Sane Versioning
 
@@ -681,7 +685,7 @@ Turns out allowing multiple handlers is a feature, not a bug. It enables bits of
 
 In `onfetch`, `e.respondWith()` and `e.forwardTo()` behave as though [`e.stopImmediatePropagation()`](https://developer.mozilla.org/en-US/docs/DOM/event.stopImmediatePropagation) has been called, meaning the first handler to respond wins.
 
-In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure that the overall operation isn't considered a success until _all_ the passed `Future`s are resolved successfully.
+In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure that the overall operation isn't considered a success until _all_ the passed `Promise`s are resolved successfully.
 
 This all becomes more relevant when you consider that Navigation Controllers support the general Web Worker API [`importScripts()`](https://developer.mozilla.org/en-US/docs/DOM/Worker/Functions_available_to_workers#Worker-specific_functions). It's important to note that _only the scripts that have been imported the first time the worker is run will be cached along side it by the browser_. The upside is that imported scripts _will_ be downloaded and cached alongside the main controller script.
 
@@ -691,7 +695,7 @@ What does that imply? Lots of good stuff. First, Controllers can import librarie
 
 What if an app wants to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
 
-Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Future`s for `SameOriginResponse` instances, the objects stored are `Future`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
+Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Promise`s for `SameOriginResponse` instances, the objects stored are `Promise`s for `CrossOriginResponse` instances. `CrossOriginResponse` provides a much less expressive API than `SameOriginResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `SameOriginResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
 
 Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
 
@@ -703,7 +707,7 @@ A few things to keep in mind regarding cross-origin resources that you may cache
 
 ## Conclusions
 
-This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. If you have more questions, they might be asnwered in the [Advanced Topics Explainer](advanced_topics.md). Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich future of offline-by-default web applications that are URL friendly and scalable.
+This document only scratches the surface of what Navigation Controllers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or Controller instances. If you have more questions, they might be asnwered in the [Advanced Topics Explainer](advanced_topics.md). Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use Controllers. It is, hopefully, a guide to understanding the promise of Navigation Controllers and the rich Promise of offline-by-default web applications that are URL friendly and scalable.
 
 ## Acknowledgments
 
