@@ -429,11 +429,11 @@ class CacheList extends Map {
   }
 
   // Convenience method to get ResponsePromise from named cache.
-  match(cacheName: String, url: URL) : RequestPromise;
-  match(cacheName: String, url: String) : RequestPromise;
+  match(cacheName: String, url: URL) : ResponsePromise;
+  match(cacheName: String, url: String) : ResponsePromise;
   // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : RequestPromise {
-    return new RequestPromise(function(){});
+  match(cacheName: any, url: any) : ResponsePromise {
+    return new ResponsePromise(function(){});
   }
 }
 
@@ -451,11 +451,11 @@ class ReadOnlyCacheList {
   values(): Promise { return accepted(); }
 
   // Convenience method to get ResponsePromise from named cache.
-  match(cacheName: String, url: URL) : RequestPromise;
-  match(cacheName: String, url: String) : RequestPromise;
+  match(cacheName: String, url: URL) : ResponsePromise;
+  match(cacheName: String, url: String) : ResponsePromise;
   // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : RequestPromise {
-    return new RequestPromise(function(){});
+  match(cacheName: any, url: any) : ResponsePromise {
+    return new ResponsePromise(function(){});
   }
 }
 
