@@ -63,8 +63,6 @@ declare var ControllerSharedWorker: {
 class InstallPhaseEvent extends _Event {
   previousVersion: any = 0;
 
-  previousCaches: ReadOnlyCacheList;
-
   // Delay treating the installing controller until the passed Promise resolves
   // successfully. This is primarlialy used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
@@ -427,28 +425,6 @@ class CacheList extends Map {
     // Overrides to prevent non-URLs to be added go here.
     super();
   }
-
-  // Convenience method to get ResponsePromise from named cache.
-  match(cacheName: String, url: URL) : ResponsePromise;
-  match(cacheName: String, url: String) : ResponsePromise;
-  // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : ResponsePromise {
-    return new ResponsePromise(function(){});
-  }
-}
-
-// NOTE: does not extend Map! To be a subclass would mean supporting mutation, which this version doesn't.
-class ReadOnlyCacheList {
-  constructor(iterable: Array) {
-  }
-
-  // Includes only:
-  get(key: any): Promise { return accepted(); }
-  has(key: any): Promise { return accepted(); }
-  forEach(callback: Function, thisArg?: Object): void {}
-  items(): Promise { return accepted(); }
-  keys(): Promise { return accepted(); }
-  values(): Promise { return accepted(); }
 
   // Convenience method to get ResponsePromise from named cache.
   match(cacheName: String, url: URL) : ResponsePromise;
