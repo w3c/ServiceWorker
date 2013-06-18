@@ -32,13 +32,19 @@ navigator.controller = {
   },
 
   ready: function(): Future {
-    // Resolves successfully when a controller is found and initialized for the
-    // document. If no controller is registered, the "update" event for it fails,
-    // or the URL is cross-origin, we reject. If no controller is currently
-    // running but one is registered, this method starts it.
+    // Resolves successfully with a ControllerSharedWorker when a controller
+    // is found and initialized for the document. If no controller is
+    // registered, the "update" event for it fails, or the URL is
+    // cross-origin, we reject. If no controller is currently running but
+    // one is registered, this method starts it.
     return accepted();
   }
 };
+
+interface ControllerSharedWorker extends Worker {}
+declare var ControllerSharedWorker: {
+  prototype: ControllerSharedWorker;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // The Controller
