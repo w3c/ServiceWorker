@@ -9,42 +9,48 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
-// FIXME:
-//  navigator.registerController() : Promise
-//  navigator.unregisterController(): Promise
-//  navigator.controller : SharedWorker or null
+// extensions to window.navigator
+interface NavigatorController {
+  // null if page has no activated controller
+  controller: ControllerSharedWorker;
 
-navigator.controller = {
-  register: function(scope: string /* or URL */,
-                       url: string /* or URL */): Promise {
-    // Install the controller specified at the URL.
-    // This Promise is rejected if:
+  registerController(scope: string /* or URL */, url: string /* or URL */): Promise;
+    // If a controller is in-waiting, and its url & scope matches url & scope
+    //   - resolve the promise
+    //   - abort these steps
+    // If no controller is in-waiting, and the current active controller's
+    // url & scope matches url & scope
+    //   - resolve the promise
+    //   - abort these steps
+    // If a controller with the same scope & url is attempting registration
+    //   - resolve the promise depending on the current registration attempt
+    //   - abort these steps
+    // Reject the promise if:
     //    - the URL is not same-origin
     //    - no scope is provided or the scope does not resolve/parse correctly
-    //    - fetching the controller returns with an eror
+    //    - fetching the controller returns with an error
     //    - installing the controller (the event the controller is sent) fails
     //      with an unhandled exception
     // TBD: possible error values upon rejection
     //
-    // Else the Promise resolves successfully when controller.ready()'s Promise
-    // would
+    // Resolves once the install event is triggered without unhandled exceptions
 
-    return accepted();
-  },
+  unregisterController(scope: string): Promise;
+    // TODO: if we have a controller in-waiting & an active controller,
+    // what happens? Both removed?
+    // TODO: does removal happen immediately or using the same pattern as
+    // a controller update?
 
-  unregister: function(scope: string /* or URL */) : Promise {
-    return accepted();
-  },
+  // called when a new controller becomes in-waiting
+  oncontrollerinstalled: (ev: Event) => any;
+    // TODO: needs custom event type?
+    // TODO: is this actually useful? Can't simply reload due to other tabs
 
-  ready: function(): Promise {
-    // Resolves successfully with a ControllerSharedWorker when a controller
-    // is found and initialized for the document. If no controller is
-    // registered, the "update" event for it fails, or the URL is
-    // cross-origin, we reject. If no controller is currently running but
-    // one is registered, this method starts it.
-    return accepted();
-  }
-};
+  // called when a new controller takes over
+  oncontrollerreplaced: (ev: Event) => any;
+    // TODO: needs custom event type?
+    // TODO: is this actually useful? Might want to force a reload at this point
+}
 
 interface ControllerSharedWorker extends Worker {}
 declare var ControllerSharedWorker: {
@@ -579,10 +585,6 @@ class AsyncMap {
 var _useControllerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
 
-interface NavigatorController {
-  controller: Object;
-}
-
 interface Navigator extends NavigatorController,
   NavigatorID,
   NavigatorOnLine,
@@ -590,5 +592,4 @@ interface Navigator extends NavigatorController,
   NavigatorAbilities,
   NavigatorGeolocation,
   MSNavigatorAbilities {
-
 }
