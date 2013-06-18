@@ -1,7 +1,7 @@
 // This API proposal depends on:
 //  DOM: http://www.w3.org/TR/domcore/
 //  URLs: http://url.spec.whatwg.org/
-//  Futures: https://github.com/slightlyoff/DOMFuture/
+//  Promises: https://github.com/slightlyoff/DOMPromise/
 //  Shared Workers:
 //    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers
 
@@ -9,11 +9,16 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
+// FIXME:
+//  navigator.registerController() : Promise
+//  navigator.unregisterController(): Promise
+//  navigator.controller : SharedWorker or null
+
 navigator.controller = {
   register: function(scope: string /* or URL */,
-                       url: string /* or URL */): Future {
+                       url: string /* or URL */): Promise {
     // Install the controller specified at the URL.
-    // This future is rejected if:
+    // This Promise is rejected if:
     //    - the URL is not same-origin
     //    - no scope is provided or the scope does not resolve/parse correctly
     //    - fetching the controller returns with an eror
@@ -21,17 +26,17 @@ navigator.controller = {
     //      with an unhandled exception
     // TBD: possible error values upon rejection
     //
-    // Else the future resolves successfully when controller.ready()'s Future
+    // Else the Promise resolves successfully when controller.ready()'s Promise
     // would
 
     return accepted();
   },
 
-  unregister: function(scope: string /* or URL */) : Future {
+  unregister: function(scope: string /* or URL */) : Promise {
     return accepted();
   },
 
-  ready: function(): Future {
+  ready: function(): Promise {
     // Resolves successfully with a ControllerSharedWorker when a controller
     // is found and initialized for the document. If no controller is
     // registered, the "update" event for it fails, or the URL is
@@ -54,11 +59,11 @@ class InstallPhaseEvent extends _Event {
 
   previousCaches: ReadOnlyCacheList;
 
-  // Delay treating the installing controller until the passed Future resolves
+  // Delay treating the installing controller until the passed Promise resolves
   // successfully. This is primarlialy used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
   // depends on are populated.
-  waitUntil(f: Future): Future { return accepted(); }
+  waitUntil(f: Promise): Promise { return accepted(); }
 }
 
 class InstalledEvent extends InstallPhaseEvent {
@@ -72,7 +77,7 @@ class InstalledEvent extends InstallPhaseEvent {
 interface InstalledEventHandler { (e:InstalledEvent); }
 interface ActivateEventHandler { (e:InstallPhaseEvent); }
 class ReplacedEvent extends _Event {}
-interface ReplacedEventHandler { (e:ReplacedEvent); }
+// interface ReplacedEventHandler { (e:ReplacedEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
 
 // FIXME: need custom event types!
@@ -118,10 +123,12 @@ class ControllerScope extends SharedWorker {
   // Called when a controller becomes the active controller for a mapping
   onactivate: ActivateEventHandler;
 
+  /*
   // Called when an updated controller verion decides that it wants to take over
   // responsibility for the windows this controller is associated with via
   // InstalledEventHandler::replace()
   onreplaced: ReplacedEventHandler;
+  */
 
   // Called whenever this controller is meant to decide the disposition of a
   // request.
@@ -137,18 +144,10 @@ class ControllerScope extends SharedWorker {
   networkFetch(request:URL); // a URL
   networkFetch(request:string); // a URL
 
-  networkFetch(request:any) : Future {
-    return new Future(function(r) {
+  networkFetch(request:any) : Promise {
+    return new Promise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });
-  }
-
-  constructor(url: string, upgrading: Boolean) {
-    // Execute user-provided code in this context via super
-    super(url);
-    if (upgrading) {
-      this.dispatchEvent(new _CustomEvent("update"));
-    }
   }
 }
 
@@ -274,8 +273,8 @@ class SameOriginResponse extends Response {
   body: any; /*TypedArray? String?*/
 }
 
-class ResponseFuture extends Future {}
-class RequestFuture extends Future {}
+class ResponsePromise extends Promise {}
+class RequestPromise extends Promise {}
 
 class FetchEvent extends _Event {
   // The body of the request.
@@ -293,29 +292,29 @@ class FetchEvent extends _Event {
   // bar.
   isTopLevel: Boolean = false;
 
-  // Future must resolve with a Response. A Network Error is thrown for other
+  // Promise must resolve with a Response. A Network Error is thrown for other
   // resolution types/values.
-  respondWith(r: Future) : void;
+  respondWith(r: Promise) : void;
   respondWith(r: Response) : void;
   // "any" to make the TS compiler happy:
   respondWith(r: any) : void {
-    if (!(r instanceof Response) || !(r instanceof Future)) {
+    if (!(r instanceof Response) || !(r instanceof Promise)) {
       throw new Error("Faux NetworkError because DOM is currently b0rken");
     }
 
     this.stopImmediatePropagation();
 
     if (r instanceof Response) {
-      r = new Future(function(resolver) { resolver.resolve(r); });
+      r = new Promise(function(resolver) { resolver.resolve(r); });
     }
     r.done(_useControllerResponse,
            _defaultToBrowserHTTP);
   }
 
-  forwardTo(url: URL) : Future;
-  forwardTo(url: string) : Future;
+  forwardTo(url: URL) : Promise;
+  forwardTo(url: string) : Promise;
   // "any" to make the TS compiler happy:
-  forwardTo(url: any) : Future {
+  forwardTo(url: any) : Promise {
     if (!(url instanceof _URL) || typeof url != "string") {
       // Should *actually* be a DOMException.NETWORK_ERR
       // Can't be today because DOMException isn't currently constructable
@@ -324,7 +323,7 @@ class FetchEvent extends _Event {
 
     this.stopImmediatePropagation();
 
-    return new Future(function(resolver){
+    return new Promise(function(resolver){
       resolver.resolve(new SameOriginResponse({
         statusCode: 302,
         headers: { "Location": url.toString() }
@@ -376,10 +375,10 @@ class Cache {
   }
 
   // Match a URL or a string
-  match(name:URL) : Future;
-  match(name:string) : Future;
+  match(name:URL) : Promise;
+  match(name:string) : Promise;
   // "any" to make the TS compiler happy:
-  match(name:any) : Future {
+  match(name:any) : Promise {
     // name matches something in items
     if (name) {
       return this.items.get(name.toString());
@@ -389,24 +388,24 @@ class Cache {
   // TODO: define type-restricting getters/setters
 
   // Cribbed from Mozilla's proposal, but with sane returns
-  add(...response:string[]) : Future;
-  add(...response:URL[]) : Future;
+  add(...response:string[]) : Promise;
+  add(...response:URL[]) : Promise;
   // "any" to make the TS compiler happy:
-  add(...response:any[]) : Future {
+  add(...response:any[]) : Promise {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
     // items upon successful fetching
     return accepted();
   }
 
   // Needed because Response objects don't have URLs.
-  addResponse(url, response:Response) : Future {
+  addResponse(url, response:Response) : Promise {
     return accepted();
   }
 
-  remove(...response:string[]) : Future;
-  remove(...response:URL[]) : Future;
+  remove(...response:string[]) : Promise;
+  remove(...response:URL[]) : Promise;
   // "any" to make the TS compiler happy:
-  remove(...response:any[]) : Future {
+  remove(...response:any[]) : Promise {
     // FIXME: does this need to be async?
     return accepted();
   }
@@ -418,13 +417,13 @@ class Cache {
   // is expired. New items may be added to the cache with the urls that can be
   // passed. The HTTP cache is currently used for these resources but no
   // heuristic caching is applied for these requests.
-  update(...urls:URL[]) : Future;
-  update(...urls:string[]) : Future { return accepted(); }
+  update(...urls:URL[]) : Promise;
+  update(...urls:string[]) : Promise { return accepted(); }
 
-  ready(): Future { return accepted(); }
+  ready(): Promise { return accepted(); }
 
   // FIXME: not sure we want to keep swapCache!
-  swapCache() : Future { return accepted(); }
+  swapCache() : Promise { return accepted(); }
 
 }
 
@@ -434,12 +433,12 @@ class CacheList extends Map {
     super();
   }
 
-  // Convenience method to get ResponseFuture from named cache.
-  match(cacheName: String, url: URL) : RequestFuture;
-  match(cacheName: String, url: String) : RequestFuture;
+  // Convenience method to get ResponsePromise from named cache.
+  match(cacheName: String, url: URL) : RequestPromise;
+  match(cacheName: String, url: String) : RequestPromise;
   // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : RequestFuture {
-    return new RequestFuture(function(){});
+  match(cacheName: any, url: any) : RequestPromise {
+    return new RequestPromise(function(){});
   }
 }
 
@@ -449,25 +448,25 @@ class ReadOnlyCacheList {
   }
 
   // Includes only:
-  get(key: any): Future { return accepted(); }
-  has(key: any): Future { return accepted(); }
+  get(key: any): Promise { return accepted(); }
+  has(key: any): Promise { return accepted(); }
   forEach(callback: Function, thisArg?: Object): void {}
-  items(): Future { return accepted(); }
-  keys(): Future { return accepted(); }
-  values(): Future { return accepted(); }
+  items(): Promise { return accepted(); }
+  keys(): Promise { return accepted(); }
+  values(): Promise { return accepted(); }
 
-  // Convenience method to get ResponseFuture from named cache.
-  match(cacheName: String, url: URL) : RequestFuture;
-  match(cacheName: String, url: String) : RequestFuture;
+  // Convenience method to get ResponsePromise from named cache.
+  match(cacheName: String, url: URL) : RequestPromise;
+  match(cacheName: String, url: String) : RequestPromise;
   // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : RequestFuture {
-    return new RequestFuture(function(){});
+  match(cacheName: any, url: any) : RequestPromise {
+    return new RequestPromise(function(){});
   }
 }
 
 class StaticRouter extends Map {
   // when URL is a string & ends in *, it acts as a matching prefix
-  // sources can be ResponseSource, ResponseFuture, or Response, or String
+  // sources can be ResponseSource, ResponsePromise, or Response, or String
   // Strings can be 'network', which will fetch the current url from the network
   add(url: any, sources: Array): void {};
   // cache can be string name or cache object
@@ -480,7 +479,7 @@ class StaticRoute {
 }
 
 class ResponseSource {
-  get(): ResponseFuture { return acceptedResponse() };
+  get(): ResponsePromise { return acceptedResponse() };
 }
 
 class CacheSource extends ResponseSource {
@@ -557,14 +556,14 @@ class _EventTarget {
   }
 }
 
-// https://github.com/slightlyoff/DOMFuture/blob/master/DOMFuture.idl
+// https://github.com/slightlyoff/DOMPromise/blob/master/DOMPromise.idl
 class Resolver {
   public accept(v:any): void {}
   public reject(v:any): void {}
   public resolve(v:any): void {}
 }
 
-class Future {
+class Promise {
   // Callback type decl:
   //  callback : (n : number) => number
   constructor(init : (r:Resolver) => void ) {
@@ -572,14 +571,14 @@ class Future {
   }
 }
 
-function accepted() : Future {
-  return new Future(function(r) {
+function accepted() : Promise {
+  return new Promise(function(r) {
     r.accept(true);
   });
 }
 
-function acceptedResponse() : ResponseFuture {
-  return new ResponseFuture(function(r) {
+function acceptedResponse() : ResponsePromise {
+  return new ResponsePromise(function(r) {
     r.accept(new Response());
   });
 }
@@ -603,19 +602,19 @@ class WindowList /* extends Array */ {}
 
 class AsyncMap {
   constructor(iterable?:any[]) {}
-  get(key: any): Future { return accepted(); }
-  has(key: any): Future { return accepted(); }
-  set(key: any, val: any): Future { return accepted(); }
-  clear(): Future { return accepted(); }
-  delete(key: any): Future { return accepted(); }
+  get(key: any): Promise { return accepted(); }
+  has(key: any): Promise { return accepted(); }
+  set(key: any, val: any): Promise { return accepted(); }
+  clear(): Promise { return accepted(); }
+  delete(key: any): Promise { return accepted(); }
   forEach(callback: Function, thisArg?: Object): void {}
-  items(): Future { return accepted(); }
-  keys(): Future { return accepted(); }
-  values(): Future { return accepted(); }
+  items(): Promise { return accepted(); }
+  keys(): Promise { return accepted(); }
+  values(): Promise { return accepted(); }
 }
 
-var _useControllerResponse = function() : Future { return accepted(); };
-var _defaultToBrowserHTTP = function(url?) : Future { return accepted(); };
+var _useControllerResponse = function() : Promise { return accepted(); };
+var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
 
 interface NavigatorController {
   controller: Object;
