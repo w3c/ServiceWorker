@@ -102,8 +102,6 @@ class ControllerScope extends SharedWorker {
   // are replaceing (see InstalledEvent::previousVersion)
   version: any = 0; // NOTE: versions must be structured-cloneable!
 
-  staticRoutes: StaticRouter;
-
   //
   // Events
   //
@@ -462,32 +460,6 @@ class ReadOnlyCacheList {
   match(cacheName: any, url: any) : RequestPromise {
     return new RequestPromise(function(){});
   }
-}
-
-class StaticRouter extends Map {
-  // when URL is a string & ends in *, it acts as a matching prefix
-  // sources can be ResponseSource, ResponsePromise, or Response, or String
-  // Strings can be 'network', which will fetch the current url from the network
-  add(url: any, sources: Array): void {};
-  // cache can be string name or cache object
-  // fallbackSources are tried if cache extraction fails
-  addCache(cache: any, fallbackSources: Array): void {};
-}
-
-class StaticRoute {
-  sources: Array;
-}
-
-class ResponseSource {
-  get(): ResponsePromise { return acceptedResponse() };
-}
-
-class CacheSource extends ResponseSource {
-  constructor(cacheName: String, url: any) { super(); };
-}
-
-class NetworkSource extends ResponseSource {
-  constructor(url: any) { super(); };
 }
 
 ////////////////////////////////////////////////////////////////////////////////
