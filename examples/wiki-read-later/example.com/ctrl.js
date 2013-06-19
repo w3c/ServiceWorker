@@ -1,8 +1,10 @@
 this.version = 1.0;
 var cacheNames = {
-  'static': 'static' + this.version
+  'static': 'static' + this.version,
+  'core': 'core' + this.version
 };
 
+// Install process
 this.oninstalled = function(event) {
   var staticCache = new Cache();
   var oldStaticCache;
@@ -31,7 +33,21 @@ this.oninstalled = function(event) {
   });
 
   caches.set(cacheNames['static'], staticCache);
-  event.waitUntil(staticCache.ready());
+
+  // core cache entried should be check on each controller update
+  caches.set(cacheNames['core'], new Cache([
+    '/index.html'
+  ]));
+
+  event.waitUntil(Promise.every([
+    staticCache.ready(),
+    caches.get(cacheNames['core']).ready()
+  ])).then(function() {
+    // if no previous version, we may as well take over now
+    if (!event.previousVersion) {
+      event.replace();
+    }
+  });
 };
 
 this.onactivate = function(event) {
@@ -45,4 +61,17 @@ this.onactivate = function(event) {
   }).forEach(caches.delete.bind(caches));
 };
 
-// TODO: fetch logic
+
+// Request handling
+this.addEventListener('fetch', function(event) {
+  if (event.request.url.host == "cdn.example.com") {
+    event.respondWith(caches.match(cacheNames['static'], event.request.url).catch(function() {
+      return networkFetch(event.request);
+    }));
+  }
+  else {
+    event.respondWith(caches.match(cacheNames['core'], event.request.url).catch(function() {
+      return networkFetch(event.request);
+    }));
+  }
+});
