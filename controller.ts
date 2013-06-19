@@ -64,7 +64,7 @@ class InstallPhaseEvent extends _Event {
   previousVersion: any = 0;
 
   // Delay treating the installing controller until the passed Promise resolves
-  // successfully. This is primarlialy used to ensure that a
+  // successfully. This is primarily used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
   // depends on are populated.
   waitUntil(f: Promise): Promise { return accepted(); }
