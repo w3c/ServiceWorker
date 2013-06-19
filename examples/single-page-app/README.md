@@ -22,3 +22,8 @@ This is something the current AppCache spec deals with pretty well. We need to e
         * Once all resources are successfully download, add to cache
     * On UI interaction (changing the state of the page)
         * Mark page as “interacted with”
+
+## Todo
+
+* Haven't yet handled the "interacted with" switch
+* Just letting updates happen naturally so far
