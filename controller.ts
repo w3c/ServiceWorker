@@ -75,6 +75,7 @@ class InstalledEvent extends InstallPhaseEvent {
 
   // Ensures that the controller is used in place of existing controllers for
   // the currently controlled set of window instances.
+  // TODO: how does this interact with waitUntil? Does it automatically wait?
   replace(): void {}
 }
 
