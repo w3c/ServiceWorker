@@ -57,7 +57,7 @@ this.addEventListener("activate", function(e) {
 // ...onfetch, etc...
 ```
 
-So that's cache "garbage collection" then: it's manual and your app should be mindful of what it doesn't need any more when updating to a new version. The same thing goes for static routes that your old versions may have set up: it's best to clear them all and re-set them in the latest version of your controller rather than leaving them around as they can lead to terrible gotchas and astonishing disk usage. If you don't want to spend forever debugging, it's best to take care early to ensure that your caches, databases, and static routes are kept neat and tidy.
+So that's cache "garbage collection" then: it's manual and your app should be mindful of what it doesn't need any more when updating to a new version. If you don't want to spend forever debugging, it's best to take care early to ensure that your caches and databases are kept neat and tidy.
 
 But what about in-place updates of `Cache` objects?
 
