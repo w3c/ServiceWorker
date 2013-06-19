@@ -42,12 +42,12 @@ interface NavigatorController {
     // a controller update?
 
   // called when a new controller becomes in-waiting
-  oncontrollerinstalled: (ev: Event) => any;
+  oncontrollerinstall: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Can't simply reload due to other tabs
 
-  // called when a new controller takes over
-  oncontrollerreplaced: (ev: Event) => any;
+  // called when a new controller takes over via InstalledEvent#replace
+  oncontrollerreplace: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
 }
