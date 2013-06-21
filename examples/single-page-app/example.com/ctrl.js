@@ -42,8 +42,11 @@ this.oninstalled = function(event) {
   event.waitUntil(Promise.every(
     caches.values().map(function(x) { return x.ready(); })
   )).then(function() {
-    // if no previous version, we may as well take over now
-    if (!event.previousVersion) {
+    if (event.previousVersion) {
+      event.reloadAll();
+    }
+    else {
+      // if no previous version, we may as well take over now
       event.replace();
     }
   });
