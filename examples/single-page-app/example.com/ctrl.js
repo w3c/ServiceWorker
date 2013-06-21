@@ -39,7 +39,7 @@ this.oninstalled = function(event) {
     '/'
   ]));
 
-  event.waitUntil(Promise.every(
+  event.waitUntil(Promise.every.apply(Promise,
     caches.values().map(function(x) { return x.ready(); })
   )).then(function() {
     if (event.previousVersion) {
