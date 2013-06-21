@@ -50,11 +50,19 @@ interface NavigatorController {
   oncontrollerreplace: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
+ 
+  oncontrollerreloadpage: (ev: ReloadPageEvent) => any;
 }
 
 interface ControllerSharedWorker extends Worker {}
 declare var ControllerSharedWorker: {
   prototype: ControllerSharedWorker;
+}
+
+class ReloadPageEvent extends _Event {
+  // Delay the page unload to serialise state to storage or get user's permission
+  // to reload.
+  waitUntil(f: Promise): void {}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +85,37 @@ class InstalledEvent extends InstallPhaseEvent {
   // Ensures that the controller is used in place of existing controllers for
   // the currently controlled set of window instances.
   // TODO: how does this interact with waitUntil? Does it automatically wait?
-  replace(): void {}
+  replace(): void {};
+
+  // Assists in restarting all windows with the new controller.
+  // 
+  // Return a new Promise
+  // For each attached window:
+  //   Trigger controllerreloadpage
+  //   If controllerreloadpage has default prevented:
+  //     Unfreeze any frozen windows
+  //     reject returned promise
+  //     abort these steps
+  //   If waitUntil called on controllerreloadpage event:
+  //     frozen windows may wish to indicate which window/tab they're blocked on
+  //     yeild until promise passed into waitUntil resolves
+  //     if waitUntil promise is accepted:
+  //       freeze window (ui may wish to grey it out)
+  //     else:
+  //       Unfreeze any frozen windows
+  //       reject returned promise
+  //       abort these steps
+  //   Else:
+  //     freeze window (ui may wish to grey it out)
+  // Unload all windows
+  // If any window fails to unload, eg via onbeforeunload:
+  //   Unfreeze any frozen windows
+  //   reject returned promise
+  //   abort these steps
+  // Activate controller
+  // Reload all windows asynchronously
+  // Resolve promise
+  reloadAll(): Promise {}
 }
 
 interface InstalledEventHandler { (e:InstalledEvent); }
