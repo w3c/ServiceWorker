@@ -54,6 +54,18 @@ interface NavigatorController {
   oncontrollerreloadpage: (ev: ReloadPageEvent) => any;
 }
 
+interface Navigator extends
+  NavigatorController,
+  EventTarget,
+  // the rest is just stuff from the default ts definition
+  NavigatorID,
+  NavigatorOnLine,
+  NavigatorDoNotTrack,
+  NavigatorAbilities,
+  NavigatorGeolocation,
+  MSNavigatorAbilities {
+}
+
 interface ControllerSharedWorker extends Worker {}
 declare var ControllerSharedWorker: {
   prototype: ControllerSharedWorker;
@@ -596,12 +608,3 @@ class AsyncMap {
 
 var _useControllerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
-
-interface Navigator extends NavigatorController,
-  NavigatorID,
-  NavigatorOnLine,
-  NavigatorDoNotTrack,
-  NavigatorAbilities,
-  NavigatorGeolocation,
-  MSNavigatorAbilities {
-}
