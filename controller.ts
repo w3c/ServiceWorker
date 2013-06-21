@@ -67,6 +67,7 @@ class InstallPhaseEvent extends _Event {
   // successfully. This is primarily used to ensure that a
   // NavigationController is not active until all of the "core" Caches it
   // depends on are populated.
+  // TODO: what does the returned promise do differently to the one passed in?
   waitUntil(f: Promise): Promise { return accepted(); }
 }
 
