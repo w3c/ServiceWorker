@@ -225,7 +225,7 @@ In the above example with registrations for `/foo*` and `/foo/bar*`, the followi
 
 Note: if `e.respondWith()` isn't called when handling a connection in `/foo/barController.js`, it does not cascade to `/fooController.js`, it falls back to the browser's built-in network behavior.
 
-One more note: Last-registration wins. If two pages on a site are visited in order and both register a controller for `"/*"` (or any other identical path), the second page visited will have its controller installed. Only when the specified controller scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is preformed (see below) and the last registration is now the effective one.
+One more note: Last-registration wins. If two pages on a site are visited in order and both register a controller for `"/*"` (or any other identical path), the second page visited will have its controller installed. Only when the specified controller scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is performed (see below) and the last registration is now the effective one.
 
 #### Registrations Map Navigations, Documents Map Fetches
 
@@ -301,7 +301,7 @@ In fact, our first example controller, coupled with [IndexedDB](https://develope
 
 This is where the global `caches` map comes in. Each Controller has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Promise`s which represent `Response`s which may or may not yet be available from the network.
 
-_NOTE: You might know "Promise" by the name "Promise". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises- promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
+_NOTE: You might know "Promise" by the name "Future". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises- promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
 
 Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the Controller is ready if-and- only-if all the there resources in the cache are downloaded.
 
