@@ -15,6 +15,8 @@ You might now be thinking "yeah, but what about the [HTML5 Application Cache (ak
 
 This document is designed to help you understand the basic concepts of Navigation Controllers, how they interact, and how to start thinking about building apps with them in mind.
 
+As a historical note, in 2009/2010/2011 a specification with similar goals and ideas called [Programmable HTTP Caching and Serving](http://www.w3.org/TR/DataCache/) was being worked on by the W3C Web Applications Working Group. This specification "_defines APIs for off-line serving of requests to HTTP resources using static and dynamic responses. It extends the function of application caches defined in HTML5_". However, the specification is no longer in active maintenance and was published only as a note.
+
 ## From Pages to Apps
 
 Imagine a simple movie application. To be useful, it must allow users to browse some library of content for purchase or download while online and view videos both on and offline. Sure, there could be online-only video applications...but what's the fun in that? Airplanes, busses, and mobile-roaming are key moments when we can all use a bit of _Pulp Fiction_ or _Lawrence of Arabia_ in our lives.
