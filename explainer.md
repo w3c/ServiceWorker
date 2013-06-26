@@ -619,5 +619,5 @@ This document only scratches the surface of what Navigation Controllers enable, 
 
 <!-- TODO: add others who provide feedback! -->
 
-Many thanks to (Web Personality of the Year nominee)[http://www.ubelly.com/thecritters/] Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Andrew Betts, Chris Wilson, Aaron Boodman, Dave Herman, Jonas Sicking, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
+Many thanks to [Web Personality of the Year nominee](http://www.ubelly.com/thecritters/) Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Andrew Betts, Chris Wilson, Aaron Boodman, Dave Herman, Jonas Sicking, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
 
