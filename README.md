@@ -4,9 +4,9 @@
 
 Navigation Controllers are a new system in browsers that provide scriptable caches and the ability to respond to network requests from certain web pages via script, responding either the contents of these caches or programmatically-generated content.
 
-Controllers aren't a new version of the [rightfully-loathed](http://alistapart.com/article/application-cache-is-a-douchebag) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Instead, they are comprised of scriptable primtives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
+Controllers aren't a new version of the [rightfully-loathed](http://alistapart.com/article/application-cache-is-a-douchebag) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Instead, they are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
-To understand the design and how you might build apps with Navigation Controllers, see the [explainer document](https://github.com/slightlyoff/NavigationController/blob/master/explainer.md)
+To understand the design and how you might build apps with Navigation Controllers, see the [explainer document](https://github.com/slightlyoff/NavigationController/blob/master/explainer.md).
 
 For the nitty-gritty of the API, see [`controller.ts`](https://github.com/slightlyoff/NavigationController/blob/master/controller.ts), a [TypeScript](http://www.typescriptlang.org/) description of the major bits of the callable interface.
 
