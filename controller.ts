@@ -127,7 +127,11 @@ class InstalledEvent extends InstallPhaseEvent {
   // Activate controller
   // Reload all windows asynchronously
   // Resolve promise
-  reloadAll(): Promise {}
+  reloadAll(): Promise {
+    return new Promise(function() {
+
+    });
+  }
 }
 
 interface InstalledEventHandler { (e:InstalledEvent); }

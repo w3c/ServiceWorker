@@ -3,6 +3,16 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+var ReloadPageEvent = (function (_super) {
+    __extends(ReloadPageEvent, _super);
+    function ReloadPageEvent() {
+        _super.apply(this, arguments);
+
+    }
+    ReloadPageEvent.prototype.waitUntil = function (f) {
+    };
+    return ReloadPageEvent;
+})(_Event);
 var InstallPhaseEvent = (function (_super) {
     __extends(InstallPhaseEvent, _super);
     function InstallPhaseEvent() {
@@ -23,6 +33,10 @@ var InstalledEvent = (function (_super) {
         this.previous = null;
     }
     InstalledEvent.prototype.replace = function () {
+    };
+    InstalledEvent.prototype.reloadAll = function () {
+        return new Promise(function () {
+        });
     };
     return InstalledEvent;
 })(InstallPhaseEvent);
