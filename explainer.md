@@ -430,7 +430,7 @@ this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   if (url.toString() == inventoryURL.toString()) {
     e.respondWith(
-      networkFetch(url).then(
+      fetch(url).then(
         null,
         function() { return shellResources.match(fallbackInventory); }
       )
@@ -441,7 +441,7 @@ this.addEventListener("fetch", function(e) {
 
 That might take a bit of explaining, particularly if you don't use Promises (aka "Promises") often, but the long and the sort of it is that the controller:
 
-  - Gets a `Promise` instance from `networkFetch`
+  - Gets a `Promise` instance from `fetch`
   - If it resolves successfully (that is, gets what it wanted from the network), that's the value passed to the page. Simple.
   - If not, the `.then()` function adds a callback to handle the error which, in this case, returns some default content. We don't need a callback for the success case here, so that's just specified as `null`.
 
@@ -605,7 +605,7 @@ Navigation Controllers enable this by allowing `Cache`s to fetch and cache off-o
 
 Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
 
-A few things to keep in mind regarding cross-origin resources that you may cache or request via `networkFetch()`:
+A few things to keep in mind regarding cross-origin resources that you may cache or request via `fetch()`:
 
   * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A controller that calls `e.respondWith(caches.match('cdn content', 'http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a controller to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
   * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable in a controller (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.

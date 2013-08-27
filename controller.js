@@ -54,7 +54,7 @@ var ControllerScope = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    ControllerScope.prototype.networkFetch = function (request) {
+    ControllerScope.prototype.fetch = function (request) {
         return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });

@@ -50,7 +50,7 @@ interface NavigatorController {
   oncontrollerreplace: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
- 
+
   oncontrollerreloadpage: (ev: ReloadPageEvent) => any;
 }
 
@@ -100,7 +100,7 @@ class InstalledEvent extends InstallPhaseEvent {
   replace(): void {};
 
   // Assists in restarting all windows with the new controller.
-  // 
+  //
   // Return a new Promise
   // For each attached window:
   //   Trigger controllerreloadpage
@@ -189,11 +189,11 @@ class ControllerScope extends SharedWorker {
   // FIXME(slightlyoff): Need to add flags for:
   //  - custom "accept/reject" handling, perhaps with global config
   //  - flag to consult the HTTP cache first?
-  networkFetch(request:Request);
-  networkFetch(request:URL); // a URL
-  networkFetch(request:string); // a URL
+  fetch(request:Request);
+  fetch(request:URL); // a URL
+  fetch(request:string); // a URL
 
-  networkFetch(request:any) : Promise {
+  fetch(request:any) : Promise {
     return new Promise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });

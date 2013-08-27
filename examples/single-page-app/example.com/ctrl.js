@@ -68,12 +68,12 @@ this.onactivate = function(event) {
 this.addEventListener('fetch', function(event) {
   if (event.request.url.host == "cdn.example.com") {
     event.respondWith(caches.match(cacheNames['static'], event.request.url).catch(function() {
-      return networkFetch(event.request);
+      return fetch(event.request);
     }));
   }
   else {
     event.respondWith(caches.match(cacheNames['core'], event.request.url).catch(function() {
-      return networkFetch(event.request);
+      return fetch(event.request);
     }));
   }
 });
