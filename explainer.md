@@ -128,13 +128,13 @@ Before we get into the nitty-gritty of controllers, a few things to keep in mind
 
 > Navigation Controllers may be killed at any time.
 
-That's right, the browser might unceremoniously kill your Controller if it's idle, or even stop it mid-work and re-issue the request to a different instance of the controller. There are zero guarantees about how long a Controller will run. That means that all Controller scripts must be written in such a way as to avoid holding lots of global state. This simply can't be stressed enough: _write your controllers as though they expect to die after every request, only to be revived for the next one_.
+That's right, the browser might unceremoniously kill your Controller if it's idle, or even stop it mid-work and re-issue the request to a different instance of the controller. There are no guarantees about how long a Controller will run. Controllers should be written to avoid holding global state. This can't be stressed enough: _write your controllers as though they will die after every request_.
 
-Also, remember that _Navigation Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document can talk to an instance of a controller. If you need to care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like IndexedDB.
+Also remember that _Controllers are shared resources_. A single controller might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given controller. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](http://msdn.microsoft.com/en-us/library/ie/hh673548(v=vs.85).aspx).
 
-This pattern should be familiar if you've developed content servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
+This should be familiar if you've developed servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
 
-Lastly, this might seem obvious, but if syntax errors prevent running a controller script, or if an exception is thrown in the event handler, the controller won't be considered successfully installed and won't be used on subsequent navigations. It pays to lint and test.
+Lastly, exceptions or syntax errors that prevent running a controller will ensure that the controller won't be considered successfully installed and won't be used on subsequent navigations. It pays to test.
 
 ### Resources & Navigations
 
