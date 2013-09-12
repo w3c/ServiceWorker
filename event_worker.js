@@ -22,19 +22,18 @@ var ReloadPageEvent = (function (_super) {
     return ReloadPageEvent;
 })(_Event);
 
-////////////////////////////////////////////////////////////////////////////////
-// The Controller
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// The Event Worker
+///////////////////////////////////////////////////////////////////////////////
 var InstallPhaseEvent = (function (_super) {
     __extends(InstallPhaseEvent, _super);
     function InstallPhaseEvent() {
         _super.apply(this, arguments);
         this.previousVersion = 0;
     }
-    // Delay treating the installing controller until the passed Promise resolves
-    // successfully. This is primarily used to ensure that a
-    // NavigationController is not active until all of the "core" Caches it
-    // depends on are populated.
+    // Delay treating the installing worker until the passed Promise resolves
+    // successfully. This is primarily used to ensure that an EventWorker is not
+    // active until all of the "core" Caches it depends on are populated.
     // TODO: what does the returned promise do differently to the one passed in?
     InstallPhaseEvent.prototype.waitUntil = function (f) {
         return accepted();
@@ -48,23 +47,23 @@ var InstalledEvent = (function (_super) {
         _super.apply(this, arguments);
         this.previous = null;
     }
-    // Ensures that the controller is used in place of existing controllers for
+    // Ensures that the worker is used in place of existing workers for
     // the currently controlled set of window instances.
     // TODO: how does this interact with waitUntil? Does it automatically wait?
     InstalledEvent.prototype.replace = function () {
     };
 
-    // Assists in restarting all windows with the new controller.
+    // Assists in restarting all windows with the new worker.
     //
     // Return a new Promise
     // For each attached window:
-    //   Trigger controllerreloadpage
-    //   If controllerreloadpage has default prevented:
+    //   Trigger oneventworkerreloadpage
+    //   If oneventworkerreloadpage has default prevented:
     //     Unfreeze any frozen windows
     //     reject returned promise
     //     abort these steps
-    //   If waitUntil called on controllerreloadpage event:
-    //     frozen windows may wish to indicate which window/tab they're blocked on
+    //   If waitUntil called on oneventworkerreloadpage event:
+    //     frozen windows may wish to indicate which window they're blocked on
     //     yeild until promise passed into waitUntil resolves
     //     if waitUntil promise is accepted:
     //       freeze window (ui may wish to grey it out)
@@ -79,7 +78,8 @@ var InstalledEvent = (function (_super) {
     //   Unfreeze any frozen windows
     //   reject returned promise
     //   abort these steps
-    // Activate controller
+    // Close all connections between the old worker and windows
+    // Activate the new worker
     // Reload all windows asynchronously
     // Resolve promise
     InstalledEvent.prototype.reloadAll = function () {
@@ -89,16 +89,16 @@ var InstalledEvent = (function (_super) {
     return InstalledEvent;
 })(InstallPhaseEvent);
 
-// The scope in which controller code is executed
-var ControllerScope = (function (_super) {
-    __extends(ControllerScope, _super);
-    function ControllerScope() {
+// The scope in which worker code is executed
+var EventWorkerScope = (function (_super) {
+    __extends(EventWorkerScope, _super);
+    function EventWorkerScope() {
         _super.apply(this, arguments);
-        // Set by the controller and used to communicate to newer versions what they
+        // Set by the worker and used to communicate to newer versions what they
         // are replaceing (see InstalledEvent::previousVersion)
         this.version = 0;
     }
-    Object.defineProperty(ControllerScope.prototype, "windows", {
+    Object.defineProperty(EventWorkerScope.prototype, "windows", {
         get: function () {
             return new WindowList();
         },
@@ -106,17 +106,17 @@ var ControllerScope = (function (_super) {
         configurable: true
     });
 
-    ControllerScope.prototype.fetch = function (request) {
+    EventWorkerScope.prototype.fetch = function (request) {
         return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
-    return ControllerScope;
+    return EventWorkerScope;
 })(SharedWorker);
 
-////////////////////////////////////////////////////////////////////////////////
-// Controller APIs
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Event Worker APIs
+///////////////////////////////////////////////////////////////////////////////
 // http://fetch.spec.whatwg.org/#requests
 var Request = (function () {
     function Request(params) {
@@ -251,14 +251,18 @@ var FetchEvent = (function (_super) {
         //  "navigate"
         //  "fetch"
         this.type = "navigate";
-        // Informs the Controller wether or not the request corresponds to navigation
-        // of the top-level window, e.g. reloading a tab or typing a URL into the URL
-        // bar.
+        // Does the request correspond to navigation of the top-level window, e.g.
+        // reloading a tab or typing a URL into the URL bar?
         this.isTopLevel = false;
+        // Does the navigation or fetch come from a document that has been "soft
+        // reloaded"? That is to say, the reload button in the URL bar or the
+        // back/forward buttons in browser chrome? If true, some apps may choose not
+        // to work so hard to get "fresh" content to display.
+        this.isReload = false;
 
         // This is the meat of the API for most use-cases.
         // If preventDefault() is not called on the event, the request is sent to
-        // the default browser controller. That is to say, to respond with something
+        // the default browser worker. That is to say, to respond with something
         // from the cache, you must preventDefault() and respond with it manually,
         // digging the resource out of the cache and calling
         // evt.respondWith(cachedItem).
@@ -284,7 +288,7 @@ var FetchEvent = (function (_super) {
                 resolver.resolve(r);
             });
         }
-        r.done(_useControllerResponse, _defaultToBrowserHTTP);
+        r.then(_useWorkerResponse, _defaultToBrowserHTTP);
     };
 
     // "any" to make the TS compiler happy:
@@ -312,8 +316,8 @@ var FetchEvent = (function (_super) {
 //    contents are fetched/installed.
 //  - Caches should have version numbers and "update" should set/replace it
 // This largely describes the current Application Cache API. It's only available
-// inside controller instances (not in regular documents), meaning that caching
-// is a feature of the controller.
+// inside worker instances (not in regular documents), meaning that caching is a
+// feature of the event worker. This is likely to change!
 var Cache = (function () {
     // "any" to make the TS compiler happy:
     function Cache() {
@@ -374,8 +378,6 @@ var Cache = (function () {
 
 var CacheList = (function () {
     function CacheList(iterable) {
-        // Overrides to prevent non-URLs to be added go here.
-        // super();
     }
     // "any" to make the TS compiler happy
     CacheList.prototype.match = function (cacheName, url) {
@@ -549,7 +551,7 @@ var AsyncMap = (function () {
     return AsyncMap;
 })();
 
-var _useControllerResponse = function () {
+var _useWorkerResponse = function () {
     return accepted();
 };
 var _defaultToBrowserHTTP = function (url) {

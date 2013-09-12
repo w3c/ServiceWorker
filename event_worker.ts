@@ -10,52 +10,53 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // extensions to window.navigator
-interface NavigatorController {
-  // null if page has no activated controller
-  controller: ControllerSharedWorker;
+interface NavigatorEventWorker {
+  // null if page has no activated worker
+  eventWorker: SharedEventWorker;
 
-  registerController(scope: string /* or URL */, url: string /* or URL */): Promise;
-    // If a controller is in-waiting, and its url & scope matches url & scope
+  registerEventWorker(scope: string/* or URL */, url: string/* or URL */): Promise;
+    // If an event worker is in-waiting, and its url & scope matches both
+    // url & scope
     //   - resolve the promise
     //   - abort these steps
-    // If no controller is in-waiting, and the current active controller's
+    // If no worker is in-waiting, and the current active event worker's
     // url & scope matches url & scope
     //   - resolve the promise
     //   - abort these steps
-    // If a controller with the same scope & url is attempting registration
+    // If an event worker with the same scope & url is attempting registration
     //   - resolve the promise depending on the current registration attempt
     //   - abort these steps
     // Reject the promise if:
     //    - the URL is not same-origin
     //    - no scope is provided or the scope does not resolve/parse correctly
-    //    - fetching the controller returns with an error
-    //    - installing the controller (the event the controller is sent) fails
+    //    - fetching the event worker returns with an error
+    //    - installing the worker (the event the worker is sent) fails
     //      with an unhandled exception
-    // TBD: possible error values upon rejection
+    // TBD: possible error values upon rejection!
     //
     // Resolves once the install event is triggered without unhandled exceptions
 
-  unregisterController(scope: string): Promise;
-    // TODO: if we have a controller in-waiting & an active controller,
+  unregisterEventWorker(scope: string): Promise;
+    // TODO: if we have a worker-in-waiting & an active worker,
     // what happens? Both removed?
     // TODO: does removal happen immediately or using the same pattern as
-    // a controller update?
+    // a worker update?
 
-  // called when a new controller becomes in-waiting
-  oncontrollerinstall: (ev: Event) => any;
+  // called when a new worker becomes in-waiting
+  oneventworkerinstalled: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Can't simply reload due to other tabs
 
-  // called when a new controller takes over via InstalledEvent#replace
-  oncontrollerreplace: (ev: Event) => any;
+  // called when a new worker takes over via InstalledEvent#replace
+  oneventworkerreplaced: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
 
-  oncontrollerreloadpage: (ev: ReloadPageEvent) => any;
+  oneventworkerreloadpage: (ev: ReloadPageEvent) => any;
 }
 
 interface Navigator extends
-  NavigatorController,
+  NavigatorEventWorker,
   EventTarget,
   // the rest is just stuff from the default ts definition
   NavigatorID,
@@ -66,9 +67,9 @@ interface Navigator extends
   // MSNavigatorAbilities
 { }
 
-interface ControllerSharedWorker extends Worker {}
-declare var ControllerSharedWorker: {
-  prototype: ControllerSharedWorker;
+interface SharedEventWorker extends Worker {}
+declare var SharedEventWorker: {
+  prototype: SharedEventWorker;
 }
 
 class ReloadPageEvent extends _Event {
@@ -77,16 +78,15 @@ class ReloadPageEvent extends _Event {
   waitUntil(f: Promise): void {}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// The Controller
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// The Event Worker
+///////////////////////////////////////////////////////////////////////////////
 class InstallPhaseEvent extends _Event {
   previousVersion: any = 0;
 
-  // Delay treating the installing controller until the passed Promise resolves
-  // successfully. This is primarily used to ensure that a
-  // NavigationController is not active until all of the "core" Caches it
-  // depends on are populated.
+  // Delay treating the installing worker until the passed Promise resolves
+  // successfully. This is primarily used to ensure that an EventWorker is not
+  // active until all of the "core" Caches it depends on are populated.
   // TODO: what does the returned promise do differently to the one passed in?
   waitUntil(f: Promise): Promise { return accepted(); }
 }
@@ -94,22 +94,22 @@ class InstallPhaseEvent extends _Event {
 class InstalledEvent extends InstallPhaseEvent {
   previous: MessagePort = null;
 
-  // Ensures that the controller is used in place of existing controllers for
+  // Ensures that the worker is used in place of existing workers for
   // the currently controlled set of window instances.
   // TODO: how does this interact with waitUntil? Does it automatically wait?
   replace(): void {}
 
-  // Assists in restarting all windows with the new controller.
+  // Assists in restarting all windows with the new worker.
   //
   // Return a new Promise
   // For each attached window:
-  //   Trigger controllerreloadpage
-  //   If controllerreloadpage has default prevented:
+  //   Trigger oneventworkerreloadpage
+  //   If oneventworkerreloadpage has default prevented:
   //     Unfreeze any frozen windows
   //     reject returned promise
   //     abort these steps
-  //   If waitUntil called on controllerreloadpage event:
-  //     frozen windows may wish to indicate which window/tab they're blocked on
+  //   If waitUntil called on oneventworkerreloadpage event:
+  //     frozen windows may wish to indicate which window they're blocked on
   //     yeild until promise passed into waitUntil resolves
   //     if waitUntil promise is accepted:
   //       freeze window (ui may wish to grey it out)
@@ -124,7 +124,8 @@ class InstalledEvent extends InstallPhaseEvent {
   //   Unfreeze any frozen windows
   //   reject returned promise
   //   abort these steps
-  // Activate controller
+  // Close all connections between the old worker and windows
+  // Activate the new worker
   // Reload all windows asynchronously
   // Resolve promise
   reloadAll(): Promise {
@@ -145,8 +146,8 @@ interface CacheEvictionEventHandler { (e:_Event); }
 interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
-// The scope in which controller code is executed
-class ControllerScope extends SharedWorker {
+// The scope in which worker code is executed
+class EventWorkerScope extends SharedWorker {
   // Mirrors navigator.onLine. We also get network status change events
   // (ononline, etc.). The proposed ping() API must be made available here as
   // well.
@@ -156,7 +157,7 @@ class ControllerScope extends SharedWorker {
     return new WindowList();
   }
 
-  // Set by the controller and used to communicate to newer versions what they
+  // Set by the worker and used to communicate to newer versions what they
   // are replaceing (see InstalledEvent::previousVersion)
   version: any = 0; // NOTE: versions must be structured-cloneable!
 
@@ -172,14 +173,14 @@ class ControllerScope extends SharedWorker {
 
   // New Events
 
-  // Called when a controller is downloaded and being setup to handle
-  // navigations.
+  // Called when a worker is downloaded and being setup to handle
+  // events (navigations, alerts, etc.)
   oninstalled: InstalledEventHandler;
 
-  // Called when a controller becomes the active controller for a mapping
+  // Called when a worker becomes the active event worker for a mapping
   onactivate: ActivateEventHandler;
 
-  // Called whenever this controller is meant to decide the disposition of a
+  // Called whenever this worker is meant to decide the disposition of a
   // request.
   onfetch: FetchEventHandler;
 
@@ -200,9 +201,9 @@ class ControllerScope extends SharedWorker {
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Controller APIs
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Event Worker APIs
+///////////////////////////////////////////////////////////////////////////////
 
 // http://fetch.spec.whatwg.org/#requests
 class Request {
@@ -336,10 +337,15 @@ class FetchEvent extends _Event {
   // The window issuing the request.
   window: any; // FIXME: should this also have an ID for easier use in ES5?
 
-  // Informs the Controller wether or not the request corresponds to navigation
-  // of the top-level window, e.g. reloading a tab or typing a URL into the URL
-  // bar.
+  // Does the request correspond to navigation of the top-level window, e.g.
+  // reloading a tab or typing a URL into the URL bar?
   isTopLevel: boolean = false;
+
+  // Does the navigation or fetch come from a document that has been "soft
+  // reloaded"? That is to say, the reload button in the URL bar or the
+  // back/forward buttons in browser chrome? If true, some apps may choose not
+  // to work so hard to get "fresh" content to display.
+  isReload: boolean = false;
 
   // Promise must resolve with a Response. A Network Error is thrown for other
   // resolution types/values.
@@ -356,7 +362,7 @@ class FetchEvent extends _Event {
     if (r instanceof Response) {
       r = new Promise(function(resolver) { resolver.resolve(r); });
     }
-    r.done(_useControllerResponse,
+    r.then(_useWorkerResponse,
            _defaultToBrowserHTTP);
   }
 
@@ -384,7 +390,7 @@ class FetchEvent extends _Event {
     super("fetch", { cancelable: true, bubbles: false });
     // This is the meat of the API for most use-cases.
     // If preventDefault() is not called on the event, the request is sent to
-    // the default browser controller. That is to say, to respond with something
+    // the default browser worker. That is to say, to respond with something
     // from the cache, you must preventDefault() and respond with it manually,
     // digging the resource out of the cache and calling
     // evt.respondWith(cachedItem).
@@ -407,8 +413,8 @@ class FetchEvent extends _Event {
 //  - Caches should have version numbers and "update" should set/replace it
 
 // This largely describes the current Application Cache API. It's only available
-// inside controller instances (not in regular documents), meaning that caching
-// is a feature of the controller.
+// inside worker instances (not in regular documents), meaning that caching is a
+// feature of the event worker. This is likely to change!
 class Cache {
   items: AsyncMap;
 
@@ -621,5 +627,5 @@ class AsyncMap {
   values(): Promise { return accepted(); }
 }
 
-var _useControllerResponse = function() : Promise { return accepted(); };
+var _useWorkerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
