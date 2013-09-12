@@ -60,11 +60,11 @@ interface Navigator extends
   // the rest is just stuff from the default ts definition
   NavigatorID,
   NavigatorOnLine,
-  NavigatorDoNotTrack,
-  NavigatorAbilities,
-  NavigatorGeolocation,
-  MSNavigatorAbilities {
-}
+  // NavigatorDoNotTrack,
+  // NavigatorAbilities,
+  NavigatorGeolocation
+  // MSNavigatorAbilities
+{ }
 
 interface ControllerSharedWorker extends Worker {}
 declare var ControllerSharedWorker: {
@@ -97,7 +97,7 @@ class InstalledEvent extends InstallPhaseEvent {
   // Ensures that the controller is used in place of existing controllers for
   // the currently controlled set of window instances.
   // TODO: how does this interact with waitUntil? Does it automatically wait?
-  replace(): void {};
+  replace(): void {}
 
   // Assists in restarting all windows with the new controller.
   //
@@ -150,7 +150,7 @@ class ControllerScope extends SharedWorker {
   // Mirrors navigator.onLine. We also get network status change events
   // (ononline, etc.). The proposed ping() API must be made available here as
   // well.
-  onLine: Boolean;
+  onLine: boolean;
   caches: CacheList;
   get windows(): WindowList {
     return new WindowList();
@@ -248,12 +248,12 @@ class Request {
   // FIXME: mode doesn't seem useful here.
   mode: string; // Can be one of "same origin", "tainted x-origin", "CORS"
   // FIXME: we don't provide anything but async fetching...
-  synchronous: Boolean = false;
+  synchronous: boolean = false;
   redirectCount: Number = 0;
-  forcePreflight: Boolean = false;
-  omitCredentials: Boolean = false;
+  forcePreflight: boolean = false;
+  omitCredentials: boolean = false;
   referrer: URL;
-  headers: Map; // Needs filtering!
+  headers: Map<string, string>; // Needs filtering!
   body: any; /*TypedArray? String?*/
 }
 
@@ -303,7 +303,7 @@ class SameOriginResponse extends Response {
   method: string;
   // NOTE: the internal "_headers" is not meant to be exposed. Only here for
   //       pseudo-impl purposes.
-  _headers: Map; // FIXME: Needs filtering!
+  _headers: Map<string, string>; // FIXME: Needs filtering!
   get headers() {
     return this._headers;
   }
@@ -339,7 +339,7 @@ class FetchEvent extends _Event {
   // Informs the Controller wether or not the request corresponds to navigation
   // of the top-level window, e.g. reloading a tab or typing a URL into the URL
   // bar.
-  isTopLevel: Boolean = false;
+  isTopLevel: boolean = false;
 
   // Promise must resolve with a Response. A Network Error is thrown for other
   // resolution types/values.
@@ -472,11 +472,8 @@ class Cache {
   ready(): Promise { return accepted(); }
 }
 
-class CacheList extends Map {
-  constructor(iterable: Array) {
-    // Overrides to prevent non-URLs to be added go here.
-    super();
-  }
+class CacheList implements Map<string, any> {
+  constructor(iterable: Array) { }
 
   // Convenience method to get ResponsePromise from named cache.
   match(cacheName: String, url: URL) : ResponsePromise;
@@ -485,6 +482,18 @@ class CacheList extends Map {
   match(cacheName: any, url: any) : ResponsePromise {
     return new ResponsePromise(function(){});
   }
+
+  // interface Map<any, any>
+  get(key: any): any {}
+  has(key: any): boolean { return true; }
+  set(key: any, val: any): Map<any, any> { return this; }
+  clear(): void {}
+  delete(key: any): boolean { return true; }
+  forEach(callback: Function, thisArg?: Object): void {}
+  items(): any[] { return []; }
+  keys(): any[] { return []; }
+  values(): any[] { return []; }
+  get size(): number { return 0; }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -500,24 +509,26 @@ class _URL {
 // http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
 // http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-15.14.4
+/*
 class Map {
   constructor(iterable?:any[]) {}
   get(key: any): any {}
-  has(key: any): Boolean { return true; }
+  has(key: any): boolean { return true; }
   set(key: any, val: any): void {}
   clear(): void {}
-  delete(key: any): Boolean { return true; }
+  delete(key: any): boolean { return true; }
   forEach(callback: Function, thisArg?: Object): void {}
   items(): any[] { return []; }
   keys(): any[] { return []; }
   values(): any[] { return []; }
 }
+*/
 
 // https://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#interface-event
 interface EventHandler { (e:_Event); }
 interface _EventInit {
-  bubbles: Boolean;
-  cancelable: Boolean;
+  bubbles: boolean;
+  cancelable: boolean;
 }
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
@@ -529,10 +540,10 @@ class _Event {
   target: any;
   currentTarget: any;
   eventPhase: Number;
-  bubbles: Boolean = false;
-  cancelable: Boolean = true;
-  defaultPrevented: Boolean = false;
-  isTrusted: Boolean = false;
+  bubbles: boolean = false;
+  cancelable: boolean = true;
+  defaultPrevented: boolean = false;
+  isTrusted: boolean = false;
   timeStamp: Number;
   stopPropagation(): void {}
   stopImmediatePropagation(): void {}
@@ -548,7 +559,7 @@ class _CustomEvent extends _Event {
 }
 
 class _EventTarget {
-  dispatchEvent(e:_Event): Boolean {
+  dispatchEvent(e:_Event): boolean {
     return true;
   }
 }
