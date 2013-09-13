@@ -120,7 +120,7 @@ This simple example will always produce the following output at the console when
 
 The contents of all but the inventory will be handled by the normal browser resource fetching system because the `onfetch` event handler didn't call `respondWith` when invoked with their requests. The first time the app is loaded (before the Event Worker is installed), `data.json` will also be fetched from the network. Thereafter it'll be computed by the Event Worker instead. The important thing to remember here is that _normal resource loading is the fallback behavior for fetch events_.
 
-When combined with access to [IndexedDB](https://developer.mozilla.org/en- US/docs/IndexedDB) and a new form of Cache (covered below), the ability to respond with arbitrary content is incredibly powerful. Since installed Event Workers are invoked even when offline, Event Workers enable apps that are "offline by default" once installed.
+When combined with access to [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB) and a new form of Cache (covered below), the ability to respond with arbitrary content is incredibly powerful. Since installed Event Workers are invoked even when offline, Event Workers enable apps that are "offline by default" once installed.
 
 ## Mental Notes
 
@@ -297,7 +297,7 @@ REST and good URL design have particularly stood the test of time as patterns th
 
 A major challenge for developers attempting to bring web apps to the offline world has been the unfriendliness of existing solutions to the workflow of "put things on disk, visit URL, hit ctrl-r". Event Workers, in contrast, enable a straightforward model that gives developers explicit control over what/when/how to cache resources without adding layers of indirection which they cannot control.
 
-In fact, our first example Event Worker, coupled with [IndexedDB](https://developer.mozilla.org/en- US/docs/IndexedDB) and XHR might be all that's *technically* necessary to build a programmatic offline solution. It would, however, be a royal pain in the ass to use -- either because developers would need to make or find large-ish libraries to managed fetching/storing/retreiving resources or because XHR doesn't provide all the power that's strictly necessary.
+In fact, our first example Event Worker, coupled with [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB) and XHR might be all that's *technically* necessary to build a programmatic offline solution. It would, however, be a royal pain in the ass to use -- either because developers would need to make or find large-ish libraries to managed fetching/storing/retreiving resources or because XHR doesn't provide all the power that's strictly necessary.
 
 This is where the global `caches` map comes in. Each Event Worker has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Promise`s which represent `Response`s which may or may not yet be available from the network.
 
