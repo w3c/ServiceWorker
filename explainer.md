@@ -130,7 +130,7 @@ Before we get into the nitty-gritty of Event Workers, a few things to keep in mi
 
 That's right, the browser might unceremoniously kill your Event Worker if it's idle, or even stop it mid-work and re-issue the request to a different instance of the worker. There are no guarantees about how long an Event Worker will run. Event Workers should be written to avoid holding global state. This can't be stressed enough: _write your workers as though they will die after every request_.
 
-Also remember that _Event Workers are shared resources_. A single worker might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given Event Worker. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](http://msdn.microsoft.com/en-us/library/ie/hh673548(v=vs.85).aspx).
+Also remember that _Event Workers are shared resources_. A single worker might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given Event Worker. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB).
 
 This should be familiar if you've developed servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
 
