@@ -17,7 +17,7 @@ This document is designed to help you understand the basic concepts of Event Wor
 
 ## From Pages to Apps
 
-Imagine a simple movie application. To be useful, it must allow users to browse some library of content for purchase or download while online and view videos both on and offline. Sure, there could be online-only video applications...but what's the fun in that? Airplanes, busses, and mobile-roaming are key moments when we can all use a bit of _Pulp Fiction_ or _Lawrence of Arabia_ in our lives.
+Imagine a simple movie application. To be useful, it must allow users to browse some library of content for purchase or download while online and view videos both on and offline. Sure, there could be online-only video applications...but what's the fun in that? Airplanes, buses, and mobile-roaming are key moments when we can all use a bit of _Pulp Fiction_ or _Lawrence of Arabia_ in our lives.
 
 One way to think of this might be "taking a web-page offline", but that's far too simple. Any good video app will have an inventory that far outstrips the capacity of a modern portable device, so the challenge isn't so much to "go offline" as to "identify a subset of content to synchronize and manage that data over time". To do that synchronization and management, an app will need some sort of "explorer" view to help users understand what's available locally and what _could_ be available were they to select/purchase/download additional content.
 
@@ -33,7 +33,7 @@ In our video example, one cache might be built/managed to help make sure that th
 
 ## Bootstrapping With an Event Worker
 
-Event Workers are installed by web pages. A user must visit a page or app for the process to start. Lets assume our page is `http://videos.example.com/index.html`. From there, script on that page might install an Event Worker with code like this:
+Event Workers are installed by web pages. A user must visit a page or app for the process to start. Let's assume our page is `http://videos.example.com/index.html`. From there, script on that page might install an Event Worker with code like this:
 
 ```html
 <!DOCTYPE html>
@@ -77,7 +77,7 @@ This is good for a couple of important reasons:
 
   - Graceful fallback. Browsers that don't yet understand Event Workers will still understand these pages.
   - Related: [good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with an Event Worker should do sane things without one when users navigate to those locations. This is key to "URL-friendly" apps that exhibit the ur-social behaviors that make the web so good for collaboration, sharing, and all the rest.
-  - It forces you to have URLs! Some modern apps platforms have foresaken this core principle of the web and suffer for it. The web should never make the same mistake.
+  - It forces you to have URLs! Some modern apps platforms have forsaken this core principle of the web and suffer for it. The web should never make the same mistake.
   - Developers are less likely to paint themselves into a corner by relying on Event Workers when they shouldn't. If it doesn't work without the Event Worker, it'll be obvious the first time a new page is loaded or by unregistering the Event Worker. Not ideal for testing, but it beats AppCache and can be made better with tools over time.
   - Reasoning about a page that gets an Event Worker halfway through its lifetime -- or worse, loses its Event Worker -- is incredibly painful. If an uncontrolled page could become controlled, there's a natural tendency to stuff core app behavior into the Event Worker and then try to "block" until the Event Worker is installed. This isn't webby and it's not a good user experience. And given that there's no obvious way to synchronize on Event Worker installation gracefully, the patterns that would emerge are ghastly even to think about.
 
@@ -138,11 +138,11 @@ Lastly, exceptions or syntax errors that prevent running an Event Worker will en
 
 ### Resources & Navigations
 
-Since loading documents and apps on the web boils down to an [HTTP request](http://shop.oreilly.com/product/9781565925090.do) the same way that any other sort of resource loading does, an interesting question arises: how do we distingiush loading a document from loading, say, an image or a CSS file that's a sub-resource for a document? And how can we distinguish between a top-level document and an `<iframe>`?
+Since loading documents and apps on the web boils down to an [HTTP request](http://shop.oreilly.com/product/9781565925090.do) the same way that any other sort of resource loading does, an interesting question arises: how do we distinguish loading a document from loading, say, an image or a CSS file that's a sub-resource for a document? And how can we distinguish between a top-level document and an `<iframe>`?
 
 A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to an Event Worker is only natural.
 
-Lets say we want an Event Worker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
+Let's say we want an Event Worker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
 
 ```js
 // top-level-only-event-worker.js
@@ -225,13 +225,13 @@ In the above example with registrations for `/foo*` and `/foo/bar*`, the followi
 
 Note: if `e.respondWith()` isn't called when handling a connection in `/foo/barEventWorker.js`, it does not cascade to `/fooEventWorker.js`, it falls back to the browser's built-in network behavior.
 
-One more note: Last-registration wins. If two pages on a site are visited in order and both register an Evnet Worker for `"/*"` (or any other identical path), the second page visited will have its Event Worker installed. Only when the specified Event Worker scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is performed (see below) and the last registration is now the effective one.
+One more note: Last-registration wins. If two pages on a site are visited in order and both register an Event Worker for `"/*"` (or any other identical path), the second page visited will have its Event Worker installed. Only when the specified Event Worker scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is performed (see below) and the last registration is now the effective one.
 
 #### Registrations Map Navigations, Documents Map Fetches
 
-It's important to understand that `navigator.registerEventWorker()` _only affects navigations_. Lets imagine for just a minute that we have a server that will hand back HTML or JSON for a given URL depending on whether the query parameter `?json=1` is included. Lets say this resource is hosted at `http://www.example.com/services/data`.
+It's important to understand that `navigator.registerEventWorker()` _only affects navigations_. Let's imagine for just a minute that we have a server that will hand back HTML or JSON for a given URL depending on whether the query parameter `?json=1` is included. Let's say this resource is hosted at `http://www.example.com/services/data`.
 
-Now, lets assume the page served by browsing to that URL is:
+Now, let's assume the page served by browsing to that URL is:
 
 ```html
 <!DOCTYPE html>
@@ -297,11 +297,11 @@ REST and good URL design have particularly stood the test of time as patterns th
 
 A major challenge for developers attempting to bring web apps to the offline world has been the unfriendliness of existing solutions to the workflow of "put things on disk, visit URL, hit ctrl-r". Event Workers, in contrast, enable a straightforward model that gives developers explicit control over what/when/how to cache resources without adding layers of indirection which they cannot control.
 
-In fact, our first example Event Worker, coupled with [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB) and XHR might be all that's *technically* necessary to build a programmatic offline solution. It would, however, be a royal pain in the ass to use -- either because developers would need to make or find large-ish libraries to managed fetching/storing/retreiving resources or because XHR doesn't provide all the power that's strictly necessary.
+In fact, our first example Event Worker, coupled with [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB) and XHR might be all that's *technically* necessary to build a programmatic offline solution. It would, however, be a royal pain in the ass to use -- either because developers would need to make or find large-ish libraries to managed fetching/storing/retrieving resources or because XHR doesn't provide all the power that's strictly necessary.
 
 This is where the global `caches` map comes in. Each Event Worker has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Promise`s which represent `Response`s which may or may not yet be available from the network.
 
-_NOTE: You might know "Promise" by the name "Future". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises- promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
+_NOTE: You might know "Promise" by the name "Future". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises-promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
 
 Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the Event Worker is ready if-and- only-if all the there resources in the cache are downloaded.
 
@@ -492,7 +492,7 @@ An alternative policy is available for the daring: a new Event Worker can choose
 
 To replace an existing Event Worker, use the `.replace()` method of the `oninstall` event during the event dispatch. In fact, you can even call `.replace()` on the very first install of an Event Worker, which will now make your Event Worker the proud owner of all windows/tabs whose URLs match the registration origin and scope -- including the page that registered it.
 
-Lets clarify with an example: here we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things; leaving the old Event Worker in place if the version skew is too great and taking over if it's a difference our new version is confident it can handle. Consider v1.3 vs. v1.0:
+let's clarify with an example: here we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things; leaving the old Event Worker in place if the version skew is too great and taking over if it's a difference our new version is confident it can handle. Consider v1.3 vs. v1.0:
 
 ```js
 // caching.js
@@ -616,7 +616,7 @@ A few things to keep in mind regarding cross-origin resources that you may cache
 This document only scratches the surface of what Event Workers enable,
 and aren't an exhaustive list of all of the available APIs available
 to controlled pages or Event Worker instances. If you have more
-questions, they might be asnwered in the [Advanced Topics
+questions, they might be answered in the [Advanced Topics
 Explainer](advanced_topics.md). Nor does it cover emergent practices
 for authoring, composing, and upgrading applications architected to
 use Event Workers. It is, hopefully, a guide to understanding the

@@ -1,4 +1,4 @@
-<h2>Event Worker Design</h2>
+<h2>EventWorker Design</h2>
 
 ## What's Going On Here?
 
@@ -14,7 +14,7 @@ For the nitty-gritty of the API, see [`event_worker.ts`](https://github.com/slig
 
 ## Building & Contributing to the Design
 
-Most decisions regarding the API and finer points of the design are handled through issues in this repository. Feel free to open one if you don't see an obvious answer to your question in the explainer.
+Most decisions regarding the API and finer points of the design are handled through issues in this repository. Feel free to open one if you don't see an obvious answer to your question in the [Explainer](explainer.md).
 
 To make edits to the design, change the TypeScript file (`event_worker.ts`); the JavaScript file is built from it. Building the JS version yourself isn't essential, but here's how:
 
