@@ -13,7 +13,7 @@ The first implication is that _you should version your caches by name_. Add the 
 
 So what about old caches? Old EventWorker scripts don't get an extra chance to run, so it's always up to the _replacing_ EventWorker to do housekeeping.
 
-The Explainer talked heavily about `oninstall`, but wisely didn't mention it's cousin `onactivate`: there's good reason for this: `onactivate` is called *after* the previous EventWorker script is replaced but before the new script handles any resources, and no new requests will be sent to the new EventWorker until it finishes. That makes `onactivate` the ideal place to do work like IndexedDB schema upgrades and legacy cache removal. It also makes a dangerous place, since doing too much work or doing work that takes too long can have the effective appearance of hosing an app entirely. There won't be an old version to use and the new version is assumed to be doing important work to get ready to handle new requests.
+The [Explainer](explainer.md) talked heavily about `oninstall`, but wisely didn't mention it's cousin `onactivate`: there's good reason for this: `onactivate` is called *after* the previous EventWorker script is replaced but before the new script handles any resources, and no new requests will be sent to the new EventWorker until it finishes. That makes `onactivate` the ideal place to do work like IndexedDB schema upgrades and legacy cache removal. It also makes a dangerous place, since doing too much work or doing work that takes too long can have the effective appearance of hosing an app entirely. There won't be an old version to use and the new version is assumed to be doing important work to get ready to handle new requests.
 
 Tread very, _very_ lightly when writing `onactivate` handlers.
 
