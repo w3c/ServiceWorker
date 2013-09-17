@@ -10,11 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // extensions to window.navigator
-interface NavigatorEventWorker {
+interface NavigatorServiceWorker {
   // null if page has no activated worker
-  eventWorker: SharedEventWorker;
+  eventWorker: SharedServiceWorker;
 
-  registerEventWorker(scope: string/* or URL */, url: string/* or URL */): Promise;
+  registerServiceWorker(scope: string/* or URL */, url: string/* or URL */): Promise;
     // If an event worker is in-waiting, and its url & scope matches both
     // url & scope
     //   - resolve the promise
@@ -36,18 +36,18 @@ interface NavigatorEventWorker {
     //
     // Resolves once the install event is triggered without unhandled exceptions
 
-  unregisterEventWorker(scope: string): Promise;
+  unregisterServiceWorker(scope: string): Promise;
     // TODO: if we have a worker-in-waiting & an active worker,
     // what happens? Both removed?
     // TODO: does removal happen immediately or using the same pattern as
     // a worker update?
 
   // called when a new worker becomes in-waiting
-  oneventworkerinstalled: (ev: Event) => any;
+  oneventworkerinstall: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Can't simply reload due to other tabs
 
-  // called when a new worker takes over via InstalledEvent#replace
+  // called when a new worker takes over via InstallEvent#replace
   oneventworkerreplaced: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
@@ -56,7 +56,7 @@ interface NavigatorEventWorker {
 }
 
 interface Navigator extends
-  NavigatorEventWorker,
+  NavigatorServiceWorker,
   EventTarget,
   // the rest is just stuff from the default ts definition
   NavigatorID,
@@ -67,9 +67,9 @@ interface Navigator extends
   // MSNavigatorAbilities
 { }
 
-interface SharedEventWorker extends Worker {}
-declare var SharedEventWorker: {
-  prototype: SharedEventWorker;
+interface SharedServiceWorker extends Worker {}
+declare var SharedServiceWorker: {
+  prototype: SharedServiceWorker;
 }
 
 class ReloadPageEvent extends _Event {
@@ -85,13 +85,13 @@ class InstallPhaseEvent extends _Event {
   previousVersion: any = 0;
 
   // Delay treating the installing worker until the passed Promise resolves
-  // successfully. This is primarily used to ensure that an EventWorker is not
+  // successfully. This is primarily used to ensure that an ServiceWorker is not
   // active until all of the "core" Caches it depends on are populated.
   // TODO: what does the returned promise do differently to the one passed in?
   waitUntil(f: Promise): Promise { return accepted(); }
 }
 
-class InstalledEvent extends InstallPhaseEvent {
+class InstallEvent extends InstallPhaseEvent {
   previous: MessagePort = null;
 
   // Ensures that the worker is used in place of existing workers for
@@ -135,7 +135,7 @@ class InstalledEvent extends InstallPhaseEvent {
   }
 }
 
-interface InstalledEventHandler { (e:InstalledEvent); }
+interface InstallEventHandler { (e:InstallEvent); }
 interface ActivateEventHandler { (e:InstallPhaseEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
 
@@ -147,7 +147,7 @@ interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
 // The scope in which worker code is executed
-class EventWorkerScope extends SharedWorker {
+class ServiceWorkerScope extends SharedWorker {
   // Mirrors navigator.onLine. We also get network status change events
   // (ononline, etc.). The proposed ping() API must be made available here as
   // well.
@@ -158,7 +158,7 @@ class EventWorkerScope extends SharedWorker {
   }
 
   // Set by the worker and used to communicate to newer versions what they
-  // are replaceing (see InstalledEvent::previousVersion)
+  // are replaceing (see InstallEvent::previousVersion)
   version: any = 0; // NOTE: versions must be structured-cloneable!
 
   //
@@ -175,7 +175,7 @@ class EventWorkerScope extends SharedWorker {
 
   // Called when a worker is downloaded and being setup to handle
   // events (navigations, alerts, etc.)
-  oninstalled: InstalledEventHandler;
+  oninstall: InstallEventHandler;
 
   // Called when a worker becomes the active event worker for a mapping
   onactivate: ActivateEventHandler;

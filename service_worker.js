@@ -32,7 +32,7 @@ var InstallPhaseEvent = (function (_super) {
         this.previousVersion = 0;
     }
     // Delay treating the installing worker until the passed Promise resolves
-    // successfully. This is primarily used to ensure that an EventWorker is not
+    // successfully. This is primarily used to ensure that an ServiceWorker is not
     // active until all of the "core" Caches it depends on are populated.
     // TODO: what does the returned promise do differently to the one passed in?
     InstallPhaseEvent.prototype.waitUntil = function (f) {
@@ -41,16 +41,16 @@ var InstallPhaseEvent = (function (_super) {
     return InstallPhaseEvent;
 })(_Event);
 
-var InstalledEvent = (function (_super) {
-    __extends(InstalledEvent, _super);
-    function InstalledEvent() {
+var InstallEvent = (function (_super) {
+    __extends(InstallEvent, _super);
+    function InstallEvent() {
         _super.apply(this, arguments);
         this.previous = null;
     }
     // Ensures that the worker is used in place of existing workers for
     // the currently controlled set of window instances.
     // TODO: how does this interact with waitUntil? Does it automatically wait?
-    InstalledEvent.prototype.replace = function () {
+    InstallEvent.prototype.replace = function () {
     };
 
     // Assists in restarting all windows with the new worker.
@@ -82,23 +82,23 @@ var InstalledEvent = (function (_super) {
     // Activate the new worker
     // Reload all windows asynchronously
     // Resolve promise
-    InstalledEvent.prototype.reloadAll = function () {
+    InstallEvent.prototype.reloadAll = function () {
         return new Promise(function () {
         });
     };
-    return InstalledEvent;
+    return InstallEvent;
 })(InstallPhaseEvent);
 
 // The scope in which worker code is executed
-var EventWorkerScope = (function (_super) {
-    __extends(EventWorkerScope, _super);
-    function EventWorkerScope() {
+var ServiceWorkerScope = (function (_super) {
+    __extends(ServiceWorkerScope, _super);
+    function ServiceWorkerScope() {
         _super.apply(this, arguments);
         // Set by the worker and used to communicate to newer versions what they
-        // are replaceing (see InstalledEvent::previousVersion)
+        // are replaceing (see InstallEvent::previousVersion)
         this.version = 0;
     }
-    Object.defineProperty(EventWorkerScope.prototype, "windows", {
+    Object.defineProperty(ServiceWorkerScope.prototype, "windows", {
         get: function () {
             return new WindowList();
         },
@@ -106,12 +106,12 @@ var EventWorkerScope = (function (_super) {
         configurable: true
     });
 
-    EventWorkerScope.prototype.fetch = function (request) {
+    ServiceWorkerScope.prototype.fetch = function (request) {
         return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
-    return EventWorkerScope;
+    return ServiceWorkerScope;
 })(SharedWorker);
 
 ///////////////////////////////////////////////////////////////////////////////
