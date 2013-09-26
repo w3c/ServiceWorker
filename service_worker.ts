@@ -12,7 +12,7 @@
 // extensions to window.navigator
 interface NavigatorServiceWorker {
   // null if page has no activated worker
-  eventWorker: SharedServiceWorker;
+  serviceWorker: SharedServiceWorker;
 
   registerServiceWorker(scope: string/* or URL */, url: string/* or URL */): Promise;
     // If an event worker is in-waiting, and its url & scope matches both
@@ -43,16 +43,17 @@ interface NavigatorServiceWorker {
     // a worker update?
 
   // called when a new worker becomes in-waiting
-  oneventworkerinstall: (ev: Event) => any;
+  onserviceworkerinstall: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Can't simply reload due to other tabs
 
   // called when a new worker takes over via InstallEvent#replace
-  oneventworkerreplaced: (ev: Event) => any;
+  onserviceworkerreplaced: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
 
-  oneventworkerreloadpage: (ev: ReloadPageEvent) => any;
+  onserviceworkerreloadpage: (ev: ReloadPageEvent) => any;
+    // TODO: this event name has gotten way too long
 }
 
 interface Navigator extends
@@ -103,12 +104,12 @@ class InstallEvent extends InstallPhaseEvent {
   //
   // Return a new Promise
   // For each attached window:
-  //   Trigger oneventworkerreloadpage
-  //   If oneventworkerreloadpage has default prevented:
+  //   Trigger onserviceworkerreloadpage
+  //   If onserviceworkerreloadpage has default prevented:
   //     Unfreeze any frozen windows
   //     reject returned promise
   //     abort these steps
-  //   If waitUntil called on oneventworkerreloadpage event:
+  //   If waitUntil called on onserviceworkerreloadpage event:
   //     frozen windows may wish to indicate which window they're blocked on
   //     yeild until promise passed into waitUntil resolves
   //     if waitUntil promise is accepted:

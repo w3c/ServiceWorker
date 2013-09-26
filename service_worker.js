@@ -57,12 +57,12 @@ var InstallEvent = (function (_super) {
     //
     // Return a new Promise
     // For each attached window:
-    //   Trigger oneventworkerreloadpage
-    //   If oneventworkerreloadpage has default prevented:
+    //   Trigger onserviceworkerreloadpage
+    //   If onserviceworkerreloadpage has default prevented:
     //     Unfreeze any frozen windows
     //     reject returned promise
     //     abort these steps
-    //   If waitUntil called on oneventworkerreloadpage event:
+    //   If waitUntil called on onserviceworkerreloadpage event:
     //     frozen windows may wish to indicate which window they're blocked on
     //     yeild until promise passed into waitUntil resolves
     //     if waitUntil promise is accepted:
