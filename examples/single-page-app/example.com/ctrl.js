@@ -24,13 +24,8 @@ this.oninstalled = function(event) {
   event.waitUntil(Promise.all(
     caches.values().map(function(x) { return x.ready(); })
   )).then(function() {
-    if (event.previousVersion) {
-      event.reloadAll();
-    }
-    else {
-      // if no previous version, we may as well take over now
-      event.replace();
-    }
+    var whichAction = (event.previousVersion) ? "reloadAll" : "replace";
+    event[whichAction]();
   });
 };
 
@@ -48,14 +43,8 @@ this.onactivate = function(event) {
 
 // Request handling
 this.addEventListener('fetch', function(event) {
-  if (event.request.url.host == "cdn.example.com") {
-    event.respondWith(caches.match(cacheNames['static'], event.request.url).catch(function() {
-      return fetch(event.request);
-    }));
-  }
-  else {
-    event.respondWith(caches.match(cacheNames['core'], event.request.url).catch(function() {
-      return fetch(event.request);
-    }));
-  }
+  var whichCache =  (event.request.url.host == "cdn.example.com") ? "static" : "core";
+  event.respondWith(caches.match(cacheNames[whichCache], event.request.url).catch(function() {
+    return fetch(event.request);
+  }));
 });
