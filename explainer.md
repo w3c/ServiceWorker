@@ -71,7 +71,7 @@ The first time `http://videos.example.com/index.html` is loaded, all the resourc
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ an ServiceWorker, even if one is installed for a matching bit of URL space, it won't suddenly get an ServiceWorker later in life. Same goes for documents that are loaded with an ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")`. Put another way, `register()` and `unregister()` only affects the *next* document(s).
+This means that if a document starts life _without_ an ServiceWorker, even if one is installed for a matching bit of URL space, it won't suddenly get an ServiceWorker later in life. Same goes for documents that are loaded with an ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")`. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affects the *next* document(s).
 
 This is good for a couple of important reasons:
 
