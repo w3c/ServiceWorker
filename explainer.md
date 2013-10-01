@@ -588,7 +588,7 @@ FIXME(slightlyoff): cover messaging:
 
 Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use ServiceWorkers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound. And that's before you get to being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
 
-One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Ca ServiceWorkers be hosted on CDNs?
+One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Can ServiceWorkers be hosted on CDNs?
 
 No, sorry. But they can include resources (via `importScripts()`) that are.
 
