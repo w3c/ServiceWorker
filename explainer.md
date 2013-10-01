@@ -27,13 +27,13 @@ Legacy offline solutions for HTML haven't made building applications in this mod
 
 Enter the ServiceWorker.
 
-An ServiceWorker is a bit of script that can listen for network events, (such as resource requests) manage content caches, and thus decide what content to display when a URL is requested.
+A ServiceWorker is a bit of script that can listen for network events, (such as resource requests) manage content caches, and thus decide what content to display when a URL is requested.
 
 In our video example, one cache might be built/managed to help make sure that the shell of the application is available offline. Another might be built to represent the downloaded videos. Yet another might be built to keep a local inventory of ads or trailers to show before movies play. Each of these caches are effectively independent bits of content, joined at runtime by the application -- and ServiceWorkers mediate how applications come into being.
 
-## Bootstrapping With an ServiceWorker
+## Bootstrapping With a ServiceWorker
 
-ServiceWorkers are installed by web pages. A user must visit a page or app for the process to start. Let's assume our page is `http://videos.example.com/index.html`. From there, script on that page might install an ServiceWorker with code like this:
+ServiceWorkers are installed by web pages. A user must visit a page or app for the process to start. Let's assume our page is `http://videos.example.com/index.html`. From there, script on that page might install a ServiceWorker with code like this:
 
 ```html
 <!DOCTYPE html>
@@ -71,21 +71,21 @@ The first time `http://videos.example.com/index.html` is loaded, all the resourc
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ an ServiceWorker, even if one is installed for a matching bit of URL space, it won't suddenly get an ServiceWorker later in life. Same goes for documents that are loaded with an ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")`. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affects the *next* document(s).
+This means that if a document starts life _without_ a ServiceWorker, even if one is installed for a matching bit of URL space, it won't suddenly get a ServiceWorker later in life. Same goes for documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")`. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affects the *next* document(s).
 
 This is good for a couple of important reasons:
 
   - Graceful fallback. Browsers that don't yet understand ServiceWorkers will still understand these pages.
-  - Related: [good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with an ServiceWorker should do sane things without one when users navigate to those locations. This is key to "URL-friendly" apps that exhibit the ur-social behaviors that make the web so good for collaboration, sharing, and all the rest.
+  - Related: [good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with a ServiceWorker should do sane things without one when users navigate to those locations. This is key to "URL-friendly" apps that exhibit the ur-social behaviors that make the web so good for collaboration, sharing, and all the rest.
   - It forces you to have URLs! Some modern apps platforms have forsaken this core principle of the web and suffer for it. The web should never make the same mistake.
   - Developers are less likely to paint themselves into a corner by relying on ServiceWorkers when they shouldn't. If it doesn't work without the ServiceWorker, it'll be obvious the first time a new page is loaded or by unregistering the ServiceWorker. Not ideal for testing, but it beats AppCache and can be made better with tools over time.
-  - Reasoning about a page that gets an ServiceWorker halfway through its lifetime -- or worse, loses its ServiceWorker -- is incredibly painful. If an uncontrolled page could become controlled, there's a natural tendency to stuff core app behavior into the ServiceWorker and then try to "block" until the ServiceWorker is installed. This isn't webby and it's not a good user experience. And given that there's no obvious way to synchronize on ServiceWorker installation gracefully, the patterns that would emerge are ghastly even to think about.
+  - Reasoning about a page that gets a ServiceWorker halfway through its lifetime -- or worse, loses its ServiceWorker -- is incredibly painful. If an uncontrolled page could become controlled, there's a natural tendency to stuff core app behavior into the ServiceWorker and then try to "block" until the ServiceWorker is installed. This isn't webby and it's not a good user experience. And given that there's no obvious way to synchronize on ServiceWorker installation gracefully, the patterns that would emerge are ghastly even to think about.
 
 ## A Quick Game of `onfetch`
 
 ServiceWorkers, once installed, can choose to handle resource loading. Before going to the network to fetch a document that matches the ServiceWorker's scope, the worker is consulted, including when fetching the document payload itself.
 
-Here's an example of an ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
+Here's an example of a ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
 ```js
 // hosted at: /assets/v1/ctrl.js
@@ -133,21 +133,21 @@ Before we get into the nitty-gritty of ServiceWorkers, a few things to keep in m
 
 > ServiceWorkers may be killed at any time.
 
-That's right, the browser might unceremoniously kill your ServiceWorker if it's idle, or even stop it mid-work and re-issue the request to a different instance of the worker. There are no guarantees about how long an ServiceWorker will run. ServiceWorkers should be written to avoid holding global state. This can't be stressed enough: _write your workers as though they will die after every request_.
+That's right, the browser might unceremoniously kill your ServiceWorker if it's idle, or even stop it mid-work and re-issue the request to a different instance of the worker. There are no guarantees about how long a ServiceWorker will run. ServiceWorkers should be written to avoid holding global state. This can't be stressed enough: _write your workers as though they will die after every request_.
 
 Also remember that _Service Workers are shared resources_. A single worker might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given ServiceWorker. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB).
 
 This should be familiar if you've developed servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
 
-Lastly, exceptions or syntax errors that prevent running an ServiceWorker will ensure that the worker won't be considered successfully installed and won't be used on subsequent navigations. It pays to test.
+Lastly, exceptions or syntax errors that prevent running a ServiceWorker will ensure that the worker won't be considered successfully installed and won't be used on subsequent navigations. It pays to test.
 
 ### Resources & Navigations
 
 Since loading documents and apps on the web boils down to an [HTTP request](http://shop.oreilly.com/product/9781565925090.do) the same way that any other sort of resource loading does, an interesting question arises: how do we distinguish loading a document from loading, say, an image or a CSS file that's a sub-resource for a document? And how can we distinguish between a top-level document and an `<iframe>`?
 
-A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to an ServiceWorker is only natural.
+A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a ServiceWorker is only natural.
 
-Let's say we want an ServiceWorker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
+Let's say we want a ServiceWorker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
 
 ```js
 // top-level-only-service-worker.js
@@ -164,7 +164,7 @@ this.addEventListener("fetch", function(e) {
 
 ### URLs, Domains, and Registrations
 
-Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered an ServiceWorker using `navigator.registerServiceWorker("/*", "/ctrl.js")`?
+Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a ServiceWorker using `navigator.registerServiceWorker("/*", "/ctrl.js")`?
 
 `video.example.com` and `www.example.net` are clearly different domains...should the ServiceWorker for `video.example.com` (registered with the path `/*`) get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
@@ -234,7 +234,7 @@ In the above example with registrations for `/foo*` and `/foo/bar*`, the followi
 
 Note: if `e.respondWith()` isn't called when handling a connection in `/foo/barServiceWorker.js`, it does not cascade to `/fooServiceWorker.js`, it falls back to the browser's built-in network behavior.
 
-One more note: Last-registration wins. If two pages on a site are visited in order and both register an ServiceWorker for `"/*"` (or any other identical path), the second page visited will have its ServiceWorker installed. Only when the specified ServiceWorker scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is performed (see below) and the last registration is now the effective one.
+One more note: Last-registration wins. If two pages on a site are visited in order and both register a ServiceWorker for `"/*"` (or any other identical path), the second page visited will have its ServiceWorker installed. Only when the specified ServiceWorker scripts are identical byte-for-byte will there appear not to have been any change. In all other cases, the upgrade dance is performed (see below) and the last registration is now the effective one.
 
 #### Registrations Map Navigations, Documents Map Fetches
 
@@ -288,7 +288,7 @@ Since resource requests (not navigations) are always sent to the ServiceWorker f
 
 #### ServiceWorkers Do Not Control Requests For ServiceWorkers
 
-At this point it might seem as though a bit of script executing a registration from a page that is itself controlled might generate a sub-resource request for an ServiceWorker that might be satisfied by the current ServiceWorker! Luckily the system explicitly prevents such an Inception-like event from ever happening by treating all fetches and resource loads for ServiceWorkers and their sub-resources as "naked" fetches against the browser's default HTTP behavior.
+At this point it might seem as though a bit of script executing a registration from a page that is itself controlled might generate a sub-resource request for a ServiceWorker that might be satisfied by the current ServiceWorker! Luckily the system explicitly prevents such an Inception-like event from ever happening by treating all fetches and resource loads for ServiceWorkers and their sub-resources as "naked" fetches against the browser's default HTTP behavior.
 
 A minor caveat is that ServiceWorker scripts are never [heuristically cached](http://www-archive.mozilla.org/projects/netlib/http/http-caching-faq.html) and when updated are assumed stale if last fetched over 24 hours ago. But those features only ensure that apps can't screw themselves over with one ill-placed `Expires` header. If the browser checks for an updated version and doesn't find anything different (i.e., they're the same bytes) or can't fetch it at all for some reason (an HTTP error code), nothing happens. If an updated version is found, the upgrade process is started (see below). All of this happens outside of the "controlled" world, for better and for worse.
 
@@ -410,7 +410,7 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-The important thing to note is that redirects behave the way they would as if a server had responded with a redirect: the browser will fetch the second resource directly as though it were creating a new request from the new URL. That is to say, if it's a top-level navigation and an ServiceWorker redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the `fetch` event listener again.
+The important thing to note is that redirects behave the way they would as if a server had responded with a redirect: the browser will fetch the second resource directly as though it were creating a new request from the new URL. That is to say, if it's a top-level navigation and a ServiceWorker redirects to a different domain (or a bit of the same domain that it doesn't control), it won't get another chance to provide content for the eventual URL. In the case of same-domain & scope navigations and _all_ sub-resource redirects, the new request will be sent back through the `fetch` event listener again.
 
 But wait, doesn't this open up the potential for a loop? It does, but this is a case browsers already detect and handle by terminating the loop after some number of iterations. The same will happen to your requests should you create a loop.
 
@@ -503,7 +503,7 @@ When v2 *does* become the active ServiceWorker, another event -- `onactivate` --
 
 An alternative policy is available for the daring: a new ServiceWorker can choose to cut-in and replace an existing one. And before you ask, yes, this does break the first rule. But not much.
 
-To replace an existing ServiceWorker, use the `.replace()` method of the `oninstall` event during the event dispatch. In fact, you can even call `.replace()` on the very first install of an ServiceWorker, which will now make your ServiceWorker the proud owner of all windows/tabs whose URLs match the registration origin and scope -- including the page that registered it.
+To replace an existing ServiceWorker, use the `.replace()` method of the `oninstall` event during the event dispatch. In fact, you can even call `.replace()` on the very first install of a ServiceWorker, which will now make your ServiceWorker the proud owner of all windows/tabs whose URLs match the registration origin and scope -- including the page that registered it.
 
 let's clarify with an example: here we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things; leaving the old ServiceWorker in place if the version skew is too great and taking over if it's a difference our new version is confident it can handle. Consider v1.3 vs. v1.0:
 
@@ -610,7 +610,7 @@ In `oninstalled` and `onactivate`, multiple calls to `e.waitUntil()` will ensure
 
 This all becomes more relevant when you consider that ServiceWorkers support the general Web Worker API [`importScripts()`](https://developer.mozilla.org/en-US/docs/DOM/Worker/Functions_available_to_workers#Worker-specific_functions). It's important to note that _only the scripts that have been imported the first time the worker is run will be cached along side it by the browser_. The upside is that imported scripts _will_ be downloaded and cached alongside the main ServiceWorker script.
 
-What does that imply? Lots of good stuff. First, ServiceWorkers can import libraries from elsewhere, including other origins and CDNs. Next, Since these scripts can register their own handlers, they can manage bits of the world that they are written to. For instance, an ServiceWorker can include the ServiceWorker bit for a third-party set of widgets or analytics without worrying about the details of the URLs they manage or need.
+What does that imply? Lots of good stuff. First, ServiceWorkers can import libraries from elsewhere, including other origins and CDNs. Next, Since these scripts can register their own handlers, they can manage bits of the world that they are written to. For instance, a ServiceWorker can include the ServiceWorker bit for a third-party set of widgets or analytics without worrying about the details of the URLs they manage or need.
 
 ## Cross-Origin Resources
 
@@ -622,7 +622,7 @@ Note that CORS plays an important role in the cross-origin story for many resour
 
 A few things to keep in mind regarding cross-origin resources that you may cache or request via `fetch()`:
 
-  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('cdn content', 'http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with an ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
+  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('cdn content', 'http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
   * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable from a `fetch` (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.
   * There's no harm in responding to a cross-origin request with a `new SameOriginResponse()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
 
