@@ -278,7 +278,7 @@ The answer hinges on how requests map to ServiceWorkers. The third rule of Servi
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ ServiceWorker.
 
-Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched ot it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
+Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched to it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
 
 Since resource requests (not navigations) are always sent to the ServiceWorker for the document it is issued from, and since documents always map to the ServiceWorkers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
 
@@ -312,7 +312,7 @@ This is where the global `caches` map comes in. Each ServiceWorker has a global 
 
 _NOTE: You might know "Promise" by the name "Future". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises-promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
 
-Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the ServiceWorker is ready if-and- only-if all the there resources in the cache are downloaded.
+Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the ServiceWorker is ready if-and-only-if all the resources in the cache are downloaded.
 
 ```js
 // caching.js
@@ -458,13 +458,13 @@ That might take a bit of explaining, particularly if you don't use Promises (aka
   - If it resolves successfully (that is, gets what it wanted from the network), that's the value passed to the page. Simple.
   - If not, the `.then()` function adds a callback to handle the error which, in this case, returns some default content. We don't need a callback for the success case here, so that's just specified as `null`.
 
-And _that_ is how we try-online-with-a-fallback! Variations of this might be better for when in flaky network scenarios where a low-ish timeout might be the right way to break the tie. If the browser is offline, our network fetch will either come from from the HTTP cache (depending on what's in there and the expiration behaviors) or fail immediately. Either way, the event listener gives the user a useful result. Huzzah!
+And _that_ is how we try-online-with-a-fallback! Variations of this might be better for when in flaky network scenarios where a low-ish timeout might be the right way to break the tie. If the browser is offline, our network fetch will either come from the HTTP cache (depending on what's in there and the expiration behaviors) or fail immediately. Either way, the event listener gives the user a useful result. Huzzah!
 
 ## ServiceWorker Installation & Upgrade
 
 A couple of examples of installation have been presented so far:
 
-  - ServiceWorkers that don't handle the `oninstall` event at all (in which case they're assume to have succeeded).
+  - ServiceWorkers that don't handle the `oninstall` event at all (in which case they're assumed to have succeeded).
   - ServiceWorkers that create new Caches and delay declaring success for their installation until those Caches are populated.
 
 The biggest scenario that hasn't been touched on yet is upgrades. Recall that browsers check for updated versions of ServiceWorker scripts roughly once a day. What happens if they find a new version?
@@ -475,7 +475,7 @@ Wait, "ServiceWorker-in-waiting"?
 
 Yep: recall the first rule of ServiceWorkers: _"Documents live out their whole lives using the ServiceWorker they start with."_
 
-Assume the browser found and installed v2 while a tab that had been born under ServiceWorker v1 was still running. Sure, the ServiceWorker itself might be killed at any time, but any new resource request generated from that window will re- instantiate that version of the ServiceWorker and expect it to service the request.
+Assume the browser found and installed v2 while a tab that had been born under ServiceWorker v1 was still running. Sure, the ServiceWorker itself might be killed at any time, but any new resource request generated from that window will re-instantiate that version of the ServiceWorker and expect it to service the request.
 
 So what if a new tab is created? Which ServiceWorker does it get, v1 or v2?
 
