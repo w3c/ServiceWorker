@@ -277,7 +277,7 @@ class SameOriginResponse extends Response {
       if (typeof params.statusCode != "undefined") {
         this.statusCode = params.statusCode;
       }
-      if (typeof params.stausText != "undefined") {
+      if (typeof params.statusText != "undefined") {
         this.statusText = params.statusText;
       }
       if (typeof params.encoding != "undefined") {
