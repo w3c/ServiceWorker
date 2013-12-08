@@ -338,9 +338,9 @@ var Cache = (function () {
 
     // "any" to make the TS compiler happy:
     Cache.prototype.add = function () {
-        var response = [];
+        var urls = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            response[_i] = arguments[_i + 0];
+            urls[_i] = arguments[_i + 0];
         }
         // If a URL (or URL string) is passed, a new CachedResponse is added to
         // items upon successful fetching
@@ -354,11 +354,16 @@ var Cache = (function () {
 
     // "any" to make the TS compiler happy:
     Cache.prototype.remove = function () {
-        var response = [];
+        var urls = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            response[_i] = arguments[_i + 0];
+            urls[_i] = arguments[_i + 0];
         }
         // FIXME: does this need to be async?
+        return accepted();
+    };
+
+    // Needed because Response objects don't have URLs.
+    Cache.prototype.removeResponse = function (url, response) {
         return accepted();
     };
 
