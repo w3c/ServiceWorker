@@ -452,7 +452,7 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-That might take a bit of explaining, particularly if you don't use Promises (aka "Promises") often, but the long and the sort of it is that the `fetch` event listener:
+That might take a bit of explaining, particularly if you don't use Promises (aka "Futures") often, but the long and the short of it is that the `fetch` event listener:
 
   - Gets a `Promise` instance from `fetch`
   - If it resolves successfully (that is, gets what it wanted from the network), that's the value passed to the page. Simple.
