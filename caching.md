@@ -1,4 +1,4 @@
-<h2>Caching</h2>
+## Caching
 
 The Cache API is the easiest mechanism to take an application offline, but it is by no means the only one. Other browser storage mechanisms (such as IndexedDB, the FileSystem API are fine candidates as well. (Local storage is out: no synchronous APIs) The Cache API is primarily an API sugared specifically for responding to `fetch` events in ServiceWorkers.
 
@@ -32,8 +32,6 @@ var contentCacheName = "content";
 var currentCaches = [ shellCacheName, contentCacheName ];
 
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
-
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
     assetBase + "/base.css",
@@ -77,8 +75,6 @@ var contentCacheName = "content";
 var currentCaches = [ shellCacheName, contentCacheName ];
 
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
-
   // Update the existing caches that we'll eventually keep.
   caches.forEach(function(cacheName, cache) {
     if (currentCaches.indexOf(cacheName) >= 0) {

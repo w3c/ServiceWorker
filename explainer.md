@@ -95,8 +95,6 @@ var base = "http://videos.example.com";
 var inventory = new URL("/services/inventory/data.json", base);
 
 this.addEventListener("install", function(e) {
-  // Tell the system that this service worker can handle fetch events.
-  e.services = ["fetch"];
 });
 
 this.addEventListener("fetch", function(e) {
@@ -152,7 +150,6 @@ Let's say we want a ServiceWorker that only handles top-level document navigatio
 ```js
 // top-level-only-service-worker.js
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
 });
 
 this.addEventListener("fetch", function(e) {
@@ -320,8 +317,6 @@ this.version = 1;
 
 var base = "http://videos.example.com";
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
-
   // Create a cache of resources. Begins the process of fetching them.
   // URLs are relative to the ServiceWorker
   var shellResources = new Cache(
@@ -352,8 +347,6 @@ Most of the ServiceWorker interfaces that can take `Response` instances are desi
 this.version = 1;
 
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
-
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
     "/app.html",
@@ -516,8 +509,6 @@ var shellCacheName = "shell-v" + parseInt(this.version);
 var contentCacheName = "content";
 
 this.addEventListener("install", function(e) {
-  e.services = ["fetch"];
-
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
     assetBase + "/base.css",
