@@ -148,11 +148,10 @@ interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
 // The scope in which worker code is executed
-class ServiceWorkerScope extends SharedWorker {
-  // Mirrors navigator.onLine. We also get network status change events
-  // (ononline, etc.). The proposed ping() API must be made available here as
-  // well.
-  onLine: boolean;
+class ServiceWorkerGlobalScope extends WorkerGlobalScope {
+
+  self: ServiceWorkerGlobalScope;
+
   caches: CacheList;
   get windows(): WindowList {
     return new WindowList();
@@ -166,11 +165,9 @@ class ServiceWorkerScope extends SharedWorker {
   // Events
   //
 
-  // Legacy Events
-
-  // These mirror window.online and window.offline in browsing contexts.
-  online: OnlineEventHandler;
-  offline: OfflineEventHandler;
+  // "online" and "offline" events are deliveredy via the WorkerGlobalScope
+  // contract:
+  //    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope
 
   // New Events
 
@@ -350,10 +347,9 @@ class FetchEvent extends _Event {
 
   // Promise must resolve with a Response. A Network Error is thrown for other
   // resolution types/values.
-  respondWith(r: Promise) : void;
-  respondWith(r: Response) : void;
-  // "any" to make the TS compiler happy:
-  respondWith(r: any) : void {
+  //  respondWith(r: Promise) : void;
+  //  respondWith(r: Response) : void;
+  respondWith(r: any) : void { // "any" to make the TS compiler happy:
     if (!(r instanceof Response) || !(r instanceof Promise)) {
       throw new Error("Faux NetworkError because DOM is currently b0rken");
     }
@@ -473,14 +469,14 @@ class Cache {
   // is expired. New items may be added to the cache with the urls that can be
   // passed. The HTTP cache is currently used for these resources but no
   // heuristic caching is applied for these requests.
-  update(...urls:URL[]) : Promise;
+  update(...urls:_URL[]) : Promise;
   update(...urls:string[]) : Promise { return accepted(); }
 
   ready(): Promise { return accepted(); }
 }
 
 class CacheList implements Map<string, any> {
-  constructor(iterable: Array) { }
+  constructor(iterable: Array<any>) { }
 
   // Convenience method to get ResponsePromise from named cache.
   match(cacheName: String, url: URL) : ResponsePromise;
@@ -506,6 +502,70 @@ class CacheList implements Map<string, any> {
 ////////////////////////////////////////////////////////////////////////////////
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
+
+/// <reference name="WebWorkers.d.ts" />
+
+// See:
+//    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope
+//
+
+class WorkerLocation {
+    href: string;
+    protocol: string;
+    host: string;
+    hostname: string;
+    port: string;
+    pathname: string;
+    search: string;
+    hash: string;
+}
+
+interface WorkerNavigator extends NavigatorID, NavigatorOnLine {
+  // TODO(slightlyoff): ensure these are rolled into the HTML spec's WorkerNavigator!
+  // Extensions. See: https://github.com/slightlyoff/ServiceWorker/issues/122
+  doNotTrack: string;
+  cookieEnabled: boolean;
+  mimeTypes: Array<string>;
+}
+
+interface WorkerUtils extends WindowTimers, WindowBase64 {
+    importScripts: (...urls: string[]) => void;
+    navigator: WorkerNavigator;
+}
+
+class WorkerGlobalScope extends _EventTarget implements WorkerUtils {
+    // WorkerUtils
+    importScripts: (...urls: string[]) => void;
+    navigator: WorkerNavigator;
+
+    // WindowTimers
+    clearTimeout: (handle: number) => void;
+    setTimeout(handler: any, timeout?: any, ...args: any[]): number {
+      return 0;
+    }
+    clearInterval: (handle: number) => void;
+    setInterval(handler: any, timeout?: any, ...args: any[]): number {
+      return 0;
+    }
+    // WindowTimerExtensions
+    msSetImmediate(expression: any, ...args: any[]): number { return 0; }
+    clearImmediate: (handle: number) => void;
+    msClearImmediate: (handle: number) => void;
+    setImmediate(expression: any, ...args: any[]): number { return 0; }
+
+    // WindowBase64
+    btoa(rawString: string): string { return ""; }
+    atob(encodedString: string): string { return ""; }
+
+    // Base API
+    self: WorkerGlobalScope;
+    location: WorkerLocation;
+
+    close: () => void;
+    onerror: Function;
+    onoffline: Function;
+    ononline: Function;
+}
 
 // Cause, you know, the stock definition claims that URL isn't a class. FML.
 class _URL {

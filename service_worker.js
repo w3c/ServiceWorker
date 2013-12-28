@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
     function ReloadPageEvent() {
@@ -89,16 +90,17 @@ var InstallEvent = (function (_super) {
     return InstallEvent;
 })(InstallPhaseEvent);
 
+
 // The scope in which worker code is executed
-var ServiceWorkerScope = (function (_super) {
-    __extends(ServiceWorkerScope, _super);
-    function ServiceWorkerScope() {
+var ServiceWorkerGlobalScope = (function (_super) {
+    __extends(ServiceWorkerGlobalScope, _super);
+    function ServiceWorkerGlobalScope() {
         _super.apply(this, arguments);
         // Set by the worker and used to communicate to newer versions what they
         // are replaceing (see InstallEvent::previousVersion)
         this.version = 0;
     }
-    Object.defineProperty(ServiceWorkerScope.prototype, "windows", {
+    Object.defineProperty(ServiceWorkerGlobalScope.prototype, "windows", {
         get: function () {
             return new WindowList();
         },
@@ -106,13 +108,13 @@ var ServiceWorkerScope = (function (_super) {
         configurable: true
     });
 
-    ServiceWorkerScope.prototype.fetch = function (request) {
+    ServiceWorkerGlobalScope.prototype.fetch = function (request) {
         return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
-    return ServiceWorkerScope;
-})(SharedWorker);
+    return ServiceWorkerGlobalScope;
+})(WorkerGlobalScope);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Event Worker APIs
@@ -184,7 +186,7 @@ var SameOriginResponse = (function (_super) {
             if (typeof params.statusCode != "undefined") {
                 this.statusCode = params.statusCode;
             }
-            if (typeof params.stausText != "undefined") {
+            if (typeof params.statusText != "undefined") {
                 this.statusText = params.statusText;
             }
             if (typeof params.encoding != "undefined") {
@@ -273,9 +275,12 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.window = null;
+        this.window = null; // to allow postMessage, window.topLevel, etc
     }
-    // "any" to make the TS compiler happy:
+    // Promise must resolve with a Response. A Network Error is thrown for other
+    // resolution types/values.
+    //  respondWith(r: Promise) : void;
+    //  respondWith(r: Response) : void;
     FetchEvent.prototype.respondWith = function (r) {
         if (!(r instanceof Response) || !(r instanceof Promise)) {
             throw new Error("Faux NetworkError because DOM is currently b0rken");
@@ -325,12 +330,14 @@ var Cache = (function () {
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             urls[_i] = arguments[_i + 0];
         }
+        // Note that items may ONLY contain Response instasnces
         if (urls.length) {
             // Begin fetching on the URLs and storing them in this.items
         }
     }
     // "any" to make the TS compiler happy:
     Cache.prototype.match = function (name) {
+        // name matches something in items
         if (name) {
             return this.items.get(name.toString());
         }
@@ -423,12 +430,71 @@ var CacheList = (function () {
 ////////////////////////////////////////////////////////////////////////////////
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
+/// <reference name="WebWorkers.d.ts" />
+// See:
+//    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope
+//
+var WorkerLocation = (function () {
+    function WorkerLocation() {
+    }
+    return WorkerLocation;
+})();
+
+var WorkerGlobalScope = (function (_super) {
+    __extends(WorkerGlobalScope, _super);
+    function WorkerGlobalScope() {
+        _super.apply(this, arguments);
+    }
+    WorkerGlobalScope.prototype.setTimeout = function (handler, timeout) {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 2); _i++) {
+            args[_i] = arguments[_i + 2];
+        }
+        return 0;
+    };
+
+    WorkerGlobalScope.prototype.setInterval = function (handler, timeout) {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 2); _i++) {
+            args[_i] = arguments[_i + 2];
+        }
+        return 0;
+    };
+
+    // WindowTimerExtensions
+    WorkerGlobalScope.prototype.msSetImmediate = function (expression) {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 1); _i++) {
+            args[_i] = arguments[_i + 1];
+        }
+        return 0;
+    };
+
+    WorkerGlobalScope.prototype.setImmediate = function (expression) {
+        var args = [];
+        for (var _i = 0; _i < (arguments.length - 1); _i++) {
+            args[_i] = arguments[_i + 1];
+        }
+        return 0;
+    };
+
+    // WindowBase64
+    WorkerGlobalScope.prototype.btoa = function (rawString) {
+        return "";
+    };
+    WorkerGlobalScope.prototype.atob = function (encodedString) {
+        return "";
+    };
+    return WorkerGlobalScope;
+})(_EventTarget);
+
 // Cause, you know, the stock definition claims that URL isn't a class. FML.
 var _URL = (function () {
     function _URL(url, base) {
     }
     return _URL;
 })();
+
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
