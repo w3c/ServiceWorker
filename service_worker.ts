@@ -68,7 +68,9 @@ interface Navigator extends
   // MSNavigatorAbilities
 { }
 
-interface SharedServiceWorker extends Worker {}
+interface SharedServiceWorker extends Worker, AbstractWorker {
+  // Provides onerror, postMessage, etc.
+}
 declare var SharedServiceWorker: {
   prototype: SharedServiceWorker;
 }
@@ -540,7 +542,8 @@ interface WorkerUtils extends WindowTimers, WindowBase64 {
     navigator: WorkerNavigator;
 }
 
-class WorkerGlobalScope extends _EventTarget implements WorkerUtils, AbstractWorker {
+class WorkerGlobalScope extends _EventTarget
+                        implements WorkerUtils, AbstractWorker {
     // AbstractWorker
     onerror: (ev: ErrorEvent) => any;
 
