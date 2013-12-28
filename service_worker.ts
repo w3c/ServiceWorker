@@ -540,7 +540,10 @@ interface WorkerUtils extends WindowTimers, WindowBase64 {
     navigator: WorkerNavigator;
 }
 
-class WorkerGlobalScope extends _EventTarget implements WorkerUtils {
+class WorkerGlobalScope extends _EventTarget implements WorkerUtils, AbstractWorker {
+    // AbstractWorker
+    onerror: (ev: ErrorEvent) => any;
+
     // WorkerUtils
     importScripts: (...urls: string[]) => void;
     navigator: WorkerNavigator;
@@ -569,7 +572,6 @@ class WorkerGlobalScope extends _EventTarget implements WorkerUtils {
     location: WorkerLocation;
 
     close: () => void;
-    onerror: Function;
     onoffline: Function;
     ononline: Function;
 }
@@ -633,6 +635,8 @@ class _CustomEvent extends _Event {
 }
 
 class _EventTarget {
+  addEventListener: (t:string, l:EventListener, cap?: boolean) => void;
+  removeEventListener: (t:string, l:EventListener, cap?: boolean) => void;
   dispatchEvent(e:_Event): boolean {
     return true;
   }
