@@ -101,6 +101,7 @@ var ServiceWorkerGlobalScope = (function (_super) {
         this.version = 0;
     }
     Object.defineProperty(ServiceWorkerGlobalScope.prototype, "windows", {
+        // A list of window objects, identifiable by ID, that correspond to
         get: function () {
             return new WindowList();
         },

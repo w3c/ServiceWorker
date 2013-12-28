@@ -152,7 +152,10 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
 
+  // The
   caches: CacheList;
+
+  // A list of window objects, identifiable by ID, that correspond to
   get windows(): WindowList {
     return new WindowList();
   }
@@ -160,6 +163,14 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // Set by the worker and used to communicate to newer versions what they
   // are replaceing (see InstallEvent::previousVersion)
   version: any = 0; // NOTE: versions must be structured-cloneable!
+
+  // The registration pattern that matched this SW instance. E.g., if the following registrations are made:
+  //    navigator.registerServiceWorker("/foo/*", "serviceworker.js");
+  //    navigator.registerServiceWorker("/bar/*", "serviceworker.js");
+  // And the user navigates to http://example.com/foo/index.html,
+  //    self.registration == "/foo/*"
+  // SW's can use this to disambiguate which context they were started from.
+  registration: string;
 
   //
   // Events
