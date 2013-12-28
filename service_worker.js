@@ -427,18 +427,6 @@ var CacheList = (function () {
     return CacheList;
 })();
 
-////////////////////////////////////////////////////////////////////////////////
-// Utility Decls to make the TypeScript compiler happy
-////////////////////////////////////////////////////////////////////////////////
-/// <reference name="WebWorkers.d.ts" />
-// See:
-//    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope
-//
-var WorkerLocation = (function () {
-    function WorkerLocation() {
-    }
-    return WorkerLocation;
-})();
 
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);

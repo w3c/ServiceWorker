@@ -503,13 +503,9 @@ class CacheList implements Map<string, any> {
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
 
-/// <reference name="WebWorkers.d.ts" />
-
 // See:
 //    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope
-//
-
-class WorkerLocation {
+interface WorkerLocation {
     href: string;
     protocol: string;
     host: string;
