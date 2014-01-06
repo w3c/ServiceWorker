@@ -431,9 +431,10 @@ class Cache {
   // Allow arrays of URLs or strings
   constructor(...urls:URL[]);
   constructor(...urls:string[]);
+  constructor(...requests:Request[]);
   // "any" to make the TS compiler happy:
   constructor(...urls:any[]) {
-    // Note that items may ONLY contain Response instasnces
+    // Note that items may ONLY contain Response instances
     if (urls.length) {
       // Begin fetching on the URLs and storing them in this.items
     }
@@ -442,6 +443,8 @@ class Cache {
   // Match a URL or a string
   match(name:URL) : Promise;
   match(name:string) : Promise;
+  // FIXME: does this make sense? What does request.toString() return?
+  match(name:Request) : Promise;
   // "any" to make the TS compiler happy:
   match(name:any) : Promise {
     // name matches something in items
@@ -453,10 +456,11 @@ class Cache {
   // TODO: define type-restricting getters/setters
 
   // Cribbed from Mozilla's proposal, but with sane returns
-  add(...response:string[]) : Promise;
-  add(...response:URL[]) : Promise;
+  add(...urls:string[]) : Promise;
+  add(...urls:URL[]) : Promise;
+  add(...requests:Request[]) : Promise;
   // "any" to make the TS compiler happy:
-  add(...response:any[]) : Promise {
+  add(...urls:any[]) : Promise {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
     // items upon successful fetching
     return accepted();
@@ -467,11 +471,17 @@ class Cache {
     return accepted();
   }
 
-  remove(...response:string[]) : Promise;
-  remove(...response:URL[]) : Promise;
+  remove(...urls:string[]) : Promise;
+  remove(...urls:URL[]) : Promise;
+  remove(...requests:Request[]) : Promise;
   // "any" to make the TS compiler happy:
-  remove(...response:any[]) : Promise {
+  remove(...urls:any[]) : Promise {
     // FIXME: does this need to be async?
+    return accepted();
+  }
+
+  // Needed because Response objects don't have URLs.
+  removeResponse(url, response:Response) : Promise {
     return accepted();
   }
 
