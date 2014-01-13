@@ -41,7 +41,7 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 <html>
   <head>
     <script>
-      navigator.registerServiceWorker("/*", "/assets/v1/ctrl.js").then(
+      navigator.registerServiceWorker("/*", "/assets/v1/worker.js").then(
         function(serviceWorker) {
           console.log("success!");
           serviceWorker.postMessage("Howdy from your installing page.");
@@ -63,27 +63,25 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 
 The ServiceWorker itself is a bit of JavaScript that runs in a context that's very much like a [shared worker](http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers "HTML5 Shared Workers").
 
-The browser now attempts to download and "install" `ctrl.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
+The browser now attempts to download and "install" `worker.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
 
 ### Controlled & Uncontrolled Documents
 
-The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `ctrl.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is down to the first rule of ServiceWorkers:
+The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `ctrl.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is the first rule of ServiceWorkers:
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ a ServiceWorker, even if one is installed for a matching bit of URL space, it won't suddenly get a ServiceWorker later in life. Same goes for documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")`. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affects the *next* document(s).
+This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affect *subsequent* navigations.
 
 This is good for a couple of important reasons:
 
   - Graceful fallback. Browsers that don't yet understand ServiceWorkers will still understand these pages.
-  - Related: [good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with a ServiceWorker should do sane things without one when users navigate to those locations. This is key to "URL-friendly" apps that exhibit the ur-social behaviors that make the web so good for collaboration, sharing, and all the rest.
-  - It forces you to have URLs! Some modern apps platforms have forsaken this core principle of the web and suffer for it. The web should never make the same mistake.
-  - Developers are less likely to paint themselves into a corner by relying on ServiceWorkers when they shouldn't. If it doesn't work without the ServiceWorker, it'll be obvious the first time a new page is loaded or by unregistering the ServiceWorker. Not ideal for testing, but it beats AppCache and can be made better with tools over time.
-  - Reasoning about a page that gets a ServiceWorker halfway through its lifetime -- or worse, loses its ServiceWorker -- is incredibly painful. If an uncontrolled page could become controlled, there's a natural tendency to stuff core app behavior into the ServiceWorker and then try to "block" until the ServiceWorker is installed. This isn't webby and it's not a good user experience. And given that there's no obvious way to synchronize on ServiceWorker installation gracefully, the patterns that would emerge are ghastly even to think about.
+  - [Good URLs are forever](http://www.w3.org/Provider/Style/URI). Apps that respect some URLs with a ServiceWorker should do sane things without the SW in play. This is good for users and good for the web.
+  - Reasoning about a page that gets a ServiceWorker halfway through its lifetime -- or worse, has its ServiceWorker replaced -- is complicated. Allowing apps to opt into this (complicated) power is good, but making it the default is make-work for most apps.
 
 ## A Quick Game of `onfetch`
 
-ServiceWorkers, once installed, can choose to handle resource loading. Before going to the network to fetch a document that matches the ServiceWorker's scope, the worker is consulted, including when fetching the document payload itself.
+Once installed, Service Workers can choose to handle resource requests. A navigation that matches the ServiceWorker's origin and scope
 
 Here's an example of a ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
@@ -127,13 +125,13 @@ When combined with access to [IndexedDB](https://developer.mozilla.org/en-US/doc
 
 ## Mental Notes
 
-Before we get into the nitty-gritty of ServiceWorkers, a few things to keep in mind. First, the second rule of ServiceWorkers:
+A few things to keep in mind. The second rule of ServiceWorkers is:
 
-> ServiceWorkers may be killed at any time.
+> ServiceWorkers may be killed *at any time*.
 
 That's right, the browser might unceremoniously kill your ServiceWorker if it's idle, or even stop it mid-work and re-issue the request to a different instance of the worker. There are no guarantees about how long a ServiceWorker will run. ServiceWorkers should be written to avoid holding global state. This can't be stressed enough: _write your workers as though they will die after every request_.
 
-Also remember that _Service Workers are shared resources_. A single worker might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given ServiceWorker. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB).
+_Service Workers are shared resources_. A single worker might be servicing requests from multiple tabs or documents. Never assume that only one document is talking to a given ServiceWorker. If you care about where a request is coming from or going to, use the `.window` property of the `onfetch` event; but don't create state that you care about without serializing it somewhere like [IndexedDB](https://developer.mozilla.org/en-US/docs/IndexedDB).
 
 This should be familiar if you've developed servers using Django, Rails, Java, Node etc. A single instance handles connections from many clients (documents in our case) but data persistence is handled by something else, typically a database.
 
@@ -161,11 +159,11 @@ this.addEventListener("fetch", function(e) {
 
 ### URLs, Domains, and Registrations
 
-Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a ServiceWorker using `navigator.registerServiceWorker("/*", "/ctrl.js")`?
+Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a ServiceWorker using `navigator.registerServiceWorker("/*", "/worker.js")`?
 
 `video.example.com` and `www.example.net` are clearly different domains...should the ServiceWorker for `video.example.com` (registered with the path `/*`) get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
-What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the ServiceWorker located at `http://www.example.net/ctrl.js`. The ServiceWorker on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
+What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the ServiceWorker located at `http://www.example.net/worker.js`. The ServiceWorker on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
 
 Another interesting question: what happens if there are two registrations that might match?
 
@@ -177,7 +175,7 @@ For instance, what if `http://www.example.com/foo.html` contains:
 <html>
   <head>
     <script>
-      navigator.registerServiceWorker("/foo*", "/fooServiceWorker.js");
+      navigator.registerServiceWorker("/foo*", "/foo_worker.js");
     </script>
   </head>
 </html>
@@ -191,7 +189,7 @@ While `http://www.example.com/foo/bar.html` contains:
 <html>
   <head>
     <script>
-      navigator.registerServiceWorker("/foo/bar*", "/foo/barServiceWorker.js");
+      navigator.registerServiceWorker("/foo/bar*", "/foo/bar_worker.js");
     </script>
   </head>
 </html>
@@ -206,16 +204,16 @@ To break what might otherwise be ties when matching URLs, navigations are mapped
 In the above example with registrations for `/foo*` and `/foo/bar*`, the following matches would be made when navigating to the following URLs under `http://www.example.com`:
 
 ```
-/foo                        -> /fooServiceWorker.js
-/foo?blarg                  -> /fooServiceWorker.js
-/foo/                       -> /fooServiceWorker.js
-/foo/thinger.html           -> /fooServiceWorker.js
-/foobar.html                -> /fooServiceWorker.js
-/foo/other/thinger.html     -> /fooServiceWorker.js
-/foo/bar                    -> /foo/barServiceWorker.js
-/foo/bar/                   -> /foo/barServiceWorker.js
-/foo/bar/thinger.html       -> /foo/barServiceWorker.js
-/foo/bar/baz/thinger.html   -> /foo/barServiceWorker.js
+/foo                        -> /foo_worker.js
+/foo?blarg                  -> /foo_worker.js
+/foo/                       -> /foo_worker.js
+/foo/thinger.html           -> /foo_worker.js
+/foobar.html                -> /foo_worker.js
+/foo/other/thinger.html     -> /foo_worker.js
+/foo/bar                    -> /foo/bar_worker.js
+/foo/bar/                   -> /foo/bar_worker.js
+/foo/bar/thinger.html       -> /foo/bar_worker.js
+/foo/bar/baz/thinger.html   -> /foo/bar_worker.js
 /index.html                 -> <fallback to native>
 /whatevs/index.html         -> <fallback to native>
 ```
@@ -245,7 +243,8 @@ Now, let's assume the page served by browsing to that URL is:
 <html>
   <head>
     <script>
-      navigator.registerServiceWorker("/services/data", "/services/data/ctrl.js");
+      navigator.registerServiceWorker("/services/data",
+                                      "/services/data/worker.js");
     </script>
   </head>
 </html>
@@ -259,7 +258,7 @@ What happens when we visit `http://www.example.com/index.html` that includes:
 <html>
   <head>
     <script>
-      navigator.registerServiceWorker("/*", "/ctrl.js");
+      navigator.registerServiceWorker("/*", "/worker.js");
     </script>
     <script src="/services/data?json=1"></script>
   </head>
@@ -275,9 +274,9 @@ The answer hinges on how requests map to ServiceWorkers. The third rule of Servi
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ ServiceWorker.
 
-Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/ctrl.js` is started and a single `onfetch` is dispatched to it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/ctrl.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
+Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/worker.js` is started and a single `onfetch` is dispatched to it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/worker.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
 
-Since resource requests (not navigations) are always sent to the ServiceWorker for the document it is issued from, and since documents always map to the ServiceWorkers they're born with, our script request will be send to `/ctrl.js` and not `/services/data/ctrl.js`.
+Since resource requests (not navigations) are always sent to the ServiceWorker for the document it is issued from, and since documents always map to the ServiceWorkers they're born with, our script request will be send to `/worker.js` and not `/services/data/worker.js`.
 
 <!-- FIXME(slightlyoff):
   Add a graphic here to explain the fetching/matching
