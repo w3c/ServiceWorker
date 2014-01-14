@@ -63,15 +63,15 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 
 The ServiceWorker itself is a bit of JavaScript that runs in a context that's very much like a [shared worker](http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers "HTML5 Shared Workers").
 
-The browser now attempts to download and "install" `worker.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `ctrl.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `ctrl.js` before the normal browser cache is consulted for them.
+The browser now attempts to download and "install" `worker.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `worker.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `worker.js` before the normal browser cache is consulted for them.
 
 ### Controlled & Uncontrolled Documents
 
-The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `ctrl.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is the first rule of ServiceWorkers:
+The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `worker.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is the first rule of ServiceWorkers:
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affect *subsequent* navigations.
+This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.unregisterServiceWorker("/*")` do not become controlled by that worker. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affect *subsequent* navigations.
 
 This is good for a couple of important reasons:
 
@@ -86,7 +86,7 @@ Once installed, Service Workers can choose to handle resource requests. A naviga
 Here's an example of a ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
 ```js
-// hosted at: /assets/v1/ctrl.js
+// hosted at: /assets/v1/worker.js
 this.version = 1;
 
 var base = "http://videos.example.com";
