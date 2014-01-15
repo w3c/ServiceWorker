@@ -205,8 +205,8 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   fetch(request:URL); // a URL
   fetch(request:string); // a URL
 
-  fetch(request:any) : Promise {
-    return new Promise(function(r) {
+  fetch(request:any) : ResponsePromise {
+    return new ResponsePromise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
