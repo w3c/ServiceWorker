@@ -306,8 +306,6 @@ In fact, our first example ServiceWorker, coupled with [IndexedDB](https://devel
 
 This is where the global `caches` map comes in. Each ServiceWorker has a global `caches` Map which holds instances of `Cache`. A `Cache` is just what it sounds like: a repository of stored `Response` objects; or in this case, `Promise`s which represent `Response`s which may or may not yet be available from the network.
 
-_NOTE: You might know "Promise" by the name "Future". If not, see the [case for Promises in DOM](https://github.com/slightlyoff/DOMPromise/blob/master/README.md#Promises-promises-i-dont-speak-your-crazy-moon-language) or an explanation [here](http://www.xanthir.com/b4PY0)._
-
 Using `Cache`s is perhaps simpler than talking about them, so here's some tiny example code that implements the `oninstall` event, starts populating a single `Cache` with content, and tells the system that the ServiceWorker is ready if-and-only-if all the resources in the cache are downloaded.
 
 ```js
