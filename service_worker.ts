@@ -254,7 +254,7 @@ class Request {
   encoding: string;
   // see: http://www.w3.org/TR/XMLHttpRequest/#the-timeout-attribute
   timeout: Number = 0;
-  url: URL;
+  url: string;
   method: string = "GET";
   origin: string;
   // FIXME: mode doesn't seem useful here.
