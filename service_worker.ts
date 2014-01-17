@@ -426,7 +426,7 @@ class FetchEvent extends _Event {
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
 class Cache {
-  items: AsyncMap;
+  items: AsyncMap<string, Response>;
 
   // Allow arrays of URLs or strings
   constructor(...urls:URL[]);
@@ -488,7 +488,7 @@ class Cache {
   ready(): Promise { return accepted(); }
 }
 
-class CacheList implements Map<string, any> {
+class CacheList implements AsyncMap<any, any> {
   constructor(iterable: Array<any>) { }
 
   // Convenience method to get ResponsePromise from named cache.
@@ -499,11 +499,10 @@ class CacheList implements Map<string, any> {
     return new ResponsePromise(function(){});
   }
 
-  // interface Map<any, any>
-  get(key: any): any {}
-  has(key: any): boolean { return true; }
-  set(key: any, val: any): Map<any, any> { return this; }
-  clear(): void {}
+  get(key: any): Promise { return accepted(); }
+  has(key: any): Promise { return accepted(); }
+  set(key: any, val: any): Promise { return accepted(this); }
+  clear(): Promise { return accepted(); }
   delete(key: any): boolean { return true; }
   forEach(callback: Function, thisArg?: Object): void {}
   items(): any[] { return []; }
@@ -660,7 +659,7 @@ class Promise {
   }
 }
 
-function accepted() : Promise {
+function accepted(v: any = true) : Promise {
   return new Promise(function(r) {
     r.accept(true);
   });
@@ -689,17 +688,17 @@ class SharedWorker extends _EventTarget {
 ////////////////////////////////////////////////////////////////////////////////
 class WindowList /* extends Array */ {}
 
-class AsyncMap {
-  constructor(iterable?:any[]) {}
-  get(key: any): Promise { return accepted(); }
-  has(key: any): Promise { return accepted(); }
-  set(key: any, val: any): Promise { return accepted(); }
-  clear(): Promise { return accepted(); }
-  delete(key: any): Promise { return accepted(); }
-  forEach(callback: Function, thisArg?: Object): void {}
-  items(): Promise { return accepted(); }
-  keys(): Promise { return accepted(); }
-  values(): Promise { return accepted(); }
+interface AsyncMap<K, V> {
+  // constructor(iterable?:any[]) {}
+  get<K>(key: K): Promise;
+  has<K>(key: K): Promise;
+  set<K>(key: K, val: V): Promise;
+  clear(): Promise;
+  delete(key: K): Promise;
+  forEach(callback: Function, thisArg?: Object): void;
+  items(): Promise;
+  keys(): Promise;
+  values(): Promise;
 }
 
 var _useWorkerResponse = function() : Promise { return accepted(); };

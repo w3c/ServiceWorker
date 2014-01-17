@@ -110,7 +110,7 @@ var ServiceWorkerGlobalScope = (function (_super) {
     });
 
     ServiceWorkerGlobalScope.prototype.fetch = function (request) {
-        return new Promise(function (r) {
+        return new ResponsePromise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
@@ -393,16 +393,17 @@ var CacheList = (function () {
         });
     };
 
-    // interface Map<any, any>
     CacheList.prototype.get = function (key) {
+        return accepted();
     };
     CacheList.prototype.has = function (key) {
-        return true;
+        return accepted();
     };
     CacheList.prototype.set = function (key, val) {
-        return this;
+        return accepted(this);
     };
     CacheList.prototype.clear = function () {
+        return accepted();
     };
     CacheList.prototype.delete = function (key) {
         return true;
@@ -544,7 +545,8 @@ var Promise = (function () {
     return Promise;
 })();
 
-function accepted() {
+function accepted(v) {
+    if (typeof v === "undefined") { v = true; }
     return new Promise(function (r) {
         r.accept(true);
     });
@@ -572,38 +574,6 @@ var WindowList = (function () {
     function WindowList() {
     }
     return WindowList;
-})();
-
-var AsyncMap = (function () {
-    function AsyncMap(iterable) {
-    }
-    AsyncMap.prototype.get = function (key) {
-        return accepted();
-    };
-    AsyncMap.prototype.has = function (key) {
-        return accepted();
-    };
-    AsyncMap.prototype.set = function (key, val) {
-        return accepted();
-    };
-    AsyncMap.prototype.clear = function () {
-        return accepted();
-    };
-    AsyncMap.prototype.delete = function (key) {
-        return accepted();
-    };
-    AsyncMap.prototype.forEach = function (callback, thisArg) {
-    };
-    AsyncMap.prototype.items = function () {
-        return accepted();
-    };
-    AsyncMap.prototype.keys = function () {
-        return accepted();
-    };
-    AsyncMap.prototype.values = function () {
-        return accepted();
-    };
-    return AsyncMap;
 })();
 
 var _useWorkerResponse = function () {
