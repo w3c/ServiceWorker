@@ -90,7 +90,7 @@ Here's an example of a ServiceWorker that only handles a single resource (`/serv
 this.version = 1;
 
 var base = "http://videos.example.com";
-var inventory = new URL("/services/inventory/data.json", base);
+var inventory = new URL("/services/inventory/data.json", base) + "";
 
 this.addEventListener("install", function(e) {
 });
@@ -98,7 +98,7 @@ this.addEventListener("install", function(e) {
 this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   console.log(url);
-  if (url.toString() == inventory.toString()) {
+  if (url == inventory) {
     e.respondWith(new SameOriginResponse({
       statusCode: 200,
       body: JSON.stringify({
@@ -391,7 +391,7 @@ Redirection is a fact of life in modern networks, so ServiceWorkers must have so
 
 ```js
 this.addEventListener("fetch", function(e) {
-  if (e.request.url.toString() == oldURL.toString()) {
+  if (e.request.url == oldURL) {
     e.forwardTo(newURL);
   }
   // ...
@@ -421,14 +421,14 @@ The error handler in our response `Promise` holds the key:
 
 ```js
 var base = "http://videos.example.com";
-var inventory = new URL("/services/inventory/data.json", base);
-var fallbackInventory = new URL("/assets/v1/inventory_fallback.json", base);
+var inventory = new URL("/services/inventory/data.json", base)+"";
+var fallbackInventory = new URL("/assets/v1/inventory_fallback.json", base)+"";
 
 // ...
 
 this.addEventListener("fetch", function(e) {
   var url = e.request.url;
-  if (url.toString() == inventoryURL.toString()) {
+  if (url == inventoryURL) {
     e.respondWith(
       fetch(url).then(
         null,
