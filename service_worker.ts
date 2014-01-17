@@ -54,6 +54,7 @@ interface NavigatorServiceWorker {
 
   onserviceworkerreloadpage: (ev: ReloadPageEvent) => any;
     // TODO: this event name has gotten way too long
+    // FIXME: do we really need tihs?
 }
 
 interface Navigator extends
