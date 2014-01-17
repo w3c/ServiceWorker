@@ -198,6 +198,14 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   onbeforeevicted: BeforeCacheEvictionEventHandler;
   onevicted: CacheEvictionEventHandler;
 
+  // ServiceWorkerGlobalScope objects act as if they had an implicit MessagePort
+  // associated with them. This port is part of a channel that is set up when
+  // the worker is created, but it is not exposed. This object must never be
+  // garbage collected before the ServiceWorkerGlobalScope object.
+  // All messages received by that port must immediately be retargeted at the
+  // ServiceWorkerGlobalScope object.
+  onmessage: (ev: MessageEvent) => any;
+
   // FIXME(slightlyoff): Need to add flags for:
   //  - custom "accept/reject" handling, perhaps with global config
   //  - flag to consult the HTTP cache first?
@@ -210,6 +218,8 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
+
+  postMessage(message: any, ports?: any): void {}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

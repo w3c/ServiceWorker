@@ -10,7 +10,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
     function ReloadPageEvent() {
@@ -90,7 +89,6 @@ var InstallEvent = (function (_super) {
     return InstallEvent;
 })(InstallPhaseEvent);
 
-
 // The scope in which worker code is executed
 var ServiceWorkerGlobalScope = (function (_super) {
     __extends(ServiceWorkerGlobalScope, _super);
@@ -101,8 +99,8 @@ var ServiceWorkerGlobalScope = (function (_super) {
         this.version = 0;
     }
     Object.defineProperty(ServiceWorkerGlobalScope.prototype, "windows", {
-        // A list of window objects, identifiable by ID, that correspond to
-        get: function () {
+        get: // A list of window objects, identifiable by ID, that correspond to
+        function () {
             return new WindowList();
         },
         enumerable: true,
@@ -113,6 +111,9 @@ var ServiceWorkerGlobalScope = (function (_super) {
         return new ResponsePromise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
+    };
+
+    ServiceWorkerGlobalScope.prototype.postMessage = function (message, ports) {
     };
     return ServiceWorkerGlobalScope;
 })(WorkerGlobalScope);
@@ -276,7 +277,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.window = null; // to allow postMessage, window.topLevel, etc
+        this.window = null;
     }
     // Promise must resolve with a Response. A Network Error is thrown for other
     // resolution types/values.
@@ -331,14 +332,12 @@ var Cache = (function () {
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             urls[_i] = arguments[_i + 0];
         }
-        // Note that items may ONLY contain Response instasnces
         if (urls.length) {
             // Begin fetching on the URLs and storing them in this.items
         }
     }
     // "any" to make the TS compiler happy:
     Cache.prototype.match = function (name) {
-        // name matches something in items
         if (name) {
             return this.items.get(name.toString());
         }
@@ -429,7 +428,6 @@ var CacheList = (function () {
     return CacheList;
 })();
 
-
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
     function WorkerGlobalScope() {
@@ -484,7 +482,6 @@ var _URL = (function () {
     }
     return _URL;
 })();
-
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
