@@ -9,12 +9,9 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
-// extensions to window.navigator
-interface NavigatorServiceWorker {
-  // null if page has no activated worker
-  serviceWorker: SharedServiceWorker;
-
-  registerServiceWorker(scope: string/* or URL */, url: string/* or URL */): Promise;
+interface ServiceWorkerContainer {
+  active: SharedServiceWorker;
+  register(scope: string/* or URL */, url: string/* or URL */): Promise;
     // If an event worker is in-waiting, and its url & scope matches both
     // url & scope
     //   - resolve the promise
@@ -36,25 +33,29 @@ interface NavigatorServiceWorker {
     //
     // Resolves once the install event is triggered without unhandled exceptions
 
-  unregisterServiceWorker(scope: string): Promise;
+  unregister(scope: string): Promise;
     // TODO: if we have a worker-in-waiting & an active worker,
     // what happens? Both removed?
     // TODO: does removal happen immediately or using the same pattern as
     // a worker update?
 
   // called when a new worker becomes in-waiting
-  onserviceworkerinstall: (ev: Event) => any;
+  oninstall: (ev: Event) => any;
     // TODO: needs custom event type?
-    // TODO: is this actually useful? Can't simply reload due to other tabs
 
   // called when a new worker takes over via InstallEvent#replace
-  onserviceworkerreplaced: (ev: Event) => any;
+  onreplaced: (ev: Event) => any;
     // TODO: needs custom event type?
     // TODO: is this actually useful? Might want to force a reload at this point
 
-  onserviceworkerreloadpage: (ev: ReloadPageEvent) => any;
-    // TODO: this event name has gotten way too long
+  onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?
+}
+
+// extensions to window.navigator
+interface NavigatorServiceWorker {
+  // null if page has no activated worker
+  serviceWorker: ServiceWorkerContainer;
 }
 
 interface Navigator extends
@@ -72,7 +73,10 @@ interface Navigator extends
 interface SharedServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
   // FIXME: Need to add ready(), etc. here
+  scope: string;
+  url: string;
 }
+
 declare var SharedServiceWorker: {
   prototype: SharedServiceWorker;
 }

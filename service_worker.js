@@ -11,6 +11,7 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 
+
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
     function ReloadPageEvent() {
