@@ -3,9 +3,10 @@
 <head>
 <title>Service Workers</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link rel="stylesheet" href="../assets/styles/main.css" type="text/css">
 <link rel="stylesheet" href="../assets/styles/spec.css" type="text/css">
 <link rel="stylesheet" href="../assets/styles/prettify.css" type="text/css">
-<link rel="stylesheet" href="https://www.w3.org/StyleSheets/TR/W3C-ED" type="text/css" >
+<link rel="stylesheet" href="../assets/styles/third_party/W3C-ED.css" type="text/css" >
 <script src="../assets/scripts/bug-assist.js"></script>
 <script src="../assets/scripts/spec-assist.js"></script>
 <script src="../assets/scripts/prettify.js"></script>
@@ -37,17 +38,22 @@
 <dt>Participate</dt>
     <dd>Discuss on <a href="http://lists.w3.org/Archives/Public/public-webapps/">public-webapps@w3.org</a> (<a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a>)</dd>
     <dd><a href="https://www.w3.org/Bugs/Public/enter_bug.cgi?comment=&amp;blocked=14968&amp;short_desc=%5BCustom%5D%3A%20&amp;product=WebAppsWG&amp;component=Component%20Model">File bugs</a> (w3.org's <a href="https://www.w3.org/Bugs/Public/">Bugzilla</a>)</dd>
-<dt>Editor</dt>
+<dt>Editors</dt>
     <dd class="vcard"><span class="fn">Alex Russell</span>, <span class="org">Google</span>, &lt;<a class="email" href="mailto:slightlyoff@chromium.org">slightlyoff@chromium.org</a>&gt;</dd>
+    <dd class="vcard"><span class="fn">Jungkee Song</span>, <span class="org">Samsung Electronics</span>, &lt;<a class="email" href="mailto:slightlyoff@chromium.org">jungkee.song@samsung.com</a>&gt;</dd>
 </dl>
 
-<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2012 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p>
+<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2014 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p>
 
 <hr>
 
 <h2 id="abstract">Abstract</h2>
 
-<p>This specification describes the method for web applications to enable background functionality, including hooks to enable bootstrapping of web applications while offline.</p>
+<p>This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.</p>
+
+<p>The core of this system is an event-driven <a href="http://www.w3.org/TR/workers/">Web Worker</a> which responds to events dispatched from documents and other sources. A system for managing installatin, versions, upgrades is provided.</p>
+
+<p>The Service Worker is a generic entry point for event-driven background processing in the Web Platform that is <a href="#extensibility">extensible by other specifications</a>.</p>
 
 <h2 id="status">Status of This Document</h2>
 
@@ -62,33 +68,96 @@
 <section class="toc">
 <h2 id="toc">Table of Contents</h2>
 <ol>
-    <li><a href="#about">About this Document</a></li>
-    <li><a href="#dependencies">Dependencies</a></li>
-    <li><a href="#motivations">Motivations</a></li>
-    <li><a href="#concepts">Concepts</a></li>
-    <li><a href="#service-worker-lifecycle">Service Worker Lifecycle</a>
+    <li><a href="#introduction">Introduction</a>
     <ol>
-        <li><a href="#installation">Insallation</a></li>
-        <li><a href="#upgrade">Upgrade</a></li>
-        <li><a href="#event-handling">Event Handling</a></li>
+        <li><a href="#about">About this Document</a></li>
+        <li><a href="#dependencies">Dependencies</a></li>
+        <li><a href="#motivations">Motivations</a></li>
+        <li><a href="#concepts">Concepts</a></li>
+        <li><a href="#offline-example">Example: Offline Web Applications</a></li>
     </ol></li>
 
-<!--
-    <li><a href="#"></a></li>
-    <li><a href="#"></a>
+    <li><a href="#service-worker-lifecycle">Service Worker Lifecycle</a>
     <ol>
-        <li><a href="#"></a></li>
+        <li><a href="#registration">Registration</a></li>
+        <li><a href="#event-handling">Event Handling</a></li>
+        <li><a href="#installation">Installation</a>
+            <ol><li><a href="#worker-script-caching">Worker Script Caching</a></li></ol>
+        </li>
+        <li><a href="#activation">Activation</a></li>
+        <li><a href="#navigation-matching">Navigation Matching</a>
+        <li><a href="#fetch-handling">Fetch Handling</a>
+        <li><a href="#lifetime-extension">Lifetime Extension</a></li>
+        <li><a href="#upgrade">Upgrade</a></li>
     </ol></li>
- -->
+
+    <li><a href="#registration-context">Registration Context</a>
+    <ol>
+        <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a></li>
+        <li><a href="#register-service-worker"><code>navigator.registerServiceWorker</code></a></li>
+        <li><a href="#unregister-service-worker"><code>navigator.unregisterServiceWorker</code></a></li>
+        <li><a href="#onserviceworkerinstall"><code>onserviceworkerinstall</code></a></li>
+        <li><a href="#onserviceworkerreplaced"><code>onserviceworkerreplaced</code></a></li>
+    </ol></li>
+
+    <li><a href="#execution-context">Execution Context</a>
+    <ol>
+        <li><a href="#request-objects"><code>Request</code> Objects</a></li>
+        <li><a href="#response-objects"><code>Response</code> Objects</a>
+        <ol>
+            <li><a href="#response"><code>Response</code></a></li>
+            <li><a href="#same-origin-response"><code>SameOriginResponse</code></a></li>
+            <li><a href="#cross-origin-response"><code>CrossOriginResponse</code></a></li>
+        </ol>
+        </li>
+        </li>
+        <li><a href="#fetch"><code>fetch()</code></a></li>
+        <li><a href="#cache-objects">Caches</a>
+        <ol>
+            <li><a href="#cache-lifetimes">Cache Lifetime Semantics</a></li>
+            <li><a href="#cache"><code>Cache</code></a></li>
+            <li><a href="#async-map"><code>AsyncMap</code></a></li>
+            <li><a href="#cache-list"><code>CacheList</code></a></li>
+        </ol>
+        </li>
+        <li><a href="#windows"><code>windows</code></a>
+            <ol><li><a href="#window-list"><code>WindowList</code></a></li></ol>
+        </li>
+        <li><a href="#events">Events</a>
+        <ol>
+            <li><a href="#install-phase-event"><code>InstallPhaseEvent</code></a></li>
+            <li><a href="#oninstall"><code>oninstall</code></a>
+                <ol><li><a href="#install-event"><code>InstallEvent</code></a></li></ol>
+            </li>
+            <li><a href="#onactivate"><code>onactivate</code></a>
+                <ol><li><a href="#activate-event"><code>ActivateEvent</code></a></li></ol>
+            </li>
+            <li><a href="#onfetch"><code>onfetch</code></a>
+                <ol><li><a href="#fetch-event"><code>FetchEvent</code></a></li></ol>
+            </li>
+        </ol></li>
+    </ol></li>
+
+    <li><a href="#security-considerations">Security Considerations</a>
+    <ol>
+        <li><a href="#origin-relativity">Origin Relativity</a></li>
+        <li><a href="#x-origin-resources">Cross-Origin Resources & CORS</a></li>
+        <li><a href="#csp">Content Security Policy</a></li>
+    </ol></li>
+    <li><a href="#storage-considerations">Storage Considerations</a></li>
+    <li><a href="#extensibility">Extensibility</a></li>
     <li><a href="#appendix-a">Appendix A: All Algorithms in One Diagram</a></li>
     <li><a href="#acknowledgements" class="no-number">Acknowledgements</a></li>
+
 </ol>
 
 </section>
 
 <section class="spec">
 
-<h2 id="about">About this Document</h2>
+<h2 id="introduction">Introduction</h2>
+
+<h3 id="about">About this Document</h3>
 
 <p>All diagrams, examples, notes, are non-normative, as well as sections explicitly marked as non-normative. Everything else in this specification is normative.</p>
 
@@ -96,34 +165,101 @@
 
 <p>Any point, at which a conforming UA must make decisions about the state or reaction to the state of the conceptual model, is captured as <a href="http://en.wikipedia.org/wiki/Algorithm">algorithm</a>. The algorithms are defined in terms of processing equivalence. The <dfn id="dfn-processing-equivalence">processing equivalence</dfn> is a constraint imposed on the algorithm implementors, requiring the output of the both UA-implemented and the specified algorithm to be exactly the same for all inputs.</p>
 
-<h2 id="dependencies">Dependencies</h2>
+<h3 id="dependencies">Dependencies</h3>
 
 <p>This document relies on the following specifications:</p>
 
 <ul>
+    <li><a href="http://www.w3.org/TR/workers/">Web Workers</a></li>
+    <li><a href="http://fetch.spec.whatwg.org/">Fetch Living Standard</a></li>
     <li><a href="http://dom.spec.whatwg.org/">DOM Living Standard</a></li>
     <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML Living Standard</a></li>
     <li><a href="http://ecma-international.org/ecma-262/5.1/">ECMAScript Language Specification</a></li>
     <li><a href="http://www.w3.org/TR/WebIDL/">Web IDL</a></li>
+    <li><a href="http://www.w3.org/TR/CSP/">Content Security Policy</a></li>
+    <li><a href="http://www.w3.org/TR/IndexedDB/">Indexed DB</a></li>
+    <li><a href="http://www.w3.org/TR/quota-api/">Quota Management API</a></li>
+    <li><a href="http://www.w3.org/TR/notifications/">Web Notifications</a></li>
 </ul>
 
-</section>
-
-<section>
-
-<h2 id="motivations">Motivations</h2>
+<h3 id="motivations">Motivations</h3>
 
 <div class="informative">
-<p>Web Applications are traditionally premised on the assumption that the network is reachable. This assumption pervades the platform. HTML documents are loaded over HTTP and traditionally fetch all of their sub-resources via subsequent HTTP requests. This places web content at a disadvantage versus other technology stacks.<p>
+<p>Web Applications traditionally assume that the network is reachable. This assumption pervades the platform. HTML documents are loaded over HTTP and traditionally fetch all of their sub-resources via subsequent HTTP requests. This places web content at a disadvantage versus other technology stacks.<p>
+
+<p>The Service Worker is designed first to redress this balance by providing a Web Worker context which can be started by a runtime when navigations are about to occur. This event-driven worker is registered against an origin and a path (or pattern), meaning it can be consulted when navigations occur to that location. Events that correspond to network requests are dispatched to the worker and the responses generated by the worker may over-ride default network stack behavior. This puts the Service Worker, conceptually, between the network and a document renderer, allowing the Service Worker to provide content for documents, even while offline.</p>
+
+<p>Web developers familiar with previous attempts to solve the offline problem have reported a defecit of flexibility in those solutions. As a result, the Service Worker is highly proceedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep Service Workers responsive in the face of a single-threaded execution model. As a result, APIs exposed by Service Workers are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.</p>
+
+<p>Developers using the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the Service Worker is that errors should <em>always</em> be recoverable. Many details of the update process of Service Workers are designed to avoid these hazards.</p>
+
+<p>Service Workers are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a href="http://www.w3.org/TR/workers/#sharedworker">Shared Workers</a> and <a href="http://developer.chrome.com/extensions/background_pages.html">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, Service Workers bear more than a passing resemblence to <a href="http://developer.chrome.com/extensions/event_pages.html">Chrome Event Pages</a>, the successor to Background Pages. Service Workers may be started by user agents <em>without a attached document</em> and may be killed by the user agent at nearly any time. Conceptually, Service Workers can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that Service Workers may be started and killed many times a second.</p>
+
+<p>Service Workers are generic, event-driven, time-limited script contexts that run at an origin. These properties enable makes them natural endpoints for a range of runtime services that may outlive the context of a particular doucment, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).</p>
 </div>
 
-<h2 id="concepts">Concepts</h2>
+<h3 id="concepts">Concepts</h3>
 
+<p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other Worker variants, the lifetime of a Service Worker is tied to events, not references to documents.</p>
+
+<p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
+
+<p>Installation of a Service Worker proceeds through several phases:
+<ol>
+    <li><em>Fetch</em>:
+    <br>
+    The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.registerServiceWorker([pattern], [script URL])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+    <li><em>Startup</em>:
+    <br>
+    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
+    </li>
+    <li><em><code>oninstall</code></em>:
+    <br>
+    Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#oninstall"><code>oninstall</code>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
+    <br>
+    <br>
+    Service Workers are not considered "installed" until the <code>oninstall</code> event completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves perpared to handle futher events.
+    <br>
+    <br>
+    If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be successfully installed.
+    <br>
+    <br>
+    If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>e.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
+    </li>
+    <li><em><code>onactivate</code></em>:
+    <br>
+    After successful installation and just prior to receiving functional events (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. Like <code>oninstall</code>, this event may extend its lifetime using <code>e.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. It is likely that performance sensitive events are blocking on its successful completion.
+    <br>
+    <br>
+    The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
+    <br>
+    <br>
+    </li>
+</ol>
+</p>
+<p>
+Once <code>onactivate</code> suceeds, and only then, may the user agent may dispatch events which correspond to application logic; for example <code><a href="#onfetch">onfetch</a></code> for deciding the dispostion of network requests.
+</p>
+<!--
 <div class="informative">
 <p>...</p>
 </div>
+ -->
+ <h3 id="offline-example">Example: Offline Web Applications</h3>
+
+<pre><code class="prettyprint">
+// TODO(slightlyoff)
+</code></pre>
 
 <h2 id="service-worker-lifecycle">Service Worker Lifecycle</h2>
+
+...
+
+<h3 id="registration">Registration</h3>
+
+...
+
+<h3 id="event-handling">Event Handling</h3>
 
 ...
 
@@ -131,11 +267,263 @@
 
 ...
 
+<h4 id="worker-script-caching">Worker Script Caching</h4>
+
+...
+
+<h3 id="activation">Activation</h3>
+
+...
+
+<h3 id="navigation-matching">Navigation Matching</h3>
+
+...
+
+<h3 id="fetch-handling">Fetch Handling</h3>
+
+...
+
+<h3 id="lifetime-extension">Lifetime Extension</h3>
+
+...
+
 <h3 id="upgrade">Upgrade</h3>
 
 ...
 
-<h3 id="event-handling">Event Handling</h3>
+<h2 id="registration-context">Registration Context</h2>
+
+Documents are extended to support Service Workers via the <code>window.navigator</code> object. The following extensions are added:
+
+<pre><code>
+partial interface <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#navigator-0">Navigator</a> {
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> registerServiceWorker(DOMString scope, DOMString scriptURL,
+                                optional <a href="#serviceworkereoptions">ServiceWorkerOptions</a> options);
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> <span title="">unregisterServiceWorker</span>(<span>ServiceWorker</span> serviceWorker);
+
+  attribute <a href="#service-worker-interface">ServiceWorker</a> serviceWorker;
+  attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onserviceworkerinstall;
+  attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onserviceworkerreplaced;
+  attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onserviceworkerreloadpage;
+};
+
+dictionary <dfn id="serviceworkeroptions" title="ServiceWorkerOptions">ServiceWorkerOptions</dfn> {
+  DOMString policy = "";
+};
+
+interface ServiceWorker : Worker {
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> ready();
+};
+</code></pre>
+
+<h3 id="navigator-service-worker"><code>navigator.serviceWorker</code></h3>
+
+<code>navigator.serviceWorker</code> supports feature detection (if the object does not exist, the user agent is unlikely to support Service Workers) and allows scripts the ability to receive notification that a Service Worker is installed and available to communicate via <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#messageport">MessagePort</a></code>.
+
+<code>navigator.serviceWorker.ready()</code> returns a <code>Promise</code> object. This <code>Promise</code> resolves successfully
+
+<h3 id="register-service-worker"><code>navigator.registerServiceWorker</code></h3>
+
+<h3 id="unregister-service-worker"><code>navigator.unregisterServiceWorker</code></h3>
+
+...
+
+<h3 id="onserviceworkerinstall"><code>onserviceworkerinstall</code></h3>
+
+...
+
+<h3 id="onserviceworkerreplaced"><code>onserviceworkerreplaced</code></h3>
+
+...
+
+<h2 id="execution-context">Execution Context</h2>
+
+...
+
+<h3 id="request-objects"><code>Request</code> Objects</h3>
+
+<pre><code>
+[Constructor(optional RequestInit init)]
+interface Request {
+  readonly attribute unsigned long timeout;
+  readonly attribute (URL or [EnsureUTF16] DOMString) url;
+  readonly attribute DOMString encoding;
+  readonly attribute ByteString method;
+  readonly attribute (URL or [EnsureUTF16] DOMString) origin;
+  readonly attribute Mode mode;
+  readonly attribute boolean synchronous;
+  readonly attribute unsigned long redirectCount;
+  readonly attribute boolean forcePreflight;
+  readonly attribute boolean omitCredentials;
+  readonly attribute (URL or [EnsureUTF16] DOMString) referrer;
+  ByteString? getHeader(ByteString header);
+          attribute sequence<Header> headers;
+  readonly attribute any body;
+};
+
+dictionary RequestInit {
+  unsigned long timeout;
+  (URL or [EnsureUTF16] DOMString) url;
+  DOMString encoding;
+  ByteString method = "GET";
+  boolean synchronous = false;
+  unsigned long redirectCount = 0;
+  boolean forcePreflight = false;
+  boolean omitCredentials = false;
+  (URL or [EnsureUTF16] DOMString) referrer;
+  sequence<Header> headers;
+  any body = null;
+};
+
+enum Mode {
+  "same origin",
+  "tainted x-origin",
+  "CORS"
+};
+
+dictionary Header {
+  ByteString name;
+  ByteString value;
+};
+</code></pre>
+
+<h3 id="response-objects"><code>Response</code> Objects</h3>
+
+<code>Resposne</code> objects model HTTP responses.
+
+
+<code>SameOriginResponse</code>
+
+<pre><code>
+[Constructor]
+interface Response {
+  getter DOMString headers ();
+  setter void headers(dictionary values);
+};
+
+[Constructor(optional SameOriginResponseInit responseInitDict)]
+interface SameOriginResponse : Response {
+  attribute unsigned short statusCode;
+  attribute ByteString statusText;
+  attribute DOMString encoding;
+  attribute ByteString method;
+  attribute any body;
+};
+
+dictionary SameOriginResponseInit {
+  unsigned short statusCode = 200;
+  ByteString statusText = "OK";
+  DOMString encoding;
+  ByteString method;
+  sequence<Header> headers;
+  any body;
+};
+
+[Constructor]
+interface CrossOriginResponse : Response {
+};
+</code></pre>
+
+<h4 id="response"><code>Response</code></h4>
+
+<code>Response</code> is an abstract superclass for all Resposne types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).
+
+<h4 id="same-origin-response"><code>SameOriginResponse</code></h4>
+
+<code>SameOriginResponse</code> objects are mutable, constructable <code>Response</code>s. The <code>headers</code>, <code>body</code>, and other attributes may be set directly in script.
+
+Note that while it may be possible to set the <code>Location</code> header of a <code>SameOriginResponse</code> object to someplace not in the current origin, this is not a security issue. Since no cross-origin response bodies are immutable and opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).
+
+<h4 id="cross-origin-response"><code>CrossOriginResponse</code></h4>
+
+...
+
+<h3 id="fetch"><code>fetch()</code></h3>
+
+...
+
+<h3 id="cache-objects">Caches</h3>
+
+...
+
+<h4 id="cache-lifetimes">Understanding Cache Lifetimes</h4>
+
+...
+
+<h4 id="cache"><code>Cache</code></h4>
+
+...
+
+<h4 id="async-map"><code>AsyncMap</code></h4>
+
+...
+
+<h4 id="cache-list"><code>CacheList</code></h4>
+
+...
+
+<h3 id="windows"><code>windows</code></h3>
+
+...
+
+<h4 id="window-list"><code>WindowList</code></h4>
+
+...
+
+<h3 id="events">Events</h3>
+
+...
+
+<h4 id="install-phase-event"><code>InstallPhaseEvent</code></h4>
+
+...
+
+<h4 id="oninstall"><code>oninstall</code></h4>
+
+...
+
+<h5 id="install-event"><code>InstallEvent</code></h5>
+
+...
+
+<h4 id="onactivate"><code>onactivate</code></h4>
+
+...
+
+<h5 id="activate-event"><code>ActivateEvent</code></h5>
+
+...
+
+<h4 id="onfetch"><code>onfetch</code></h4>
+
+...
+
+<h5 id="fetch-event"><code>FetchEvent</code></h5>
+
+...
+
+<h2 id="security-considerations">Security Considerations</h2>
+
+...
+
+<h3 id="origin-relativity">Origin Relativity</h3>
+
+...
+
+<h3 id="x-origin-resources">Cross-Origin Resources & CORS</h3>
+
+...
+
+<h3 id="csp">Content Security Policy</h3>
+
+...
+
+
+<h2 id="storage-considerations">Storage Considerations</h2>
+
+...
+
+<h2 id="extensibility">Extensibility</h2>
 
 ...
 
@@ -189,9 +577,21 @@ dictionary <dfn id="api-element-registration-options">ElementRegistrationOptions
  -->
 </section>
 
+<!-- FIXME: INCOMPLETE!! Please add collaborators below. -->
 <h2 id="acknowledgements">Acknowledgements</h2>
 
-...
+<p>Jake Archibald is a ghost-author of this document. The best instincts in the design are his. He similarly shaped many of the details through discussion and experimentation. The bits which are not his (but which are good) owe everything to his experience, persistence, and focus on enabling web developers. He embodies a hopeful example for developers in shaping browser efforts to more directly address real-world pain points. If Service Workers solve "offline for the web", the credit is due him.</p>
 
+<p>Deep thanks go to Andrew Betts for organizing and hosting a small workshop of like-minded individuals including: Jake Archibald, Jackson Gabbard, Tobie Langel, Robin Berjon, Patrick Lauke, Christian Heilmann. From the clarity of the day's discussions and the use-cases outlined there, much has become possible. Further thanks to Andrew for raising consciousness about the offline problem. His organization of EdgeConf and inclusion of Offline as a persistent topic there has created many opportunities and connections that have enabled this work to progress.</p>
+
+<p>Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throught the development of the Service Worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.</p>
+
+<p>In no particular order, deep gratitude for design guidance and discussion goes to: Junkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, and Devdatta Akhawe.</p>
+
+<p>Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.</p>
+
+<p>The authors would also like to thank Dimitri Glazkov for his scripts and formatting tools which have been essential in the production of this specification. The authors are also grateful for his considerable guidance.</p>
+
+<p>Thanks also to Vivian Cromwell, Greg Simon, and Alex Komoroske for their considerable professional support.</p>
 </body>
 </html>

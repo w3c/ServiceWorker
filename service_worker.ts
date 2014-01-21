@@ -71,6 +71,7 @@ interface Navigator extends
 
 interface SharedServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
+  // FIXME: Need to add ready(), etc. here
 }
 declare var SharedServiceWorker: {
   prototype: SharedServiceWorker;
