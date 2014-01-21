@@ -44,8 +44,8 @@ interface NavigatorServiceWorker {
     // TBD: possible error values upon rejection?
 
   unregister(scope?: string): Promise; // Defaults to "/*"
-    // TODO: if we have a worker-in-waiting & an active worker,
-    // what happens? Both removed?
+    // Resolves with a ServiceWorker instance. Rejects if scope is mismatch.
+    // Unregisters all.
 
   // called when a new worker takes over via InstallEvent#replace
   onreplaced: (ev: Event) => any;
