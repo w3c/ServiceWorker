@@ -10,7 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 interface NavigatorServiceWorker {
-  active: SharedServiceWorker;
+  active?: SharedServiceWorker; // can be null
+
+  getAll(): Promise; // Promise for Array<SharedServiceWorker>
+
   register(scope: string/* or URL */, url: string/* or URL */): Promise;
     // If an event worker is in-waiting, and its url & scope matches both
     // url & scope
@@ -75,6 +78,9 @@ interface SharedServiceWorker extends Worker, AbstractWorker {
   // FIXME: Need to add ready(), etc. here
   scope: string;
   url: string;
+  // called when the SW instance that this object corresponds to is no longer
+  // active (e.g., a new version calling `e.replace()`)
+  ondeactivate: (ev: Event) => any;
 }
 
 declare var SharedServiceWorker: {
