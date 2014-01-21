@@ -9,7 +9,7 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
-interface ServiceWorkerContainer {
+interface NavigatorServiceWorker {
   active: SharedServiceWorker;
   register(scope: string/* or URL */, url: string/* or URL */): Promise;
     // If an event worker is in-waiting, and its url & scope matches both
@@ -53,13 +53,13 @@ interface ServiceWorkerContainer {
 }
 
 // extensions to window.navigator
-interface NavigatorServiceWorker {
+interface ServiceWorkerContainer {
   // null if page has no activated worker
-  serviceWorker: ServiceWorkerContainer;
+  serviceWorker: NavigatorServiceWorker;
 }
 
 interface Navigator extends
-  NavigatorServiceWorker,
+  ServiceWorkerContainer,
   EventTarget,
   // the rest is just stuff from the default ts definition
   NavigatorID,
