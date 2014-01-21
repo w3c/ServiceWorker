@@ -9,22 +9,31 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
+interface RegistrationOptionList {
+  scope: string;
+  cspPolicy: string;
+}
+// Semi-private to work around TS. Not for impl.
+class _RegistrationOptionList implements RegistrationOptionList {
+  scope = "/*";
+  cspPolicy = "";
+}
+
 interface NavigatorServiceWorker {
-  active?: SharedServiceWorker; // can be null
+  active?: ServiceWorker; // can be null
 
-  getAll(): Promise; // Promise for Array<SharedServiceWorker>
+  getAll(): Promise; // Promise for Array<ServiceWorker>
 
-  register(scope: string/* or URL */, url: string/* or URL */): Promise;
-    // If an event worker is in-waiting, and its url & scope matches both
-    // url & scope
+  register(url: string, options?: _RegistrationOptionList): Promise;
+    // Resolves for a ServiceWorker instance once the url is parsed and
+    // started, at the moment you can deliver a message, but before oninstall.
+    //
+    // If a worker is in-waiting, and its url & scope matches both url & scope
     //   - resolve the promise
     //   - abort these steps
-    // If no worker is in-waiting, and the current active event worker's
-    // url & scope matches url & scope
+    // If no worker is in-waiting, and the current active worker's
+    // url & scope match
     //   - resolve the promise
-    //   - abort these steps
-    // If an event worker with the same scope & url is attempting registration
-    //   - resolve the promise depending on the current registration attempt
     //   - abort these steps
     // Reject the promise if:
     //    - the URL is not same-origin
@@ -32,9 +41,7 @@ interface NavigatorServiceWorker {
     //    - fetching the event worker returns with an error
     //    - installing the worker (the event the worker is sent) fails
     //      with an unhandled exception
-    // TBD: possible error values upon rejection!
-    //
-    // Resolves once the install event is triggered without unhandled exceptions
+    // TBD: possible error values upon rejection?
 
   unregister(scope: string): Promise;
     // TODO: if we have a worker-in-waiting & an active worker,
@@ -42,14 +49,9 @@ interface NavigatorServiceWorker {
     // TODO: does removal happen immediately or using the same pattern as
     // a worker update?
 
-  // called when a new worker becomes in-waiting
-  oninstall: (ev: Event) => any;
-    // TODO: needs custom event type?
-
   // called when a new worker takes over via InstallEvent#replace
   onreplaced: (ev: Event) => any;
-    // TODO: needs custom event type?
-    // TODO: is this actually useful? Might want to force a reload at this point
+    // TODO: is this actually useful?
 
   onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?
@@ -73,7 +75,7 @@ interface Navigator extends
   // MSNavigatorAbilities
 { }
 
-interface SharedServiceWorker extends Worker, AbstractWorker {
+interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
   // FIXME: Need to add ready(), etc. here
   scope: string;
@@ -83,8 +85,8 @@ interface SharedServiceWorker extends Worker, AbstractWorker {
   ondeactivate: (ev: Event) => any;
 }
 
-declare var SharedServiceWorker: {
-  prototype: SharedServiceWorker;
+declare var ServiceWorker: {
+  prototype: ServiceWorker;
 }
 
 class ReloadPageEvent extends _Event {

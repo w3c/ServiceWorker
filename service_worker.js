@@ -11,6 +11,15 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 
+// Semi-private to work around TS. Not for impl.
+var _RegistrationOptionList = (function () {
+    function _RegistrationOptionList() {
+        this.scope = "/*";
+        this.cspPolicy = "";
+    }
+    return _RegistrationOptionList;
+})();
+
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
