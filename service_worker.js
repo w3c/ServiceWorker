@@ -401,7 +401,7 @@ var CacheList = (function () {
     function CacheList(iterable) {
     }
     // "any" to make the TS compiler happy
-    CacheList.prototype.match = function (cacheName, url) {
+    CacheList.prototype.match = function (url, cacheName) {
         return new ResponsePromise(function () {
         });
     };

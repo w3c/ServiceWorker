@@ -513,11 +513,20 @@ class Cache {
 class CacheList implements AsyncMap<any, any> {
   constructor(iterable: Array<any>) { }
 
-  // Convenience method to get ResponsePromise from named cache.
-  match(cacheName: String, url: URL) : ResponsePromise;
-  match(cacheName: String, url: String) : ResponsePromise;
+  // Convenience method to get ResponsePromise from caches. Returns the
+  // first url match from the fist cache (in insertion order, per ES6 Maps).
+  // The second optional cache name parameter invokes a search inside a
+  // specific Cache object.
+
+  // If no url is specified, the response is rejected.
+  // If a named Cache is not found, the response is rejected.
+  // If no matching item is found in a named cache, the response is rjected.
+  // If no cacheName is specified and no matching item is found in any cache,
+  // the response is rejected.
+  match(url: URL, cacheName?: String) : ResponsePromise;
+  match(url: String, cacheName?: String) : ResponsePromise;
   // "any" to make the TS compiler happy
-  match(cacheName: any, url: any) : ResponsePromise {
+  match(url: any, cacheName?: any) : ResponsePromise {
     return new ResponsePromise(function(){});
   }
 
