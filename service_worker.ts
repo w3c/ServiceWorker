@@ -43,11 +43,9 @@ interface NavigatorServiceWorker {
     //      with an unhandled exception
     // TBD: possible error values upon rejection?
 
-  unregister(scope: string): Promise;
+  unregister(scope?: string): Promise; // Defaults to "/*"
     // TODO: if we have a worker-in-waiting & an active worker,
     // what happens? Both removed?
-    // TODO: does removal happen immediately or using the same pattern as
-    // a worker update?
 
   // called when a new worker takes over via InstallEvent#replace
   onreplaced: (ev: Event) => any;
