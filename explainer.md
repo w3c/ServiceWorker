@@ -41,7 +41,8 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 <html>
   <head>
     <script>
-      navigator.serviceWorker.register("/*", "/assets/v1/worker.js").then(
+      // scope defaults to "/*"
+      navigator.serviceWorker.register("/assets/v1/worker.js").then(
         function(serviceWorker) {
           console.log("success!");
           serviceWorker.postMessage("Howdy from your installing page.");
@@ -71,7 +72,7 @@ The first time `http://videos.example.com/index.html` is loaded, all the resourc
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `registerServiceWorker()` and `unregisterServiceWorker()` only affect *subsequent* navigations.
+This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `serviceWorker.register()` and `serviceWorker.unregister()` only affect *subsequent* navigations.
 
 This is good for a couple of important reasons:
 
@@ -159,7 +160,7 @@ this.addEventListener("fetch", function(e) {
 
 ### URLs, Domains, and Registrations
 
-Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a ServiceWorker using `navigator.serviceWorker.register("/*", "/worker.js")`?
+Now that we've started to talk about `<iframe>`s, another question comes up: what if a controlled document from `video.example.com` loads an iframe from `www.example.net` which has previously registered a ServiceWorker using `navigator.serviceWorker.register("/worker.js")`?
 
 `video.example.com` and `www.example.net` are clearly different domains...should the ServiceWorker for `video.example.com` (registered with the path `/*`) get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
@@ -175,7 +176,7 @@ For instance, what if `http://www.example.com/foo.html` contains:
 <html>
   <head>
     <script>
-      navigator.serviceWorker.register("/foo*", "/foo_worker.js");
+      navigator.serviceWorker.register("/foo_worker.js", { scope: "/foo*"});
     </script>
   </head>
 </html>
@@ -189,7 +190,7 @@ While `http://www.example.com/foo/bar.html` contains:
 <html>
   <head>
     <script>
-      navigator.serviceWorker.register("/foo/bar*", "/foo/bar_worker.js");
+      navigator.serviceWorker.register("/foo/bar_worker.js", { scope: "/foo/bar*" });
     </script>
   </head>
 </html>
@@ -243,8 +244,7 @@ Now, let's assume the page served by browsing to that URL is:
 <html>
   <head>
     <script>
-      navigator.serviceWorker.register("/services/data",
-                                      "/services/data/worker.js");
+      navigator.serviceWorker.register("/services/data/worker.js", { scope: "/services/data" });
     </script>
   </head>
 </html>
@@ -258,7 +258,7 @@ What happens when we visit `http://www.example.com/index.html` that includes:
 <html>
   <head>
     <script>
-      navigator.serviceWorker.register("/*", "/worker.js");
+      navigator.serviceWorker.register("/worker.js", { scope: "/*" });
     </script>
     <script src="/services/data?json=1"></script>
   </head>
