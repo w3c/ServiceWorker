@@ -467,7 +467,7 @@ class Cache {
   // FIXME: need to add some way to get progress out
   items: AsyncMap<string, Response>;
 
-  // Allow arrays of URLs or strings
+  // Allow vararg of URLs or strings
   constructor(...urls:URL[]);
   constructor(...urls:string[]);
   // "any" to make the TS compiler happy:
