@@ -294,7 +294,6 @@ class Request {
 // http://fetch.spec.whatwg.org/#responses
 class Response {
   constructor() {}
-  url: string;
 }
 
 class CrossOriginResponse extends Response {
@@ -354,6 +353,7 @@ class SameOriginResponse extends Response {
       }
     }
   }
+  url: string;
   body: any; /*TypedArray? String?*/
 }
 
