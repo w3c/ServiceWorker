@@ -230,8 +230,8 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
     //  ResponsePromise resolves as soon as headers are available
     //  The ResponsePromise and the Response object both contain a
     //   toBlob() method that return a Promise for the body content.
-    //  The toBlob() promise will reject if the response is a CrossOrigin
-    //  response or if the original ResponsePromise is rejected.
+    //  The toBlob() promise will reject if the response is a OpaqueResponse
+    //  or if the original ResponsePromise is rejected.
     return new ResponsePromise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });
@@ -302,15 +302,19 @@ class Response {
   constructor() {}
 }
 
-class CrossOriginResponse extends Response {
+class OpaqueResponse extends Response {
   // This class represents the result of cross-origin fetched resources that are
   // tainted, e.g. <img src="http://cross-origin.example/test.png">
 
-  // TODO: slightlyoff: make CORS headers readable but not setable?
   get url(): string { return ""; } // Read-only for x-origin
 }
 
-class SameOriginResponse extends Response {
+class CORSResponse extends Response {
+  // TODO: slightlyoff: make CORS headers readable but not setable?
+  // TODO: this should probably share a lot with BasicResponse
+}
+
+class BasicResponse extends Response {
   constructor(params?) {
     if (params) {
       if (typeof params.statusCode != "undefined") {
@@ -423,7 +427,7 @@ class FetchEvent extends _Event {
     this.stopImmediatePropagation();
 
     return new Promise(function(resolver){
-      resolver.resolve(new SameOriginResponse({
+      resolver.resolve(new BasicResponse({
         statusCode: 302,
         headers: { "Location": url.toString() }
       }));
