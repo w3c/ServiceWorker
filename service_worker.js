@@ -120,6 +120,12 @@ var ServiceWorkerGlobalScope = (function (_super) {
     });
 
     ServiceWorkerGlobalScope.prototype.fetch = function (request) {
+        // Notes:
+        //  ResponsePromise resolves as soon as headers are available
+        //  The ResponsePromise and the Response object both contain a
+        //   toBlob() method that return a Promise for the body content.
+        //  The toBlob() promise will reject if the response is a CrossOrigin
+        //  response or if the original ResponsePromise is rejected.
         return new ResponsePromise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
@@ -222,9 +228,11 @@ var SameOriginResponse = (function (_super) {
             if (typeof params.headers != "undefined") {
                 this.headers = params.headers;
             }
+            /*
             if (typeof params.body != "undefined") {
-                this.body = params.body;
+            this.body = params.body;
             }
+            */
         }
         _super.call(this);
     }
@@ -251,6 +259,10 @@ var SameOriginResponse = (function (_super) {
         enumerable: true,
         configurable: true
     });
+
+    SameOriginResponse.prototype.toBlob = function () {
+        return accepted(new Blob());
+    };
     return SameOriginResponse;
 })(Response);
 
@@ -259,6 +271,9 @@ var ResponsePromise = (function (_super) {
     function ResponsePromise() {
         _super.apply(this, arguments);
     }
+    ResponsePromise.prototype.toBlob = function () {
+        return accepted(new Blob());
+    };
     return ResponsePromise;
 })(Promise);
 var RequestPromise = (function (_super) {

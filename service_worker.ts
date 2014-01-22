@@ -226,6 +226,12 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   fetch(request:string); // a URL
 
   fetch(request:any) : ResponsePromise {
+    // Notes:
+    //  ResponsePromise resolves as soon as headers are available
+    //  The ResponsePromise and the Response object both contain a
+    //   toBlob() method that return a Promise for the body content.
+    //  The toBlob() promise will reject if the response is a CrossOrigin
+    //  response or if the original ResponsePromise is rejected.
     return new ResponsePromise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });
@@ -322,9 +328,11 @@ class SameOriginResponse extends Response {
       if (typeof params.headers != "undefined") {
         this.headers = params.headers;
       }
+      /*
       if (typeof params.body != "undefined") {
         this.body = params.body;
       }
+      */
     }
     super();
   }
@@ -355,10 +363,12 @@ class SameOriginResponse extends Response {
     }
   }
   url: string;
-  body: any; /*TypedArray? String?*/
+  toBlob(): Promise { return accepted(new Blob()); }
 }
 
-class ResponsePromise extends Promise {}
+class ResponsePromise extends Promise {
+  toBlob(): Promise { return accepted(new Blob()); }
+}
 class RequestPromise extends Promise {}
 
 class FetchEvent extends _Event {
@@ -450,6 +460,7 @@ class FetchEvent extends _Event {
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
 class Cache {
+  // FIXME: need to add some way to get progress out
   items: AsyncMap<string, Response>;
 
   // Allow arrays of URLs or strings
