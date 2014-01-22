@@ -333,6 +333,7 @@ class BasicResponse extends Response {
         this.headers = params.headers;
       }
       /*
+      // FIXME: What do we want to do about passing in the body?
       if (typeof params.body != "undefined") {
         this.body = params.body;
       }
