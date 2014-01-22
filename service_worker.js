@@ -190,6 +190,16 @@ var CrossOriginResponse = (function (_super) {
     function CrossOriginResponse() {
         _super.apply(this, arguments);
     }
+    Object.defineProperty(CrossOriginResponse.prototype, "url", {
+        // This class represents the result of cross-origin fetched resources that are
+        // tainted, e.g. <img src="http://cross-origin.example/test.png">
+        // TODO: slightlyoff: make CORS headers readable but not setable?
+        get: function () {
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
     return CrossOriginResponse;
 })(Response);
 

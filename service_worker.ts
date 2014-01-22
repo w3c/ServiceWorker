@@ -301,6 +301,7 @@ class CrossOriginResponse extends Response {
   // tainted, e.g. <img src="http://cross-origin.example/test.png">
 
   // TODO: slightlyoff: make CORS headers readable but not setable?
+  get url(): string { return ""; } // Read-only for x-origin
 }
 
 class SameOriginResponse extends Response {
