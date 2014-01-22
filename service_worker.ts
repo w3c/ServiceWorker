@@ -111,7 +111,11 @@ class InstallEvent extends InstallPhaseEvent {
 
   // Ensures that the worker is used in place of existing workers for
   // the currently controlled set of window instances.
-  // TODO: how does this interact with waitUntil? Does it automatically wait?
+  // NOTE(TOSPEC): this interacts with waitUntil in the following way:
+  //   - replacement only happens upon successful installation
+  //   - successful installation can be delayed by waitUntil, perhaps
+  //     by subsequent event handlers.
+  //   - therefore, replace doesn't happen immediately.
   replace(): void {}
 
   // Assists in restarting all windows with the new worker.

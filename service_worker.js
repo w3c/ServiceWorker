@@ -60,7 +60,11 @@ var InstallEvent = (function (_super) {
     }
     // Ensures that the worker is used in place of existing workers for
     // the currently controlled set of window instances.
-    // TODO: how does this interact with waitUntil? Does it automatically wait?
+    // NOTE(TOSPEC): this interacts with waitUntil in the following way:
+    //   - replacement only happens upon successful installation
+    //   - successful installation can be delayed by waitUntil, perhaps
+    //     by subsequent event handlers.
+    //   - therefore, replace doesn't happen immediately.
     InstallEvent.prototype.replace = function () {
     };
 
@@ -124,8 +128,8 @@ var ServiceWorkerGlobalScope = (function (_super) {
         //  ResponsePromise resolves as soon as headers are available
         //  The ResponsePromise and the Response object both contain a
         //   toBlob() method that return a Promise for the body content.
-        //  The toBlob() promise will reject if the response is a CrossOrigin
-        //  response or if the original ResponsePromise is rejected.
+        //  The toBlob() promise will reject if the response is a OpaqueResponse
+        //  or if the original ResponsePromise is rejected.
         return new ResponsePromise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
@@ -191,27 +195,34 @@ var Response = (function () {
     return Response;
 })();
 
-var CrossOriginResponse = (function (_super) {
-    __extends(CrossOriginResponse, _super);
-    function CrossOriginResponse() {
+var OpaqueResponse = (function (_super) {
+    __extends(OpaqueResponse, _super);
+    function OpaqueResponse() {
         _super.apply(this, arguments);
     }
-    Object.defineProperty(CrossOriginResponse.prototype, "url", {
+    Object.defineProperty(OpaqueResponse.prototype, "url", {
         // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        // TODO: slightlyoff: make CORS headers readable but not setable?
         get: function () {
             return "";
         },
         enumerable: true,
         configurable: true
     });
-    return CrossOriginResponse;
+    return OpaqueResponse;
 })(Response);
 
-var SameOriginResponse = (function (_super) {
-    __extends(SameOriginResponse, _super);
-    function SameOriginResponse(params) {
+var CORSResponse = (function (_super) {
+    __extends(CORSResponse, _super);
+    function CORSResponse() {
+        _super.apply(this, arguments);
+    }
+    return CORSResponse;
+})(Response);
+
+var BasicResponse = (function (_super) {
+    __extends(BasicResponse, _super);
+    function BasicResponse(params) {
         if (params) {
             if (typeof params.statusCode != "undefined") {
                 this.statusCode = params.statusCode;
@@ -229,6 +240,7 @@ var SameOriginResponse = (function (_super) {
                 this.headers = params.headers;
             }
             /*
+            // FIXME: What do we want to do about passing in the body?
             if (typeof params.body != "undefined") {
             this.body = params.body;
             }
@@ -236,7 +248,7 @@ var SameOriginResponse = (function (_super) {
         }
         _super.call(this);
     }
-    Object.defineProperty(SameOriginResponse.prototype, "headers", {
+    Object.defineProperty(BasicResponse.prototype, "headers", {
         get: function () {
             return this._headers;
         },
@@ -260,10 +272,10 @@ var SameOriginResponse = (function (_super) {
         configurable: true
     });
 
-    SameOriginResponse.prototype.toBlob = function () {
+    BasicResponse.prototype.toBlob = function () {
         return accepted(new Blob());
     };
-    return SameOriginResponse;
+    return BasicResponse;
 })(Response);
 
 var ResponsePromise = (function (_super) {
@@ -344,7 +356,7 @@ var FetchEvent = (function (_super) {
         this.stopImmediatePropagation();
 
         return new Promise(function (resolver) {
-            resolver.resolve(new SameOriginResponse({
+            resolver.resolve(new BasicResponse({
                 statusCode: 302,
                 headers: { "Location": url.toString() }
             }));
