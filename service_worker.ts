@@ -240,8 +240,6 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
-
-  postMessage(message: any, ports?: any): void {}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

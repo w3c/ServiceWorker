@@ -134,9 +134,6 @@ var ServiceWorkerGlobalScope = (function (_super) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
-
-    ServiceWorkerGlobalScope.prototype.postMessage = function (message, ports) {
-    };
     return ServiceWorkerGlobalScope;
 })(WorkerGlobalScope);
 
