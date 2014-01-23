@@ -53,16 +53,22 @@ interface NavigatorServiceWorker {
     // being installed behind the current document.
   oninstallend: (ev: ServiceWorkerInstallEvent) => any;
     // Fired at the end of the install event in the SW, even if there's an
-    // error. Check the status object of the event to check for success.
+    // error. Listen for onerror to handle exceptions/errors.
 
   onactivate: (ev: ServiceWorkerInstallEvent) => any;
     // called when a new worker takes over for this document, after
     // navigator.serviceWorker.active has been changed.
   onactivateend: (ev: ServiceWorkerInstallEvent) => any;
-    // Fired after activate succeeds
+    // Fired at the end activation, even if there's an error. Listen for
+    // onerror to handle exceptions/errors.
 
   onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?
+
+  onerror: (ev: ErrorEvent) => any;
+    // Called for any error from the active or installing SW's
+    // FIXME: allow differentiation between active and installing SW's
+    //        here, perhaps via .worker?
 }
 
 // extensions to window.navigator
@@ -91,7 +97,6 @@ interface ServiceWorker extends Worker, AbstractWorker {
   // called when the SW instance that this object corresponds to is no longer
   // active (e.g., a new version calling `e.replace()`)
   ondeactivate: (ev: Event) => any;
-  state: string; // "error", "install", "activate", "active"
 }
 
 declare var ServiceWorker: {
