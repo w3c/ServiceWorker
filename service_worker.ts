@@ -144,12 +144,12 @@ class InstallEvent extends InstallPhaseEvent {
   //
   // Return a new Promise
   // For each attached window:
-  //   Trigger onserviceworkerreloadpage
-  //   If onserviceworkerreloadpage has default prevented:
+  //   Fire onreloadpage against navigator.serviceWorker
+  //   If onreloadpage has default prevented:
   //     Unfreeze any frozen windows
   //     reject returned promise
   //     abort these steps
-  //   If waitUntil called on onserviceworkerreloadpage event:
+  //   If waitUntil called on onreloadpage event:
   //     frozen windows may wish to indicate which window they're blocked on
   //     yeild until promise passed into waitUntil resolves
   //     if waitUntil promise is accepted:
@@ -187,18 +187,21 @@ interface CacheEvictionEventHandler { (e:_Event); }
 interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
+interface ServiceWorkerClients {
+  // A list of window objects, identifiable by ID, that correspond to windows
+  // (or workers) that are "controlled" by this SW
+  getAll(): Promise; // Promise for Array<Client>
+}
+
 // The scope in which worker code is executed
 class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
-
-  // The
   caches: CacheList;
 
-  // A list of window objects, identifiable by ID, that correspond to
-  get windows(): WindowList {
-    return new WindowList();
-  }
+  // A container for a list of window objects, identifiable by ID, that
+  // correspond to windows (or workers) that are "controlled" by this SW
+  clients: ServiceWorkerClients;
 
   // The registration pattern that matched this SW instance. E.g., if the following registrations are made:
   //    navigator.registerServiceWorker("/foo/*", "serviceworker.js");
@@ -238,6 +241,7 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // garbage collected before the ServiceWorkerGlobalScope object.
   // All messages received by that port must immediately be retargeted at the
   // ServiceWorkerGlobalScope object.
+  // The ev.source of these MessageEvents are instances of Client
   onmessage: (ev: MessageEvent) => any;
 
   // FIXME(slightlyoff): Need to add flags for:
@@ -405,7 +409,7 @@ class FetchEvent extends _Event {
   type: string = "navigate";
 
   // The window issuing the request.
-  window: any; // FIXME: should this also have an ID for easier use in ES5?
+  client: Client;
 
   // Does the request correspond to navigation of the top-level window, e.g.
   // reloading a tab or typing a URL into the URL bar?
@@ -470,7 +474,7 @@ class FetchEvent extends _Event {
     //    you can do something async (like fetch contents, go to IDB, whatever)
     //    within whatever the network time out is and as long as you still have
     //    the FetchEvent instance, you can fulfill the request later.
-    this.window = null; // to allow postMessage, window.topLevel, etc
+    this.client = null; // to allow postMessage, window.topLevel, etc
   }
 }
 
@@ -755,7 +759,10 @@ class SharedWorker extends _EventTarget {
 ////////////////////////////////////////////////////////////////////////////////
 // Not part of any public standard but used above:
 ////////////////////////////////////////////////////////////////////////////////
-class WindowList /* extends Array */ {}
+class Client {
+  id: number;
+  postMessage: (message: any, targetOrigin: string, ports?: any) => void;
+}
 
 interface AsyncMap<K, V> {
   // constructor(iterable?:any[]) {}

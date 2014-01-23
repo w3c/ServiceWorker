@@ -88,12 +88,12 @@ var InstallEvent = (function (_super) {
     //
     // Return a new Promise
     // For each attached window:
-    //   Trigger onserviceworkerreloadpage
-    //   If onserviceworkerreloadpage has default prevented:
+    //   Fire onreloadpage against navigator.serviceWorker
+    //   If onreloadpage has default prevented:
     //     Unfreeze any frozen windows
     //     reject returned promise
     //     abort these steps
-    //   If waitUntil called on onserviceworkerreloadpage event:
+    //   If waitUntil called on onreloadpage event:
     //     frozen windows may wish to indicate which window they're blocked on
     //     yeild until promise passed into waitUntil resolves
     //     if waitUntil promise is accepted:
@@ -127,15 +127,6 @@ var ServiceWorkerGlobalScope = (function (_super) {
     function ServiceWorkerGlobalScope() {
         _super.apply(this, arguments);
     }
-    Object.defineProperty(ServiceWorkerGlobalScope.prototype, "windows", {
-        // A list of window objects, identifiable by ID, that correspond to
-        get: function () {
-            return new WindowList();
-        },
-        enumerable: true,
-        configurable: true
-    });
-
     ServiceWorkerGlobalScope.prototype.fetch = function (request) {
         // Notes:
         //  ResponsePromise resolves as soon as headers are available
@@ -336,7 +327,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.window = null; // to allow postMessage, window.topLevel, etc
+        this.client = null; // to allow postMessage, window.topLevel, etc
     }
     // Promise must resolve with a Response. A Network Error is thrown for other
     // resolution types/values.
@@ -630,10 +621,10 @@ var SharedWorker = (function (_super) {
 ////////////////////////////////////////////////////////////////////////////////
 // Not part of any public standard but used above:
 ////////////////////////////////////////////////////////////////////////////////
-var WindowList = (function () {
-    function WindowList() {
+var Client = (function () {
+    function Client() {
     }
-    return WindowList;
+    return Client;
 })();
 
 var _useWorkerResponse = function () {
