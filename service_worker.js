@@ -26,11 +26,19 @@ var ReloadPageEvent = (function (_super) {
     function ReloadPageEvent() {
         _super.apply(this, arguments);
     }
-    // Delay the page unload to serialise state to storage or get user's permission
-    // to reload.
+    // Delay the page unload to serialise state to storage or get user's
+    // permission to reload.
     ReloadPageEvent.prototype.waitUntil = function (f) {
     };
     return ReloadPageEvent;
+})(_Event);
+
+var ServiceWorkerInstallEvent = (function (_super) {
+    __extends(ServiceWorkerInstallEvent, _super);
+    function ServiceWorkerInstallEvent() {
+        _super.apply(this, arguments);
+    }
+    return ServiceWorkerInstallEvent;
 })(_Event);
 
 ///////////////////////////////////////////////////////////////////////////////

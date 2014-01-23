@@ -47,9 +47,19 @@ interface NavigatorServiceWorker {
     // Resolves with a ServiceWorker instance. Rejects if scope is mismatch.
     // Unregisters all.
 
-  // called when a new worker takes over via InstallEvent#replace
-  onreplaced: (ev: Event) => any;
-    // TODO: is this actually useful?
+  oninstall: (ev: ServiceWorkerInstallEvent) => any;
+    // Fired when an installing worker's installation starts (but is not yet
+    // complete). Provides the ability for a page to converse with a SW that is
+    // being installed behind the current document.
+  oninstallend: (ev: ServiceWorkerInstallEvent) => any;
+    // Fired at the end of the install event in the SW, even if there's an
+    // error. Check the status object of the event to check for success.
+
+  onactivate: (ev: ServiceWorkerInstallEvent) => any;
+    // called when a new worker takes over for this document, after
+    // navigator.serviceWorker.active has been changed.
+  onactivateend: (ev: ServiceWorkerInstallEvent) => any;
+    // Fired after activate succeeds
 
   onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?
@@ -81,6 +91,7 @@ interface ServiceWorker extends Worker, AbstractWorker {
   // called when the SW instance that this object corresponds to is no longer
   // active (e.g., a new version calling `e.replace()`)
   ondeactivate: (ev: Event) => any;
+  state: string; // "error", "install", "activate", "active"
 }
 
 declare var ServiceWorker: {
@@ -88,9 +99,13 @@ declare var ServiceWorker: {
 }
 
 class ReloadPageEvent extends _Event {
-  // Delay the page unload to serialise state to storage or get user's permission
-  // to reload.
+  // Delay the page unload to serialise state to storage or get user's
+  // permission to reload.
   waitUntil(f: Promise): void {}
+}
+
+class ServiceWorkerInstallEvent extends _Event {
+  worker: ServiceWorker;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
