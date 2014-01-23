@@ -33,22 +33,30 @@ var ReloadPageEvent = (function (_super) {
     return ReloadPageEvent;
 })(_Event);
 
-var ServiceWorkerInstallEvent = (function (_super) {
-    __extends(ServiceWorkerInstallEvent, _super);
-    function ServiceWorkerInstallEvent() {
+var DocumentInstallPhaseEvent = (function (_super) {
+    __extends(DocumentInstallPhaseEvent, _super);
+    function DocumentInstallPhaseEvent() {
         _super.apply(this, arguments);
     }
-    return ServiceWorkerInstallEvent;
+    return DocumentInstallPhaseEvent;
 })(_Event);
 
+var DocumentInstallEvent = (function (_super) {
+    __extends(DocumentInstallEvent, _super);
+    function DocumentInstallEvent() {
+        _super.apply(this, arguments);
+        this.previous = null;
+    }
+    return DocumentInstallEvent;
+})(DocumentInstallPhaseEvent);
+
 ///////////////////////////////////////////////////////////////////////////////
-// The Event Worker
+// The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
 var InstallPhaseEvent = (function (_super) {
     __extends(InstallPhaseEvent, _super);
     function InstallPhaseEvent() {
         _super.apply(this, arguments);
-        this.previousVersion = 0;
     }
     // Delay treating the installing worker until the passed Promise resolves
     // successfully. This is primarily used to ensure that an ServiceWorker is not
@@ -64,7 +72,7 @@ var InstallEvent = (function (_super) {
     __extends(InstallEvent, _super);
     function InstallEvent() {
         _super.apply(this, arguments);
-        this.previous = null;
+        this.activeWorker = null;
     }
     // Ensures that the worker is used in place of existing workers for
     // the currently controlled set of window instances.
@@ -118,9 +126,6 @@ var ServiceWorkerGlobalScope = (function (_super) {
     __extends(ServiceWorkerGlobalScope, _super);
     function ServiceWorkerGlobalScope() {
         _super.apply(this, arguments);
-        // Set by the worker and used to communicate to newer versions what they
-        // are replaceing (see InstallEvent::previousVersion)
-        this.version = 0;
     }
     Object.defineProperty(ServiceWorkerGlobalScope.prototype, "windows", {
         // A list of window objects, identifiable by ID, that correspond to

@@ -47,18 +47,18 @@ interface NavigatorServiceWorker {
     // Resolves with a ServiceWorker instance. Rejects if scope is mismatch.
     // Unregisters all.
 
-  oninstall: (ev: ServiceWorkerInstallEvent) => any;
+  oninstall: (ev: DocumentInstallEvent) => any;
     // Fired when an installing worker's installation starts (but is not yet
     // complete). Provides the ability for a page to converse with a SW that is
     // being installed behind the current document.
-  oninstallend: (ev: ServiceWorkerInstallEvent) => any;
+  oninstallend: (ev: DocumentInstallEvent) => any;
     // Fired at the end of the install event in the SW, even if there's an
     // error. Listen for onerror to handle exceptions/errors.
 
-  onactivate: (ev: ServiceWorkerInstallEvent) => any;
+  onactivate: (ev: DocumentInstallPhaseEvent) => any;
     // called when a new worker takes over for this document, after
     // navigator.serviceWorker.active has been changed.
-  onactivateend: (ev: ServiceWorkerInstallEvent) => any;
+  onactivateend: (ev: DocumentInstallPhaseEvent) => any;
     // Fired at the end activation, even if there's an error. Listen for
     // onerror to handle exceptions/errors.
 
@@ -109,16 +109,18 @@ class ReloadPageEvent extends _Event {
   waitUntil(f: Promise): void {}
 }
 
-class ServiceWorkerInstallEvent extends _Event {
+class DocumentInstallPhaseEvent extends _Event {
   worker: ServiceWorker;
 }
 
+class DocumentInstallEvent extends DocumentInstallPhaseEvent {
+  previous: ServiceWorker = null;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
-// The Event Worker
+// The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
 class InstallPhaseEvent extends _Event {
-  previousVersion: any = 0;
-
   // Delay treating the installing worker until the passed Promise resolves
   // successfully. This is primarily used to ensure that an ServiceWorker is not
   // active until all of the "core" Caches it depends on are populated.
@@ -127,7 +129,7 @@ class InstallPhaseEvent extends _Event {
 }
 
 class InstallEvent extends InstallPhaseEvent {
-  previous: MessagePort = null;
+  activeWorker: ServiceWorker = null;
 
   // Ensures that the worker is used in place of existing workers for
   // the currently controlled set of window instances.
@@ -197,10 +199,6 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   get windows(): WindowList {
     return new WindowList();
   }
-
-  // Set by the worker and used to communicate to newer versions what they
-  // are replaceing (see InstallEvent::previousVersion)
-  version: any = 0; // NOTE: versions must be structured-cloneable!
 
   // The registration pattern that matched this SW instance. E.g., if the following registrations are made:
   //    navigator.registerServiceWorker("/foo/*", "serviceworker.js");
