@@ -265,6 +265,8 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // caches. Conceptually the same operation that SW's do max once every 24
   // hours.
   update: () => void;
+
+  unregister: () => void;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
