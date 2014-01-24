@@ -260,6 +260,11 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
+
+  // Ping the server for an updated version of this script, without consulting
+  // caches. Conceptually the same operation that SW's do max once every 24
+  // hours.
+  update: () => void;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
