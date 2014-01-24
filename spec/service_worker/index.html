@@ -105,9 +105,10 @@
         <li><a href="#request-objects"><code>Request</code> Objects</a></li>
         <li><a href="#response-objects"><code>Response</code> Objects</a>
         <ol>
+            <li><a href="#abstract-response"><code>AbstractResponse</code></a></li>
             <li><a href="#response"><code>Response</code></a></li>
-            <li><a href="#same-origin-response"><code>BasicResponse</code></a></li>
-            <li><a href="#cross-origin-response"><code>OpaqueResponse</code></a></li>
+            <li><a href="#opaque-response"><code>OpaqueResponse</code></a></li>
+            <li><a href="#cors-response"><code>CORSResponse</code></a></li>
         </ol>
         </li>
         </li>
@@ -450,7 +451,7 @@ interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
 <code>Resposne</code> objects model HTTP responses.
 
 
-<code>BasicResponse</code>
+<code>Response</code>
 
 <pre><code>
 interface <dfn id="response-promise-interface" title="ResponsePromise">ResponsePromise</dfn> : <a href="http://w3c.github.io/dom/#promises">Promise</a> {
@@ -458,13 +459,11 @@ interface <dfn id="response-promise-interface" title="ResponsePromise">ResponseP
 };
 
 [Constructor]
-interface <dfn id="response-interface" title="Response">Response</dfn> {
-  getter DOMString headers();
-  setter void headers(<a href="#header-map-interface">HeaderMap</a> <var>items</var>);
+interface <dfn id="abstract-response-interface" title="AbstractResponse">AbstractResponse</dfn> {
 };
 
-[Constructor(optional <a href="#basic-response-init-dictionary">BasicResponseInit</a> <var>responseInitDict</var>)]
-interface <dfn id="basic-response-interface" title="BasicResponse">BasicResponse</dfn> : <a href="#response-interface">Response</a> {
+[Constructor(optional <a href="#response-init-dictionary">ResponseInit</a> <var>responseInitDict</var>)]
+interface <dfn id="response-interface" title="Response">Response</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
   attribute unsigned short statusCode;
   attribute <a href="http://heycam.github.io/webidl/#idl-ByteString">ByteString</a> statusText;
   attribute DOMString encoding;
@@ -475,7 +474,7 @@ interface <dfn id="basic-response-interface" title="BasicResponse">BasicResponse
   <a href="http://w3c.github.io/dom/#promises">Promise</a> toBlob();
 };
 
-dictionary <dfn id="basic-response-init-dictionary" title="BasicResponseInit">BasicResponseInit</dfn> {
+dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit</dfn> {
   unsigned short statusCode = 200;
   <a href="http://heycam.github.io/webidl/#idl-ByteString">ByteString</a> statusText = "OK";
   DOMString encoding;
@@ -483,25 +482,31 @@ dictionary <dfn id="basic-response-init-dictionary" title="BasicResponseInit">Ba
   <a href="#header-map-interface">HeaderMap</a> headers;
 };
 
-interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#response-interface">Response</a> {
+interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
   getter DOMString url();
 };
 
 interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</dfn> : <a href="#response-interface">Response</a> {
+  // TODO: slightlyoff: make CORS headers readable but not setable?
+  // TODO: outline the whitelist of readable headers
 };
 </code></pre>
 
+<h4 id="abstract-response"><code>AbstractResponse</code></h4>
+
+<code>AbstractResponse</code> is an abstract superclass for all Resposne types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).
+
 <h4 id="response"><code>Response</code></h4>
 
-<code>Response</code> is an abstract superclass for all Resposne types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).
+<code>Response</code> objects are mutable, constructable <code>Response</code>s. The <code>headers</code>, <code>body</code>, and other attributes may be set directly in script.
 
-<h4 id="same-origin-response"><code>BasicResponse</code></h4>
+Note that while it may be possible to set the <code>Location</code> header of a <code>Response</code> object to someplace not in the current origin, this is not a security issue. Since no cross-origin response bodies are immutable and opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).
 
-<code>BasicResponse</code> objects are mutable, constructable <code>Response</code>s. The <code>headers</code>, <code>body</code>, and other attributes may be set directly in script.
+<h4 id="opaque-response"><code>OpaqueResponse</code></h4>
 
-Note that while it may be possible to set the <code>Location</code> header of a <code>BasicResponse</code> object to someplace not in the current origin, this is not a security issue. Since no cross-origin response bodies are immutable and opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).
+...
 
-<h4 id="cross-origin-response"><code>OpaqueResponse</code></h4>
+<h4 id="cors-response"><code>CORSResponse</code></h4>
 
 ...
 
