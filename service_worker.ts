@@ -190,7 +190,7 @@ interface OfflineEventHandler { (e:_Event); }
 interface ServiceWorkerClients {
   // A list of window objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  getAll(): Promise; // Promise for Array<Client>
+  getServiced(): Promise; // Promise for Array<Client>
 }
 
 // The scope in which worker code is executed
@@ -600,6 +600,14 @@ class CacheList implements AsyncMap<any, any> {
 ////////////////////////////////////////////////////////////////////////////////
 // Utility Decls to make the TypeScript compiler happy
 ////////////////////////////////////////////////////////////////////////////////
+
+// See:
+//    http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#broadcasting-to-other-browsing-contexts
+class BroadcastChannel {
+  constructor(channelName: string) {}
+  postMessage: (message: string) => void;
+  onmessage: (ev: MessageEvent) => any;
+};
 
 // See:
 //    http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope

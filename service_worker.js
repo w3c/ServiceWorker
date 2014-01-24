@@ -315,10 +315,10 @@ var FetchEvent = (function (_super) {
         //   "child",
         //   "navigate"
         this.purpose = "connect";
-        // Does the navigation or fetch come from a document that has been "soft
-        // reloaded"? That is to say, the reload button in the URL bar or the
-        // back/forward buttons in browser chrome? If true, some apps may choose not
-        // to work so hard to get "fresh" content to display.
+        // Has the user provided intent for the page to be reloaded fresher than
+        // their current view? Eg: pressing the refresh button
+        // Clicking a link & hitting back shouldn't be considered a reload.
+        // Ctrl+l enter: Left to the UA to decide
         this.isReload = false;
 
         // This is the meat of the API for most use-cases.
@@ -491,6 +491,18 @@ var CacheList = (function () {
     });
     return CacheList;
 })();
+
+////////////////////////////////////////////////////////////////////////////////
+// Utility Decls to make the TypeScript compiler happy
+////////////////////////////////////////////////////////////////////////////////
+// See:
+//    http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#broadcasting-to-other-browsing-contexts
+var BroadcastChannel = (function () {
+    function BroadcastChannel(channelName) {
+    }
+    return BroadcastChannel;
+})();
+;
 
 
 var WorkerGlobalScope = (function (_super) {
