@@ -341,10 +341,23 @@ interface <dfn id="document-install-event-interface" title="DocumentInstallEvent
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a> previous;
 };
 
+interface <dfn id="client-interface" title="Client">Client</dfn> {
+  readonly attribute unsigned long id;
+  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+};
+
+interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
+  // A list of window objects, identifiable by ID, that correspond to windows
+  // (or workers) that are "controlled" by this SW
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> getAll(); // Promise for Array<Client>
+};
+
 [<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a> {
   readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
-  getter <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#windowproxy">WindowProxy</a>[] windows();
+  // A container for a list of window objects, identifiable by ID, that
+  // correspond to windows (or workers) that are "controlled" by this SW
+  readonly attribute ServiceWorkerClients clients;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString registration;
 
   <a href="#response-promise-interface">ResponsePromise</a> fetch((<a href="#request-interface">Request</a> or [<a href="http://heycam.github.io/webidl/#EnsureUTF16">EnsureUTF16</a>] <a href="http://url.spec.whatwg.org/#url">URL</a> or DOMString) <var>request</var>);
@@ -354,6 +367,8 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onfetch;
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onbeforeevicted;
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onevicted;
+
+    // The ev.source of these MessageEvents are instances of Client
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onmessage;
 
   // close() method inherited from WorkerGlobalScope is not exposed.
@@ -607,18 +622,25 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
 [Constructor]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://dom.spec.whatwg.org/#event">Event</a> {
   readonly attribute <a href="#request-interface">Request</a> request;
-  readonly attribute <a href="#request-type-enum">RequestType</a> type;
-  readonly attribute <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#windowproxy">WindowProxy</a> window;
-  readonly attribute boolean isTopLevel;
+  readonly attribute Client client; // The window issuing the request.
+  readonly attribute <a href="#purpose-enum">Purpose</a> purpose;
   readonly attribute boolean isReload;
 
   void respondWith((<a href="http://w3c.github.io/dom/#promises">Promise</a> or <a href="#response-interface">Response</a>) <var>r</var>);
   <a href="http://w3c.github.io/dom/#promises">Promise</a> forwardTo((<a href="http://url.spec.whatwg.org/#url">URL</a> or [<a href="http://heycam.github.io/webidl/#EnsureUTF16">EnsureUTF16</a>] DOMString) <var>url</var>);
 };
 
-enum <dfn id="request-type-enum" title="RequestType">RequestType</dfn> {
-    "navigate",
-    "fetch"
+enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
+    "connect",
+    "font",
+    "img",
+    "object",
+    "script",
+    "style",
+    "worker",
+    "popup",
+    "child",
+    "navigate"
 };
 </code></pre>
 
