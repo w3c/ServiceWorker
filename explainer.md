@@ -100,7 +100,7 @@ this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   console.log(url);
   if (url == inventory) {
-    e.respondWith(new BasicResponse({
+    e.respondWith(new Response({
       statusCode: 200,
       body: JSON.stringify({
         videos: { /* ... */ }
@@ -387,7 +387,7 @@ Handy!
 
 HTTP redirects happen whenever a browser receives a `3xx` status code, most often [`302`](http://en.wikipedia.org/wiki/HTTP_302).
 
-Redirection is a fact of life in modern networks, so ServiceWorkers must have something intelligent to say about them. To enable this, a `forwardTo()` method is made available as a convenience in the `onfetch` event. It's functionally the same as creating a `BasicResponse`, setting the `.statusCode` to 302, providing a `Location: ...` header, and responding with that. Both work fine, but in most cases `e.forwardTo(urlOrString)` is easier:
+Redirection is a fact of life in modern networks, so ServiceWorkers must have something intelligent to say about them. To enable this, a `forwardTo()` method is made available as a convenience in the `onfetch` event. It's functionally the same as creating a `Response`, setting the `.statusCode` to 302, providing a `Location: ...` header, and responding with that. Both work fine, but in most cases `e.forwardTo(urlOrString)` is easier:
 
 ```js
 this.addEventListener("fetch", function(e) {
@@ -601,7 +601,7 @@ What does that imply? Lots of good stuff. First, ServiceWorkers can import libra
 
 What if an app wants to cache items that come from a CDN or other domain? It's possible to request many of them directly using `<script>`, `<img>`, `<video>` and `<link>` elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it's possible to XHR many sorts of off-domain resources when appropriate [CORS headers](https://developer.mozilla.org/en-US/docs/HTTP/Access_control_CORS) are set.
 
-ServiceWorkers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Promise`s for `BasicResponse` instances, the objects stored are `Promise`s for `OpaqueResponse` instances. `OpaqueResponse` provides a much less expressive API than `BasicResponse`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `BasicResponse`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
+ServiceWorkers enable this by allowing `Cache`s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the `Cache` as `Promise`s for `Response` instances, the objects stored are `Promise`s for `OpaqueResponse` instances. `OpaqueResponse` provides a much less expressive API than `Response`; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to `respondWith()` and `forwardTo()` in the same manner as `Response`s, but can't be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing `Cache`s to store them allows applications to avoid re-architecting in most cases.
 
 Note that CORS plays an important role in the cross-origin story for many resource types: fonts, images, XHR requests. All cross-origin resources that are fetched by `Cache`s succeed when fetched, but may not display/run correctly when their CORS headers are replayed to the document fetching them.
 
@@ -609,7 +609,7 @@ A few things to keep in mind regarding cross-origin resources that you may cache
 
   * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
   * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable from a `fetch` (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.
-  * There's no harm in responding to a cross-origin request with a `new BasicResponse()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
+  * There's no harm in responding to a cross-origin request with a `new Response()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
 
 ## Conclusions
 
