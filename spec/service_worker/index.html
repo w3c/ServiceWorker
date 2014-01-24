@@ -333,15 +333,18 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   void waitUntil(<a href="http://w3c.github.io/dom/#promises">Promise</a> <var>f</var>);
 };
 
-interface <dfn id="service-worker-install-event-interface" title="ServiceWorkerInstallEvent">ServiceWorkerInstallEvent</dfn> : <a href="http://dom.spec.whatwg.org/#event">Event</a> {
+interface <dfn id="document-install-phase-event-interface" title="DocumentInstallPhaseEvent">DocumentInstallPhaseEvent</dfn> : <a href="http://dom.spec.whatwg.org/#event">Event</a> {
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a> worker;
+};
+
+interface <dfn id="document-install-event-interface" title="DocumentInstallEvent">DocumentInstallEvent</dfn> : <a href="#document-install-phase-event-interface">DocumentInstallPhaseEvent</a> {
+  readonly attribute <a href="#service-worker-interface">ServiceWorker</a> previous;
 };
 
 [<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a> {
   readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
   getter <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#windowproxy">WindowProxy</a>[] windows();
-  attribute any version;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString registration;
 
   <a href="#response-promise-interface">ResponsePromise</a> fetch((<a href="#request-interface">Request</a> or [<a href="http://heycam.github.io/webidl/#EnsureUTF16">EnsureUTF16</a>] <a href="http://url.spec.whatwg.org/#url">URL</a> or DOMString) <var>request</var>);
@@ -568,7 +571,6 @@ interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
 
 <pre><code>
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://dom.spec.whatwg.org/#event">Event</a> {
-  readonly attribute any previousVersion;
   <a href="http://w3c.github.io/dom/#promises">Promise</a> waitUntil(<a href="http://w3c.github.io/dom/#promises">Promise</a> <var>f</var>);
 };
 </code></pre>
@@ -581,7 +583,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 
 <pre><code>
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
-  readonly attribute <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#messageport">MessagePort</a> previous;
+  readonly attribute <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
   void replace();
   <a href="http://w3c.github.io/dom/#promises">Promise</a> reloadAll();
 };
