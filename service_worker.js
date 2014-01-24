@@ -190,10 +190,10 @@ var Request = (function () {
 })();
 
 // http://fetch.spec.whatwg.org/#responses
-var Response = (function () {
-    function Response() {
+var AbstractResponse = (function () {
+    function AbstractResponse() {
     }
-    return Response;
+    return AbstractResponse;
 })();
 
 var OpaqueResponse = (function (_super) {
@@ -211,19 +211,11 @@ var OpaqueResponse = (function (_super) {
         configurable: true
     });
     return OpaqueResponse;
-})(Response);
+})(AbstractResponse);
 
-var CORSResponse = (function (_super) {
-    __extends(CORSResponse, _super);
-    function CORSResponse() {
-        _super.apply(this, arguments);
-    }
-    return CORSResponse;
-})(Response);
-
-var BasicResponse = (function (_super) {
-    __extends(BasicResponse, _super);
-    function BasicResponse(params) {
+var Response = (function (_super) {
+    __extends(Response, _super);
+    function Response(params) {
         if (params) {
             if (typeof params.statusCode != "undefined") {
                 this.statusCode = params.statusCode;
@@ -249,8 +241,9 @@ var BasicResponse = (function (_super) {
         }
         _super.call(this);
     }
-    Object.defineProperty(BasicResponse.prototype, "headers", {
+    Object.defineProperty(Response.prototype, "headers", {
         get: function () {
+            // TODO: outline the whitelist of readable headers
             return this._headers;
         },
         set: function (items) {
@@ -273,10 +266,18 @@ var BasicResponse = (function (_super) {
         configurable: true
     });
 
-    BasicResponse.prototype.toBlob = function () {
+    Response.prototype.toBlob = function () {
         return accepted(new Blob());
     };
-    return BasicResponse;
+    return Response;
+})(AbstractResponse);
+
+var CORSResponse = (function (_super) {
+    __extends(CORSResponse, _super);
+    function CORSResponse() {
+        _super.apply(this, arguments);
+    }
+    return CORSResponse;
 })(Response);
 
 var ResponsePromise = (function (_super) {
@@ -302,12 +303,18 @@ var FetchEvent = (function (_super) {
     function FetchEvent() {
         _super.call(this, "fetch", { cancelable: true, bubbles: false });
         // Can be one of:
-        //  "navigate"
-        //  "fetch"
-        this.type = "navigate";
-        // Does the request correspond to navigation of the top-level window, e.g.
-        // reloading a tab or typing a URL into the URL bar?
-        this.isTopLevel = false;
+        //   "connect",
+        //   "font",
+        //   "img",
+        //   "img",
+        //   "object",
+        //   "script",
+        //   "style",
+        //   "worker",
+        //   "popup",
+        //   "child",
+        //   "navigate"
+        this.purpose = "connect";
         // Does the navigation or fetch come from a document that has been "soft
         // reloaded"? That is to say, the reload button in the URL bar or the
         // back/forward buttons in browser chrome? If true, some apps may choose not
@@ -362,7 +369,7 @@ var FetchEvent = (function (_super) {
         this.stopImmediatePropagation();
 
         return new Promise(function (resolver) {
-            resolver.resolve(new BasicResponse({
+            resolver.resolve(new Response({
                 statusCode: 302,
                 headers: { "Location": url.toString() }
             }));

@@ -322,23 +322,18 @@ class Request {
 }
 
 // http://fetch.spec.whatwg.org/#responses
-class Response {
+class AbstractResponse {
   constructor() {}
 }
 
-class OpaqueResponse extends Response {
+class OpaqueResponse extends AbstractResponse {
   // This class represents the result of cross-origin fetched resources that are
   // tainted, e.g. <img src="http://cross-origin.example/test.png">
 
   get url(): string { return ""; } // Read-only for x-origin
 }
 
-class CORSResponse extends Response {
-  // TODO: slightlyoff: make CORS headers readable but not setable?
-  // TODO: this should probably share a lot with BasicResponse
-}
-
-class BasicResponse extends Response {
+class Response extends AbstractResponse {
   constructor(params?) {
     if (params) {
       if (typeof params.statusCode != "undefined") {
@@ -377,6 +372,7 @@ class BasicResponse extends Response {
   //       pseudo-impl purposes.
   _headers: Map<string, string>; // FIXME: Needs filtering!
   get headers() {
+    // TODO: outline the whitelist of readable headers
     return this._headers;
   }
   set headers(items) {
@@ -395,6 +391,12 @@ class BasicResponse extends Response {
   toBlob(): Promise { return accepted(new Blob()); }
 }
 
+class CORSResponse extends Response {
+  // TODO: slightlyoff: make CORS headers readable but not setable?
+  // TODO: outline the whitelist of readable headers
+}
+
+
 class ResponsePromise extends Promise {
   toBlob(): Promise { return accepted(new Blob()); }
 }
@@ -403,17 +405,23 @@ class RequestPromise extends Promise {}
 class FetchEvent extends _Event {
   // The body of the request.
   request: Request;
-  // Can be one of:
-  //  "navigate"
-  //  "fetch"
-  type: string = "navigate";
 
   // The window issuing the request.
   client: Client;
 
-  // Does the request correspond to navigation of the top-level window, e.g.
-  // reloading a tab or typing a URL into the URL bar?
-  isTopLevel: boolean = false;
+  // Can be one of:
+  //   "connect",
+  //   "font",
+  //   "img",
+  //   "img",
+  //   "object",
+  //   "script",
+  //   "style",
+  //   "worker",
+  //   "popup",
+  //   "child",
+  //   "navigate"
+  purpose: string = "connect";
 
   // Does the navigation or fetch come from a document that has been "soft
   // reloaded"? That is to say, the reload button in the URL bar or the
@@ -457,7 +465,7 @@ class FetchEvent extends _Event {
     this.stopImmediatePropagation();
 
     return new Promise(function(resolver){
-      resolver.resolve(new BasicResponse({
+      resolver.resolve(new Response({
         statusCode: 302,
         headers: { "Location": url.toString() }
       }));
