@@ -15,7 +15,6 @@ var __extends = this.__extends || function (d, b) {
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
         this.scope = "/*";
-        this.cspPolicy = "";
     }
     return _RegistrationOptionList;
 })();
