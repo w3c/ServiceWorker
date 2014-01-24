@@ -11,12 +11,10 @@
 
 interface RegistrationOptionList {
   scope: string;
-  csp: string;
 }
 // Semi-private to work around TS. Not for impl.
 class _RegistrationOptionList implements RegistrationOptionList {
   scope = "/*";
-  csp = "";
 }
 
 interface NavigatorServiceWorker {
