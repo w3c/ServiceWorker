@@ -201,13 +201,14 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // correspond to windows (or workers) that are "controlled" by this SW
   clients: ServiceWorkerClients;
 
-  // The registration pattern that matched this SW instance. E.g., if the following registrations are made:
-  //    navigator.registerServiceWorker("/foo/*", "serviceworker.js");
-  //    navigator.registerServiceWorker("/bar/*", "serviceworker.js");
+  // The registration pattern that matched this SW instance. E.g., if the
+  // following registrations are made:
+  //    navigator.serviceWorker.register("serviceworker.js", "/foo/*");
+  //    navigator.serviceWorker.register("serviceworker.js", "/bar/*");
   // And the user navigates to http://example.com/foo/index.html,
-  //    self.registration == "/foo/*"
+  //    self.scope == "/foo/*"
   // SW's can use this to disambiguate which context they were started from.
-  registration: string;
+  scope: string;
 
   //
   // Events
