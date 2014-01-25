@@ -288,9 +288,6 @@ class Request {
       if (typeof params.synchronous != "undefined") {
         this.synchronous = params.synchronous;
       }
-      if (typeof params.encoding != "undefined") {
-        this.encoding = params.encoding;
-      }
       if (typeof params.forcePreflight != "undefined") {
         this.forcePreflight = params.forcePreflight;
       }
@@ -309,7 +306,6 @@ class Request {
     }
   }
 
-  encoding: string;
   // see: http://www.w3.org/TR/XMLHttpRequest/#the-timeout-attribute
   timeout: Number = 0;
   url: string;
@@ -348,9 +344,6 @@ class Response extends AbstractResponse {
       if (typeof params.statusText != "undefined") {
         this.statusText = params.statusText;
       }
-      if (typeof params.encoding != "undefined") {
-        this.encoding = params.encoding;
-      }
       if (typeof params.method != "undefined") {
         this.method = params.method;
       }
@@ -372,7 +365,6 @@ class Response extends AbstractResponse {
   statusCode: Number;
   statusText: string;
   // Explicitly omitting httpVersion
-  encoding: string;
   method: string;
   // NOTE: the internal "_headers" is not meant to be exposed. Only here for
   //       pseudo-impl purposes.

@@ -165,9 +165,6 @@ var Request = (function () {
             if (typeof params.synchronous != "undefined") {
                 this.synchronous = params.synchronous;
             }
-            if (typeof params.encoding != "undefined") {
-                this.encoding = params.encoding;
-            }
             if (typeof params.forcePreflight != "undefined") {
                 this.forcePreflight = params.forcePreflight;
             }
@@ -221,9 +218,6 @@ var Response = (function (_super) {
             }
             if (typeof params.statusText != "undefined") {
                 this.statusText = params.statusText;
-            }
-            if (typeof params.encoding != "undefined") {
-                this.encoding = params.encoding;
             }
             if (typeof params.method != "undefined") {
                 this.method = params.method;
