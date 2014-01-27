@@ -149,10 +149,11 @@ var Request = (function () {
         // see: http://www.w3.org/TR/XMLHttpRequest/#the-timeout-attribute
         this.timeout = 0;
         this.method = "GET";
-        // FIXME: we don't provide anything but async fetching...
+        // FIXME: we only provide async!
         this.synchronous = false;
         this.redirectCount = 0;
         this.forcePreflight = false;
+        this.forceSameOrigin = false;
         this.omitCredentials = false;
         if (params) {
             if (typeof params.timeout != "undefined") {
@@ -167,6 +168,9 @@ var Request = (function () {
             }
             if (typeof params.forcePreflight != "undefined") {
                 this.forcePreflight = params.forcePreflight;
+            }
+            if (typeof params.forceSameOrigin != "undefined") {
+                this.forceSameOrigin = params.forceSameOrigin;
             }
             if (typeof params.omitCredentials != "undefined") {
                 this.omitCredentials = params.omitCredentials;

@@ -291,6 +291,9 @@ class Request {
       if (typeof params.forcePreflight != "undefined") {
         this.forcePreflight = params.forcePreflight;
       }
+      if (typeof params.forceSameOrigin != "undefined") {
+        this.forceSameOrigin = params.forceSameOrigin;
+      }
       if (typeof params.omitCredentials != "undefined") {
         this.omitCredentials = params.omitCredentials;
       }
@@ -313,10 +316,11 @@ class Request {
   origin: string;
   // FIXME: mode doesn't seem useful here.
   mode: string; // Can be one of "same origin", "tainted x-origin", "CORS"
-  // FIXME: we don't provide anything but async fetching...
+  // FIXME: we only provide async!
   synchronous: boolean = false;
   redirectCount: Number = 0;
   forcePreflight: boolean = false;
+  forceSameOrigin: boolean = false;
   omitCredentials: boolean = false;
   referrer: URL;
   headers: Map<string, string>; // Needs filtering!
