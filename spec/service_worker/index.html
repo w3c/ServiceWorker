@@ -356,9 +356,15 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
   readonly attribute ServiceWorkerClients clients;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString registration;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString scope;
 
   <a href="#response-promise-interface">ResponsePromise</a> fetch((<a href="#request-interface">Request</a> or [<a href="http://heycam.github.io/webidl/#EnsureUTF16">EnsureUTF16</a>] <a href="http://url.spec.whatwg.org/#url">URL</a> or DOMString) <var>request</var>);
+
+  // Ping the server for an updated version of this script, without consulting
+  // caches. Conceptually the same operation that SW's do max once every 24
+  // hours.
+  void update();
+  void unregister();
 
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> oninstall;
     attribute <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#eventhandler">EventHandler</a> onactivate;
