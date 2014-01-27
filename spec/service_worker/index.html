@@ -111,6 +111,7 @@
 
     <li><a href="#execution-context">Execution Context</a>
     <ol>
+        <li><a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a></li>
         <li><a href="#request-objects"><code>Request</code> Objects</a></li>
         <li><a href="#response-objects"><code>Response</code> Objects</a>
         <ol>
@@ -130,8 +131,8 @@
             <li><a href="#cache-list"><code>CacheList</code></a></li>
         </ol>
         </li>
-        <li><a href="#windows"><code>windows</code></a>
-            <ol><li><a href="#window-list"><code>WindowList</code></a></li></ol>
+        <li><a href="#client"><code>Client</code></a>
+            <ol><li><a href="#service-worker-clients"><code>ServiceWorkerClients</code></a></li></ol>
         </li>
         <li><a href="#events">Events</a>
         <ol>
@@ -391,19 +392,9 @@ interface <dfn id="document-install-event-interface" title="DocumentInstallEvent
 
 <h2 id="execution-context">Execution Context</h2>
 
-<pre><code>interface <dfn id="client-interface" title="Client">Client</dfn> {
-  readonly attribute unsigned long id;
-  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
-                   optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
-};
+<h3 id="service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></h3>
 
-interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
-  // A list of window objects, identifiable by ID, that correspond to windows
-  // (or workers) that are "controlled" by this SW
-  <a href="http://w3c.github.io/dom/#promises">Promise</a> getServiced(); // Promise for Array<Client>
-};
-
-[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
+<pre><code>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a> {
   readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
   // A container for a list of window objects, identifiable by ID, that
@@ -601,13 +592,30 @@ interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
 };
 </code></pre>
 
-<h3 id="windows"><code>windows</code></h3>
+<h3 id="client"><code>Client</code></h3>
 
-...
+<pre><code>[Constructor()] // no-op constructor
+interface <dfn id="client-interface" title="Client">Client</dfn> {
+  readonly attribute unsigned long id;
+  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
+                   optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+};
+</code></pre>
 
-<h4 id="window-list"><code>WindowList</code></h4>
+<p>The <code>Client</code> interface represents the window or the worker (defined as client) that is controlled by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
 
-...
+<p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
+
+<h4 id="service-worker-clients"><code>ServiceWorkerClients</code></h4>
+
+<pre><code>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
+  // A list of client objects, identifiable by ID, that correspond to windows
+  // (or workers) that are "controlled" by this SW
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> getServiced(); // Promise for Array&lt;Client&gt;
+};
+</code></pre>
+
+<p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://w3c.github.io/dom/#promises">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are controlled by this Service Worker.</p>
 
 <h3 id="events">Events</h3>
 
