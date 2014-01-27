@@ -91,13 +91,18 @@
         <li><a href="#upgrade">Upgrade</a></li>
     </ol></li>
 
-    <li><a href="#registration-context">Registration Context</a>
+    <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a>
     <ol>
-        <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a></li>
-        <li><a href="#register-service-worker"><code>navigator.registerServiceWorker</code></a></li>
-        <li><a href="#unregister-service-worker"><code>navigator.unregisterServiceWorker</code></a></li>
-        <li><a href="#onserviceworkerinstall"><code>onserviceworkerinstall</code></a></li>
-        <li><a href="#onserviceworkerreplaced"><code>onserviceworkerreplaced</code></a></li>
+        <li><a href="#navigator-service-worker-active"><code>active</code></a></li>
+        <li><a href="#navigator-service-worker-getAll"><code>getAll()</code></a></li>
+        <li><a href="#navigator-service-worker-register"><code>register()</code></a></li>
+        <li><a href="#navigator-service-worker-unregister"><code>unregister()</code></a></li>
+        <li><a href="#navigator-service-worker-oninstall"><code>oninstall</code></a></li>
+        <li><a href="#navigator-service-worker-oninstallend"><code>oninstallend</code></a></li>
+        <li><a href="#navigator-service-worker-onactivate"><code>onactivate</code></a></li>
+        <li><a href="#navigator-service-worker-onactivateend"><code>onactivateend</code></a></li>
+        <li><a href="#navigator-service-worker-onreloadpage"><code>onreloadpage</code></a></li>
+        <li><a href="#navigator-service-worker-onerror"><code>onerror</code></a></li>
     </ol></li>
 
     <li><a href="#execution-context">Execution Context</a>
@@ -290,19 +295,22 @@ Once <code>onactivate</code> succeeds, and only then, may the user agent dispatc
 
 ...
 
-<h2 id="registration-context">Registration Context</h2>
+<h2 id="navigator-service-worker"><code>navigator.serviceWorker</code></h2>
 
-Documents are extended to support Service Workers via the <code>window.navigator</code> object. The following extensions are added:
+<p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with service workers that are (or will become) active for the current document.</p>
 
-<pre><code>
-partial interface <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#navigator-0">Navigator</a> {
+<p>The <code>active</code> property of this object provides a reference to the service worker which was consulted during the construction of the current document (if any).</p>
+
+<p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
+
+<pre><code>partial interface <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#navigator-0">Navigator</a> {
   readonly attribute <a href="#navigator-service-worker-interface">NavigatorServiceWorker</a> serviceWorker;
 };
 
 interface <dfn id="navigator-service-worker-interface" title="NavigatorServiceWorker">NavigatorServiceWorker</dfn> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
 
-  <a href="http://w3c.github.io/dom/#promises">Promise</a> getAll(); // Promise for Array<ServiceWorker>
+  <a href="http://w3c.github.io/dom/#promises">Promise</a> getAll(); // Promise for Array&lt;ServiceWorker&gt;
   <a href="http://w3c.github.io/dom/#promises">Promise</a> register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
   <a href="http://w3c.github.io/dom/#promises">Promise</a> unregister(DOMString? <var>scope</var>);
 
@@ -338,10 +346,27 @@ interface <dfn id="document-install-phase-event-interface" title="DocumentInstal
 interface <dfn id="document-install-event-interface" title="DocumentInstallEvent">DocumentInstallEvent</dfn> : <a href="#document-install-phase-event-interface">DocumentInstallPhaseEvent</a> {
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a> previous;
 };
+</code></pre>
 
-interface <dfn id="client-interface" title="Client">Client</dfn> {
+...
+
+<h3 id="navigator-service-worker-active"><code>active</code></h3>
+<h3 id="navigator-service-worker-getAll"><code>getAll()</code></h3>
+<h3 id="navigator-service-worker-register"><code>register()</code></h3>
+<h3 id="navigator-service-worker-unregister"><code>unregister()</code></h3>
+<h3 id="navigator-service-worker-oninstall"><code>oninstall</code></h3>
+<h3 id="navigator-service-worker-oninstallend"><code>oninstallend</code></h3>
+<h3 id="navigator-service-worker-onactivate"><code>onactivate</code></h3>
+<h3 id="navigator-service-worker-onactivateend"><code>onactivateend</code></h3>
+<h3 id="navigator-service-worker-onreloadpage"><code>onreloadpage</code></h3>
+<h3 id="navigator-service-worker-onerror"><code>onerror</code></h3>
+
+<h2 id="execution-context">Execution Context</h2>
+
+<pre><code>interface <dfn id="client-interface" title="Client">Client</dfn> {
   readonly attribute unsigned long id;
-  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
+                   optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
 };
 
 interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
@@ -378,30 +403,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // close() method inherited from WorkerGlobalScope is not exposed.
 };
 </code></pre>
-
-<h3 id="navigator-service-worker"><code>navigator.serviceWorker</code></h3>
-
-<code>navigator.serviceWorker</code> supports feature detection (if the object does not exist, the user agent is unlikely to support Service Workers) and allows scripts the ability to receive notification that a Service Worker is installed and available to communicate via <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#messageport">MessagePort</a></code>.
-
-<code>navigator.serviceWorker.ready()</code> returns a <code>Promise</code> object. This <code>Promise</code> resolves successfully
-
-<h3 id="register-service-worker"><code>navigator.serviceWorker.register(<var>url</var>, <var>options</var>)</code></h3>
-
-<h3 id="unregister-service-worker"><code>navigator.serviceWorker.unregister(<var>scope</var>)</code></h3>
-
-...
-
-<h3 id="onserviceworkerinstall"><code>onserviceworkerinstall</code></h3>
-
-...
-
-<h3 id="onserviceworkerreplaced"><code>onserviceworkerreplaced</code></h3>
-
-...
-
-<h2 id="execution-context">Execution Context</h2>
-
-...
 
 <h3 id="request-objects"><code>Request</code> Objects</h3>
 

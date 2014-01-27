@@ -427,13 +427,17 @@ class FetchEvent extends _Event {
   // Ctrl+l enter: Left to the UA to decide
   isReload: boolean = false;
 
-  // If a Promise is provided, it must resolve with a Response, else a Network
-  // Error is thrown. If the request isTopLevel navigation and the return value
-  // is a CrossOriginResponse (an opaque response body), a Network Error is
-  // thrown. The final URL of all successful (non network-error) responses is
-  // the *requested* URL. Renderer-side security checks about tainting for
-  // x-origin content are tied to the transparency (or opacity) of the Response
-  // body, not URLs.
+  // * If a Promise is provided, it must resolve with a Response, else a
+  //   Network Error is thrown.
+  // * If the request isTopLevel navigation and the return value
+  //   is a CrossOriginResponse (an opaque response body), a Network Error is
+  //   thrown.
+  // * The final URL of all successful (non network-error) responses is
+  //   the *requested* URL.
+  // * Renderer-side security checks about tainting for
+  //   x-origin content are tied to the transparency (or opacity) of
+  //   the Response body, not URLs.
+  //
   //  respondWith(r: Promise) : void;
   //  respondWith(r: Response) : void;
   respondWith(r: any) : void { // "any" to make the TS compiler happy:
