@@ -737,12 +737,18 @@ The steps are:
         * if the response isn't success, reject and return
     * if the script is successfully fetched, start the worker (per http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#processing-model-7, steps 5 and 6)
         * if any error is encountered, reject and return
-    * queue the "oninstall" event on the SW.
-        * if an exception is thrown by any handler, reject and return
+    * fire the "oninstall" event on the SW and on navigator.serviceWorker for all documents which most specifically match origin+scope
+        * if an exception is thrown by any handler, reject and set the installenderror flag
         * if any handler calls waitUntil, extend the install process until they all resolve.
-            * if any extension handlers are rejected, reject and quit
+            * if any extension handlers are rejected, reject and set the installenderror flag
             * if all extension handlers resolve successfully, resolve succesfully
         * if no extension handlers are registered, resolve successfully
+    * fire "oninstallend" against naavigator.serviceWorker in all documents which most-specifically match origin+scope
+        * FIXME: what to do about the event object in the case of errors here?
+    * if the installenderror flag is true:
+        * dispatch onerror against navigator.serviceWorker in all documents which most specifically match origin+scope
+        * return and exit
+    * set the "workerinwaiting" flag on the installed worker and run the check-worker-in-waiting algorithm
 <script>
 
 </script>
