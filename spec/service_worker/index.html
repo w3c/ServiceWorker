@@ -111,7 +111,16 @@
 
     <li><a href="#execution-context">Execution Context</a>
     <ol>
-        <li><a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a></li>
+        <li><a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a>
+        <ol>
+            <li><a href="#service-worker-global-scope-caches"><code>caches</code></a></li>
+            <li><a href="#service-worker-global-scope-clients"><code>clients</code></a></li>
+            <li><a href="#service-worker-global-scope-scope"><code>scope</code></a></li>
+            <li><a href="#service-worker-global-scope-fetch"><code>fetch(request)</code></a></li>
+            <li><a href="#service-worker-global-scope-update"><code>update()</code></a></li>
+            <li><a href="#service-worker-global-scope-unregister"><code>unregister()</code></a></li>
+            <li><a href="#service-worker-global-scope-onmessage"><code>onmessage</code></a></li>
+        </ol></li>
         <li><a href="#request-objects"><code>Request</code> Objects</a></li>
         <li><a href="#response-objects"><code>Response</code> Objects</a>
         <ol>
@@ -217,7 +226,7 @@
 <ol>
     <li><em>Fetch</em>:
     <br>
-    The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.registerServiceWorker([pattern], [script URL])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+    The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
     If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
@@ -399,7 +408,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
-  readonly attribute ServiceWorkerClients clients;
+  readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> clients;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString scope;
 
   <a href="#response-promise-interface">ResponsePromise</a> fetch((<a href="#request-interface">Request</a> or [<a href="http://heycam.github.io/webidl/#EnsureUTF16">EnsureUTF16</a>] <a href="http://url.spec.whatwg.org/#url">URL</a> or DOMString) <var>request</var>);
@@ -422,6 +431,16 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // close() method inherited from WorkerGlobalScope is not exposed.
 };
 </code></pre>
+
+<p>The <code>ServiceWorkerGlobalScope</code> interface represents the global execution context of a Service Worker. <code>ServiceWorkerGlobalScope</code> object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a href="#registration">register</a>ed, a Service Worker is started, kept alive and killed by their relationship to events, not documents. Any type of synchronous requests MUST NOT be initiated inside of a Service Worker.</p>
+
+<h4 id="service-worker-global-scope-caches"><code>caches</code></h4>
+<h4 id="service-worker-global-scope-clients"><code>clients</code></h4>
+<h4 id="service-worker-global-scope-scope"><code>scope</code></h4>
+<h4 id="service-worker-global-scope-fetch"><code>fetch(request)</code></h4>
+<h4 id="service-worker-global-scope-update"><code>update()</code></h4>
+<h4 id="service-worker-global-scope-unregister"><code>unregister()</code></h4>
+<h4 id="service-worker-global-scope-onmessage"><code>onmessage</code></h4>
 
 <h3 id="request-objects"><code>Request</code> Objects</h3>
 
