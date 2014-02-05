@@ -486,10 +486,7 @@ interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
 
 <h3 id="response-objects"><code>Response</code> Objects</h3>
 
-<code>Response</code> objects model HTTP responses.
-
-
-<code>Response</code>
+<p><code>Resposne</code> objects model HTTP responses.</p>
 
 <pre><code>
 interface <dfn id="response-promise-interface" title="ResponsePromise">ResponsePromise</dfn> : <a href="http://goo.gl/3TobQS">Promise</a> {
@@ -498,6 +495,20 @@ interface <dfn id="response-promise-interface" title="ResponsePromise">ResponseP
 
 [Constructor]
 interface <dfn id="abstract-response-interface" title="AbstractResponse">AbstractResponse</dfn> {
+};
+
+interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
+  readonly attribute unsigned short statusCode;
+  readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
+  readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
+  // Returns a filtered list of headers. See <a href="#opaque-response">prose for details</a>.
+  getter <a href="#header-map-interface">HeaderMap</a> headers();
+  // No setter for headers
+  readonly DOMString url;
+};
+
+interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</dfn> : <a href="#response-interface">Response</a> {
+  getter <a href="#header-map-interface">HeaderMap</a> headers();
 };
 
 [Constructor(optional <a href="#response-init-dictionary">ResponseInit</a> <var>responseInitDict</var>)]
@@ -517,30 +528,30 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
   <a href="http://goo.gl/M46tpy">ByteString</a> method;
   <a href="#header-map-interface">HeaderMap</a> headers;
 };
-
-interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
-  getter DOMString url();
-};
-
-interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</dfn> : <a href="#response-interface">Response</a> {
-  // TODO: slightlyoff: make CORS headers readable but not setable?
-  // TODO: outline the whitelist of readable headers
-};
 </code></pre>
 
 <h4 id="abstract-response"><code>AbstractResponse</code></h4>
 
-<code>AbstractResponse</code> is an abstract superclass for all Response types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).
+<p><code>AbstractResponse</code> is a superclass for all <code>Resposne</code> types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).</p>
 
 <h4 id="response"><code>Response</code></h4>
 
-<code>Response</code> objects are mutable, constructable <code>Response</code>s. The <code>headers</code>, <code>body</code>, and other attributes may be set directly in script.
+<p><code>Response</code> objects are mutable and constructable. They model HTTP responses. The <code>fetch()</code> API returns this type for same-origin responses.</p>
 
-Note that while it may be possible to set the <code>Location</code> header of a <code>Response</code> object to someplace not in the current origin, this is not a security issue. Since no cross-origin response bodies are immutable and opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).
+<p class="note">It may be possible to set the <code>Location</code> header of a <code>Response</code> object to someplace not in the current origin but this is not a security issue. Cross-origin response bodies are opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).</p>
+
+<!-- TODO(slightlyoff): whitelist readable headers -->
+<p><code>headers</code></p>
 
 <h4 id="opaque-response"><code>OpaqueResponse</code></h4>
 
-...
+<p><code>OpaqueResponse</code> objects are immutable but constructable. The <code>fetch()</code> API returns this type for cross-origin responses.</p>
+
+<p>Their role is to encapsulate the security properties of the web platform. As such, their <code>body</code> attribute will always be <code>undefined</code> and the list of readable <code>headers</code> is heavily filtered.</p>
+
+<p><code>OpaqueResponse</code> objects may be forwarded on to rendering documents in exactly the same way as mutable <code>Response</code> objects.</p>
+
+<!-- TODO(slightlyoff): whitelist readable headers -->
 
 <h4 id="cors-response"><code>CORSResponse</code></h4>
 
