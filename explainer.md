@@ -428,7 +428,7 @@ var fallbackInventory = new URL("/assets/v1/inventory_fallback.json", base)+"";
 
 this.addEventListener("fetch", function(e) {
   var url = e.request.url;
-  if (url == inventoryURL) {
+  if (url == inventory) {
     e.respondWith(
       fetch(url).then(
         null,
