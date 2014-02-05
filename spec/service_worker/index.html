@@ -242,11 +242,11 @@
     If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be successfully installed.
     <br>
     <br>
-    If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>e.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
+    If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
     </li>
     <li><em><code>onactivate</code></em>:
     <br>
-    After successful installation and just prior to receiving functional events (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. Like <code>oninstall</code>, this event may extend its lifetime using <code>e.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. It is likely that performance sensitive events are blocking on its successful completion.
+    After successful installation and just prior to receiving functional events (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. Like <code>oninstall</code>, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. It is likely that performance sensitive events are blocking on its successful completion.
     <br>
     <br>
     The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
@@ -339,7 +339,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</code></
 
 <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with service workers that are (or will become) active for the current document.</p>
 
-<p>The <code>active</code> property of this object provides a reference to the service worker, which was consulted during the construction of the current document (if any).</p>
+<p>The <code>active</code> property of this object provides a reference to the service worker which was consulted during the construction of the current document (if any).</p>
 
 <p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 
@@ -350,9 +350,9 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</code></
 interface <dfn id="navigator-service-worker-interface" title="NavigatorServiceWorker">NavigatorServiceWorker</dfn> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
 
-  <a href="http://goo.gl/3TobQS">Promise</a> getAll(); // Promise for Array&lt;ServiceWorker&gt;
-  <a href="http://goo.gl/3TobQS">Promise</a> register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> unregister(DOMString? <var>scope</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>[]?&gt; getAll();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; unregister(DOMString? <var>scope</var>);
 
   // events
     attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
@@ -368,7 +368,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 };
 
 interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPageEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a> <var>f</var>);
+  void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 
 interface <dfn id="document-install-phase-event-interface" title="DocumentInstallPhaseEvent">DocumentInstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
@@ -409,7 +409,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> clients;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString scope;
 
-  <a href="#response-promise-interface">ResponsePromise</a> fetch((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] <a href="http://goo.gl/Kxbl8E">URL</a> or DOMString) <var>request</var>);
+  <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; fetch((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] <a href="http://goo.gl/Kxbl8E">URL</a> or DOMString) <var>request</var>);
 
   // Ping the server for an updated version of this script, without consulting
   // caches. Conceptually the same operation that SW's do max once every 24
@@ -493,7 +493,7 @@ interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
 
 <pre><code>
 interface <dfn id="response-promise-interface" title="ResponsePromise">ResponsePromise</dfn> : <a href="http://goo.gl/3TobQS">Promise</a> {
-  <a href="http://goo.gl/3TobQS">Promise</a> toBlob();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://goo.gl/dqRadv">Blob</a>&gt; toBlob();
 };
 
 [Constructor]
@@ -508,7 +508,7 @@ interface <dfn id="response-interface" title="Response">Response</dfn> : <a href
   getter <a href="#header-map-interface">HeaderMap</a> headers();
   setter void headers(<a href="#header-map-interface">HeaderMap</a> items);
   DOMString url;
-  <a href="http://goo.gl/3TobQS">Promise</a> toBlob();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://goo.gl/dqRadv">Blob</a>&gt; toBlob();
 };
 
 dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit</dfn> {
@@ -565,12 +565,12 @@ Note that while it may be possible to set the <code>Location</code> header of a 
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   readonly attribute <a href="#async-map-interface">AsyncMap</a> items;
 
-  <a href="http://goo.gl/3TobQS">Promise</a> match((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>name</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> add((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>responses</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> addResponse((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>, <a href="#response-interface">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> remove((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>responses</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> update((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>urls</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> ready();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>name</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>responses</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; addResponse((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>, <a href="#response-interface">Response</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; remove((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>responses</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; update((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>urls</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; ready();
 };
 </code></pre>
 
@@ -579,14 +579,14 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
 <pre><code>
 [<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, <a href="#response-interface">Response</a>)]
 interface <dfn id="async-map-interface" title="AsyncMap">AsyncMap</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a> get(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> has(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> set(DOMString <var>key</var>, <a href="#response-interface">Response</a> <var>val</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> clear();
-  <a href="http://goo.gl/3TobQS">Promise</a> delete(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> items();
-  <a href="http://goo.gl/3TobQS">Promise</a> keys();
-  <a href="http://goo.gl/3TobQS">Promise</a> values();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; get(DOMString <var>key</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>key</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#response-interface">Response</a> <var>val</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>key</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any?&gt; items();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;DOMString[]?&gt; keys();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]?&gt; values();
 };
 </code></pre>
 
@@ -597,11 +597,11 @@ interface <dfn id="async-map-interface" title="AsyncMap">AsyncMap</dfn> {
 <pre><code>
 [<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, <a href="#cache-interface">Cache</a>)]
 interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
-  <a href="#response-promise-interface">ResponsePromise</a> match(DOMString <var>name</var>, (<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> get(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> has(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> clear();
+  <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; match(DOMString <var>name</var>, (<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>key</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>key</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
   <a href="#cache-list-interface">CacheList</a> items();
   DOMString[] keys();
   <a href="#cache-interface">Cache</a>[] values();
@@ -628,7 +628,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 <pre><code>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  <a href="http://goo.gl/3TobQS">Promise</a> getServiced(); // Promise for Array&lt;Client&gt;
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#client-interface">Client</a>[]?&gt; getServiced();
 };
 </code></pre>
 
@@ -642,7 +642,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 
 <pre><code>
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  <a href="http://goo.gl/3TobQS">Promise</a> waitUntil(<a href="http://goo.gl/3TobQS">Promise</a> <var>f</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 </code></pre>
 
@@ -656,7 +656,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
   void replace();
-  <a href="http://goo.gl/3TobQS">Promise</a> reloadAll();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
 };
 </code></pre>
 
@@ -690,8 +690,8 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
   readonly attribute <a href="#purpose-enum">Purpose</a> purpose;
   readonly attribute boolean isReload;
 
-  void respondWith((<a href="http://goo.gl/3TobQS">Promise</a> or <a href="#response-interface">Response</a>) <var>r</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> forwardTo((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>);
+  void respondWith(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; <var>r</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo((<a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>);
 };
 
 enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
@@ -709,7 +709,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 </code></pre>
 
 <h5 id="respond-with-method"><code>event.respondWith(r)</code></h5>
-<p>If a <a href="http://goo.gl/3TobQS">Promise</a> is provided, it must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for x-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
+<p>The <var>r</var> argument must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for x-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
 
 <h5 id="is-reload-attribute"><code>event.isReload</code></h5>
 <p>Returns true if <var>event</var> was dispatched with the user's intention for the page reload, and false otherwise. Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
