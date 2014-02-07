@@ -286,7 +286,13 @@ Once <code>onactivate</code> succeeds, and only then, may the user agent dispatc
 
 <h4 id="worker-script-caching">Worker Script Caching</h4>
 
-...
+<p>Upon successful <a href="#installation">installation</a> of a Service Worker, the provided worker <a href="#FIXME">script</a> SHOULD be cached by the UA. The UA SHOULD honor the HTTP cache headers to avoid requests per navigation to the <a href"#registration">register</a>ed <a href="#FIXME">scope</a> but with the upper limit of 24 hours. If no HTTP cache headers are provided, it MUST be treated as <code>cache-control: must-revalidate.</code></p>
+
+<p class="note">These headers are for updating the worker only, not using it. A non-fresh worker will still be used to service requests.</p>
+
+<p>Under this recommended caching rule, UAs SHOULD check for worker updates on each navigation to the matching <a href="#FIXME">scope</a>, although they MAY do more regular checks (even when the site is not open) for sites it considers important to the user. UAs MAY NOT update the worker <a href="#FIXME">script</a> for the documents which are not visited once in the last 24 hours.</p>
+
+<p>Additionally, <code>update()</code> method is provided in the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface to allow a Service Worker to trigger a forced update.</p>
 
 <h3 id="activation">Activation</h3>
 
@@ -411,9 +417,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 
   <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; fetch((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] <a href="http://goo.gl/Kxbl8E">URL</a> or DOMString) <var>request</var>);
 
-  // Ping the server for an updated version of this script, without consulting
-  // caches. Conceptually the same operation that SW's do max once every 24
-  // hours.
   void update();
   void unregister();
 
@@ -437,6 +440,9 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 <h4 id="service-worker-global-scope-scope"><code>scope</code></h4>
 <h4 id="service-worker-global-scope-fetch"><code>fetch(request)</code></h4>
 <h4 id="service-worker-global-scope-update"><code>update()</code></h4>
+
+<p>Ping the server for an updated version of this script without consulting caches. (See the <a href="#update-algorithm">Service Woker Update Algorithm</a>.)</p>
+
 <h4 id="service-worker-global-scope-unregister"><code>unregister()</code></h4>
 <h4 id="service-worker-global-scope-onmessage"><code>onmessage</code></h4>
 
