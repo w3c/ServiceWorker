@@ -20,8 +20,11 @@ class _RegistrationOptionList implements RegistrationOptionList {
 interface NavigatorServiceWorker {
   active?: ServiceWorker; // can be null
 
-  getAll(): Promise; // Promise for Array<ServiceWorker>
+  getAll(): Promise; // Promise<Array<ServiceWorker>>
 
+  ready(): Promise; // Promise<ServiceWorker>
+
+  // Returns a Promise<ServiceWorker>
   register(url: string, options?: _RegistrationOptionList): Promise;
     // Resolves for a ServiceWorker instance once the url is parsed and
     // started, at the moment you can deliver a message, but before oninstall.
@@ -89,9 +92,9 @@ interface Navigator extends
 
 interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
-  // FIXME: Need to add ready(), etc. here
   scope: string;
   url: string;
+  ready(): Promise;
   // called when the SW instance that this object corresponds to is no longer
   // active (e.g., a new version calling `e.replace()`)
   ondeactivate: (ev: Event) => any;
