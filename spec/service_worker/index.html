@@ -323,9 +323,10 @@
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
   readonly attribute DOMString scope;
   readonly attribute DOMString url;
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready();
 
   // event
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> ondeactivate;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> ondeactivate;
 };</code></pre>
 
 <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-active"><code>navigator.serviceWorker.active</code></a>) will provide meaningful functionality.</p>
@@ -356,17 +357,18 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</code></
 interface <dfn id="navigator-service-worker-interface" title="NavigatorServiceWorker">NavigatorServiceWorker</dfn> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
 
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>[]?&gt; getAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; unregister(DOMString? <var>scope</var>);
 
   // events
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstallend;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivateend;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onreloadpage;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onerror;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstallend;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivateend;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onreloadpage;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onerror;
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptionList">RegistrationOptionList</dfn> {
@@ -420,14 +422,14 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   void update();
   void unregister();
 
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onfetch;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onbeforeevicted;
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onevicted;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onfetch;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onbeforeevicted;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onevicted;
 
-    // The event.source of these MessageEvents are instances of Client
-    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onmessage;
+  // The event.source of these MessageEvents are instances of Client
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onmessage;
 
   // close() method inherited from WorkerGlobalScope is not exposed.
 };
