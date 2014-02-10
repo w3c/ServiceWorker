@@ -82,7 +82,7 @@ This is good for a couple of important reasons:
 
 ## A Quick Game of `onfetch`
 
-Once installed, Service Workers can choose to handle resource requests. A navigation that matches the ServiceWorker's origin and scope
+Once installed, ServiceWorkers can choose to handle resource requests. A navigation that matches the ServiceWorker's origin and scope will be handled by the ServiceWorker.
 
 Here's an example of a ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
