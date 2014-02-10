@@ -784,8 +784,62 @@ navigator.serviceWorker.register = function(url, options) {
     <dd>OUTCOME, a <a href="http://goo.gl/3TobQS">Promise</a> whose resolution indicates the success or failure of the algorithm</dd>
 </dl>
 <ol>
-    <li>Let <var></var> be the result of </li>
-    <li>If <var>CALLBACK</var> exists and is a <a href="http://es5.github.io/#callable">callable object</a>, add <var>CALLBACK</var> to <var>LIFECYCLE</var>, associated with the key <var>NAME</var>.</li>
+    <li>Let <var>PROMISE</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Run the following steps asynchronously:
+      <ol>
+        <li>If the origin of <var>SCRIPT</var> is not the same as the origin of the current document:
+          <ol>
+            <li>Return <var>PROMISE</var> rejected with a <code>TypeError</code>.</li>
+          </ol>
+        </li>
+        <li>Set the <var><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">force same origin</a></var> flag.</li>
+        <li>Set the <var>cache-busting</var> headers if the last update from the server occured more than 24 hours ago.</li>
+        <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">Fetch</a> the script from <var>SCRIPT</var>.</li>
+        <li>If the response is not success:
+          <ol>
+            <li>Return <var>PROMISE</var> rejected with a new <code>DOMException</code> whose name is <code>NetworkError</code>.</li>
+          </ol>
+        </li>
+        <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#processing-model-7">Run a worker</a> (per steps 5 and 6) for the fetched script with <var>SCRIPT</var>.</li>
+        <li>If any error is encountered:
+          <ol>
+            <li>Return <var>PROMISE</var> rejected with a new <code>DOMException</code> whose name is <code>InvalidStateError</code>.</li>
+          </ol>
+        </li>
+        <li>Fire an event named <code>install</code> on the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a> that is a <code>ServiceWorkerGlobalScope</code> object</li>
+        <li>Fire an event named <code>install</code> on <code>navigator.serviceWorker</code> for all documents which most specifically <a href="#navigation-matching">match</a> <var>ORIGIN</var> + <var>SCOPE</var></li>
+        <li>If an exception is thrown by any handler
+          <ol>
+            <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which most specifically <a href="#navigation-matching">match</a> <var>ORIGIN</var>+<var>SCOPE</var></li>
+            <li>Return <var>PROMISE</var> rejected with the exception.</li>
+          </ol>
+        </li>
+        <li>If any handler calls <code>waitUntil</code>:
+          <ol>
+            <li>Extend the install process until they all resolve.</li>
+            <li>If any extension handlers are rejected:
+              <ol>
+                <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which most specifically <a href="#navigation-matching">match</a> <var>ORIGIN</var>+<var>SCOPE</var></li>
+                <li>Return <var>PROMISE</var> rejected with the exception.</li>
+              </ol>
+            </li>
+            <li>If all extension handlers resolve successfully:
+              <ol>
+                <li>Resolve <var>PROMISE</var> with the newly-created associated Service Worker object</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>If no extension handlers are registered:
+          <ol>
+            <li>Resolve <var>PROMISE</var> with the newly-created associated Service Worker object</li>
+          </ol>
+        </li>
+        <li>Fire an event named <code>installend</code> on the <code>navigator.serviceWorker</code> in all documents which most-specifically <a href="#navigation-matching">match</a> <var>ORIGIN</var>+<var>SCOPE</var></li>
+        <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm</li>
+      </ol>
+    </li>
+    <li>Return <var>PROMISE</var>.
 
 <!--
 The steps are:
@@ -803,7 +857,7 @@ The steps are:
             * if any extension handlers are rejected, reject and set the installenderror flag
             * if all extension handlers resolve successfully, resolve succesfully
         * if no extension handlers are registered, resolve successfully
-    * fire "oninstallend" against naavigator.serviceWorker in all documents which most-specifically match origin+scope
+    * fire "oninstallend" against navigator.serviceWorker in all documents which most-specifically match origin+scope
         * FIXME: what to do about the event object in the case of errors here?
     * if the installenderror flag is true:
         * dispatch onerror against navigator.serviceWorker in all documents which most specifically match origin+scope
