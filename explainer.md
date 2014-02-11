@@ -142,7 +142,7 @@ Lastly, exceptions or syntax errors that prevent running a ServiceWorker will en
 
 Since loading documents and apps on the web boils down to an [HTTP request](http://shop.oreilly.com/product/9781565925090.do) the same way that any other sort of resource loading does, an interesting question arises: how do we distinguish loading a document from loading, say, an image or a CSS file that's a sub-resource for a document? And how can we distinguish between a top-level document and an `<iframe>`?
 
-A few properties are made available on `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a ServiceWorker is only natural.
+A few properties are made available on the `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a ServiceWorker is only natural.
 
 Let's say we want a ServiceWorker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
 
@@ -353,11 +353,11 @@ this.addEventListener("install", function(e) {
     "/assets/v1/intro_video.webm",
   );
 
-  // Add Cache to the global so it can be used later during onfetch
-  caches.set("shell-v1", shellResources);
-
   // The coast is only clear when all the resources are ready.
   e.waitUntil(shellResources.ready());
+
+  // Add Cache to the global so it can be used later during onfetch
+  caches.set("shell-v1", shellResources);
 });
 
 this.addEventListener("fetch", function(e) {
