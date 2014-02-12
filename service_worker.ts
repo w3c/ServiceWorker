@@ -17,7 +17,7 @@ class _RegistrationOptionList implements RegistrationOptionList {
   scope = "/*";
 }
 
-interface NavigatorServiceWorker {
+interface ServiceWorkerContainer {
   active?: ServiceWorker; // can be null
 
   getAll(): Promise; // Promise<Array<ServiceWorker>>
@@ -73,13 +73,13 @@ interface NavigatorServiceWorker {
 }
 
 // extensions to window.navigator
-interface ServiceWorkerContainer {
+interface NavigatorServiceWorker {
   // null if page has no activated worker
-  serviceWorker: NavigatorServiceWorker;
+  serviceWorker: ServiceWorkerContainer;
 }
 
 interface Navigator extends
-  ServiceWorkerContainer,
+  NavigatorServiceWorker,
   EventTarget,
   // the rest is just stuff from the default ts definition
   NavigatorID,
