@@ -785,11 +785,12 @@ navigator.serviceWorker.register = function(url, options) {
 </dl>
 <ol>
     <li>Let <var>PROMISE</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Return <var>PROMISE</var>.</li>
     <li>Run the following steps asynchronously:
       <ol>
         <li>If the origin of <var>SCRIPT</var> is not the same as the origin of the current document:
           <ol>
-            <li>Return <var>PROMISE</var> rejected with a <code>TypeError</code>.</li>
+            <li>Reject <var>PROMISE</var> rejected with <code>TypeError</code>.</li>
           </ol>
         </li>
         <li>Set the <var><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">force same origin</a></var> flag.</li>
@@ -797,13 +798,13 @@ navigator.serviceWorker.register = function(url, options) {
         <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">Fetch</a> the script from <var>SCRIPT</var>.</li>
         <li>If the response is not success:
           <ol>
-            <li>Return <var>PROMISE</var> rejected with a new <code>DOMException</code> whose name is <code>NetworkError</code>.</li>
+            <li>Reject <var>PROMISE</var> with a <code>DOMException</code> whose name is <code>NetworkError</code>.</li>
           </ol>
         </li>
         <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#processing-model-7">Run a worker</a> (per steps 5 and 6) for the fetched script with <var>SCRIPT</var>.</li>
         <li>If any error is encountered:
           <ol>
-            <li>Return <var>PROMISE</var> rejected with a new <code>DOMException</code> whose name is <code>InvalidStateError</code>.</li>
+            <li>Reject <var>PROMISE</var> with a <code>DOMException</code> whose name is <code>InvalidStateError</code>.</li>
           </ol>
         </li>
         <li>Fire an event named <code>install</code> on the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a> that is a <code>ServiceWorkerGlobalScope</code> object.</li>
@@ -811,7 +812,7 @@ navigator.serviceWorker.register = function(url, options) {
         <li>If an exception is thrown by any handler:
           <ol>
             <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-            <li>Return <var>PROMISE</var> rejected with the exception.</li>
+            <li>Reject <var>PROMISE</var> with the exception.</li>
           </ol>
         </li>
         <li>If any handler calls <code>waitUntil</code>:
@@ -820,7 +821,7 @@ navigator.serviceWorker.register = function(url, options) {
             <li>If any extension handlers are rejected:
               <ol>
                 <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-                <li>Return <var>PROMISE</var> rejected with the exception.</li>
+                <li>Reject <var>PROMISE</var> with the exception.</li>
               </ol>
             </li>
             <li>If all extension handlers resolve successfully:
@@ -839,7 +840,6 @@ navigator.serviceWorker.register = function(url, options) {
         <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm.</li>
       </ol>
     </li>
-    <li>Return <var>PROMISE</var>.
 
 <!--
 The steps are:
