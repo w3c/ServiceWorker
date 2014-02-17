@@ -93,7 +93,7 @@
 
     <li><a href="#document-context">Document Context</a>
     <ol>
-        <li><a href="#service-worker"><code>ServiceWorker</code></a></li>
+        <li><a href="#service-worker-obj"><code>ServiceWorker</code></a></li>
         <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a>
         <ol>
             <li><a href="#navigator-service-worker-active"><code>active</code></a></li>
@@ -197,6 +197,7 @@
     <li><a href="http://www.w3.org/TR/IndexedDB/">Indexed DB</a></li>
     <li><a href="http://www.w3.org/TR/quota-api/">Quota Management API</a></li>
     <li><a href="http://www.w3.org/TR/notifications/">Web Notifications</a></li>
+    <li><a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a></li>
 </ul>
 
 <h3 id="motivations">Motivations</h3>
@@ -217,9 +218,15 @@
 
 <h3 id="concepts">Concepts</h3>
 
-<p>A <a id="#service-worker">Service Worker</a> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other Worker variants, the lifetime of a Service Worker is tied to events, not references to documents.</p>
+<p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#docment-control">control</a>.</p>
 
 <p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
+
+<p><a href="#algorithm-registration">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-space">url space</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#algorithm-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
+
+<p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#algorithm-matching">longest-prefix wildcard matching</a>.</p>
+
+<p>A document is "<dfn id="doucment-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the doucment's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with controlled documents.</p>
 
 <p>Installation of a Service Worker proceeds through several phases:</p>
 
@@ -316,7 +323,7 @@
 
 <h2 id="document-context">Document Context</h2>
 
-<h3 id="service-worker"><code>ServiceWorker</code></h3>
+<h3 id="service-worker-obj"><code>ServiceWorker</code></h3>
 
 <p></p>
 <pre><code>[Constructor()] // no-op constructor
