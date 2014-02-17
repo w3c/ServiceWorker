@@ -228,7 +228,9 @@
 
 <p>A document is "<dfn id="doucment-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the doucment's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with controlled documents.</p>
 
-<p>Installation of a Service Worker proceeds through several phases:</p>
+<p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#oninstall">oninstall</a></code> and <code><a href="#onactivate">onactivate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
+
+<p>Registered Service Workers do not immediately begin to receive <a href="#functional-events">functional events</a> for documents. Registration is the first step in installation, which proceeds through several phases:</p>
 
 <ol>
     <li><em>Fetch</em>:
@@ -244,22 +246,24 @@
     <br><br>
     Service Workers are not considered "installed" until the <code>oninstall</code> event completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
     <br><br>
-    If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be successfully installed.
+    If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be <dfn id="successfully-installed">successfully installed</dfn>.
     <br><br>
     If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
+    <br><br>
+    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-space">url space</a>.
     </li>
     <li><em><code>onactivate</code></em>:
     <br>
-    After successful installation and just prior to receiving functional events (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched.
-<div class="note">Like <code>oninstall</code>, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. Performance sensitive events may be queued and will be delayed until successful completion of <code>onctivate</code>.</div>    <br>
-    <br>
-    The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
-    <br>
-    <br>
+    After successful installation and just prior to receiving functional events (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
+    <br><br>
+        <div class="note">Like <code>oninstall</code>, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. Performance sensitive events may be queued and will be delayed until successful completion of <code>onctivate</code>.</div>
     </li>
 </ol>
 
-<p>Once <code>onactivate</code> succeeds, and only then, may the user agent dispatch events, which correspond to application logic; for example <code><a href="#onfetch">onfetch</a></code> for deciding the disposition of network requests.</p>
+<p>User Agents may request updated Service Worker scripts "in the background" while controlled documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle functional events. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the url space) so long as any documents it controlled remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
+
+<p>Once a service worker becomes active, the user agent may dispatch functional events. These events model various user-agent generated operations; for example the <code><a href="#onfetch">onfetch</a></code> event handling HTTP requests.</p>
+
 
 <!--
 <h3 id="offline-example">Example: Offline Web Applications</h3>
