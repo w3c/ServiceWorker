@@ -82,7 +82,7 @@
         <li><a href="#registration">Registration</a></li>
         <li><a href="#event-handling">Event Handling</a></li>
         <li><a href="#installation">Installation</a>
-            <ol><li><a href="#worker-script-caching">Worker Script Caching</a></li></ol>
+            <ol><li><a href="#worker-script-caching">Worker Script Fetch &amp;Caching</a></li></ol>
         </li>
         <li><a href="#activation">Activation</a></li>
         <li><a href="#navigation-matching">Navigation Matching</a>
@@ -222,7 +222,7 @@
 
 <p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
 
-<p><a href="#algorithm-registration">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-space">url space</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#algorithm-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
+<p><a href="#algorithm-registration">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-scope">url scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#algorithm-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
 
 <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#algorithm-matching">longest-prefix wildcard matching</a>.</p>
 
@@ -250,7 +250,7 @@
     <br><br>
     If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
     <br><br>
-    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-space">url space</a>.
+    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-scope">url scope</a>.
     </li>
     <li><em><code>onactivate</code></em>:
     <br>
@@ -260,7 +260,7 @@
     </li>
 </ol>
 
-<p>User Agents may request updated Service Worker scripts "in the background" while controlled documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle <a href="#functional-events">functional events</a>. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the url space) so long as any documents it controlled remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
+<p>User Agents may request updated Service Worker scripts "in the background" while controlled documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle <a href="#functional-events">functional events</a>. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the <a href="#url-scope">url scope</a>) so long as any documents it controlled remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
 
 <p>Once a service worker becomes active, the user agent may dispatch <a href="#functional-events">functional events</a>. These events model various user-agent generated operations; for example the <code><a href="#onfetch">onfetch</a></code> event handling HTTP requests.</p>
 
@@ -279,7 +279,7 @@
 
 <h2 id="service-worker-lifecycle">Service Worker Lifecycle</h2>
 
-<p>The core <a href="#concepts">concepts</a> of the Service Worker related to the lifecycle. Service Workers are <a href="#registration">registered</a>, fetched, <a href="#installation">installed</a>, and <a href="#activation">activated</a> before <a href="#event-handling">events are dispatched</a> to them.</p>
+<p>The core <a href="#concepts">concepts</a> of the Service Worker related to the lifecycle. Service Workers are <a href="#registration">registered</a>, <a href="#worker-script-caching">fetched</a>, <a href="#installation">installed</a>, and <a href="#activation">activated</a> before <a href="#event-handling">events are dispatched</a> to them.</p>
 
 <h3 id="registration">Registration</h3>
 
@@ -293,13 +293,15 @@
 
 <p></p>
 
-<h4 id="worker-script-caching">Worker Script Caching</h4>
+<!-- FIXME(slightlyoff): this wording is very unclear. I think we mean to lay out that requests for scripts should hit the cache unless the script is more than 24 hours old, in which case we should issue the request with cache-busting headers. That doesn't come through clearly in the prose. -->
+<h4 id="worker-script-caching">Worker Script Fetch &amp; Caching</h4>
 
-<p>Upon successful <a href="#installation">installation</a> of a Service Worker, the provided worker <a href="#FIXME">script</a> SHOULD be cached by the UA. The UA SHOULD honor the HTTP cache headers to avoid requests per navigation to the <a href"#registration">registered</a> <a href="#FIXME">scope</a> but with the upper limit of 24 hours. If no HTTP cache headers are provided, it MUST be treated as <code>cache-control: must-revalidate.</code></p>
+<!-- FIXME: need to add discussion of the default cache object to which the script and dependencies are added. For that matter, need to add discussion of dependencies. -->
+<p>Upon successful <a href="#FIXME">fetch</a> of a Service Worker, the provided worker <a href="#FIXME">script</a> SHOULD be cached by the UA. The UA SHOULD honor the HTTP cache headers to avoid unnecessary requests per navigation to the <a href"#registration">registered</a> <a href="#url-scope">url scope</a>, but with an upper limit of 24 hours. If no HTTP cache headers are provided for a locally cached script, the request MUST be issued as <code>cache-control: must-revalidate.</code></p>
 
-<p class="note">These headers are for updating the worker only, not using it. A non-fresh worker will still be used to service requests.</p>
+<p class="note">These headers are for updating the worker only, not using it. The <code>Expires</code> header is ignored in the loading of service worker scripts from the cache.</p>
 
-<p>Under this recommended caching rule, UAs SHOULD check for worker updates on each navigation to the matching <a href="#FIXME">scope</a>, although they MAY do more regular checks (even when the site is not open) for sites it considers important to the user. UAs MAY NOT update the worker <a href="#FIXME">script</a> for the documents which are not visited once in the last 24 hours.</p>
+<p>Under this recommended caching rule, UAs SHOULD check for worker updates on each navigation to the matching <a href="#url-scope">scope</a>, although they MAY do more regular checks (even when the site is not open) for sites it considers important to the user. UAs may not update the worker <a href="#FIXME">script</a> for the documents which are not visited once in the last 24 hours.</p>
 
 <p>Additionally, <code>update()</code> method is provided in the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface to allow a Service Worker to trigger a forced update.</p>
 
@@ -770,7 +772,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 
 <h3 id="registration-algorithm">Registration</h3>
 
-<p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#FIXME">url space</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
+<p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
 
 <!--
 <div class="informative">
