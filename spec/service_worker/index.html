@@ -668,8 +668,6 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 
 <h3 id="events">Events</h3>
 
-...
-
 <h4 id="install-phase-event"><code>InstallPhaseEvent</code></h4>
 
 <pre><code>
@@ -693,12 +691,18 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
 </code></pre>
 
 <h5 id="replace-method"><code>event.replace()</code></h5>
-<p>This interacts with <code>waitUntil</code> method in the following way:</p>
+<p><code>replace()</code> interacts with <code>waitUntil</code> method in the following way:</p>
 <ul>
-  <li>Replacement only happens upon successful installation</li>
   <li>Successful installation can be delayed by <code>waitUntil</code>, perhaps by subsequent event handlers.</li>
-  <li>Therefore, replace does not happen immediately.</li>
+  <li>Replacement only happens upon successful installation</li>
+  <li>Therefore, replacement of the <a href="#FIXME">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
 </ul>
+
+<h5 id="reloadall-method"><code>event.reloadAll()</code></h5>
+
+<p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. Each document dispatches <code>onreloadpage</code> against their <code>navigator.serviceWorker</code> object. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
+
+<p>If the group-reload is canceled</p>
 
 <h4 id="onactivate"><code>onactivate</code></h4>
 
@@ -754,10 +758,9 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 
 ...
 
-<h3 id="x-origin-resources">Cross-Origin Resources & CORS</h3>
+<h3 id="x-origin-resources">Cross-Origin Resources &amp; CORS</h3>
 
 ...
-
 
 <h2 id="storage-considerations">Storage Considerations</h2>
 
@@ -766,7 +769,6 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 <h2 id="extensibility">Extensibility</h2>
 
 ...
-
 
 <h2 id="appendix-a">Appendix A: Algorithms</h2>
 
