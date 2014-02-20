@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -17,6 +18,7 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
+
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -117,6 +119,7 @@ var InstallEvent = (function (_super) {
     return InstallEvent;
 })(InstallPhaseEvent);
 
+
 // The scope in which worker code is executed
 var ServiceWorkerGlobalScope = (function (_super) {
     __extends(ServiceWorkerGlobalScope, _super);
@@ -199,9 +202,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        get: // This class represents the result of cross-origin fetched resources that are
+        // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        function () {
+        get: function () {
             return "";
         },
         enumerable: true,
@@ -328,7 +331,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null;
+        this.client = null; // to allow postMessage, window.topLevel, etc
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -392,12 +395,14 @@ var Cache = (function () {
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
             urls[_i] = arguments[_i + 0];
         }
+        // Note that items may ONLY contain Response instasnces
         if (urls.length) {
             // Begin fetching on the URLs and storing them in this.items
         }
     }
     // "any" to make the TS compiler happy:
     Cache.prototype.match = function (name) {
+        // name matches something in items
         if (name) {
             return this.items.get(name.toString());
         }
@@ -500,6 +505,7 @@ var BroadcastChannel = (function () {
 })();
 ;
 
+
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
     function WorkerGlobalScope() {
@@ -554,6 +560,7 @@ var _URL = (function () {
     }
     return _URL;
 })();
+
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if

@@ -20,6 +20,8 @@ class _RegistrationOptionList implements RegistrationOptionList {
 interface ServiceWorkerContainer {
   active?: ServiceWorker; // can be null
 
+  // FIXME: what's the semantic?
+  //    https://github.com/slightlyoff/ServiceWorker/issues/170
   getAll(): Promise; // Promise<Array<ServiceWorker>>
 
   ready(): Promise; // Promise<ServiceWorker>
