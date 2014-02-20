@@ -757,12 +757,12 @@ navigator.serviceWorker.register = function(url, options) {
             <li>Reject <var>PROMISE</var> with a <code>DOMException</code> whose name is <code>InvalidStateError</code>.</li>
           </ol>
         </li>
+        <li>Resolve <var>PROMISE</var> with a newly-created associated Service Worker object.</li>
         <li>Fire an event named <code>install</code> on the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a> that is a <code>ServiceWorkerGlobalScope</code> object.</li>
         <li>Fire an event named <code>install</code> on <code>navigator.serviceWorker</code> for all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-        <li>If an exception is thrown by any handler:
+        <li>If an exception is thrown by any handler in the <code>ServiceWorkerGlobalScope</code> object:
           <ol>
             <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-            <li>Reject <var>PROMISE</var> with the exception.</li>
           </ol>
         </li>
         <li>If any handler calls <code>waitUntil</code>:
@@ -771,23 +771,16 @@ navigator.serviceWorker.register = function(url, options) {
             <li>If any extension handlers are rejected:
               <ol>
                 <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-                <li>Reject <var>PROMISE</var> with the exception.</li>
-              </ol>
-            </li>
-            <li>If all extension handlers resolve successfully:
-              <ol>
-                <li>Resolve <var>PROMISE</var> with a newly-created associated Service Worker object.</li>
               </ol>
             </li>
           </ol>
         </li>
-        <li>If no extension handlers are registered:
+        <li>After the <a href="#FIXME">install process</a> is finished:
           <ol>
-            <li>Resolve <var>PROMISE</var> with a newly-created associated Service Worker object.</li>
+            <li>Fire an event named <code>installend</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
+            <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm.</li>
           </ol>
         </li>
-        <li>Fire an event named <code>installend</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
-        <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm.</li>
       </ol>
     </li>
 </ol>
