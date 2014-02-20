@@ -511,19 +511,19 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
 
 <h4 id="cors-response"><code>CORSResponse</code></h4>
 
-...
+
 
 <h3 id="fetch"><code>fetch()</code></h3>
 
-...
+
 
 <h3 id="cache-objects">Caches</h3>
 
-...
+
 
 <h4 id="cache-lifetimes">Understanding Cache Lifetimes</h4>
 
-...
+
 
 <h4 id="cache"><code>Cache</code></h4>
 
@@ -551,7 +551,7 @@ interface <dfn id="async-map-interface" title="AsyncMap">AsyncMap</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#response-interface">Response</a> <var>val</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any?&gt; items();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; items();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;DOMString[]?&gt; keys();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]?&gt; values();
 };
@@ -613,7 +613,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 
 <h4 id="oninstall"><code>oninstall</code></h4>
 
-...
+
 
 <h5 id="install-event"><code>InstallEvent</code></h5>
 
@@ -641,15 +641,15 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
 
 <h4 id="onactivate"><code>onactivate</code></h4>
 
-...
+
 
 <h5 id="activate-event"><code>ActivateEvent</code></h5>
 
-...
+
 
 <h4 id="onfetch"><code>onfetch</code></h4>
 
-...
+
 
 <h5 id="fetch-event"><code>FetchEvent</code></h5>
 
@@ -687,23 +687,23 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 
 <h2 id="security-considerations">Security Considerations</h2>
 
-...
+
 
 <h3 id="origin-relativity">Origin Relativity</h3>
 
-...
+
 
 <h3 id="x-origin-resources">Cross-Origin Resources &amp; CORS</h3>
 
-...
+
 
 <h2 id="storage-considerations">Storage Considerations</h2>
 
-...
+
 
 <h2 id="extensibility">Extensibility</h2>
 
-...
+
 
 <h2 id="appendix-a">Appendix A: Algorithms</h2>
 
@@ -740,7 +740,7 @@ navigator.serviceWorker.register = function(url, options) {
       <ol>
         <li>If the origin of <var>SCRIPT</var> is not the same as the origin of the current document:
           <ol>
-            <li>Reject <var>PROMISE</var> rejected with <code>TypeError</code>.</li>
+            <li>Reject <var>PROMISE</var> with <code>TypeError</code>.</li>
           </ol>
         </li>
         <li>Set the <var><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">force same origin</a></var> flag.</li>
@@ -790,7 +790,7 @@ navigator.serviceWorker.register = function(url, options) {
         <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm.</li>
       </ol>
     </li>
-
+</ol>
 <!--
 The steps are:
     * check the script URL for same-origin-ness with the current document
@@ -828,9 +828,89 @@ The steps are:
 </ol>
 </div>
 
-<h3 id="installation-algorithm">Installation</h3>
+<h3 id="upgrade-algorithm">Upgrade</h3>
 
-<h3 id="update-algorithm">Update</h3>
+<p>The <a href="#upgrade-algorithm">Service Worker Upgrade Algorithm</a> upgrades an installed Service Worker to a newer version for the same <a href="#url-scope">url scope</a> in service. If successful, the newly installed Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> for the <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair. The <a href="#FIXME">Service Worker in waiting</a> becomes the active Service Worker as soon as all the documents served with the previous Service Worker are closed. The user agent SHOULD honor the HTTP cache headers with the upper limit of 24 hours:</p>
+
+<!--
+#FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. Should it still be using Promise around? Is it a right way to specify the algorithm like the following?
+-->
+<div class="algorithm">
+<dl>
+<dt>Input</dt>
+    <dd><var>SCRIPT</var>, the URL of the script to upgrade; a string</dd>
+    <dd><var>ORIGIN</var>, the origin of the installed Service Worker</dd>
+    <dd><var>SCOPE</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+<dt>Output</dt>
+    <dd><var>PROMISE</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+</dl>
+<ol>
+    <li>Let <var>PROMISE</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Return <var>PROMISE</var>.</li>
+    <li>Run the following steps asynchronously:
+      <ol>
+        <li>Let <var>SOURCE</var> be the script of the installed Service Worker.</li>
+        <li>Let <var>TARGET</var> be the <code>null</code>.</li>
+        <li>Set the <var><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">force same origin</a></var> flag.</li>
+        <li>Set the <var>cache-busting</var> headers if the last update from the server occured more than 24 hours ago.</li>
+        <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch">Fetch</a> the script from <var>SCRIPT</var>.</li>
+        <li>If the response is not success:
+          <ol>
+            <li>Reject <var>PROMISE</var> with a <code>DOMException</code> whose name is <code>NetworkError</code>.</li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>Set <var>TARGET</var> to the fetched script.</li>
+          </ol>
+        </li>
+        <li>If <var>TARGET</var> is byte-for-byte match with <var>SOURCE</var>:
+          <ol>
+            <li>Resolve <var>PROMISE</var> with the installed Service Worker object.</li>
+          </ol>
+        </li>
+        <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#processing-model-7">Run a worker</a> (per steps 5 and 6) for <var>TARGET</var>.</li>
+        <li>If any error is encountered:
+          <ol>
+            <li>Reject <var>PROMISE</var> with a <code>DOMException</code> whose name is <code>InvalidStateError</code>.</li>
+          </ol>
+        </li>
+        <li>Fire an event named <code>install</code> on the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a> that is a <code>ServiceWorkerGlobalScope</code> object.</li>
+        <li>Fire an event named <code>install</code> on <code>navigator.serviceWorker</code> for all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
+        <li>If an exception is thrown by any handler:
+          <ol>
+            <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
+            <li>Reject <var>PROMISE</var> with the exception.</li>
+          </ol>
+        </li>
+        <li>If any handler calls <code>waitUntil</code>:
+          <ol>
+            <li><a href="#FIXME">Extend the install process</a> until they all resolve.</li>
+            <li>If any extension handlers are rejected:
+              <ol>
+                <li>Fire an event named <code>error</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
+                <li>Reject <var>PROMISE</var> with the exception.</li>
+              </ol>
+            </li>
+            <li>If all extension handlers resolve successfully:
+              <ol>
+                <li>Resolve <var>PROMISE</var> with a newly-created associated Service Worker object.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>If no extension handlers are registered:
+          <ol>
+            <li>Resolve <var>PROMISE</var> with a newly-created associated Service Worker object.</li>
+          </ol>
+        </li>
+        <li>Fire an event named <code>installend</code> on the <code>navigator.serviceWorker</code> in all documents which <a href="#navigation-matching">most specifically match</a> <var>ORIGIN</var> + <var>SCOPE</var>.</li>
+        <li>Set the <var>worker in waiting</var> flag on the installed worker and run the <a href="#FIXME">check-worker-in-waiting</a> algorithm.</li>
+      </ol>
+    </li>
+</ol>
+
+<h3 id="replacement-algorithm">Activation</h3>
 
 <h3 id="replacement-algorithm">Replacement</h3>
 
