@@ -24,8 +24,6 @@ interface ServiceWorkerContainer {
   //    https://github.com/slightlyoff/ServiceWorker/issues/170
   getAll(): Promise; // Promise<Array<ServiceWorker>>
 
-  ready(): Promise; // Promise<ServiceWorker>
-
   // Returns a Promise<ServiceWorker>
   register(url: string, options?: _RegistrationOptionList): Promise;
     // Resolves for a ServiceWorker instance once the url is parsed and
