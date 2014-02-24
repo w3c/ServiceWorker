@@ -541,10 +541,10 @@ class Cache {
   // TODO: define type-restricting getters/setters
 
   // Cribbed from Mozilla's proposal, but with sane returns
-  add(...response:string[]) : Promise;
-  add(...response:URL[]) : Promise;
+  add(...urls:string[]) : Promise;
+  add(...urls:URL[]) : Promise;
   // "any" to make the TS compiler happy:
-  add(...response:any[]) : Promise {
+  add(...urls:any[]) : Promise {
     // If a URL (or URL string) is passed, a new CachedResponse is added to
     // items upon successful fetching
     return accepted();
@@ -555,10 +555,10 @@ class Cache {
     return accepted();
   }
 
-  remove(...response:string[]) : Promise;
-  remove(...response:URL[]) : Promise;
+  remove(...urls:string[]) : Promise;
+  remove(...urls:URL[]) : Promise;
   // "any" to make the TS compiler happy:
-  remove(...response:any[]) : Promise {
+  remove(...urls:any[]) : Promise {
     // FIXME: does this need to be async?
     return accepted();
   }
