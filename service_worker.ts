@@ -528,7 +528,8 @@ class Cache {
   }
 
   // Match a URL or a string
-  match(name:URL) : Promise;
+  match(req:Request) : Promise;
+  match(req:URL) : Promise;
   match(name:string) : Promise;
   // "any" to make the TS compiler happy:
   match(name:any) : Promise {
