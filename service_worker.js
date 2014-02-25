@@ -408,40 +408,42 @@ var Cache = (function () {
         }
     };
 
+    /*
+    // TODO: define type-restricting getters/setters
+    
+    // Cribbed from Mozilla's proposal, but with sane returns
+    add(...response:string[]) : Promise;
+    add(...response:URL[]) : Promise;
     // "any" to make the TS compiler happy:
-    Cache.prototype.add = function () {
-        var response = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            response[_i] = arguments[_i + 0];
-        }
-        // If a URL (or URL string) is passed, a new CachedResponse is added to
-        // items upon successful fetching
-        return accepted();
-    };
-
+    add(...response:any[]) : Promise {
+    // If a URL (or URL string) is passed, a new CachedResponse is added to
+    // items upon successful fetching
+    return accepted();
+    }
+    
     // Needed because Response objects don't have URLs.
-    Cache.prototype.addResponse = function (url, response) {
-        return accepted();
-    };
-
+    addResponse(url, response:Response) : Promise {
+    return accepted();
+    }
+    
+    remove(...response:string[]) : Promise;
+    remove(...response:URL[]) : Promise;
     // "any" to make the TS compiler happy:
-    Cache.prototype.remove = function () {
-        var response = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            response[_i] = arguments[_i + 0];
-        }
-        // FIXME: does this need to be async?
-        return accepted();
-    };
-
-    Cache.prototype.update = function () {
-        var urls = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            urls[_i] = arguments[_i + 0];
-        }
-        return accepted();
-    };
-
+    remove(...response:any[]) : Promise {
+    // FIXME: does this need to be async?
+    return accepted();
+    }
+    
+    // For the below, see current AppCache, although we extend with sane returns
+    
+    // Update has the effect of checking the HTTP cache validity of all items
+    // currently in the cache and updating with new versions if the current item
+    // is expired. New items may be added to the cache with the urls that can be
+    // passed. The HTTP cache is currently used for these resources but no
+    // heuristic caching is applied for these requests.
+    update(...urls:_URL[]) : Promise;
+    update(...urls:string[]) : Promise { return accepted(); }
+    */
     Cache.prototype.ready = function () {
         return accepted();
     };

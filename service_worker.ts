@@ -517,6 +517,8 @@ class Cache {
   // Allow vararg of URLs or strings
   constructor(...urls:URL[]);
   constructor(...urls:string[]);
+  constructor(...urls:Request[]);
+  constructor(...urls:Response[]);
   // "any" to make the TS compiler happy:
   constructor(...urls:any[]) {
     // Note that items may ONLY contain Response instasnces
@@ -536,6 +538,7 @@ class Cache {
     }
   }
 
+  /*
   // TODO: define type-restricting getters/setters
 
   // Cribbed from Mozilla's proposal, but with sane returns
@@ -570,6 +573,7 @@ class Cache {
   // heuristic caching is applied for these requests.
   update(...urls:_URL[]) : Promise;
   update(...urls:string[]) : Promise { return accepted(); }
+  */
 
   ready(): Promise { return accepted(); }
 }
