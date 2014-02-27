@@ -213,6 +213,9 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // SW's can use this to disambiguate which context they were started from.
   scope: string;
 
+  // The url of this serviceworker, can be used as the base for urls
+  url: string;
+
   //
   // Events
   //
@@ -512,71 +515,157 @@ class FetchEvent extends _Event {
 // feature of the event worker. This is likely to change!
 class Cache {
   // FIXME: need to add some way to get progress out
-  items: AsyncMap<string, Response>;
+  _items: AsyncMap<Request, Response>;
+  _readyPromise: Promise;
 
-  // Allow vararg of URLs or strings
-  constructor(...urls:URL[]);
-  constructor(...urls:string[]);
-  constructor(...urls:Request[]);
-  constructor(...urls:Response[]);
-  // "any" to make the TS compiler happy:
-  constructor(...urls:any[]) {
-    // Note that items may ONLY contain Response instasnces
-    if (urls.length) {
-      // Begin fetching on the URLs and storing them in this.items
-    }
+  constructor(...items:any[]) {
+    this._readyPromise = this.add.apply(this, items);
   }
 
-  // Match a URL or a string
-  match(req:Request) : Promise;
-  match(req:URL) : Promise;
-  match(name:string) : Promise;
-  // "any" to make the TS compiler happy:
-  match(name:any) : Promise {
-    // name matches something in items
-    if (name) {
-      return this.items.get(name.toString());
-    }
+  match(request:any) : Promise {
+    // the UA will do something more optimal than this:
+    return this.matchAll(request).then(function(responses) {
+      if (responses[0]) {
+        return responses[0];
+      }
+      throw Error("No match");
+    });
+    // TODO: is it weird that this rejects on no result whereas matchAll/Keys resolve with empty array?
+    // This needs to reject to work well with respondWith
   }
 
-  /*
-  // TODO: define type-restricting getters/setters
+  matchAll(request:any) : Promise {
+    var thisCache = this;
 
-  // Cribbed from Mozilla's proposal, but with sane returns
-  add(...urls:string[]) : Promise;
-  add(...urls:URL[]) : Promise;
-  // "any" to make the TS compiler happy:
-  add(...urls:any[]) : Promise {
-    // If a URL (or URL string) is passed, a new CachedResponse is added to
-    // items upon successful fetching
-    return accepted();
+    return this.keys(request).then(function(keys) {
+      return Promise.all(keys.map(function(key) {
+        return thisCache._items.get(key);
+      }));
+    });
   }
 
-  // Needed because Response objects don't have URLs.
-  addResponse(url, response:Response) : Promise {
-    return accepted();
+  keys(filterRequest:any) : Promise {
+    var thisCache = this;
+
+    if (!filterRequest) return this._items.keys();
+
+    filterRequest = _castToRequest(filterRequest);
+
+    return this._items.keys().then(function(cachedRequests) {
+      // get the response
+      return this._items.values().then(function(cachedResponses) {
+        return cachedRequests.filter(function(cachedRequest, i) {
+          var cachedResponse = cachedResponses[i];
+
+          // filter by request method & url
+          if (cachedRequest.method != filterRequest.method) return false;
+          if (cachedRequest.url != filterRequest.url) return false;
+
+          // filter by 'vary':
+          // If there's no vary header, we have a match!
+          if (!cachedResponse.headers.has('vary')) return true;
+
+          var varyHeaders = cachedResponse.headers.get('vary').split(',');
+          var varyHeader;
+
+          for (var i = 0; i < varyHeaders.length; i++) {
+            varyHeader = varyHeaders[i].trim();
+
+            // TODO: should this treat headers case insensitive?
+            // TODO: should comparison be more lenient than this?
+            if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+      });
+    });
   }
 
-  remove(...urls:string[]) : Promise;
-  remove(...urls:URL[]) : Promise;
-  // "any" to make the TS compiler happy:
-  remove(...urls:any[]) : Promise {
-    // FIXME: does this need to be async?
-    return accepted();
+  add(...items:any[]) : Promise {
+    var thisCache = this;
+    var newItems:any = items.map(function(item) {
+      // if item is a response, pair it with a simple request
+      if (item instanceof Response) {
+        return {
+          'request': new Request({
+            'url': item.url,
+            'method': item.method
+          }),
+          'response': item
+        };
+      }
+
+      item = _castToRequest(item);
+
+      return {
+        'request': item,
+        'response': fetch(item)
+      };
+    });
+
+    // wait for all our requests to complete
+    return Promise.all(newItems.map(function(item) { return item.response; })).then(function(responses) {
+      // TODO: figure out what we consider success/failure
+      responses.forEach(function(response) {
+        if (response.statusCode != 200) {
+          throw Error('Request failed');
+        }
+      });
+
+      return Promise.all(
+        responses.map(function(response, i) {
+          return thisCache.set(newItems[i].request, response);
+        })
+      );
+    });
   }
 
-  // For the below, see current AppCache, although we extend with sane returns
+  // TODO: accept ResponsePromise too?
+  set(request:any, response:any) : Promise {
+    var thisCache = this;
+    request = _castToRequest(request);
 
-  // Update has the effect of checking the HTTP cache validity of all items
-  // currently in the cache and updating with new versions if the current item
-  // is expired. New items may be added to the cache with the urls that can be
-  // passed. The HTTP cache is currently used for these resources but no
-  // heuristic caching is applied for these requests.
-  update(...urls:_URL[]) : Promise;
-  update(...urls:string[]) : Promise { return accepted(); }
-  */
+    // TODO: cast 'response' to a response
+    // Eg, Blob
+    // Dataurl string
+    // Could cast regular string as text/plain response, but is that useful?
+    
+    // TODO: this delete/set implementation isn't atomic, but needs to be.
+    // Not sure how to implement it, maybe via a private _locked promise?
+    // Deleting is garbage collection, but also ensures "uniqueness"
+    return this.delete(request).then(function() {
+      return thisCache._items.set(request, response);
+    });
+  }
 
-  ready(): Promise { return accepted(); }
+  // delete zero or more entries
+  delete(request) : Promise {
+    // TODO: this means cache.delete("/hello/world/") may not delete
+    // all entries for /hello/world/, because /hello/world/ will be
+    // cast to a GET request. It won't remove entries for that url
+    // that have a different method or 'vary' headers that don't match.
+    // 
+    // We could special-case strings & urls here.
+    var thisCache = this;
+
+    return this.keys(request).then(function(cachedRequests) {
+      return Promise.all(cachedRequests.map(function(cachedRequest) {
+        return thisCache._items.delete(cachedRequest);
+      }))
+    });
+  }
+
+  updateAll() : Promise {
+    return this.add.apply(this, this._items.keys());
+  }
+
+  // TODO: ready is only useful to validate the items added during construction
+  // maybe we should get rid of the constructor param and force people to use
+  // add() which returns a promise for that atomic operation
+  ready(): Promise { return this._readyPromise; }
 }
 
 class CacheList implements AsyncMap<any, any> {
@@ -603,11 +692,11 @@ class CacheList implements AsyncMap<any, any> {
   has(key: any): Promise { return accepted(); }
   set(key: any, val: any): Promise { return accepted(this); }
   clear(): Promise { return accepted(); }
-  delete(key: any): boolean { return true; }
+  delete(key: any): Promise { return accepted(); }
   forEach(callback: Function, thisArg?: Object): void {}
-  items(): any[] { return []; }
-  keys(): any[] { return []; }
-  values(): any[] { return []; }
+  items(): Promise { return accepted([]); }
+  keys(): Promise { return accepted([]); }
+  values(): Promise { return accepted([]); }
   get size(): number { return 0; }
 }
 
@@ -688,7 +777,7 @@ class WorkerGlobalScope extends _EventTarget
 
 // Cause, you know, the stock definition claims that URL isn't a class. FML.
 class _URL {
-  constructor(url, base) {}
+  constructor(url:any) {}
 }
 
 // http://tc39wiki.calculist.org/es6/map-set/
@@ -765,6 +854,22 @@ class Promise {
   constructor(init : (r:Resolver) => void ) {
 
   }
+
+  // Not entirely sure what I'm doing here, just trying to keep
+  // typescript happy
+  then(fulfilled : (val:any) => any) : Promise;
+  then(fulfilled : (val:any) => any, rejected : (val:any) => any) : Promise;
+  then(fulfilled:any) : Promise {
+    return accepted();
+  }
+
+  catch(rejected : (val:any) => any) : Promise {
+    return accepted();
+  }
+
+  static all(...stuff:any[]) : Promise {
+    return accepted();
+  }
 }
 
 function accepted(v: any = true) : Promise {
@@ -777,6 +882,10 @@ function acceptedResponse() : ResponsePromise {
   return new ResponsePromise(function(r) {
     r.accept(new Response());
   });
+}
+
+function fetch(url:any) : Promise {
+  return acceptedResponse();
 }
 
 interface ConnectEventHandler { (e:_Event); }
@@ -814,3 +923,24 @@ interface AsyncMap<K, V> {
 
 var _useWorkerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
+
+// take a string or url and resolve it to a request
+function _castToRequest(item:any) : Request {
+  // resolve strings to urls with the worker as a base
+  if (item instanceof String) {
+    item = new _URL(item/*, worker scope url */);
+  }
+
+  // create basic GET request from url
+  if (item instanceof _URL) {
+    item = new Request({
+      'url': item
+    });
+  }
+
+  if (!(item instanceof Request)) {
+    throw TypeError("Param must be string/URL/Request");
+  }
+
+  return item;
+}

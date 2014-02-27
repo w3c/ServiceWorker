@@ -10,7 +10,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -18,7 +17,6 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
-
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -119,7 +117,6 @@ var InstallEvent = (function (_super) {
     return InstallEvent;
 })(InstallPhaseEvent);
 
-
 // The scope in which worker code is executed
 var ServiceWorkerGlobalScope = (function (_super) {
     __extends(ServiceWorkerGlobalScope, _super);
@@ -202,9 +199,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        // This class represents the result of cross-origin fetched resources that are
+        get: // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        get: function () {
+        function () {
             return "";
         },
         enumerable: true,
@@ -331,7 +328,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null; // to allow postMessage, window.topLevel, etc
+        this.client = null;
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -381,7 +378,7 @@ var FetchEvent = (function (_super) {
 
 // Design notes:
 //  - Caches are atomic: they are not complete until all of their resources are
-//    fetched
+//    fetched.
 //  - Updates are also atomic: the old contents are visible until all new
 //    contents are fetched/installed.
 //  - Caches should have version numbers and "update" should set/replace it
@@ -389,63 +386,159 @@ var FetchEvent = (function (_super) {
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
 var Cache = (function () {
-    // "any" to make the TS compiler happy:
     function Cache() {
-        var urls = [];
+        var items = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            urls[_i] = arguments[_i + 0];
+            items[_i] = arguments[_i + 0];
         }
-        // Note that items may ONLY contain Response instasnces
-        if (urls.length) {
-            // Begin fetching on the URLs and storing them in this.items
-        }
+        this._readyPromise = this.add.apply(this, items);
     }
-    // "any" to make the TS compiler happy:
-    Cache.prototype.match = function (name) {
-        // name matches something in items
-        if (name) {
-            return this.items.get(name.toString());
-        }
+    Cache.prototype.match = function (request) {
+        // the UA will do something more optimal than this:
+        return this.matchAll(request).then(function (responses) {
+            if (responses[0]) {
+                return responses[0];
+            }
+            throw Error("No match");
+        });
+        // TODO: is it weird that this rejects on no result whereas matchAll/Keys resolve with empty array?
+        // This needs to reject to work well with respondWith
     };
 
-    /*
-    // TODO: define type-restricting getters/setters
-    
-    // Cribbed from Mozilla's proposal, but with sane returns
-    add(...response:string[]) : Promise;
-    add(...response:URL[]) : Promise;
-    // "any" to make the TS compiler happy:
-    add(...response:any[]) : Promise {
-    // If a URL (or URL string) is passed, a new CachedResponse is added to
-    // items upon successful fetching
-    return accepted();
-    }
-    
-    // Needed because Response objects don't have URLs.
-    addResponse(url, response:Response) : Promise {
-    return accepted();
-    }
-    
-    remove(...response:string[]) : Promise;
-    remove(...response:URL[]) : Promise;
-    // "any" to make the TS compiler happy:
-    remove(...response:any[]) : Promise {
-    // FIXME: does this need to be async?
-    return accepted();
-    }
-    
-    // For the below, see current AppCache, although we extend with sane returns
-    
-    // Update has the effect of checking the HTTP cache validity of all items
-    // currently in the cache and updating with new versions if the current item
-    // is expired. New items may be added to the cache with the urls that can be
-    // passed. The HTTP cache is currently used for these resources but no
-    // heuristic caching is applied for these requests.
-    update(...urls:_URL[]) : Promise;
-    update(...urls:string[]) : Promise { return accepted(); }
-    */
+    Cache.prototype.matchAll = function (request) {
+        var thisCache = this;
+
+        return this.keys(request).then(function (keys) {
+            return Promise.all(keys.map(function (key) {
+                return thisCache._items.get(key);
+            }));
+        });
+    };
+
+    Cache.prototype.keys = function (filterRequest) {
+        var thisCache = this;
+
+        if (!filterRequest)
+            return this._items.keys();
+
+        filterRequest = _castToRequest(filterRequest);
+
+        return this._items.keys().then(function (cachedRequests) {
+            // get the response
+            return this._items.values().then(function (cachedResponses) {
+                return cachedRequests.filter(function (cachedRequest, i) {
+                    var cachedResponse = cachedResponses[i];
+
+                    if (cachedRequest.method != filterRequest.method)
+                        return false;
+                    if (cachedRequest.url != filterRequest.url)
+                        return false;
+
+                    if (!cachedResponse.headers.has('vary'))
+                        return true;
+
+                    var varyHeaders = cachedResponse.headers.get('vary').split(',');
+                    var varyHeader;
+
+                    for (var i = 0; i < varyHeaders.length; i++) {
+                        varyHeader = varyHeaders[i].trim();
+
+                        if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                });
+            });
+        });
+    };
+
+    Cache.prototype.add = function () {
+        var items = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            items[_i] = arguments[_i + 0];
+        }
+        var thisCache = this;
+        var newItems = items.map(function (item) {
+            if (item instanceof Response) {
+                return {
+                    'request': new Request({
+                        'url': item.url,
+                        'method': item.method
+                    }),
+                    'response': item
+                };
+            }
+
+            item = _castToRequest(item);
+
+            return {
+                'request': item,
+                'response': fetch(item)
+            };
+        });
+
+        // wait for all our requests to complete
+        return Promise.all(newItems.map(function (item) {
+            return item.response;
+        })).then(function (responses) {
+            // TODO: figure out what we consider success/failure
+            responses.forEach(function (response) {
+                if (response.statusCode != 200) {
+                    throw Error('Request failed');
+                }
+            });
+
+            return Promise.all(responses.map(function (response, i) {
+                return thisCache.set(newItems[i].request, response);
+            }));
+        });
+    };
+
+    // TODO: accept ResponsePromise too?
+    Cache.prototype.set = function (request, response) {
+        var thisCache = this;
+        request = _castToRequest(request);
+
+        // TODO: cast 'response' to a response
+        // Eg, Blob
+        // Dataurl string
+        // Could cast regular string as text/plain response, but is that useful?
+        // TODO: this delete/set implementation isn't atomic, but needs to be.
+        // Not sure how to implement it, maybe via a private _locked promise?
+        // Deleting is garbage collection, but also ensures "uniqueness"
+        return this.delete(request).then(function () {
+            return thisCache._items.set(request, response);
+        });
+    };
+
+    // delete zero or more entries
+    Cache.prototype.delete = function (request) {
+        // TODO: this means cache.delete("/hello/world/") may not delete
+        // all entries for /hello/world/, because /hello/world/ will be
+        // cast to a GET request. It won't remove entries for that url
+        // that have a different method or 'vary' headers that don't match.
+        //
+        // We could special-case strings & urls here.
+        var thisCache = this;
+
+        return this.keys(request).then(function (cachedRequests) {
+            return Promise.all(cachedRequests.map(function (cachedRequest) {
+                return thisCache._items.delete(cachedRequest);
+            }));
+        });
+    };
+
+    Cache.prototype.updateAll = function () {
+        return this.add.apply(this, this._items.keys());
+    };
+
+    // TODO: ready is only useful to validate the items added during construction
+    // maybe we should get rid of the constructor param and force people to use
+    // add() which returns a promise for that atomic operation
     Cache.prototype.ready = function () {
-        return accepted();
+        return this._readyPromise;
     };
     return Cache;
 })();
@@ -472,18 +565,18 @@ var CacheList = (function () {
         return accepted();
     };
     CacheList.prototype.delete = function (key) {
-        return true;
+        return accepted();
     };
     CacheList.prototype.forEach = function (callback, thisArg) {
     };
     CacheList.prototype.items = function () {
-        return [];
+        return accepted([]);
     };
     CacheList.prototype.keys = function () {
-        return [];
+        return accepted([]);
     };
     CacheList.prototype.values = function () {
-        return [];
+        return accepted([]);
     };
     Object.defineProperty(CacheList.prototype, "size", {
         get: function () {
@@ -506,7 +599,6 @@ var BroadcastChannel = (function () {
     return BroadcastChannel;
 })();
 ;
-
 
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
@@ -558,11 +650,10 @@ var WorkerGlobalScope = (function (_super) {
 
 // Cause, you know, the stock definition claims that URL isn't a class. FML.
 var _URL = (function () {
-    function _URL(url, base) {
+    function _URL(url) {
     }
     return _URL;
 })();
-
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
@@ -620,6 +711,21 @@ var Promise = (function () {
     //  callback : (n : number) => number
     function Promise(init) {
     }
+    Promise.prototype.then = function (fulfilled) {
+        return accepted();
+    };
+
+    Promise.prototype.catch = function (rejected) {
+        return accepted();
+    };
+
+    Promise.all = function () {
+        var stuff = [];
+        for (var _i = 0; _i < (arguments.length - 0); _i++) {
+            stuff[_i] = arguments[_i + 0];
+        }
+        return accepted();
+    };
     return Promise;
 })();
 
@@ -634,6 +740,10 @@ function acceptedResponse() {
     return new ResponsePromise(function (r) {
         r.accept(new Response());
     });
+}
+
+function fetch(url) {
+    return acceptedResponse();
 }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers-and-the-sharedworker-interface
@@ -660,3 +770,22 @@ var _useWorkerResponse = function () {
 var _defaultToBrowserHTTP = function (url) {
     return accepted();
 };
+
+// take a string or url and resolve it to a request
+function _castToRequest(item) {
+    if (item instanceof String) {
+        item = new _URL(item);
+    }
+
+    if (item instanceof _URL) {
+        item = new Request({
+            'url': item
+        });
+    }
+
+    if (!(item instanceof Request)) {
+        throw TypeError("Param must be string/URL/Request");
+    }
+
+    return item;
+}
