@@ -2,8 +2,7 @@
 
 The Cache API is the easiest mechanism to take an application offline, but it is by no means the only one. Other browser storage mechanisms (such as IndexedDB, the FileSystem API are fine candidates as well. (Local storage is out: no synchronous APIs) The Cache API is primarily an API sugared specifically for responding to `fetch` events in ServiceWorkers.
 
-Much like any other web storage technology, they are _not_ shared
-across domains, and they are completely isolated from the browser's HTTP cache.
+Much like any other web storage technology, they are _not_ shared across domains, and they are completely isolated from the browser's HTTP cache.
 
 A domain can have multiple, named `Cache` objects, whose contents are entirely under the control of scripts. The zen of understanding `Cache` instances is that they _are not part of your browser's HTTP cache_. Forget what you know about HTTP cache eviction, expires headers, and all the rest. None of that matters here -- your `Cache` objects are exactly that, _your_ caches. They don't get updated unless you ask for them to be, they don't expire (unless you delete the entries), and they don't disappear just because you upgrade your ServiceWorker script.
 
@@ -23,11 +22,9 @@ Caches are always enumerable via the global `caches` map, and removing a cache (
 
 ```js
 // caching.js
-this.version = 2;
 
-var caches = this.caches;
-var assetBase = "/assets/v" + parseInt(this.version) + "/";
-var shellCacheName = "shell-v" + parseInt(this.version);
+var assetBase = "/assets/v1/";
+var shellCacheName = "shell-v1";
 var contentCacheName = "content";
 var currentCaches = [ shellCacheName, contentCacheName ];
 
@@ -39,18 +36,32 @@ this.addEventListener("install", function(e) {
     assetBase + "/logo.png",
     assetBase + "/intro_video.webm",
   );
-  caches.set(shellCacheName, shellResources);
-  e.waitUntil(shellResources.ready());
+  
+  e.waitUntil(
+    caches.set(shellCacheName, shellResources).then(function() {
+      return caches.has(contentCacheName);
+    }).then(function(result) {
+      if (!result) {
+        return caches.set(contentCacheName, new Cache());
+      }
+    }).then(function() {
+      return shellResources.ready();
+    });
+  );
 });
 
 this.addEventListener("activate", function(e) {
   // Iterate through the list of caches and remove all caches not needed by
   // this version.
-  caches.forEach(function(cacheName, cache) {
-    if (currentCaches.indexOf(cacheName) == -1) {
-      caches.delete(cacheName);
-    }
-  });
+  e.waitUntil(
+    caches.keys().then(function(cacheName) {
+      return Promise.all(
+        keys.filter(function(cacheName) {
+          return currentCaches.indexOf(cacheName) == -1;
+        }).map(caches.delete.bind(caches))
+      )
+    })
+  );
 });
 
 // ...onfetch, etc...
@@ -66,22 +77,13 @@ To re-iterate: caches aren't updated automatically. Updates must be manually man
 
 ```js
 // caching.js
-this.version = 2;
 
-var caches = this.caches;
-var assetBase = "/assets/v" + parseInt(this.version) + "/";
-var shellCacheName = "shell-v" + parseInt(this.version);
+var assetBase = "/assets/v2/";
+var shellCacheName = "shell-v2";
 var contentCacheName = "content";
 var currentCaches = [ shellCacheName, contentCacheName ];
 
 this.addEventListener("install", function(e) {
-  // Update the existing caches that we'll eventually keep.
-  caches.forEach(function(cacheName, cache) {
-    if (currentCaches.indexOf(cacheName) >= 0) {
-      e.waitUntil(caches.get(cacheName).update());
-    }
-  });
-
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
     assetBase + "/base.css",
@@ -89,21 +91,36 @@ this.addEventListener("install", function(e) {
     assetBase + "/logo.png",
     assetBase + "/intro_video.webm",
   );
-  caches.set(shellCacheName, shellResources);
-
-  e.waitUntil(shellResources.ready());
+  
+  e.waitUntil(
+    caches.set(shellCacheName, shellResources).then(function() {
+      return caches.get(contentCacheName);
+    }).then(function(cache) {
+      if (cache) {
+        return cache.update();
+      }
+      else {
+        return caches.set(contentCacheName, new Cache());
+      }
+    }).then(function() {
+      return shellResources.ready();
+    });
+  );
 
 });
 
 this.addEventListener("activate", function(e) {
-  caches.forEach(function(cacheName, cache) {
-    if (currentCaches.indexOf(cacheName) == -1) {
-      caches.delete(cacheName);
-    } else {
-      // Update the existing caches
-      e.waitUntil(caches.get(cacheName).update());
-    }
-  });
+  // Iterate through the list of caches and remove all caches not needed by
+  // this version.
+  e.waitUntil(
+    caches.keys().then(function(cacheName) {
+      return Promise.all(
+        keys.filter(function(cacheName) {
+          return currentCaches.indexOf(cacheName) == -1;
+        }).map(caches.delete.bind(caches))
+      )
+    })
+  );
 });
 
 // ...onfetch, etc...
