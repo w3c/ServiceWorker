@@ -378,7 +378,7 @@ var FetchEvent = (function (_super) {
 
 // Design notes:
 //  - Caches are atomic: they are not complete until all of their resources are
-//    fetched.
+//    fetched
 //  - Updates are also atomic: the old contents are visible until all new
 //    contents are fetched/installed.
 //  - Caches should have version numbers and "update" should set/replace it
@@ -405,6 +405,9 @@ var Cache = (function () {
         // This needs to reject to work well with respondWith
     };
 
+    // TODO: maybe this would be better as a querying method
+    // so matchAll(string) would match all entries for that
+    // url regardless of method & vary
     Cache.prototype.matchAll = function (request) {
         var thisCache = this;
 
@@ -442,6 +445,10 @@ var Cache = (function () {
 
                     for (var i = 0; i < varyHeaders.length; i++) {
                         varyHeader = varyHeaders[i].trim();
+
+                        if (varyHeader == '*') {
+                            continue;
+                        }
 
                         if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
                             return false;
@@ -510,6 +517,8 @@ var Cache = (function () {
         // Deleting is garbage collection, but also ensures "uniqueness"
         return this.delete(request).then(function () {
             return thisCache._items.set(request, response);
+        }).then(function () {
+            return response;
         });
     };
 

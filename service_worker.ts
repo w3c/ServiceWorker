@@ -643,9 +643,11 @@ class Cache {
     
     // TODO: this delete/set implementation isn't atomic, but needs to be.
     // Not sure how to implement it, maybe via a private _locked promise?
-    // Deleting is garbage collection, but also ensures "uniqueness"
+    // Deleting is garbage collection, but also ensures "uniqueness"    
     return this.delete(request).then(function() {
       return thisCache._items.set(request, response);
+    }).then(function() {
+      return response;
     });
   }
 
