@@ -574,6 +574,11 @@ class Cache {
           for (var i = 0; i < varyHeaders.length; i++) {
             varyHeader = varyHeaders[i].trim();
 
+            if (varyHeader == '*') {
+              // TODO: should we just ignore vary: *?
+              continue;
+            }
+
             // TODO: should this treat headers case insensitive?
             // TODO: should comparison be more lenient than this?
             if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
