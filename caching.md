@@ -127,3 +127,155 @@ this.addEventListener("activate", function(e) {
 ```
 
 A call to `.update()` re-checks the underlying resources against the versions in the HTTP cache using HTTP semantics. If they've expired, a fetch all the way to the network is attempted. If not, the versions in the browser's HTTP cache are used instead.
+
+### Storing entries for different methods
+
+Items in the cache are actually keyed by request. When you create/fetch cache items using a string, that string is converted to a URL with the worker URL as a base, then that URL is converted to a basic GET request.
+
+`cache.match(request)` uses HTTP caching semantics to find the first relavent match to the request, although "freshness" headers such as `Cache-Control` are ignored.
+
+By default, cache entries are unique to their url and method:
+
+```js
+var getRequest = new Request({
+  url: "/foo/bar",
+  method: "GET"
+});
+
+var postRequest = new Request({
+  url: "/foo/bar",
+  method: "POST",
+  body: "hello"
+});
+
+var myCache = new Cache(getRequest, postRequest);
+
+myCache.ready().then(function() {
+  return Promise.all([
+    myCache.match(getRequest);
+    myCache.match(postRequest);
+  ]);
+}).then(function(requests) {
+  var getResponse = requests[0];
+  var postResponse = requests[1];
+  // Both are unique cache items
+});
+```
+
+When you add something to a cache, it overrides anything its request would match.
+
+```js
+myCache.add(new Request({
+  url: "/foo/bar",
+  method: "POST",
+  body: "world"
+})).then(function() {
+  // the request above matches the other
+  // "POST" response already in the cache,
+  // so it overwrites it.
+  // 
+  // The cache contains 2 items, the older
+  // "GET" response, and this new "POST"
+  // response.
+});
+```
+
+### Additional constraints via "vary"
+
+As in HTTP, you can add extra constraints via the "vary" header. Continuing from our example above:
+
+```js
+var jsonRequest = new Request({
+  url: "/whatever/",
+  method: "GET",
+  headers: {Accept: "application/json"} 
+});
+
+var htmlRequest = new Request({
+  url: "/whatever/",
+  method: "GET",
+  headers: {Accept: "text/html"} 
+});
+
+var varyCache = new Cache(jsonRequest, htmlRequest);
+
+varyCache.ready().then(function(responses) {
+  // Assuming:
+  // responses[0].headers.vary == 'Accept'
+  // responses[1].headers.vary == 'Accept'
+  // We now have 2 unique items in the cache
+});
+```
+
+However, note that:
+
+```js
+varyCache.match("/whatever/").catch(function() {
+  // We don't have a match for this
+});
+```
+
+"/whatever/" is casted to a basic GET request, which has a default "Accept" header that doesn't match either of the requests we have responses stored against.
+
+### Edge cases with "Vary"
+
+You can get unexpected behaviour when a url+method changes its vary header. Let's go back to `myCache` where we have a cached response for GET "/foo/bar", but the response doesn't have a vary header:
+
+```js
+myCache.add(new Request({
+  url: "/foo/bar",
+  method: "GET",
+  headers: {Accept: "application/json"} 
+})).then(function(responses) {
+  var response = responses[0];
+  // This response has returned some JSON and
+  // response.headers.vary == 'Accept'
+
+  // However, this response has overwritten the
+  // previously cached "GET" request, because it
+  // was matched by the request we added.
+});
+```
+
+Responses from a given url and method should all return the same 'vary' header. When you change your vary header, a more specific response may overwrite a less specific one, as above. If we didn't do this, the newly cached response would never match a request, as the less-specific cache entry would match first.
+
+```js
+myCache.add("/foo/bar").then(function(responses) {
+  var response = responses[0];
+  // This response has returned some HTML and
+  // response.headers.vary == 'Accept'
+
+  // We now have 2 unique entries in the cache
+  // for GET /foo/bar
+
+  myCache.match("/foo/bar").then(function(response) {
+    // response is html
+  });
+
+  myCache.match(new Request({
+    url: "/foo/bar",
+    headers: {Accept: "application/json"}
+  })).then(function(response) {
+    // response is json
+  });
+});
+```
+
+### Dynamically building/updating a cache
+
+Because you can cache by request, it's easy to dynamically build a cache as requests are made:
+
+```js
+this.onfetch = function(event) {
+  event.respondWith(
+    caches.match(event.request).catch(function() {
+      return caches.get('dynamic').then(function(dynamicCache) {
+        dynamicCache.add(event.request);
+        return fetch(event.request);
+      });
+    })
+  )
+};
+```
+
+Because the request going into the cache and network is the same, the browser will optimise by only making one request.
