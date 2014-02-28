@@ -366,7 +366,7 @@ this.addEventListener("fetch", function(e) {
 
   // All operations on caches are async, including matching URLs, so we use
   // Promises heavily. e.respondWith() even takes Promises to enable this:
-  e.respondWith(caches.match(e.request.url));
+  e.respondWith(caches.match(e.request));
 });
 ```
 
@@ -377,7 +377,7 @@ The `caches.match()` dance is a bit wordy, so to cut this short there's a `match
 ```js
 this.addEventListener("fetch", function(e) {
   // Abbreviated onfetch handler
-  e.respondWith(caches.match(e.request.url, "shell-v1"));
+  e.respondWith(caches.match(e.request, "shell-v1"));
 });
 ```
 
