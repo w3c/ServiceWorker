@@ -534,6 +534,9 @@ class Cache {
     // This needs to reject to work well with respondWith
   }
 
+  // TODO: maybe this would be better as a querying method
+  // so matchAll(string) would match all entries for that 
+  // url regardless of method & vary
   matchAll(request:any) : Promise {
     var thisCache = this;
 
