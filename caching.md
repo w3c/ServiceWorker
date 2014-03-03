@@ -234,6 +234,13 @@ myCache.add(new Request({
   // However, this response has overwritten the
   // previously cached "GET" request, because it
   // was matched by the request we added.
+  myCache.match(new Request({
+    url: "/foo/bar",
+    method: "GET"
+  })).catch(function() {
+    // we no longer have a match, because the
+    // Accept header isn't "application/json"
+  });
 });
 ```
 
