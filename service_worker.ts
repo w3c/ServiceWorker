@@ -547,6 +547,74 @@ class Cache {
     });
   }
 
+  // TODO: an alternative to matchAll where queryAll(String)
+  // or queryAll(URL) match all entries with that url, regardless
+  // of method.
+  queryAll(q:any) : Promise {
+    var thisCache = this;
+
+    if (q instanceof String) {
+      q = new URL(q);
+    }
+
+    var results = [];
+    var typeAllowed = (q instanceof URL) || (q instanceof Request);
+    if (!typeAllowed) throw TypeError("Query must be request or url");
+    
+    return this._items.keys().then(function(cachedRequests) {
+      return this._items.values().then(function(cachedResponses) {
+        var cachedRequest;
+        var cachedResponse;
+
+        for (var i = 0; i < cachedRequests.length; i++) {
+          cachedRequest = cachedRequests[i];
+          cachedResponse = cachedResponses[i];
+
+          if (q instanceof URL) {
+            if (q.toString() == cachedRequest.url.toString()) {
+              results.push([cachedRequest, cachedResponse]);
+            }
+          }
+          else if (q instanceof Request) { // yeah, this just be 'else'
+            if (Cache._cacheItemValid(q, cachedRequest, cachedResponse)) {
+              results.push([cachedRequest, cachedResponse]);
+            }
+          }
+        }
+      });
+    });
+  }
+
+  static _cacheItemValid(request:Request, cachedRequest:Request, cachedResponse:Response) : Boolean {
+    // filter by request method & url
+    if (cachedRequest.method != request.method) return false;
+    if (cachedRequest.url != request.url) return false;
+
+    // filter by 'vary':
+    // If there's no vary header, we have a match!
+    if (!cachedResponse.headers.has('vary')) return true;
+
+    var varyHeaders = cachedResponse.headers.get('vary').split(',');
+    var varyHeader;
+
+    for (var i = 0; i < varyHeaders.length; i++) {
+      varyHeader = varyHeaders[i].trim();
+
+      if (varyHeader == '*') {
+        // TODO: should we just ignore vary: *?
+        continue;
+      }
+
+      // TODO: should this treat headers case insensitive?
+      // TODO: should comparison be more lenient than this?
+      if (cachedRequest.headers.get(varyHeader) != request.headers.get(varyHeader)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   keys(filterRequest:any) : Promise {
     var thisCache = this;
 
@@ -558,35 +626,7 @@ class Cache {
       // get the response
       return this._items.values().then(function(cachedResponses) {
         return cachedRequests.filter(function(cachedRequest, i) {
-          var cachedResponse = cachedResponses[i];
-
-          // filter by request method & url
-          if (cachedRequest.method != filterRequest.method) return false;
-          if (cachedRequest.url != filterRequest.url) return false;
-
-          // filter by 'vary':
-          // If there's no vary header, we have a match!
-          if (!cachedResponse.headers.has('vary')) return true;
-
-          var varyHeaders = cachedResponse.headers.get('vary').split(',');
-          var varyHeader;
-
-          for (var i = 0; i < varyHeaders.length; i++) {
-            varyHeader = varyHeaders[i].trim();
-
-            if (varyHeader == '*') {
-              // TODO: should we just ignore vary: *?
-              continue;
-            }
-
-            // TODO: should this treat headers case insensitive?
-            // TODO: should comparison be more lenient than this?
-            if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
-              return false;
-            }
-          }
-
-          return true;
+          return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
         });
       });
     });
