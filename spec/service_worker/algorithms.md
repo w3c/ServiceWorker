@@ -2,9 +2,8 @@ Service Workers Algorithms
 ===
 > **NOTE:**
 >
-> - **Register** and **_Upgrade** honor HTTP caching rule.
+> - **Register** and **_Update** honor HTTP caching rule.
 > - Underscored function and attribute are UA-internal properties.
-> - The details are still vague especially exception handling parts.
 
 --
 **Register**(_script_, _scope_)
@@ -20,23 +19,23 @@ Service Workers Algorithms
   4. If the origin of _scope_ does not match the document's origin, then
     1. Reject _promise_ with a new SecurityError.
     2. Abort these steps.
-  5. Let _serviceWorkerRegistration_ be *_GetRegistration(_scope_)*.
-  6. If _serviceWorkerRegistration_ is not null and _script_ is equal to _serviceWorkerRegistration_.*_scriptUrl*, then 
+  5. Let _serviceWorkerRegistration_ be **_GetRegistration**(_scope_).
+  6. If _serviceWorkerRegistration_ is not null and _script_ is equal to _serviceWorkerRegistration_.*_scriptUrl*, then
     1. Note: these steps are to force a worker update if the page was shift+reloaded and the document is within _scope_
     2. Let _documentServiceWorkerRegistration_ be the Service Worker registration used by this document.
     3. If _documentServiceWorkerRegistration_ is not null, then
-      1. Resolve _promise_ with *_GetNewestWorker(serviceWorkerRegistration)*.
+      1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
       2. Abort these steps.
     4. Let _documentUrl_ be the document's url.
-    5. If _serviceWorkerRegistration_ is not equal to *_ScopeMatch(_documentUrl_)*
-      1. Resolve _promise_ with *_GetNewestWorker(serviceWorkerRegistration)*.
+    5. If _serviceWorkerRegistration_ is not equal to **_ScopeMatch**(_documentUrl_)
+      1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
       2. Abort these steps.
   7. If _serviceWorkerRegistration_ is null, then
-    1. Let _serviceWorkerRegistration_ be a newly-created _ServiceWorkerRegistration object.
+    1. Let _serviceWorkerRegistration_ be a newly-created *_ServiceWorkerRegistration* object.
     2. Set _serviceWorkerRegistration_ to the value of key _scope_ in *_ScopeToServiceWorkerRegistrationMap*.
     3. Set _serviceWorkerRegistration_.*scope* to _scope_.
   8. Set _serviceWorkerRegistration_.*scriptUrl* to _script_.
-  9. Resolve _promise_ with *_Update(serviceWorkerRegistration)*
+  9. Resolve _promise_ with **_Update**(_serviceWorkerRegistration_).
 
 --
 **_Update**(_serviceWorkerRegistration_)
@@ -48,7 +47,7 @@ Service Workers Algorithms
   1. Reject _promise_ with a new NetworkError
   2. Abort these steps.
 3. Let _fetchedScript_ be the fetched script.
-4. Let _newestWorker_ be *_GetNewestWorker(serviceWorkerRegistration)*
+4. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
 5. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
   1. Resolve _promise_ with _newestWorker_.
   2. Abort these steps.
