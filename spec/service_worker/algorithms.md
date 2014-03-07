@@ -35,21 +35,21 @@ Service Workers Algorithms
 
 1. Let _promise_ be a newly-created Promise.
 2. Return _promise_.
-1. Perform a fetch of _serviceWorkerRegistration_.*scriptUrl*, forcing a network fetch if cached entry is greater than 1 day old.
-2. If fetching the script fails (e.g. the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out), or if the server returned a redirect, then
+3. Perform a fetch of _serviceWorkerRegistration_.*scriptUrl*, forcing a network fetch if cached entry is greater than 1 day old.
+4. If fetching the script fails (e.g. the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out), or if the server returned a redirect, then
   1. Reject _promise_ with a new NetworkError
   2. Abort these steps.
-3. Let _fetchedScript_ be the fetched script.
-4. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
-5. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
+5. Let _fetchedScript_ be the fetched script.
+6. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
+7. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
   1. Resolve _promise_ with _newestWorker_.
   2. Abort these steps.
-6. Let _serviceWorker_ be a newly-created ServiceWorker object, using _fetchedScript_.
-7. If _serviceWorker_ fails to start up, due to parse errors or uncaught errors, then
+8. Let _serviceWorker_ be a newly-created ServiceWorker object, using _fetchedScript_.
+9. If _serviceWorker_ fails to start up, due to parse errors or uncaught errors, then
   1. Reject _promise_ with the error.
   2. Abort these steps.
-8. Resolve _promise_ with _serviceWorker_
-9. Queue a task to call **_Install** with _serviceWorkerRegistration_ and _serviceWorker_.
+10. Resolve _promise_ with _serviceWorker_
+11. Queue a task to call **_Install** with _serviceWorkerRegistration_ and _serviceWorker_.
 
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
