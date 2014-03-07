@@ -29,49 +29,82 @@ Service Workers Algorithms
     3. Set _serviceWorkerRegistration_.*scope* to _scope_.
   8. Set _serviceWorkerRegistration_.*scriptUrl* to _script_.
   9. Resolve _promise_ with **_Update**(_serviceWorkerRegistration_).
+  10. Wait for _promise_ to settle.
+  11. Set _serviceWorkerRegistration_.*registering* to false.
 
 --
 **_Update**(_serviceWorkerRegistration_)
 
-1. Let _promise_ be a newly-created Promise.
-2. Return _promise_.
-3. Perform a fetch of _serviceWorkerRegistration_.*scriptUrl*, forcing a network fetch if cached entry is greater than 1 day old.
-4. If fetching the script fails due to the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then
+1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
+  1. Reject _serviceWorkerRegistration_.*updatePromise* with a new AbortError
+  2. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*
+2. Let _promise_ be a newly-created Promise.
+3. Set _serviceWorkerRegistration_.*updatePromise* to _promise_.
+4. Return _promise_.
+5. Perform a fetch of _serviceWorkerRegistration_.*scriptUrl*, forcing a network fetch if cached entry is greater than 1 day old.
+6. If _promise_ has been rejected (eg, another registration has aborted it), then
+  1. Set _serviceWorkerRegistration_.*updatePromise* to null
+  2. Abort these steps.
+7. If fetching the script fails due to the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then
     1. Reject _promise_ with a new NetworkError
-    2. Abort these steps.
-5. If the server returned a redirect, then
+    2. Set _serviceWorkerRegistration_.*updatePromise* to null
+    3. Abort these steps.
+8. If the server returned a redirect, then
   1. Reject _promise_ with a new SecurityError
-  2. Abort these steps. 
-6. Let _fetchedScript_ be the fetched script.
-7. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
-8. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
+  2. Set _serviceWorkerRegistration_.*updatePromise* to null
+  3. Abort these steps. 
+9. Let _fetchedScript_ be the fetched script.
+10. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
+11. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
   1. Resolve _promise_ with _newestWorker_.
+  2. Set _serviceWorkerRegistration_.*updatePromise* to null
+  3. Abort these steps.
+12. Let _serviceWorker_ be a newly-created ServiceWorker object, using _fetchedScript_.
+13. If _promise_ has been rejected (eg, another registration has aborted it), then
+  1. Set _serviceWorkerRegistration_.*updatePromise* to null
   2. Abort these steps.
-9. Let _serviceWorker_ be a newly-created ServiceWorker object, using _fetchedScript_.
-10. If _serviceWorker_ fails to start up, due to parse errors or uncaught errors, then
+14. If _serviceWorker_ fails to start up, due to parse errors or uncaught errors, then
   1. Reject _promise_ with the error.
-  2. Abort these steps.
-11. Resolve _promise_ with _serviceWorker_
-12. Queue a task to call **_Install** with _serviceWorkerRegistration_ and _serviceWorker_.
+  2. Set _serviceWorkerRegistration_.*updatePromise* to null
+  3. Abort these steps.
+15. Resolve _promise_ with _serviceWorker_
+16. Set _serviceWorkerRegistration_.*updatePromise* to null
+17. Queue a task to call **_Install** with _serviceWorkerRegistration_ and _serviceWorker_.
+
+--
+**_SoftUpdate**(_serviceWorkerRegistration_)
+
+> The browser may call this as often as it likes to check for updates
+
+1. If _serviceWorkerRegistration_.*updatePromise* is not null, then 
+  1. Abort these steps.
+2. Let _queuedWorker_ be _serviceWorkerRegistration_.*queuedWorker*.
+3. If _queuedWorker_ is not null and _queuedWorker_.*_state* is _installing_, then
+  1. Abort these steps.
+4. Queue a task to call **_Update** with _serviceWorkerRegistration_.
 
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
-1. Set _serviceWorkerRegistration_.*queuedWorker* to _serviceWorker_
-2. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
-3. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-4. If any handler calls _waitUntil()_, then
+1. If _serviceWorkerRegistration_.*queuedWorker* is not null, then
+  2. Terminate _serviceWorkerRegistration_.*queuedWorker*.
+  3. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*queuedWorker*.
+2. Set _serviceWorkerRegistration_.*queuedWorker* to _serviceWorker_
+3. Set _serviceWorker_.*_state* to _installing_.
+4. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
+5. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+6. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises resolve.
   2. If the resulting promise rejects, then
     1. Abort these steps. TODO: we should retry at some point?
-5. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-6. Set _serviceWorker_.*_state* to _installed_.
-7. If any handler calls _replace()_, then
+7. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+8. Set _serviceWorker_.*_state* to _installed_.
+9. If any handler calls _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
     1. Set _serviceWorkerRegistration_ as the document's service worker registration
   2. Call **_Activate** with _serviceWorkerRegistration_
   3. Abort these steps
-8. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
+10. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Queue a task to call **_Activate** with _serviceWorkerRegistration_.
 
 --
@@ -113,7 +146,7 @@ Service Workers Algorithms
 9. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object
 10. If _respondWith_ was not called, then
   1. Fetch the resource normally.
-  2. Queue a task to call **_Update** with _serviceWorkerRegistration_.
+  2. Queue a task to call **_SoftUpdate** with _serviceWorkerRegistration_.
   3. Abort these steps.
 11. Let _responsePromise_ be value passed into _respondWith_ casted to a Promise
 12. Wait for _responsePromise_ to resolve
@@ -123,7 +156,7 @@ Service Workers Algorithms
   1. Fail the resource load as if there had been a generic network error and abort these steps
 15. If _responsePromise_ resolves to an AbstractResponse, then
   1. Serve the response
-  2. Queue a task to call **_Update** with _serviceWorkerRegistration_.
+  2. Queue a task to call **_SoftUpdate** with _serviceWorkerRegistration_.
   3. Abort these steps.
 16. Fail the resource load as if there had been a generic network error and abort these steps
 
