@@ -20,9 +20,12 @@ Service Workers Algorithms
     1. Reject _promise_ with a new SecurityError.
     2. Abort these steps.
   5. Let _serviceWorkerRegistration_ be **_GetRegistration**(_scope_).
-  6. If _serviceWorkerRegistration_ is not null and _script_ is equal to _serviceWorkerRegistration_.*_scriptUrl*, then 
-    1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
-    2. Abort these steps.
+  6. If _serviceWorkerRegistration_ is not null and _script_ is equal to _serviceWorkerRegistration_.*_scriptUrl*, then
+    1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
+      1. Resolve _promise_ with _serviceWorkerRegistration_.*updatePromise*.
+      2. Abort these steps.  
+    2. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
+    3. Abort these steps.
   7. If _serviceWorkerRegistration_ is null, then
     1. Let _serviceWorkerRegistration_ be a newly-created *_ServiceWorkerRegistration* object.
     2. Set _serviceWorkerRegistration_ to the value of key _scope_ in *_ScopeToServiceWorkerRegistrationMap*.
