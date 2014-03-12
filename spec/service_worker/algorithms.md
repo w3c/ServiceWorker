@@ -81,41 +81,44 @@ Service Workers Algorithms
 
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then 
   1. Abort these steps.
-2. Let _queuedWorker_ be _serviceWorkerRegistration_.*queuedWorker*.
-3. If _queuedWorker_ is not null and _queuedWorker_.*_state* is _installing_, then
+2. Let _installingWorker_ be _serviceWorkerRegistration_.*installingWorker*.
+3. If _installingWorker_ is not null, then
   1. Abort these steps.
 4. Queue a task to call **_Update** with _serviceWorkerRegistration_.
 
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
-1. If _serviceWorkerRegistration_.*queuedWorker* is not null, then
-  2. Terminate _serviceWorkerRegistration_.*queuedWorker*.
-  3. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*queuedWorker*.
-2. Set _serviceWorkerRegistration_.*queuedWorker* to _serviceWorker_
+1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
+  2. Terminate _serviceWorkerRegistration_.*installingWorker*.
+  3. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*installingWorker*.
+2. Set _serviceWorkerRegistration_.*installingWorker* to _serviceWorker_
 3. Set _serviceWorker_.*_state* to _installing_.
 4. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 5. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-6. If any handler calls _waitUntil()_, then
+6. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises resolve.
   2. If the resulting promise rejects, then
-    1. Abort these steps. TODO: we should retry at some point?
-7. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-8. Set _serviceWorker_.*_state* to _installed_.
-9. If any handler calls _replace()_, then
+    1. Set _serviceWorkerRegistration_.*installingWorker* to null
+    2. Abort these steps. TODO: we should retry at some point?
+7. Set _serviceWorkerRegistration_.*installedWorker* to null
+8. Set _serviceWorkerRegistration_.*installingWorker* to _serviceWorker_
+9. Set _serviceWorker_.*_state* to _installed_.
+10. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+11. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
     1. Set _serviceWorkerRegistration_ as the document's service worker registration
   2. Call **_Activate** with _serviceWorkerRegistration_
   3. Abort these steps
-10. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
+12. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Queue a task to call **_Activate** with _serviceWorkerRegistration_.
 
 --
 **_Activate**(_serviceWorkerRegistration_)
 
-1. Let _activatingWorker_ be _serviceWorkerRegistration_.*queuedWorker*
+1. Let _activatingWorker_ be _serviceWorkerRegistration_.*installedWorker*
 2. Let _exitingWorker_ be _serviceWorkerRegistration_.*currentWorker*
-3. Set _serviceWorkerRegistration_.*queuedWorker* to null
+3. Set _serviceWorkerRegistration_.*installedWorker* to null
 4. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_
 5. Set _activatingWorker_.*_state* to _activating_
 6. If _exitingWorker_ is not null, then
@@ -193,7 +196,7 @@ Service Workers Algorithms
   1. Abort these steps.
 3. If any other document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Abort these steps.
-4. If _serviceWorkerRegistration_.*queuedWorker* is not null
+4. If _serviceWorkerRegistration_.*installedWorker* is not null
 5. Call **_Activate**(_serviceWorkerRegistration_).
 
 --
@@ -235,7 +238,9 @@ Service Workers Algorithms
 --
 **_GetNewestWorker**(_serviceWorkerRegistration_)
 
-1. Let _newestWorker_ be _serviceWorkerRegistration_.*queuedWorker*.
+1. Let _newestWorker_ be _serviceWorkerRegistration_.*installingWorker*.
 2. If _newestWorker_ is null, then
-  1. Let _newestWorker_ by _serviceWorkerRegistration_.*currentWorker*.
-3. Return _newestWorker_.
+  1. Let _newestWorker_ be _serviceWorkerRegistration_.*installedWorker*.
+3. If _newestWorker_ is null, then
+  1. Let _newestWorker_ be _serviceWorkerRegistration_.*currentWorker*.
+4. Return _newestWorker_.
