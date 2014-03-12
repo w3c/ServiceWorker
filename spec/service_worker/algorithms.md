@@ -101,8 +101,8 @@ Service Workers Algorithms
   2. If the resulting promise rejects, then
     1. Set _serviceWorkerRegistration_.*installingWorker* to null
     2. Abort these steps. TODO: we should retry at some point?
-7. Set _serviceWorkerRegistration_.*installedWorker* to null
-8. Set _serviceWorkerRegistration_.*installingWorker* to _serviceWorker_
+7. Set _serviceWorkerRegistration_.*installingWorker* to null
+8. Set _serviceWorkerRegistration_.*installedWorker* to _serviceWorker_
 9. Set _serviceWorker_.*_state* to _installed_.
 10. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 11. If any handler called _replace()_, then
