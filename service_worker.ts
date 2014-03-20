@@ -421,7 +421,6 @@ class FetchEvent extends _Event {
   //   "connect",
   //   "font",
   //   "img",
-  //   "img",
   //   "object",
   //   "script",
   //   "style",
