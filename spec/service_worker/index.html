@@ -739,8 +739,18 @@ navigator.serviceWorker.register = function(url, options) {
         <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
         <li>If <var>serviceWorkerRegistration</var> is not null and <var>script</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, then:
           <ol>
-            <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-            <li>Abort these steps.</li>
+            <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+              <ol>
+                <li>Resolve <var>promise</var> with <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
+            <li>Else,
+              <ol>
+                <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
           </ol>
         </li>
         <li>If <var>serviceWorkerRegistration</var> is null, then:
@@ -802,30 +812,40 @@ The steps are:
 <div class="algorithm">
 <dl>
 <dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 <dt>Output</dt>
     <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
 </dl>
 <ol>
+    <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+      <ol>
+        <li>Reject <var>serviceWorkerRegistration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
+        <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
+      </ol>
+    </li>
     <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
     <li>Return <var>promise</var>.</li>
     <li>Run the following steps asynchronously:
       <ol>
         <li>Perform a fetch of <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
         <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
           <ol>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
         <li>If fetching the script fails due to the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then:
           <ol>
             <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
         <li>If the server returned a redirect, then:
           <ol>
-            <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
+            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
@@ -833,7 +853,8 @@ The steps are:
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
         <li>If <var>newestWorker</var> is not null, and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
           <ol>
-            <li>Resolve <var>promise</var> with <var>newestWorker</var>..</li>
+            <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
@@ -842,16 +863,19 @@ The steps are:
             <li>Let <var>serviceWorker</var> be a newly-created <a href="#FIXME">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
             <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
               <ol>
+                <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
                 <li>Abort these steps.</li>
               </ol>
             </li>
             <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
               <ol>
                 <li>Reject <var>promise</var> with the error.</li>
+                <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
                 <li>Abort these steps.</li>
               </ol>
             </li>
             <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Queue a task to invoke <a href="#installation-algorithm">_Installation algorithm</a> with <var>serviceWorkerRegistration</var> and <var>serviceWorker</var> as its arguments.</li>
           </ol>
         </li>
@@ -867,11 +891,16 @@ The steps are:
 <div class="algorithm">
 <dl>
 <dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 <dt>Output</dt>
     <dd>None</dd>
 </dl>
 <ol>
+    <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+      <ol>
+        <li>Abort these steps.</li>
+      </ol>
+    </li>
     <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
       <ol>
         <li>Abort these steps.</li>
@@ -886,7 +915,7 @@ The steps are:
 <div class="algorithm">
 <dl>
 <dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
     <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
 <dt>Output</dt>
     <dd>None</dd>
@@ -938,7 +967,7 @@ The steps are:
 <div class="algorithm">
 <dl>
 <dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 <dt>Output</dt>
     <dd>None</dd>
 </dl>
@@ -1000,13 +1029,13 @@ The steps are:
         <li>Fetch the resource normally and abort these steps.</li>
       </ol>
     </li>
-    <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration</li>
+    <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration.</li>
     <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
       <ol>
-        <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code></li>
+        <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
       </ol>
     </li>
-    <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object</li>
+    <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object.</li>
     <li>If <code>respondWith()</code> was not called, then:
       <ol>
         <li>Fetch the resource normally.</li>
@@ -1139,7 +1168,7 @@ The steps are:
         <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
         <li>If <var>serviceWorkerRegistration</var> is null, then:
           <ol>
-            <li>Reject <var>promise</var> with a new <code>NotFoundError</code></li>
+            <li>Reject <var>promise</var> with a new <code>NotFoundError</code>.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
@@ -1148,8 +1177,8 @@ The steps are:
             <li>Set the document's service worker registration to null.</li>
           </ol>
         </li>
-        <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a></li>
-        <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var></li>
+        <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+        <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
         <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
         <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
         <li>Resolve <var>promise</var>.</li>
@@ -1165,7 +1194,7 @@ The steps are:
 <dt>Input</dt>
     <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
 <dt>Output</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 </dl>
 <ol>
     <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
@@ -1181,7 +1210,7 @@ The steps are:
 <dt>Input</dt>
     <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
 <dt>Output</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 </dl>
 <ol>
     <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
@@ -1195,7 +1224,7 @@ The steps are:
 <div class="algorithm">
 <dl>
 <dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
 <dt>Output</dt>
     <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
 </dl>
@@ -1206,7 +1235,7 @@ The steps are:
         <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
       </ol>
     </li>
-    <li>Else If <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
+    <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
       <ol>
         <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
       </ol>
