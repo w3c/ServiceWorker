@@ -114,7 +114,9 @@ class DocumentInstallPhaseEvent extends _Event {
   worker: ServiceWorker;
 }
 
-class DocumentInstallEvent extends DocumentInstallPhaseEvent {}
+class DocumentInstallEvent extends DocumentInstallPhaseEvent {
+  activeWorker: ServiceWorker = null;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
