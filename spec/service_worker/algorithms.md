@@ -48,7 +48,7 @@ Service Workers Algorithms
   2. If _promise_ has been rejected (eg, another registration has aborted it), then
     1. Set _serviceWorkerRegistration_.*updatePromise* to null.
     2. Abort these steps.
-  3. If fetching the script fails due to the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then
+  3. If fetching the script fails due to the server returning a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then
     1. Reject _promise_ with a new NetworkError.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
