@@ -14,12 +14,19 @@
   <h1>Single page app</h1>
   <p id="unsupported"><code>navigator.serviceWorker</code> isn't supported natively. This demo will not work.</p>
 
+  <p id="active">The active service worker is at <samp id="active-url"></samp> over scope <samp id="active-scope"></samp>.</p>
+  <p id="registered">The registering service worker is at <samp id="registered-url"></samp> over scope <samp id="registered-scope"></samp>.</p>
+
   <button id="register">Register</button>
   <button id="unregister">Unregister</button>
   
   <p>Try to <a href="#" id="register-nonexistent">register a non-existent Service Worker script</a>.
 
   <p>Get a <a href="generated.txt">generated resource</a>.</p>
+
+  <table id="swChat">
+    <tr><th>Send:</th><td><form><input id="toSW"></form></td></tr>
+  </table>
 
   <p id="result"></p>
   <p id="error"></p>
@@ -30,6 +37,31 @@
       $('#unsupported').style.display = 'block';
       return;
     }
+
+    function updateActive() {
+      window.active = navigator.serviceWorker.active;
+      updateSW('active', window.active);
+    }
+    function updateRegistered(registered) {
+      window.registered = registered;
+      updateSW('registered', window.registered);
+      registered.onmessage = function(e) {
+        console.log(e, 'Received');
+        addChatRow('Received:', e.data.chat);
+      }
+    }
+    function updateSW(name, sw) {
+      if (sw) {
+        $('#' + name).style.display = 'block';
+        $('#' + name + '-url').innerText = sw.url;
+        $('#' + name + '-scope').innerText = sw.scope;
+      } else {
+        $('#' + name).style.display = 'none';
+      }
+    }
+    updateActive();
+    navigator.serviceWorker.oninstallend = updateActive;
+    navigator.serviceWorker.onactivateend = updateActive;
 
     function setResult(msg) {
       $('#result').innerText = msg;
@@ -44,6 +76,7 @@
 
     $('#register').onclick = function(event) {
       navigator.serviceWorker.register('service-worker.js').then(function(result) {
+          updateRegistered(result);
           setResult(result);
         }, function(error) {
           setError(error);
@@ -52,6 +85,7 @@
 
     $('#unregister').onclick = function(event) {
       navigator.serviceWorker.unregister('/*').then(function(result) {
+          updateRegistered(result);
           setResult(result);
         }, function(error) {
           setError(error);
@@ -65,6 +99,26 @@
           setError(error);
         });
     };
+
+    function addChatRow(label, message) {
+      var th = document.createElement('th');
+      th.innerText = label;
+      var td = document.createElement('td');
+      td.innerText = message;
+      var tr = document.createElement('tr');
+      tr.appendChild(th);
+      tr.appendChild(td);
+      $('#swChat').insertBefore(tr, $('#swChat').lastChild);
+    }
+    $('#swChat form').onsubmit = function(event) {
+      event.preventDefault();
+      if (!window.registered)
+        return;
+      var message = $('#toSW').value;
+      window.registered.postMessage({chat: message});
+      addChatRow('Sent:', message);
+      $('#toSW').value = '';
+    }
   </script>
 </body>
 </html>
