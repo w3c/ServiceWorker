@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Service Worker Demo</title>
+  <script>
+    function $(selector) { return document.querySelector(selector); }
+  </script>
+  <style>
+    #unsupported { background-color: red; display: none }
+    #error { background-color: red; }
+  </style>
+</head>
+<body>
+  <h1>Single page app</h1>
+  <p id="unsupported"><code>navigator.serviceWorker</code> isn't supported natively. This demo will not work.</p>
+
+  <button id="register">Register</button>
+  <button id="unregister">Unregister</button>
+  
+  <p>Try to <a href="#" id="register-nonexistent">register a non-existent Service Worker script</a>.
+
+  <p>Get a <a href="generated.txt">generated resource</a>.</p>
+
+  <p id="result"></p>
+  <p id="error"></p>
+
+
+  <script>
+    if (!navigator.serviceWorker.register) {
+      $('#unsupported').style.display = 'block';
+      return;
+    }
+
+    function setResult(msg) {
+      $('#result').innerText = msg;
+      $('#error').innerText = '';
+      console.log(msg);
+    }
+    function setError(msg) {
+      $('#result').innerText = '';
+      $('#error').innerText = msg;
+      console.error(msg);
+    }
+
+    $('#register').onclick = function(event) {
+      navigator.serviceWorker.register('service-worker.js').then(function(result) {
+          setResult(result);
+        }, function(error) {
+          setError(error);
+        });
+    };
+
+    $('#unregister').onclick = function(event) {
+      navigator.serviceWorker.unregister('/*').then(function(result) {
+          setResult(result);
+        }, function(error) {
+          setError(error);
+        });
+    };
+
+    $('#register-nonexistent').onclick = function(event) {
+      navigator.serviceWorker.register('does-not-exist.js').then(function(result) {
+          setResult(result);
+        }, function(error) {
+          setError(error);
+        });
+    };
+  </script>
+</body>
+</html>
