@@ -58,7 +58,7 @@ Service Workers Algorithms
     3. Abort these steps.
   5. Let _fetchedScript_ be the fetched script.
   6. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
-  7. If _newestWorker_ is not null, and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
+  7. If _newestWorker_ is not null, and _newestWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
     1. Resolve _promise_ with _newestWorker_.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
