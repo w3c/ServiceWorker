@@ -1,14 +1,17 @@
-console.log('Not dead yet!');
+var Log = function(msg) {
+    if (self.lastPort)
+        self.lastPort.postMessage({log: msg});
+};
 
 oninstall = function(e) {
     e.replace();
 }
 
 onfetch = function(e) {
-    var origin = new URL(scope);
+    Log('Got a fetch event');
     var url = e.request.url;
-    console.log(url);
-    if (url == new URL("/generated.txt", origin)) {
+    Log(url);
+    if (url == new URL("/generated.txt", self.scope)) {
         return e.respondWith(new Response({
             statusCode: 200,
             headers: {

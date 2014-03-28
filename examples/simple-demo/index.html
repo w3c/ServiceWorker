@@ -45,6 +45,12 @@
     function updateRegistered(registered) {
       window.registered = registered;
       updateSW('registered', window.registered);
+
+      if (registered) {
+        var channel = new MessageChannel;
+        channel.port1.onmessage = handleMessage;
+        window.registered.postMessage({port:channel.port2}, [channel.port2]);
+      }
     }
     function updateSW(name, sw) {
       if (sw) {
@@ -70,6 +76,19 @@
       console.error(msg);
     }
 
+    function handleMessage(e) {
+      console.log(e, 'Received');
+      if ('chat' in e.data) {
+        addChatRow('Received:', e.data.chat);
+      }
+      if ('error' in e.data) {
+        addChatRow('Error:', e.data.error);
+      }
+      if ('log' in e.data) {
+        addChatRow('Log:', e.data.log);
+      }
+    }
+
     $('#register').onclick = function(event) {
       navigator.serviceWorker.register('service-worker.js').then(function(result) {
           updateRegistered(result);
@@ -81,7 +100,7 @@
 
     $('#unregister').onclick = function(event) {
       navigator.serviceWorker.unregister('/*').then(function(result) {
-          updateRegistered(result);
+          updateRegistered(null);
           setResult(result);
         }, function(error) {
           setError(error);
@@ -112,15 +131,7 @@
         return;
       var message = $('#toSW').value;
       var channel = new MessageChannel;
-      channel.port1.onmessage = function(e) {
-        console.log(e, 'Received');
-        if ('chat' in e.data) {
-          addChatRow('Received:', e.data.chat);
-        }
-        if ('error' in e.data) {
-          addChatRow('Error:', e.data.error);
-        }
-      }
+      channel.port1.onmessage = handleMessage;
       window.registered.postMessage({chat: message, port:channel.port2}, [channel.port2]);
       addChatRow('Sent:', message);
       $('#toSW').value = '';
