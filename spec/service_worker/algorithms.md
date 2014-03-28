@@ -100,7 +100,8 @@ Service Workers Algorithms
 6. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises resolve.
   2. If the resulting promise rejects, then
-    1. Abort these steps. TODO: we should retry at some point?
+    1. Set _serviceWorkerRegistration_.*pendingWorker* to null
+    2. Abort these steps. TODO: is this what we want?
 7. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installed_.
 8. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 9. If any handler called _replace()_, then
@@ -127,8 +128,10 @@ Service Workers Algorithms
 9. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises resolve.
   2. If the resulting promise rejects, then
-    1. TODO: what now? We may have in-flight requests that we're blocking. We can't roll back. Maybe send all requests to the network?
-    2. Abort these steps.
+    1. Terminate _activatingWorker_
+    2. Set _serviceWorkerRegistration_.*activeWorker* to null
+    3. Allow any pending requests to continue as normall (as if there was no ServiceWorker)
+    4. Abort these steps. TODO: is this what we want? Note that we've introduced another situation where .active can change through the life of a page
 10. Set _serviceWorkerRegistration_.*activeWorker*.*_state* to _actived_.
 11. Fire _activateend_ event on _navigator.serviceWorker_ for all documents which match _scope_.
 
