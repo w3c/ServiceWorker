@@ -19,7 +19,7 @@
 
   <button id="register">Register</button>
   <button id="unregister">Unregister</button>
-  
+
   <p>Try to <a href="#" id="register-nonexistent">register a non-existent Service Worker script</a>.
 
   <p>Get a <a href="generated.txt">generated resource</a>.</p>
@@ -45,10 +45,6 @@
     function updateRegistered(registered) {
       window.registered = registered;
       updateSW('registered', window.registered);
-      registered.onmessage = function(e) {
-        console.log(e, 'Received');
-        addChatRow('Received:', e.data.chat);
-      }
     }
     function updateSW(name, sw) {
       if (sw) {
@@ -115,7 +111,12 @@
       if (!window.registered)
         return;
       var message = $('#toSW').value;
-      window.registered.postMessage({chat: message});
+      var channel = new MessageChannel;
+      channel.port1.onmessage = function(e) {
+        console.log(e, 'Received');
+        addChatRow('Received:', e.data.chat);
+      }
+      window.registered.postMessage({chat: message, port:channel.port2}, [channel.port2]);
       addChatRow('Sent:', message);
       $('#toSW').value = '';
     }
