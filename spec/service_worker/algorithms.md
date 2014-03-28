@@ -40,10 +40,14 @@ Service Workers Algorithms
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
   1. Reject _serviceWorkerRegistration_.*updatePromise* with a new AbortError.
   2. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*.
-2. Let _promise_ be a newly-created Promise.
-3. Set _serviceWorkerRegistration_.*updatePromise* to _promise_.
-4. Return _promise_.
-5. Run the following steps asynchronously.
+2. If _serviceWorkerRegistration_.*pendingWorker* is not null, then
+  1. Terminate _serviceWorkerRegistration_.*pendingWorker*.
+  2. Set _serviceWorkerRegistration_.*pendingWorker* to null
+  3. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*pendingWorker*.
+3. Let _promise_ be a newly-created Promise.
+4. Set _serviceWorkerRegistration_.*updatePromise* to _promise_.
+5. Return _promise_.
+6. Run the following steps asynchronously.
   1. Perform a fetch of _serviceWorkerRegistration_.*scriptUrl*, forcing a network fetch if cached entry is greater than 1 day old.
   2. If _promise_ has been rejected (eg, another registration has aborted it), then
     1. Set _serviceWorkerRegistration_.*updatePromise* to null.
@@ -57,9 +61,9 @@ Service Workers Algorithms
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
   5. Let _fetchedScript_ be the fetched script.
-  6. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
-  7. If _newestWorker_ is not null, and _newestWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
-    1. Resolve _promise_ with _newestWorker_.
+  6. Let _activeWorker_ be _serviceWorkerRegistration_.*activeWorker*.
+  7. If _activeWorker_ is not null, and _activeWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _activeWorker_, then
+    1. Resolve _promise_ with _activeWorker_.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
   8. Else,
@@ -89,11 +93,8 @@ Service Workers Algorithms
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
-1. If _serviceWorkerRegistration_.*pendingWorker* is not null, then
-  1. Terminate _serviceWorkerRegistration_.*pendingWorker*.
-  2. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*pendingWorker*.
-2. Set _serviceWorkerRegistration_.*pendingWorker* to _serviceWorker_.
-3. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installing_.
+1. Set _serviceWorkerRegistration_.*pendingWorker* to _serviceWorker_.
+2. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installing_.
 4. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 5. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 6. If any handler called _waitUntil()_, then
