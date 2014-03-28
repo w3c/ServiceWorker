@@ -114,7 +114,12 @@
       var channel = new MessageChannel;
       channel.port1.onmessage = function(e) {
         console.log(e, 'Received');
-        addChatRow('Received:', e.data.chat);
+        if ('chat' in e.data) {
+          addChatRow('Received:', e.data.chat);
+        }
+        if ('error' in e.data) {
+          addChatRow('Error:', e.data.error);
+        }
       }
       window.registered.postMessage({chat: message, port:channel.port2}, [channel.port2]);
       addChatRow('Sent:', message);
