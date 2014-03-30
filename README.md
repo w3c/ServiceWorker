@@ -12,7 +12,7 @@ To understand the design and how you might build apps with ServiceWorkers, see t
 
 For the nitty-gritty of the API, see [`service_worker.ts`](https://github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts), a [TypeScript](http://www.typescriptlang.org/) description of the major bits of the callable interface.
 
-[A web specification is being drafted](http://infrequently.org/14/ServiceWorker/spec/service_worker/) from the details captured in the [typescript file ](https://github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) and the [resolved issued marked as `needs spec`](https://github.com/slightlyoff/ServiceWorker/issues?labels=needs+spec&page=1&state=closed).
+[A web specification is being drafted](https://rawgithub.com/slightlyoff/ServiceWorker/master/spec/service_worker/index.html) from the details captured in the [typescript file ](https://github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) and the [resolved issued marked as `needs spec`](https://github.com/slightlyoff/ServiceWorker/issues?labels=needs+spec&page=1&state=closed).
 
 ## Building & Contributing to the Design
 
