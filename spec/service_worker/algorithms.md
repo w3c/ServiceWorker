@@ -95,21 +95,21 @@ Service Workers Algorithms
 
 1. Set _serviceWorkerRegistration_.*pendingWorker* to _serviceWorker_.
 2. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installing_.
-4. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
-5. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-6. If any handler called _waitUntil()_, then
+3. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
+4. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+5. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises resolve.
   2. If the resulting promise rejects, then
     1. Set _serviceWorkerRegistration_.*pendingWorker* to null
     2. Abort these steps. TODO: is this what we want?
-7. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installed_.
-8. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
-9. If any handler called _replace()_, then
+6. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installed_.
+7. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+8. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
     1. Set _serviceWorkerRegistration_ as the document's service worker registration.
   2. Call **_Activate** with _serviceWorkerRegistration_.
   3. Abort these steps.
-10. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
+9. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Queue a task to call **_Activate** with _serviceWorkerRegistration_.
 
 --

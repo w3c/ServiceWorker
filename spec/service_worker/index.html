@@ -823,6 +823,13 @@ The steps are:
         <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
       </ol>
     </li>
+    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+      <ol>
+        <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+        <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
+        <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+      </ol>
+    </li>
     <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
     <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
     <li>Return <var>promise</var>.</li>
@@ -850,10 +857,10 @@ The steps are:
           </ol>
         </li>
         <li>Let <var>fetchedScript</var> be the fetched script.</li>
-        <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-        <li>If <var>newestWorker</var> is not null, <var>newestWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
+        <li>Let <var>activeWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+        <li>If <var>activeWorker</var> is not null, and <var>activeWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>activeWorker</var>, then:
           <ol>
-            <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
+            <li>Resolve <var>promise</var> with <var>activeWorker</var>.</li>
             <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
@@ -921,12 +928,6 @@ The steps are:
     <dd>None</dd>
 </dl>
 <ol>
-    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
-      <ol>
-        <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-        <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-      </ol>
-    </li>
     <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to <var>serviceWorker</var>.</li>
     <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installing</code>.</li>
     <li>Fire <code>install</code> event on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
