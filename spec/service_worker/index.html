@@ -1,294 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Service Workers</title>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<link rel="stylesheet" href="../assets/styles/spec.css" type="text/css">
-<link rel="stylesheet" href="../assets/styles/prettify.css" type="text/css">
-<link rel="stylesheet" href="../assets/styles/third_party/W3C-ED.css" type="text/css" >
-<script src="../assets/scripts/bug-assist.js"></script>
-<script src="../assets/scripts/spec-assist.js"></script>
-<script src="../assets/scripts/prettify.js"></script>
-<!-- <meta name="bug.blocked" content="14968"> -->
-<meta name="bug.short_desc" content="[ServiceWorker]: ">
-<meta name="bug.product" content="WebAppsWG">
-<meta name="bug.component" content="ServiceWorker">
+  <title>Service Workers</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script
+    src="../assets/web-spec-framework/bower_components/platform/platform.js">
+  </script>
+  <link rel="import"
+      href="../assets/web-spec-framework/framework.html"/>
+  <!--
+  <link rel="stylesheet" href="../assets/styles/spec.css" type="text/css">
+  <link rel="stylesheet" href="../assets/styles/prettify.css" type="text/css">
+  <link rel="stylesheet" href="../assets/styles/third_party/W3C-ED.css" type="text/css" >
+  <script src="../assets/scripts/bug-assist.js"></script>
+  <script src="../assets/scripts/spec-assist.js"></script>
+  <script src="../assets/scripts/prettify.js"></script>
+  -->
+  <!-- <meta name="bug.blocked" content="14968"> -->
+  <meta name="bug.short_desc" content="[ServiceWorker]: ">
+  <meta name="bug.product" content="WebAppsWG">
+  <meta name="bug.component" content="ServiceWorker">
 </head>
-
 <body>
 
 <div class="head">
-
-<div class="logo">
+  <div class="logo">
     <a href="//www.w3.org/"><img width="72" height="48" src="//www.w3.org/Icons/w3c_home" alt="W3C"></a>
-</div>
+  </div>
 
-<h1>Service Workers</h1>
-<h2 id="editors-draft">W3C Editor's Draft</h2>
-<dl>
-<dt>This version</dt>
+  <h1>Service Workers</h1>
+  <h2 id="editors-draft">W3C Editor's Draft</h2>
+  <dl>
+  <dt>This version</dt>
     <dd><a href="https://github.com/slightlyoff/ServiceWorker/tree/master/spec/service_worker/index.html">https://github.com/slightlyoff/ServiceWorker/tree/master/spec/service_worker/index.html</a></dd>
-<dt>Latest editor's draft</dt>
+  <dt>Latest editor's draft</dt>
     <dd><a href="https://github.com/slightlyoff/ServiceWorker/tree/master/spec/service_worker/index.html">https://github.com/slightlyoff/ServiceWorker/tree/master/spec/service_worker/index.html</a></dd>
-<dt>Previous version</dt>
+  <dt>Previous version</dt>
     <dd><a href="http://www.w3.org/TR/service-workers/">http://www.w3.org/TR/service-workers/</a></dd>
-<dt>Revision history</dt>
+  <dt>Revision history</dt>
     <dd><a id="log" href="https://github.com/slightlyoff/ServiceWorker/commits/master">https://github.com/slightlyoff/ServiceWorker/commits/master</a></dd>
-<dt>Participate</dt>
+  <dt>Participate</dt>
     <dd>Discuss on <a href="http://lists.w3.org/Archives/Public/public-webapps/">public-webapps@w3.org</a> (<a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a>)</dd>
     <dd><a href="https://github.com/slightlyoff/ServiceWorker/issues">File bugs</a></dd>
-<dt>Editors</dt>
+  <dt>Editors</dt>
     <dd class="vcard"><span class="fn">Alex Russell</span>, <span class="org">Google</span>, &lt;<a class="email" href="mailto:slightlyoff@chromium.org">slightlyoff@chromium.org</a>&gt;</dd>
     <dd class="vcard"><span class="fn">Jungkee Song</span>, <span class="org">Samsung Electronics</span>, &lt;<a class="email" href="mailto:slightlyoff@chromium.org">jungkee.song@samsung.com</a>&gt;</dd>
-</dl>
+  </dl>
 
-<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2014 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p>
+  <p class="copyright">
+    <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2014 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&copy;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.
+  </p>
 
-<hr>
+  <hr>
 
-<h2 id="abstract">Abstract</h2>
+  <h2 id="abstract">Abstract</h2>
 
-<p>This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.</p>
+  <p>This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.</p>
 
-<p>The core of this system is an event-driven <a href="http://www.w3.org/TR/workers/">Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.</p>
+  <p>The core of this system is an event-driven <a href="http://www.w3.org/TR/workers/">Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.</p>
 
-<p>The Service Worker is a generic entry point for event-driven background processing in the Web Platform that is <a href="#extensibility">extensible by other specifications</a>.</p>
+  <p>The Service Worker is a generic entry point for event-driven background processing in the Web Platform that is <a href="#extensibility">extensible by other specifications</a>.</p>
 
-<h2 id="status">Status of This Document</h2>
+  <h2 id="status">Status of This Document</h2>
 
-<p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <abbr title="World Wide Web Consortium">W3C</abbr> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><abbr title="World Wide Web Consortium">W3C</abbr> technical reports index</a> at http://www.w3.org/TR/.</em></p>
+  <p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <abbr title="World Wide Web Consortium">W3C</abbr> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><abbr title="World Wide Web Consortium">W3C</abbr> technical reports index</a> at http://www.w3.org/TR/.</em></p>
 
-<p>This document was published by the <a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a> as an Editor's Draft. If you wish to make comments regarding this document, please send them to <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a href="mailto:public-webapps-request@w3.org?subject=subscribe">subscribe</a>, <a href="http://lists.w3.org/Archives/Public/public-webapps/">archives</a>). All feedback is welcome.</p><p>Publication as an Editor's Draft does not imply endorsement by the <abbr title="World Wide Web Consortium">W3C</abbr> Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.</p>
+  <p>This document was published by the <a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a> as an Editor's Draft. If you wish to make comments regarding this document, please send them to <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a href="mailto:public-webapps-request@w3.org?subject=subscribe">subscribe</a>, <a href="http://lists.w3.org/Archives/Public/public-webapps/">archives</a>). All feedback is welcome.</p><p>Publication as an Editor's Draft does not imply endorsement by the <abbr title="World Wide Web Consortium">W3C</abbr> Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.</p>
 
-<p>This document was produced by a group operating under the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <abbr title="World Wide Web Consortium">W3C</abbr> Patent Policy</a>. <abbr title="World Wide Web Consortium">W3C</abbr> maintains a <a href="http://www.w3.org/2004/01/pp-impl/45559/status" rel="disclosure">public list of any patent disclosures</a> made in connection with the deliverables of the group; that page also includes instructions for disclosing a patent. An individual who has actual knowledge of a patent which the individual believes contains <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential Claim(s)</a> must disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the <abbr title="World Wide Web Consortium">W3C</abbr> Patent Policy</a>.</p>
-
+  <p>This document was produced by a group operating under the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <abbr title="World Wide Web Consortium">W3C</abbr> Patent Policy</a>. <abbr title="World Wide Web Consortium">W3C</abbr> maintains a <a href="http://www.w3.org/2004/01/pp-impl/45559/status" rel="disclosure">public list of any patent disclosures</a> made in connection with the deliverables of the group; that page also includes instructions for disclosing a patent. An individual who has actual knowledge of a patent which the individual believes contains <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential Claim(s)</a> must disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the <abbr title="World Wide Web Consortium">W3C</abbr> Patent Policy</a>.</p>
 </div>
 
-<section class="toc">
-<h2 id="toc">Table of Contents</h2>
-<ol>
-    <li><a href="#introduction">Introduction</a>
-    <ol>
-        <li><a href="#about">About this Document</a></li>
-        <li><a href="#dependencies">Dependencies</a></li>
-        <li><a href="#motivations">Motivations</a></li>
-        <li><a href="#offline-example">Example: Offline Web Applications</a></li>
-    </ol></li>
-
-    <li><a href="#concepts">Concepts</a></li>
-
-    <li><a href="#document-context">Document Context</a>
-    <ol>
-        <li><a href="#service-worker-obj"><code>ServiceWorker</code></a></li>
-        <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a>
-        <ol>
-            <li><a href="#navigator-service-worker-active"><code>active</code></a></li>
-            <li><a href="#navigator-service-worker-getAll"><code>getAll()</code></a></li>
-            <li><a href="#navigator-service-worker-register"><code>register()</code></a></li>
-            <li><a href="#navigator-service-worker-unregister"><code>unregister()</code></a></li>
-            <li><a href="#navigator-service-worker-oninstall"><code>oninstall</code></a></li>
-            <li><a href="#navigator-service-worker-oninstallend"><code>oninstallend</code></a></li>
-            <li><a href="#navigator-service-worker-onactivate"><code>onactivate</code></a></li>
-            <li><a href="#navigator-service-worker-onactivateend"><code>onactivateend</code></a></li>
-            <li><a href="#navigator-service-worker-onreloadpage"><code>onreloadpage</code></a></li>
-            <li><a href="#navigator-service-worker-onerror"><code>onerror</code></a></li>
-        </ol></li>
-    </ol></li>
-
-    <li><a href="#execution-context">Execution Context</a>
-    <ol>
-        <li><a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a>
-        <ol>
-            <li><a href="#service-worker-global-scope-caches"><code>caches</code></a></li>
-            <li><a href="#service-worker-global-scope-clients"><code>clients</code></a></li>
-            <li><a href="#service-worker-global-scope-scope"><code>scope</code></a></li>
-            <li><a href="#service-worker-global-scope-fetch"><code>fetch(request)</code></a></li>
-            <li><a href="#service-worker-global-scope-update"><code>update()</code></a></li>
-            <li><a href="#service-worker-global-scope-unregister"><code>unregister()</code></a></li>
-            <li><a href="#service-worker-global-scope-onmessage"><code>onmessage</code></a></li>
-        </ol></li>
-        <li><a href="#request-objects"><code>Request</code> Objects</a></li>
-        <li><a href="#response-objects"><code>Response</code> Objects</a>
-        <ol>
-            <li><a href="#abstract-response"><code>AbstractResponse</code></a></li>
-            <li><a href="#response"><code>Response</code></a></li>
-            <li><a href="#opaque-response"><code>OpaqueResponse</code></a></li>
-            <li><a href="#cors-response"><code>CORSResponse</code></a></li>
-        </ol>
-        </li>
-        <li><a href="#fetch"><code>fetch()</code></a></li>
-        <li><a href="#cache-objects">Caches</a>
-        <ol>
-            <li><a href="#cache-lifetimes">Cache Lifetime Semantics</a></li>
-            <li><a href="#cache"><code>Cache</code></a></li>
-            <li><a href="#cache-list"><code>CacheList</code></a></li>
-        </ol>
-        </li>
-        <li><a href="#client"><code>Client</code></a>
-            <ol><li><a href="#service-worker-clients"><code>ServiceWorkerClients</code></a></li></ol>
-        </li>
-        <li><a href="#events">Events</a>
-        <ol>
-            <li><a href="#install-phase-event"><code>InstallPhaseEvent</code></a></li>
-            <li><a href="#oninstall"><code>oninstall</code></a>
-                <ol><li><a href="#install-event"><code>InstallEvent</code></a></li></ol>
-            </li>
-            <li><a href="#onactivate"><code>onactivate</code></a>
-                <ol><li><a href="#activate-event"><code>ActivateEvent</code></a></li></ol>
-            </li>
-            <li><a href="#onfetch"><code>onfetch</code></a>
-                <ol><li><a href="#fetch-event"><code>FetchEvent</code></a></li></ol>
-            </li>
-        </ol></li>
-    </ol></li>
-
-    <li><a href="#security-considerations">Security Considerations</a>
-    <ol>
-        <li><a href="#origin-relativity">Origin Relativity</a></li>
-        <li><a href="#x-origin-resources">Cross-Origin Resources & CORS</a></li>
-    </ol></li>
-    <li><a href="#storage-considerations">Storage Considerations</a></li>
-    <li><a href="#extensibility">Extensibility</a></li>
-    <li><a href="#appendix-a">Appendix A: Algorithms</a></li>
-    <li><a href="#acknowledgements" class="no-number">Acknowledgements</a></li>
-
-</ol>
-
-</section>
-
-<section class="spec">
-
-<h2 id="introduction">Introduction</h2>
-
-<h3 id="about">About this Document</h3>
-
-<p>All diagrams, examples, notes, are non-normative, as well as sections explicitly marked as non-normative. Everything else in this specification is normative.</p>
-
-<p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative parts of this document are to be interpreted as described in <a href="http://dev.w3.org/2006/xbl2/#refsRFC2119">RFC2119</a>. For readability, these words do not appear in all uppercase letters in this specification.</p>
-
-<p>Any point, at which a conforming UA must make decisions about the state or reaction to the state of the conceptual model, is captured as <a href="http://en.wikipedia.org/wiki/Algorithm">algorithm</a>. The algorithms are defined in terms of processing equivalence. The <dfn id="dfn-processing-equivalence">processing equivalence</dfn> is a constraint imposed on the algorithm implementors, requiring the output of the both UA-implemented and the specified algorithm to be exactly the same for all inputs.</p>
-
-<h3 id="dependencies">Dependencies</h3>
-
-<p>This document relies on the following specifications:</p>
-
-<ul>
-    <li><a href="http://www.w3.org/TR/workers/">Web Workers</a></li>
-    <li><a href="http://fetch.spec.whatwg.org/">Fetch Living Standard</a></li>
-    <li><a href="http://dom.spec.whatwg.org/">DOM Living Standard</a></li>
-    <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML Living Standard</a></li>
-    <li><a href="http://ecma-international.org/ecma-262/5.1/">ECMAScript Language Specification</a></li>
-    <li><a href="http://www.w3.org/TR/WebIDL/">Web IDL</a></li>
-    <li><a href="http://www.w3.org/TR/IndexedDB/">Indexed DB</a></li>
-    <li><a href="http://www.w3.org/TR/quota-api/">Quota Management API</a></li>
-    <li><a href="http://www.w3.org/TR/notifications/">Web Notifications</a></li>
-    <li><a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a></li>
-</ul>
-
-<h3 id="motivations">Motivations</h3>
-
-<div class="informative">
-<p>Web Applications traditionally assume that the network is reachable. This assumption pervades the platform. HTML documents are loaded over HTTP and traditionally fetch all of their sub-resources via subsequent HTTP requests. This places web content at a disadvantage versus other technology stacks.<p>
-
-<p>The Service Worker is designed first to redress this balance by providing a Web Worker context, which can be started by a runtime when navigations are about to occur. This event-driven worker is registered against an origin and a path (or pattern), meaning it can be consulted when navigations occur to that location. Events that correspond to network requests are dispatched to the worker and the responses generated by the worker may over-ride default network stack behavior. This puts the Service Worker, conceptually, between the network and a document renderer, allowing the Service Worker to provide content for documents, even while offline.</p>
-
-<p>Web developers familiar with previous attempts to solve the offline problem have reported a deficit of flexibility in those solutions. As a result, the Service Worker is highly procedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep Service Workers responsive in the face of a single-threaded execution model. As a result, APIs exposed by Service Workers are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.</p>
-
-<p>Developers using the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the Service Worker is that errors should <em>always</em> be recoverable. Many details of the update process of Service Workers are designed to avoid these hazards.</p>
-
-<p>Service Workers are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a href="http://www.w3.org/TR/workers/#sharedworker">Shared Workers</a> and <a href="http://developer.chrome.com/extensions/background_pages.html">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, Service Workers bear more than a passing resemblance to <a href="http://developer.chrome.com/extensions/event_pages.html">Chrome Event Pages</a>, the successor to Background Pages. Service Workers may be started by user agents <em>without an attached document</em> and may be killed by the user agent at nearly any time. Conceptually, Service Workers can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that Service Workers may be started and killed many times a second.</p>
-
-<p>Service Workers are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).</p>
-</div>
-
-<h2 id="concepts">Concepts</h2>
-
-<p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#docment-control">control</a>.</p>
-
-<p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
-
-<p><a href="#algorithm-registration">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-scope">url scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#algorithm-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
-
-<p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#algorithm-matching">longest-prefix wildcard matching</a>.</p>
-
-<p>A document is "<dfn id="doucment-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the doucment's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with controlled documents.</p>
-
-<p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#oninstall">oninstall</a></code> and <code><a href="#onactivate">onactivate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
-
-<p>Registered Service Workers do not immediately begin to receive <a href="#functional-events">functional events</a> for documents. Registration is the first step in installation, which proceeds through several phases:</p>
-
-<ol>
-    <li><em>Fetch</em>:
-    <br>
-    The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
-    <li><em>Startup</em>:
-    <br>
-    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
-    </li>
-    <li><em><code>oninstall</code></em>:
-    <br>
-    Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#oninstall"><code>oninstall</code></a>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
-    <br><br>
-    Service Workers are not considered "installed" until the <code>oninstall</code> event completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
-    <br><br>
-    If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be <dfn id="successfully-installed">successfully installed</dfn>.
-    <br><br>
-    If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
-    <br><br>
-    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-scope">url scope</a>.
-    </li>
-    <li><em><code>onactivate</code></em>:
-    <br>
-    After successful installation and just prior to receiving <a href="#functional-events">functional events</a> (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
-    <br><br>
-        <div class="note">Like <code>oninstall</code>, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. Performance sensitive events may be queued and will be delayed until successful completion of <code>onctivate</code>.</div>
-    </li>
-</ol>
-
-<p>User Agents may request updated Service Worker scripts "in the background" while controlled documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle <a href="#functional-events">functional events</a>. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the <a href="#url-scope">url scope</a>) so long as any documents it controlled remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
-
-<p>Once a service worker becomes active, the user agent may dispatch <a href="#functional-events">functional events</a>. These events model various user-agent generated operations; for example the <code><a href="#onfetch">onfetch</a></code> event handling HTTP requests.</p>
-
+<spec-toc></spec-toc>
 
 <!--
-<h3 id="offline-example">Example: Offline Web Applications</h3>
+<ol>
+  <li><a href="#introduction">Introduction</a>
+  <ol>
+    <li><a href="#about">About this Document</a></li>
+    <li><a href="#dependencies">Dependencies</a></li>
+    <li><a href="#motivations">Motivations</a></li>
+    <li><a href="#offline-example">Example: Offline Web Applications</a></li>
+  </ol></li>
 
-<pre><code class="prettyprint">
-// TODO(slightlyoff)
-</code></pre>
+  <li><a href="#concepts">Concepts</a></li>
 
-<p></p>
+  <li><a href="#document-context">Document Context</a>
+  <ol>
+    <li><a href="#service-worker-obj"><code>ServiceWorker</code></a></li>
+    <li><a href="#navigator-service-worker"><code>navigator.serviceWorker</code></a>
+    <ol>
+      <li><a href="#navigator-service-worker-active"><code>active</code></a></li>
+      <li><a href="#navigator-service-worker-getAll"><code>getAll()</code></a></li>
+      <li><a href="#navigator-service-worker-register"><code>register()</code></a></li>
+      <li><a href="#navigator-service-worker-unregister"><code>unregister()</code></a></li>
+      <li><a href="#navigator-service-worker-oninstall"><code>oninstall</code></a></li>
+      <li><a href="#navigator-service-worker-oninstallend"><code>oninstallend</code></a></li>
+      <li><a href="#navigator-service-worker-onactivate"><code>onactivate</code></a></li>
+      <li><a href="#navigator-service-worker-onactivateend"><code>onactivateend</code></a></li>
+      <li><a href="#navigator-service-worker-onreloadpage"><code>onreloadpage</code></a></li>
+      <li><a href="#navigator-service-worker-onerror"><code>onerror</code></a></li>
+    </ol></li>
+  </ol></li>
+
+  <li><a href="#execution-context">Execution Context</a>
+  <ol>
+    <li><a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a>
+    <ol>
+      <li><a href="#service-worker-global-scope-caches"><code>caches</code></a></li>
+      <li><a href="#service-worker-global-scope-clients"><code>clients</code></a></li>
+      <li><a href="#service-worker-global-scope-scope"><code>scope</code></a></li>
+      <li><a href="#service-worker-global-scope-fetch"><code>fetch(request)</code></a></li>
+      <li><a href="#service-worker-global-scope-update"><code>update()</code></a></li>
+      <li><a href="#service-worker-global-scope-unregister"><code>unregister()</code></a></li>
+      <li><a href="#service-worker-global-scope-onmessage"><code>onmessage</code></a></li>
+    </ol></li>
+    <li><a href="#request-objects"><code>Request</code> Objects</a></li>
+    <li><a href="#response-objects"><code>Response</code> Objects</a>
+    <ol>
+      <li><a href="#abstract-response"><code>AbstractResponse</code></a></li>
+      <li><a href="#response"><code>Response</code></a></li>
+      <li><a href="#opaque-response"><code>OpaqueResponse</code></a></li>
+      <li><a href="#cors-response"><code>CORSResponse</code></a></li>
+    </ol>
+    </li>
+    <li><a href="#fetch"><code>fetch()</code></a></li>
+    <li><a href="#cache-objects">Caches</a>
+    <ol>
+      <li><a href="#cache-lifetimes">Cache Lifetime Semantics</a></li>
+      <li><a href="#cache"><code>Cache</code></a></li>
+      <li><a href="#cache-list"><code>CacheList</code></a></li>
+    </ol>
+    </li>
+    <li><a href="#client"><code>Client</code></a>
+      <ol><li><a href="#service-worker-clients"><code>ServiceWorkerClients</code></a></li></ol>
+    </li>
+    <li><a href="#events">Events</a>
+    <ol>
+      <li><a href="#install-phase-event"><code>InstallPhaseEvent</code></a></li>
+      <li><a href="#oninstall"><code>oninstall</code></a>
+        <ol><li><a href="#install-event"><code>InstallEvent</code></a></li></ol>
+      </li>
+      <li><a href="#onactivate"><code>onactivate</code></a>
+        <ol><li><a href="#activate-event"><code>ActivateEvent</code></a></li></ol>
+      </li>
+      <li><a href="#onfetch"><code>onfetch</code></a>
+        <ol><li><a href="#fetch-event"><code>FetchEvent</code></a></li></ol>
+      </li>
+    </ol></li>
+  </ol></li>
+
+  <li><a href="#security-considerations">Security Considerations</a>
+  <ol>
+    <li><a href="#origin-relativity">Origin Relativity</a></li>
+    <li><a href="#x-origin-resources">Cross-Origin Resources & CORS</a></li>
+  </ol></li>
+  <li><a href="#storage-considerations">Storage Considerations</a></li>
+  <li><a href="#extensibility">Extensibility</a></li>
+  <li><a href="#appendix-a">Appendix A: Algorithms</a></li>
+  <li><a href="#acknowledgements" class="no-number">Acknowledgements</a></li>
+
+</ol>
 -->
 
-<h2 id="document-context">Document Context</h2>
 
-<h3 id="service-worker-obj"><code>ServiceWorker</code></h3>
+<spec-clause id="introduction">
+  <h1>Introduction</h1>
 
-<p></p>
-<pre><code>[Constructor()] // no-op constructor
-interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
-  readonly attribute DOMString scope;
-  readonly attribute DOMString url;
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready();
+  <spec-section id="about">
+    <h1>About this Document</h1>
 
-  // event
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> ondeactivate;
-};</code></pre>
+    <p>All diagrams, examples, notes, are non-normative, as well as sections explicitly marked as non-normative. Everything else in this specification is normative.</p>
 
-<p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-active"><code>navigator.serviceWorker.active</code></a>) will provide meaningful functionality.</p>
+    <p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative parts of this document are to be interpreted as described in <a href="http://dev.w3.org/2006/xbl2/#refsRFC2119">RFC2119</a>. For readability, these words do not appear in all uppercase letters in this specification.</p>
 
-<p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>http://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
+    <p>Any point, at which a conforming UA must make decisions about the state or reaction to the state of the conceptual model, is captured as <a href="http://en.wikipedia.org/wiki/Algorithm">algorithm</a>. The algorithms are defined in terms of processing equivalence. The <dfn id="dfn-processing-equivalence">processing equivalence</dfn> is a constraint imposed on the algorithm implementors, requiring the output of the both UA-implemented and the specified algorithm to be exactly the same for all inputs.</p>
+  </spec-section>
 
-<pre><code class="prettyprint">// Script on the page http://example.com/app.html
-navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</code></pre>
+  <spec-section id="dependencies">
+    <h1>Dependencies</h1>
 
-<p>The value of <code>navigator.serviceWorker.active.scope</code> will be <code>"*"</code>.</p>
+    <p>This document relies on the following specifications:</p>
 
-<p>Similarly, in this example, the value of <code>navigator.serviceWorker.active.url</code> will be <code>"http://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+    <ul>
+      <li><a href="http://www.w3.org/TR/workers/">Web Workers</a></li>
+      <li><a href="http://fetch.spec.whatwg.org/">Fetch Living Standard</a></li>
+      <li><a href="http://dom.spec.whatwg.org/">DOM Living Standard</a></li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML Living Standard</a></li>
+      <li><a href="http://ecma-international.org/ecma-262/5.1/">ECMAScript Language Specification</a></li>
+      <li><a href="http://www.w3.org/TR/WebIDL/">Web IDL</a></li>
+      <li><a href="http://www.w3.org/TR/IndexedDB/">Indexed DB</a></li>
+      <li><a href="http://www.w3.org/TR/quota-api/">Quota Management API</a></li>
+      <li><a href="http://www.w3.org/TR/notifications/">Web Notifications</a></li>
+      <li><a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a></li>
+    </ul>
+  </spec-section>
 
-<p>The <code>ondeactivate</code> event is fired in a turn following <a href="#replace-method">replacement</a> of the <code>ServiceWorker</code>.</p>
+  <spec-section class="informative" id="motivations">
+    <h1>Motivations</h1>
 
-<h3 id="navigator-service-worker"><code>navigator.serviceWorker</code></h3>
+    <p>Web Applications traditionally assume that the network is reachable. This assumption pervades the platform. HTML documents are loaded over HTTP and traditionally fetch all of their sub-resources via subsequent HTTP requests. This places web content at a disadvantage versus other technology stacks.<p>
+
+    <p>The Service Worker is designed first to redress this balance by providing a Web Worker context, which can be started by a runtime when navigations are about to occur. This event-driven worker is registered against an origin and a path (or pattern), meaning it can be consulted when navigations occur to that location. Events that correspond to network requests are dispatched to the worker and the responses generated by the worker may over-ride default network stack behavior. This puts the Service Worker, conceptually, between the network and a document renderer, allowing the Service Worker to provide content for documents, even while offline.</p>
+
+    <p>Web developers familiar with previous attempts to solve the offline problem have reported a deficit of flexibility in those solutions. As a result, the Service Worker is highly procedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep Service Workers responsive in the face of a single-threaded execution model. As a result, APIs exposed by Service Workers are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.</p>
+
+    <p>Developers using the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the Service Worker is that errors should <em>always</em> be recoverable. Many details of the update process of Service Workers are designed to avoid these hazards.</p>
+
+    <p>Service Workers are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a href="http://www.w3.org/TR/workers/#sharedworker">Shared Workers</a> and <a href="http://developer.chrome.com/extensions/background_pages.html">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, Service Workers bear more than a passing resemblance to <a href="http://developer.chrome.com/extensions/event_pages.html">Chrome Event Pages</a>, the successor to Background Pages. Service Workers may be started by user agents <em>without an attached document</em> and may be killed by the user agent at nearly any time. Conceptually, Service Workers can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that Service Workers may be started and killed many times a second.</p>
+
+    <p>Service Workers are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).</p>
+  </spec-clause>
+
+  <spec-clause id="concepts">
+    <h1>Concepts</h1>
+
+    <p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#docment-control">control</a>.</p>
+
+    <p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
+
+    <p><a href="#algorithm-registration">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-scope">url scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#algorithm-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
+
+    <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#algorithm-matching">longest-prefix wildcard matching</a>.</p>
+
+    <p>A document is "<dfn id="doucment-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the doucment's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with controlled documents.</p>
+
+    <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#oninstall">oninstall</a></code> and <code><a href="#onactivate">onactivate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
+
+    <p>Registered Service Workers do not immediately begin to receive <a href="#functional-events">functional events</a> for documents. Registration is the first step in installation, which proceeds through several phases:</p>
+
+    <ol>
+      <li><em>Fetch</em>:
+      <br>
+      The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+      <li><em>Startup</em>:
+      <br>
+      If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
+      </li>
+      <li><em><code>oninstall</code></em>:
+      <br>
+      Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#oninstall"><code>oninstall</code></a>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
+      <br><br>
+      Service Workers are not considered "installed" until the <code>oninstall</code> event completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
+      <br><br>
+      If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be <dfn id="successfully-installed">successfully installed</dfn>.
+      <br><br>
+      If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
+      <br><br>
+      Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-scope">url scope</a>.
+      </li>
+      <li><em><code>onactivate</code></em>:
+      <br>
+      After successful installation and just prior to receiving <a href="#functional-events">functional events</a> (e.g., <code><a href="#onfetch">onfetch</a></code>), the <code>onactivate</code> event is dispatched. The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
+      <br><br>
+      <div class="note">Like <code>oninstall</code>, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. Performance sensitive events may be queued and will be delayed until successful completion of <code>onctivate</code>.</div>
+      </li>
+    </ol>
+
+    <p>User Agents may request updated Service Worker scripts "in the background" while controlled documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle <a href="#functional-events">functional events</a>. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the <a href="#url-scope">url scope</a>) so long as any documents it controlled remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
+
+    <p>Once a service worker becomes active, the user agent may dispatch <a href="#functional-events">functional events</a>. These events model various user-agent generated operations; for example the <code><a href="#onfetch">onfetch</a></code> event handling HTTP requests.</p>
+
+  </spec-section>
+
+  <!--
+  <spec-section>
+  <h1 id="offline-example">Example: Offline Web Applications</h1>
+
+  <pre><code class="prettyprint">
+  // TODO(slightlyoff)
+  </code></pre>
+
+  <p></p>
+  </spec-section>
+-->
+
+</spec-clause>
+
+<spec-clause id="document-context">
+<h1>Document Context</h1>
+
+<spec-section id="service-worker-obj">
+  <h1><code>ServiceWorker</code></h1>
+
+  <p></p>
+  <pre><code>[Constructor()] // no-op constructor
+  interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
+    readonly attribute DOMString scope;
+    readonly attribute DOMString url;
+    <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready();
+
+    // event
+    attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> ondeactivate;
+  };</code></pre>
+
+  <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-active"><code>navigator.serviceWorker.active</code></a>) will provide meaningful functionality.</p>
+
+  <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>http://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
+
+  <pre><code class="prettyprint">// Script on the page http://example.com/app.html
+  navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</code></pre>
+
+  <p>The value of <code>navigator.serviceWorker.active.scope</code> will be <code>"*"</code>.</p>
+
+  <p>Similarly, in this example, the value of <code>navigator.serviceWorker.active.url</code> will be <code>"http://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+
+  <p>The <code>ondeactivate</code> event is fired in a turn following <a href="#replace-method">replacement</a> of the <code>ServiceWorker</code>.</p>
+</spec-section>
+
+<spec-section id="navigator-service-worker">
+<h1><code>navigator.serviceWorker</code></h1>
 
 <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with service workers that are (or will become) active for the current document.</p>
 
@@ -349,10 +369,13 @@ interface <dfn id="document-install-event-interface" title="DocumentInstallEvent
 <h4 id="navigator-service-worker-onactivateend"><code>onactivateend</code></h4>
 <h4 id="navigator-service-worker-onreloadpage"><code>onreloadpage</code></h4>
 <h4 id="navigator-service-worker-onerror"><code>onerror</code></h4>
+</spec-clause>
 
-<h2 id="execution-context">Execution Context</h2>
+<spec-clause id="execution-context">
+<h1>Execution Context</h1>
 
-<h3 id="service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></h3>
+<spec-section id="service-worker-global-scope">
+<h1><code>ServiceWorkerGlobalScope</code></h1>
 
 <pre><code>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/mkHcfYglobalscope">WorkerGlobalScope</a> {
@@ -393,7 +416,9 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 <h4 id="service-worker-global-scope-unregister"><code>unregister()</code></h4>
 <h4 id="service-worker-global-scope-onmessage"><code>onmessage</code></h4>
 
-<h3 id="request-objects"><code>Request</code> Objects</h3>
+</spec-section>
+<spec-section id="request-objects">
+<h1><code>Request</code> Objects</h1>
 
 <pre><code>
 interface <dfn id="request-promise-interface" title="RequestPromise">RequestPromise</dfn> : <a href="http://goo.gl/3TobQS">Promise</a> {
@@ -437,7 +462,9 @@ interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
 };
 </code></pre>
 
-<h3 id="response-objects"><code>Response</code> Objects</h3>
+</spec-section>
+<spec-section id="response-objects">
+<h1><code>Response</code> Objects</h1>
 
 <p><code>Resposne</code> objects model HTTP responses.</p>
 
@@ -510,20 +537,20 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
 
 
 
-<h3 id="fetch"><code>fetch()</code></h3>
+</spec-section>
 
+<spec-section id="fetch">
+  <h1><code>fetch()</code></h1>
+</spec-section>
+<spec-section id="cache-objects">
+  <h1>Caches</h1>
 
+  <spec-section id="cache-lifetimes">
+    <h1>Understanding Cache Lifetimes</h1>
+  </spec-section>
 
-<h3 id="cache-objects">Caches</h3>
-
-
-
-<h4 id="cache-lifetimes">Understanding Cache Lifetimes</h4>
-
-
-
-<h4 id="cache"><code>Cache</code></h4>
-
+  <spec-section id="cache">
+    <h1 id="cache"><code>Cache</code></h1>
 <pre><code>
 [Constructor((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>)]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
@@ -538,8 +565,9 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; ready();
 };
 </code></pre>
-
-<h4 id="cache-list"><code>CacheList</code></h4>
+  </spec-section>
+  <spec-section id="cache-list">
+    <h1><code>CacheList</code></h1>
 
 <pre><code>
 [<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, <a href="#cache-interface">Cache</a>)]
@@ -556,9 +584,11 @@ interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
 };
 </code></pre>
 
-<p><span class="fixme"><strong>Issue</strong>: the following issues should be addressed in the WebIDL specification: the methods <code>keys()</code> and <code>values()</code> are not allowed to be declared as interface members of an interface declared with the [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute; the return type of <code>get(key)</code>, <code>has(key)</code>, <code>set(key, val)</code>, <code>clear()</code>, <code>delete(key)</code> is meant to be declared as pre-defined IDL fragment. Namely, the interface declared with [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute cannot fully support creating asynchronous map objects.</span></p>
+  <p><span class="fixme"><strong>Issue</strong>: the following issues should be addressed in the WebIDL specification: the methods <code>keys()</code> and <code>values()</code> are not allowed to be declared as interface members of an interface declared with the [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute; the return type of <code>get(key)</code>, <code>has(key)</code>, <code>set(key, val)</code>, <code>clear()</code>, <code>delete(key)</code> is meant to be declared as pre-defined IDL fragment. Namely, the interface declared with [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute cannot fully support creating asynchronous map objects.</span></p>
 
-<h3 id="client"><code>Client</code></h3>
+</spec-section>
+<spec-section id="client">
+  <h1><code>Client</code></h1>
 
 <pre><code>[Constructor()] // no-op constructor
 interface <dfn id="client-interface" title="Client">Client</dfn> {
@@ -568,11 +598,13 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 };
 </code></pre>
 
-<p>The <code>Client</code> interface represents the window or the worker (defined as client) that is controlled by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
+  <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is controlled by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
 
-<p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
+  <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
 
-<h4 id="service-worker-clients"><code>ServiceWorkerClients</code></h4>
+  </spec-section>
+  <spec-section id="service-worker-clients">
+    <h1><code>ServiceWorkerClients</code></h1>
 
 <pre><code>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
@@ -581,23 +613,29 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 };
 </code></pre>
 
-<p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are controlled by this Service Worker.</p>
+    <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are controlled by this Service Worker.</p>
+  </spec-section>
+</spec-section>
 
-<h3 id="events">Events</h3>
+<spec-section id="events">
+<h1>Events</h1>
 
-<h4 id="install-phase-event"><code>InstallPhaseEvent</code></h4>
+  <spec-section id="install-phase-event">
+    <h1><code>InstallPhaseEvent</code></h1>
 
 <pre><code>
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 </code></pre>
+  </spec-section>
 
-<h4 id="oninstall"><code>oninstall</code></h4>
+  <spec-section id="oninstall">
+    <h1><code>oninstall</code></h1>
 
 
-
-<h5 id="install-event"><code>InstallEvent</code></h5>
+    <spec-section id="install-event">
+      <h1 id="install-event"><code>InstallEvent</code></h1>
 
 <pre><code>
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
@@ -606,34 +644,37 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
 };
 </code></pre>
+    </spec-section>
+    <spec-section id="replace-method">
+      <h1><code>event.replace()</code></h1>
 
-<h5 id="replace-method"><code>event.replace()</code></h5>
-<p><code>replace()</code> interacts with <code>waitUntil</code> method in the following way:</p>
-<ul>
-  <li>Successful installation can be delayed by <code>waitUntil</code>, perhaps by subsequent event handlers.</li>
-  <li>Replacement only happens upon successful installation</li>
-  <li>Therefore, replacement of the <a href="#FIXME">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
-</ul>
+      <p><code>replace()</code> interacts with <code>waitUntil</code> method in the following way:</p>
+      <ul>
+        <li>Successful installation can be delayed by <code>waitUntil</code>, perhaps by subsequent event handlers.</li>
+        <li>Replacement only happens upon successful installation</li>
+        <li>Therefore, replacement of the <a href="#FIXME">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
+      </ul>
+    </spec-section>
+    <spec-section id="reloadall-method">
+      <h1 id="reloadall-method"><code>event.reloadAll()</code></h1>
 
-<h5 id="reloadall-method"><code>event.reloadAll()</code></h5>
+      <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. Each document dispatches <code>onreloadpage</code> against their <code>navigator.serviceWorker</code> object. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
 
-<p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. Each document dispatches <code>onreloadpage</code> against their <code>navigator.serviceWorker</code> object. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
+      <p>If the group-reload is canceled <!-- FIXME(slightlyoff) --></p>
+    </spec-section>
+  </spec-section>
+  <spec-section id="onactivate">
+    <h1><code>onactivate</code></h1>
 
-<p>If the group-reload is canceled</p>
+    <spec-section id="activate-event">
+      <h1><code>ActivateEvent</code></h1>
+    </spec-section>
+  </spec-section>
+  <spec-section id="onfetch">
+    <h1><code>onfetch</code></h1>
 
-<h4 id="onactivate"><code>onactivate</code></h4>
-
-
-
-<h5 id="activate-event"><code>ActivateEvent</code></h5>
-
-
-
-<h4 id="onfetch"><code>onfetch</code></h4>
-
-
-
-<h5 id="fetch-event"><code>FetchEvent</code></h5>
+    <spec-section id="fetch-event">
+      <h1><code>FetchEvent</code></h1>
 
 <pre><code>
 [Constructor]
@@ -660,619 +701,563 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     "navigate"
 };
 </code></pre>
+    </spec-section>
+    <spec-section  id="respond-with-method">
+      <h1><code>event.respondWith(r)</code></h1>
 
-<h5 id="respond-with-method"><code>event.respondWith(r)</code></h5>
-<p>The <var>r</var> argument must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for x-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
+      <p>The <var>r</var> argument must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for x-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
+    </spec-section>
+    <spec-section id="is-reload-attribute">
+      <h1><code>event.isReload</code></h1>
 
-<h5 id="is-reload-attribute"><code>event.isReload</code></h5>
-<p>Returns true if <var>event</var> was dispatched with the user's intention for the page reload, and false otherwise. Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
+      <p>Returns true if <var>event</var> was dispatched with the user's intention for the page reload, and false otherwise. Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
+    </spec-section>
+  </spec-section>
+</spec-section>
+</spec-clause>
 
-<h2 id="security-considerations">Security Considerations</h2>
+<spec-clause id="security-considerations">
+  <h1>Security Considerations</h1>
 
+  <spec-section id="origin-relativity">
+    <h1>Origin Relativity</h1>
+  </spec-section>
 
+  <spec-section id="x-origin-resources">
+    <h1>Cross-Origin Resources &amp; CORS</h1>
+  </spec-section>
+</spec-clause>
 
-<h3 id="origin-relativity">Origin Relativity</h3>
+<spec-clause id="storage-considerations">
+  <h1>Storage Considerations</h1>
+</spec-clause>
 
+<spec-clause id="extensibility">
+  <h1>Extensibility</h1>
+</spec-clause>
 
+<spec-clause id="appendix-a">
+  <h1>Appendix A: Algorithms</h1>
 
-<h3 id="x-origin-resources">Cross-Origin Resources &amp; CORS</h3>
+  <p class="note">Underscored functions and attributes are UA-internal properties.</li>
+  </p>
 
+  <spec-section id="registration-algorithm">
+    <h1>Registration</h1>
 
+    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
 
-<h2 id="storage-considerations">Storage Considerations</h2>
-
-
-
-<h2 id="extensibility">Extensibility</h2>
-
-
-
-<h2 id="appendix-a">Appendix A: Algorithms</h2>
-
-<p class="note">Underscored functions and attributes are UA-internal properties.</li>
-</p>
-
-<h3 id="registration-algorithm">Registration</h3>
-
-<p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
-
-<!--
-<div class="informative">
-<p>The following pseudo-code outlines the algorithm somewhat more tersely than the long-form prose steps outlined below. Functions whose names begin with "_" are not defined and are intended to operate in the obvious way with regards to their linked algorithms.</p>
-
-<pre><code class="prettyprint">
-navigator.serviceWorker.register = function(url, options) {
-    var currentURL = new URL(window.location, document.baseURI);
-    var outcome = new Promise()
-}
-</code></pre>
-</div>
- -->
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>script</var>, the URL of the script to register; a string</dd>
-    <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-<dt>Output</dt>
-    <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-</dl>
-<ol>
-    <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Return <var>promise</var>.</li>
-    <li>Run the following steps asynchronously:
-      <ol>
-        <li>Let <var>scope</var> be <var>scope</var> resolved against the document url.</li>
-        <li>Let <var>script</var> be <var>script</var> resolved against the document url.</li>
-        <li>If the origin of <var>script</var> does not match the document's origin, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>If the origin of <var>scope</var> does not match the document's origin, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
-        <li>If <var>serviceWorkerRegistration</var> is not null and <var>script</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, then:
-          <ol>
-            <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
-              <ol>
-                <li>Resolve <var>promise</var> with <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-            <li>Else,
-              <ol>
-                <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-        <li>If <var>serviceWorkerRegistration</var> is null, then:
-          <ol>
-            <li>Let <var>serviceWorkerRegistration</var> be a newly-created <a href="#FIXME">_ServiceWorkerRegistration</a> object.</li>
-            <li>Set <var>serviceWorkerRegistration</var> to the value of key <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>scope</var> to <var>scope</var>.</li>
-          </ol>
-        </li>
-        <li>Set <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> to <var>script</var>.</li>
-        <li>Resolve <var>promise</var> with the result of running the <a href="#update-algorithm">_Update algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-      </ol>
-    </li>
-</ol>
-<!--
-The steps are:
-    * check the script URL for same-origin-ness with the current document
-        * if x-origin, reject and return
-        * if same-origin, continue
-    * fetch the script with the force same-origin flag set (see: http://www.whatwg.org/specs/web-apps/current-work/multipage/fetching-resources.html#fetch)
-        * if the last update from the server occured more than 24 hours ago, fetch the script with cache-busting headers
-        * if the response isn't success, reject and return
-    * if the script is successfully fetched, start the worker (per http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#processing-model-7, steps 5 and 6)
-        * if any error is encountered, reject and return
-    * fire the "oninstall" event on the SW and on navigator.serviceWorker for all documents which most specifically match origin+scope
-        * if an exception is thrown by any handler, reject and set the installenderror flag
-        * if any handler calls waitUntil, extend the install process until they all resolve.
-            * if any extension handlers are rejected, reject and set the installenderror flag
-            * if all extension handlers resolve successfully, resolve succesfully
-        * if no extension handlers are registered, resolve successfully
-    * fire "oninstallend" against navigator.serviceWorker in all documents which most-specifically match origin+scope
-        * FIXME: what to do about the event object in the case of errors here?
-    * if the installenderror flag is true:
-        * dispatch onerror against navigator.serviceWorker in all documents which most specifically match origin+scope
-        * return and exit
-    * set the "workerinwaiting" flag on the installed worker and run the check-worker-in-waiting algorithm
-<script>
-
-</script>
- -->
-<!--
-     <li>Let <var>PROTOTYPE</var> be the <a href="#dfn-custom-element-prototype">custom element prototype</a> in <var>ELEMENT</var>'s <a href="#dfn-element-definition">definition</a></li>
-    <li>Set the value of the <code>[[Prototype]]</code> <a href="http://es5.github.io/#x8.6.2">internal property</a> of <var>ELEMENT</var> to <var>PROTOTYPE</var>.</li>
-    <li>If <var>ELEMENT</var> is <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/infrastructure.html#in-a-document">in a document</a> and this <a href="http://dom.spec.whatwg.org/#concept-document">document</a> has a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#browsing-context">browsing context</a>:
+    <spec-algorithm>
+    <dl>
+    <dt>Input</dt>
+        <dd><var>script</var>, the URL of the script to register; a string</dd>
+        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+    <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+    </dl>
     <ol>
-        <li><a href="#dfn-enqueue-lifecycle-callback">Enqueue</a> <a href="#dfn-entered-view-callback"><em>enteredView</em></a> callback for <var>ELEMENT</var></li>
-    </ol></li>
- -->
-</ol>
-</div>
+      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Return <var>promise</var>.</li>
+      <li>Run the following steps asynchronously:
+        <ol>
+          <li>Let <var>scope</var> be <var>scope</var> resolved against the document url.</li>
+          <li>Let <var>script</var> be <var>script</var> resolved against the document url.</li>
+          <li>If the origin of <var>script</var> does not match the document's origin, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>If the origin of <var>scope</var> does not match the document's origin, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
+          <li>If <var>serviceWorkerRegistration</var> is not null and <var>script</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, then:
+            <ol>
+              <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>If <var>serviceWorkerRegistration</var> is null, then:
+            <ol>
+              <li>Let <var>serviceWorkerRegistration</var> be a newly-created <a href="#FIXME">_ServiceWorkerRegistration</a> object.</li>
+              <li>Set <var>serviceWorkerRegistration</var> to the value of key <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>scope</var> to <var>scope</var>.</li>
+            </ol>
+          </li>
+          <li>Set <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> to <var>script</var>.</li>
+          <li>Resolve <var>promise</var> with the result of running the <a href="#update-algorithm">_Update algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="update-algorithm">
+    <h1>_Update</h1>
 
-<h3 id="update-algorithm">_Update</h3>
+    <p>The <a href="#upgrade-algorithm">Service Worker Upgrade Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> which becomes the <a href="#FIXME">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
 
-<p>The <a href="#upgrade-algorithm">Service Worker Upgrade Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> which becomes the <a href="#FIXME">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+      <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+    </dl>
+    <ol>
+      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
+      <li>Return <var>promise</var>.</li>
+      <li>Run the following steps asynchronously:
+        <ol>
+          <li>Perform a fetch of <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
+          <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
+            <ol>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>If fetching the script fails due to the server returning a 4xx response, then:
+            <ol>
+              <li>Reject <var>promise</var> with the result of running the <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>scope</var> as the argument.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Else if fetching the script fails due to the server returning a 5xx response, or there is a DNS error, or the connection times out, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Else if the server returned a redirect, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>fetchedScript</var> be the fetched script.</li>
+          <li>Let <var>activeWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+          <li>If <var>activeWorker</var> is not null, and <var>activeWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>activeWorker</var>, then:
+            <ol>
+              <li>Resolve <var>promise</var> with <var>activeWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Else,
+            <ol>
+              <li>Let <var>serviceWorker</var> be a newly-created <a href="#FIXME">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
+              <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
+                <ol>
+                  <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
+                <ol>
+                  <li>Reject <var>promise</var> with the error.</li>
+                  <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Queue a task to invoke <a href="#installation-algorithm">_Installation algorithm</a> with <var>serviceWorkerRegistration</var> and <var>serviceWorker</var> as its arguments.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="soft-update-algorithm">
+    <h1>_SoftUpdate</h1>
 
-<!--
-#FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. As such, Promise is not used for its output.
--->
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-<dt>Output</dt>
-    <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-</dl>
-<ol>
-    <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
-      <ol>
-        <li>Reject <var>serviceWorkerRegistration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
-        <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
-      </ol>
-    </li>
-    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
-      <ol>
-        <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-        <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
-        <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-      </ol>
-    </li>
-    <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
-    <li>Return <var>promise</var>.</li>
-    <li>Run the following steps asynchronously:
-      <ol>
-        <li>Perform a fetch of <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
-        <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
-          <ol>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>If fetching the script fails due to the server returning a 4xx response, then:
-          <ol>
-            <li>Reject <var>promise</var> with the result of running the <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>scope</var> as the argument.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Else if fetching the script fails due to the server returning a 5xx response, or there is a DNS error, or the connection times out, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Else if the server returned a redirect, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Let <var>fetchedScript</var> be the fetched script.</li>
-        <li>Let <var>activeWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-        <li>If <var>activeWorker</var> is not null, and <var>activeWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>activeWorker</var>, then:
-          <ol>
-            <li>Resolve <var>promise</var> with <var>activeWorker</var>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Else,
-          <ol>
-            <li>Let <var>serviceWorker</var> be a newly-created <a href="#FIXME">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
-            <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
-              <ol>
-                <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-            <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
-              <ol>
-                <li>Reject <var>promise</var> with the error.</li>
-                <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-            <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-            <li>Queue a task to invoke <a href="#installation-algorithm">_Installation algorithm</a> with <var>serviceWorkerRegistration</var> and <var>serviceWorker</var> as its arguments.</li>
-          </ol>
-        </li>
-      </ol>
-    </li>
-</ol>
-</div>
+    <p>The browser may call this as often as it likes to check for updates.</p>
 
-<h3 id="soft-update-algorithm">_SoftUpdate</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+        <ol><li>Abort these steps.</li></ol>
+      </li>
+      <li>Queue a task to invoke <a href="#update-algorithm">_Update algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+      </ol>
+  </spec-algorithm>
+  </spec-section>
+  <spec-section id="installation-algorithm">
+    <h1>_Installation</h1>
 
-<p>The browser may call this as often as it likes to check for updates.</p>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+        <ol>
+          <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+          <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+        </ol>
+      </li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to <var>serviceWorker</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installing</code>.</li>
+      <li>Fire <code>install</code> event on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li>Fire <code>install</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>If any handler called <code>waitUntil()</code>, then:
+        <ol>
+          <li>Extend this process until the associated promises resolve.</li>
+          <li>If the resulting promise rejects, then:
+            <ol>
+              <li>Abort these steps. <small>// TODO: we should retry at some point?</small></li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installed</code>.</li>
+      <li>Fire <code>installend</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>If any handler called <code>replace()</code>, then:
+        <ol>
+          <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
+            <ol>
+              <li>Set <var>serviceWorkerRegistration</var> as the document's service worker registration.</li>
+            </ol>
+          </li>
+          <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+        <ol>
+          <li>Queue a task to invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="activation-algorithm">
+    <h1>_Activation</h1>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
-      <ol>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
-      <ol>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>Queue a task to invoke <a href="#update-algorithm">_Update algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
-</ol>
-</div>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+      <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to <var>activatingWorker</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activating</code>.</li>
+      <li>If <var>exitingWorker</var> is not null, then:
+        <ol>
+          <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
+          <li>Close and garbage collect <var>exitingWorker</var>.</li>
+        </ol>
+      </li>
+      <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li>Fire <var>activate</var> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>If any handler calls <code>waitUntil()</code>, then:
+        <ol>
+          <li>Extend this process until the associated promises resolve.</li>
+          <li>If the resulting promise rejects, then:
+            <ol>
+              <li>Terminate <var>activatingWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to null.</li>
+              <li>Allow any pending requests to continue as normal (as if there was no ServiceWorker.)</li>
+              <li>Abort these steps. <small>// TODO: Check if this is correct. Note that we've introduced another situation where .<var>active</var> can change through the life of a page</small></li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activated</code>.</li>
+      <li>Fire <code>activateend</code> event on <var>navigator.serviceWorker</var> for all documents which match <var>scope</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="on-navigation-request-algorithm">
+    <h1>_OnNavigationRequest</h1>
 
-<h3 id="installation-algorithm">_Installation</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>If <var>request</var> is a force-refresh (shift+refresh), then:
+        <ol><li>Fetch the resource normally and abort these steps.</li></ol>
+      </li>
+      <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
+      <li>If <var>serviceWorkerRegistration</var> is null, then:
+        <ol>
+          <li>Fetch the resource normally and abort these steps.</li>
+        </ol>
+      </li>
+      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      <li>If <var>matchedServiceWorker</var> is null, then:
+        <ol>
+          <li>Fetch the resource normally and abort these steps.</li>
+        </ol>
+      </li>
+      <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration.</li>
+      <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
+        <ol>
+          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
+        </ol>
+      </li>
+      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object.</li>
+      <li>If <code>respondWith()</code> was not called, then:
+        <ol>
+          <li>Fetch the resource normally.</li>
+          <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var>as its argument.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Wait for <var>responsePromise</var> to resolve.</li>
+      <li>If <var>responsePromise</var> rejected, then:
+        <ol>
+          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>responsePromise</var> resolves to a <a href="#opaque-response-interface"><code>OpaqueResponse</code></a>, then:
+        <ol>
+          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
+        <ol>
+          <li>Serve the response.</li>
+          <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as the argument.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+    </ol>
+    </div>
+  </spec-section>
+  <spec-section id="on-resource-request-algorithm">
+    <h1>_OnResourceRequest</h1>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-    <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to <var>serviceWorker</var>.</li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installing</code>.</li>
-    <li>Fire <code>install</code> event on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
-    <li>Fire <code>install</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
-    <li>If any handler called <code>waitUntil()</code>, then:
-      <ol>
-        <li>Extend this process until the associated promises resolve.</li>
-        <li>If the resulting promise rejects, then:
-          <ol>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
-            <li>Abort these steps. <small>// TODO: check if this is correct.</small></li>
-          </ol>
-        </li>
-      </ol>
-    </li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installed</code>.</li>
-    <li>Fire <code>installend</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
-    <li>If any handler called <code>replace()</code>, then:
-      <ol>
-        <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
-          <ol>
-            <li>Set <var>serviceWorkerRegistration</var> as the document's service worker registration.</li>
-          </ol>
-        </li>
-        <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
-      <ol>
-        <li>Queue a task to invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
-      </ol>
-    </li>
-</ol>
-</div>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Let <var>serviceWorkerRegistration</var> be the registration used by this document.</li>
+      <li>If <var>serviceWorkerRegistration</var> is null, then:
+        <ol><li>Fetch the resource normally and abort these steps.</li></ol>
+      </li>
+      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      <li>If <var>matchedServiceWorker</var> is null, then:
+        <ol>
+          <li>Fetch the resource normally and abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
+        <ol>
+          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
+        </ol>
+      </li>
+      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new <a href="#fetch-event-interface"><code>FetchEvent</code></a> object.</li>
+      <li>If <code>respondWith()</code> was not called, then:
+        <ol>
+          <li>Fetch the resource normally and abort these steps.</li>
+        </ol>
+      </li>
+      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Wait for <var>responsePromise</var> to resolve.</li>
+      <li>If <var>responsePromise</var> rejected, then:
+        <ol>
+          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
+        <ol>
+          <li>Serve the response and abort these steps.</li>
+        </ol>
+      </li>
+      <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="on-resource-request-algorithm">
+    <h1>_OnDocumentUnload</h1>
 
-<h3 id="activation-algorithm">_Activation</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>document</var>, the document using the given <a href="#FIXME">ServiceWorkerReistration</a> as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Let <var>serviceWorkerRegistration</var> be the registration used by <var>document</var>.</li>
+      <li>If <var>serviceWorkerRegistration</var> is null, then:
+        <ol>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If any other document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+        <ol>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null:
+        <ol>
+          <li>Run <a href="#activation-algorithm">_Activatation algorithm</a> with <var>serviceWorkerRegistration</var> at the argument.</li>
+        </ol>
+      </li>
+    </ol>
+  </spec-algorithm>
+  </spec-section>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-    <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to <var>activatingWorker</var>.</li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activating</code>.</li>
-    <li>If <var>exitingWorker</var> is not null, then:
-      <ol>
-        <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
-        <li>Close and garbage collect <var>exitingWorker</var>.</li>
-      </ol>
-    </li>
-    <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
-    <li>Fire <var>activate</var> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
-    <li>If any handler calls <code>waitUntil()</code>, then:
-      <ol>
-        <li>Extend this process until the associated promises resolve.</li>
-        <li>If the resulting promise rejects, then:
-          <ol>
-            <li>Terminate <var>activatingWorker</var>.</li>
-            <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to null.</li>
-            <li>Allow any pending requests to continue as normal (as if there was no ServiceWorker.)</li>
-            <li>Abort these steps. <small>// TODO: Check if this is correct. Note that we've introduced another situation where .<var>active</var> can change through the life of a page</small></li>
-          </ol>
-        </li>
-      </ol>
-    </li>
-    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>actived<code>.</li>
-    <li>Fire <code>activateend</code> event on <var>navigator.serviceWorker</var> for all documents which match <var>scope</var>.</li>
-</ol>
-</div>
+  <spec-section id="unregistration-algorithm">
+    <h1>Unregistration</h1>
 
-<h3 id="on-navigation-request-algorithm">_OnNavigationRequest</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+      <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+    </dl>
+    <ol>
+        <li>Return the result of running <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>scope</var> as the argument.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>If <var>request</var> is a force-refresh (shift+refresh), then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
-      </ol>
-    </li>
-    <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
-    <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
-    <li>If <var>serviceWorkerRegistration</var> is null, then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
-      </ol>
-    </li>
-    <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-    <li>If <var>matchedServiceWorker</var> is null, then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
-      </ol>
-    </li>
-    <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration.</li>
-    <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
-      <ol>
-        <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
-      </ol>
-    </li>
-    <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object.</li>
-    <li>If <code>respondWith()</code> was not called, then:
-      <ol>
-        <li>Fetch the resource normally.</li>
-        <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var>as its argument.</li>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Wait for <var>responsePromise</var> to resolve.</li>
-    <li>If <var>responsePromise</var> rejected, then:
-      <ol>
-        <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>responsePromise</var> resolves to a <a href="#opaque-response-interface"><code>OpaqueResponse</code></a>, then:
-      <ol>
-        <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
-      <ol>
-        <li>Serve the response.</li>
-        <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as the argument.</li>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-</ol>
-</div>
+  <spec-section id="internal-unregistration-algorithm">
+    <h1>_Unregistration</h1>
 
-<h3 id="on-resource-request-algorithm">_OnResourceRequest</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+      <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+    </dl>
+    <ol>
+      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Return <var>promise</var>.</li>
+      <li>Run the following steps asynchronously:
+        <ol>
+          <li>Let <var>scope</var> be scope resolved against the document url.</li>
+          <li>If the origin of <var>scope</var> does not match the document's origin, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
+          <li>If <var>serviceWorkerRegistration</var> is null, then:
+            <ol>
+              <li>Reject <var>promise</var> with a new <code>NotFoundError</code>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>For each document using <var>serviceWorkerRegistration</var>:
+            <ol>
+              <li>Set the document's service worker registration to null.</li>
+            </ol>
+          </li>
+          <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+          <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+          <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
+          <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
+          <li>Resolve <var>promise</var>.</li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="scope-match-algorithm">
+    <h1>_ScopeMatch</h1>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>Let <var>serviceWorkerRegistration</var> be the registration used by this document.</li>
-    <li>If <var>serviceWorkerRegistration</var> is null, then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
+      <dt>Output</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    </dl>
+    <ol>
+        <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
+        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
+        <li>Return <var>serviceWorkerRegistration</var>.</li>
       </ol>
-    </li>
-    <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-    <li>If <var>matchedServiceWorker</var> is null, then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
-      <ol>
-        <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
-      </ol>
-    </li>
-    <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new <a href="#fetch-event-interface"><code>FetchEvent</code></a> object.</li>
-    <li>If <code>respondWith()</code> was not called, then:
-      <ol>
-        <li>Fetch the resource normally and abort these steps.</li>
-      </ol>
-    </li>
-    <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Wait for <var>responsePromise</var> to resolve.</li>
-    <li>If <var>responsePromise</var> rejected, then:
-      <ol>
-        <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
-      <ol>
-        <li>Serve the response and abort these steps.</li>
-      </ol>
-    </li>
-    <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-</ol>
-</div>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="get-registration-algorithm">
+    <h1>_GetRegistration</h1>
 
-<h3 id="on-resource-request-algorithm">_OnDocumentUnload</h3>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+      <dt>Output</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    </dl>
+    <ol>
+        <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
+        <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+        <li>Return <var>serviceWorkerRegistration</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+  <spec-section id="get-newest-worker-algorithm">
+    <h1>_GetNewestWorker</h1>
 
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>document</var>, the document using the given <a href="#FIXME">ServiceWorkerReistration</a> as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
-<dt>Output</dt>
-    <dd>None</dd>
-</dl>
-<ol>
-    <li>Let <var>serviceWorkerRegistration</var> be the registration used by <var>document</var>.</li>
-    <li>If <var>serviceWorkerRegistration</var> is null, then:
-      <ol>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>If any other document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
-      <ol>
-        <li>Abort these steps.</li>
-      </ol>
-    </li>
-    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null:
-      <ol>
-        <li>Run <a href="#activation-algorithm">_Activatation algorithm</a> with <var>serviceWorkerRegistration</var> at the argument.</li>
-      </ol>
-    </li>
-</ol>
-</div>
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+      <dt>Output</dt>
+        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
+    </dl>
+    <ol>
+      <li>Let <var>newestWorker</var> be null.</li>
+      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+        <ol>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+        </ol>
+      </li>
+      <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
+        <ol>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+        </ol>
+      </li>
+      <li>Return <var>newestWorker</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+</spec-clause>
 
-<h3 id="unregistration-algorithm">Unregistration</h3>
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-<dt>Output</dt>
-    <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-</dl>
-<ol>
-    <li>Return the result of running <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>scope</var> as the argument.</li>
-</ol>
-</div>
-
-<h3 id="internal-unregistration-algorithm">_Unregistration</h3>
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-<dt>Output</dt>
-    <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-</dl>
-<ol>
-    <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Return <var>promise</var>.</li>
-    <li>Run the following steps asynchronously:
-      <ol>
-        <li>Let <var>scope</var> be scope resolved against the document url.</li>
-        <li>If the origin of <var>scope</var> does not match the document's origin, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
-        <li>If <var>serviceWorkerRegistration</var> is null, then:
-          <ol>
-            <li>Reject <var>promise</var> with a new <code>NotFoundError</code>.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>For each document using <var>serviceWorkerRegistration</var>:
-          <ol>
-            <li>Set the document's service worker registration to null.</li>
-          </ol>
-        </li>
-        <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-        <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-        <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
-        <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
-        <li>Resolve <var>promise</var>.</li>
-      </ol>
-    </li>
-</ol>
-</div>
-
-<h3 id="scope-match-algorithm">_ScopeMatch</h3>
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
-<dt>Output</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-</dl>
-<ol>
-    <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
-    <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
-    <li>Return <var>serviceWorkerRegistration</var>.</li>
-</ol>
-</div>
-
-<h3 id="get-registration-algorithm">_GetRegistration</h3>
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-<dt>Output</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-</dl>
-<ol>
-    <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
-    <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-    <li>Return <var>serviceWorkerRegistration</var>.</li>
-</ol>
-</div>
-
-<h3 id="get-newest-worker-algorithm">_GetNewestWorker</h3>
-
-<div class="algorithm">
-<dl>
-<dt>Input</dt>
-    <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-<dt>Output</dt>
-    <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
-</dl>
-<ol>
-    <li>Let <var>newestWorker</var> be null.</li>
-    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
-      <ol>
-        <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-      </ol>
-    </li>
-    <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
-      <ol>
-        <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-      </ol>
-    </li>
-    <li>Return <var>newestWorker</var>.</li>
-</ol>
-</div>
-
-</section>
-
+<spec-clause id="acknowledgements">
 <!-- FIXME: INCOMPLETE!! Please add collaborators below. -->
-<h2 id="acknowledgements">Acknowledgements</h2>
+<h1>Acknowledgements</h2>
 
 <p>Jake Archibald is a ghost-author of this document. The best instincts in the design are his. He similarly shaped many of the details through discussion and experimentation. The bits which are not his (but which are good) owe everything to his experience, persistence, and focus on enabling web developers. He embodies a hopeful example for developers in shaping browser efforts to more directly address real-world pain points. If Service Workers solve "offline for the web", the credit is due him.</p>
 
@@ -1287,5 +1272,6 @@ The steps are:
 <p>The authors would also like to thank Dimitri Glazkov for his scripts and formatting tools which have been essential in the production of this specification. The authors are also grateful for his considerable guidance.</p>
 
 <p>Thanks also to Vivian Cromwell, Greg Simon, and Alex Komoroske for their considerable professional support.</p>
+</spec-clause>
 </body>
 </html>
