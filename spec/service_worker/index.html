@@ -774,29 +774,17 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <h1>Extensibility</h1>
 </spec-clause>
 
-<spec-clause id="appendix-a">
+
+<spec-clause id="algorithms">
   <h1>Appendix A: Algorithms</h1>
 
-  <p class="note">Underscored functions and attributes are UA-internal properties.</li>
-  </p>
+
+  <p class="note">Underscored functions and attributes are UA-internal properties.</li></p>
 
   <spec-section id="registration-algorithm">
     <h1>Registration</h1>
 
     <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
-
-    <!--
-    <div class="informative">
-    <p>The following pseudo-code outlines the algorithm somewhat more tersely than the long-form prose steps outlined below. Functions whose names begin with "_" are not defined and are intended to operate in the obvious way with regards to their linked algorithms.</p>
-
-  <pre><code class="prettyprint">
-  navigator.serviceWorker.register = function(url, options) {
-      var currentURL = new URL(window.location, document.baseURI);
-      var outcome = new Promise()
-  }
-  </code></pre>
-    </div>
-     -->
 
     <spec-algorithm>
     <dl>
@@ -828,8 +816,18 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
           <li>If <var>serviceWorkerRegistration</var> is not null and <var>script</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, then:
             <ol>
-              <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-              <li>Abort these steps.</li>
+              <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+                <ol>
+                  <li>Resolve <var>promise</var> with <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Else,
+                <ol>
+                  <li>Resolve <var>promise</var> with the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
             </ol>
           </li>
           <li>If <var>serviceWorkerRegistration</var> is null, then:
@@ -949,29 +947,19 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="installation-algorithm">
     <h1>_Installation</h1>
 
-  <!--
-  #FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. As such, Promise is not used for its output.
-  -->
-  <div class="algorithm">
-  <dl>
+    <spec-algorithm>
+    <dl>
     <dt>Input</dt>
-      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
     <dt>Output</dt>
-      <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-  </dl>
-  <ol>
-    <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-    <li>Return <var>promise</var>.</li>
-    <li>Run the following steps asynchronously:
-      <ol>
-        <li>Perform a fetch of <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
-        <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
-          <ol><li>Abort these steps.</li></ol>
-        </li>
-        <li>If fetching the script fails due to the server returns a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then:
+        <dd>None</dd>
+    </dl>
+    <ol>
+        <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
           <ol>
-            <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
-            <li>Abort these steps.</li>
+            <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+            <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
           </ol>
         </li>
         <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to <var>serviceWorker</var>.</li>
@@ -980,38 +968,34 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
         <li>Fire <code>install</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
         <li>If any handler called <code>waitUntil()</code>, then:
           <ol>
-            <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
-            <li>Abort these steps.</li>
+            <li>Extend this process until the associated promises resolve.</li>
+            <li>If the resulting promise rejects, then:
+              <ol>
+                <li>Abort these steps. <small>// TODO: we should retry at some point?</small></li>
+              </ol>
+            </li>
           </ol>
         </li>
-        <li>Let <var>fetchedScript</var> be the fetched script.</li>
-        <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-        <li>If <var>newestWorker</var> is not null, and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
+        <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installed</code>.</li>
+        <li>Fire <code>installend</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+        <li>If any handler called <code>replace()</code>, then:
           <ol>
-            <li>Resolve <var>promise</var> with <var>newestWorker</var>..</li>
+            <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
+              <ol>
+                <li>Set <var>serviceWorkerRegistration</var> as the document's service worker registration.</li>
+              </ol>
+            </li>
+            <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
         <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
           <ol>
-            <li>Let <var>serviceWorker</var> be a newly-created <a href="#FIXME">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
-            <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
-              <ol>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-            <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
-              <ol>
-                <li>Reject <var>promise</var> with the error.</li>
-                <li>Abort these steps.</li>
-              </ol>
-            </li>
-            <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
-            <li>Queue a task to invoke <a href="#installation-algorithm">_Installation algorithm</a> with <var>serviceWorkerRegistration</var> and <var>serviceWorker</var> as its arguments.</li>
+            <li>Queue a task to invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
           </ol>
         </li>
     </ol>
-  </div>
+    </div>
   </spec-section>
   <spec-section id="activation-algorithm">
     <h1>_Activation</h1>
@@ -1022,11 +1006,29 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <dl>
     <dt>Input</dt>
         <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
-      <dt>Output</dt>
+    <dt>Output</dt>
         <dd>None</dd>
-    </dl>
-    <ol>
+  </dl>
+  <ol>
+    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+      <ol><li>Abort these steps.</li></ol>
+    </li>
+    <li>Queue a task to invoke <a href="#update-algorithm">_Update algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="installation-algorithm">
+  <h1>_Installation</h1>
+
+  <div class="algorithm">
+  <dl>
+  <dt>Input</dt>
+      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+      <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
+  <dt>Output</dt>
+      <dd>None</dd>
+  </dl>
+  <ol>
       <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
         <ol>
           <li>Terminate <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
@@ -1042,54 +1044,22 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Extend this process until the associated promises resolve.</li>
           <li>If the resulting promise rejects, then:
             <ol>
-              <li>Abort these steps. <small>// TODO: we should retry at some point?</small></li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
+              <li>Abort these steps. <small>// TODO: check if this is correct.</small></li>
             </ol>
           </li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activated</code>.</li>
-      <li>Fire <code>activateend</code> event on <var>navigator.serviceWorker</var> for all documents which match <var>scope</var>.</li>
-    </ol>
-    </div>
-  </spec-section>
-  <spec-section id="on-navigation-request-algorithm">
-  <h1>_OnNavigationRequest</h1>
-
-    <div class="algorithm">
-    <dl>
-      <dt>Input</dt>
-        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
-      <dt>Output</dt>
-        <dd>None</dd>
-    </dl>
-    <ol>
-      <li>If <var>request</var> is a force-refresh (shift+refresh), then:
-        <ol><li>Fetch the resource normally and abort these steps.</li></ol>
-      </li>
-      <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
-      <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
+      <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.<var>_state</var> to <code>installed</code>.</li>
+      <li>Fire <code>installend</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>If any handler called <code>replace()</code>, then:
         <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-      <li>If <var>matchedServiceWorker</var> is null, then:
-        <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration</li>
-      <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
-        <ol>
-          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code></li>
-        </ol>
-      </li>
-      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object</li>
-      <li>If <code>respondWith()</code> was not called, then:
-        <ol>
-          <li>Fetch the resource normally.</li>
-          <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var>as its argument.</li>
+          <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
+            <ol>
+              <li>Set <var>serviceWorkerRegistration</var> as the document's service worker registration.</li>
+            </ol>
+          </li>
+          <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
@@ -1107,7 +1077,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1138,45 +1108,13 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           </li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activated</code>.</li>
-      <li>Fire <code>activateend</code> event on <var>navigator.serviceWorker</var> for all documents which match <var>scope</var>.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-  <spec-section id="on-navigation-request-algorithm">
-    <h1>_OnNavigationRequest</h1>
-
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
-      <dt>Output</dt>
-        <dd>None</dd>
-    </dl>
-    <ol>
-      <li>If <var>request</var> is a force-refresh (shift+refresh), then:
-        <ol><li>Fetch the resource normally and abort these steps.</li></ol>
-      </li>
-      <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
-      <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
-        <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-      <li>If <var>matchedServiceWorker</var> is null, then:
-        <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration.</li>
+      <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration</li>
       <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
         <ol>
-          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
+          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code></li>
         </ol>
       </li>
-      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object.</li>
+      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object</li>
       <li>If <code>respondWith()</code> was not called, then:
         <ol>
           <li>Fetch the resource normally.</li>
@@ -1184,128 +1122,122 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Wait for <var>responsePromise</var> to resolve.</li>
-      <li>If <var>responsePromise</var> rejected, then:
+      <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
         <ol>
-          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+          <li>Queue a task to invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
         </ol>
       </li>
-      <li>If <var>responsePromise</var> resolves to a <a href="#opaque-response-interface"><code>OpaqueResponse</code></a>, then:
-        <ol>
-          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
-        <ol>
-          <li>Serve the response.</li>
-          <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as the argument.</li>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-    </ol>
-    </div>
-  </spec-section>
-  <spec-section id="on-resource-request-algorithm">
-    <h1>_OnResourceRequest</h1>
+  </ol>
+</div>
+</spec-section>
+<spec-section id="activation-algorithm">
+  <h1>_Activation</h1>
 
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
-      <dt>Output</dt>
-        <dd>None</dd>
-    </dl>
-    <ol>
-      <li>Let <var>serviceWorkerRegistration</var> be the registration used by this document.</li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
-        <ol><li>Fetch the resource normally and abort these steps.</li></ol>
-      </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-      <li>If <var>matchedServiceWorker</var> is null, then:
-        <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
-        <ol>
-          <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code>.</li>
-        </ol>
-      </li>
-      <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new <a href="#fetch-event-interface"><code>FetchEvent</code></a> object.</li>
-      <li>If <code>respondWith()</code> was not called, then:
-        <ol>
-          <li>Fetch the resource normally and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Wait for <var>responsePromise</var> to resolve.</li>
-      <li>If <var>responsePromise</var> rejected, then:
-        <ol>
-          <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
-        <ol>
-          <li>Serve the response and abort these steps.</li>
-        </ol>
-      </li>
-      <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-  <spec-section id="on-resource-request-algorithm">
-    <h1>_OnDocumentUnload</h1>
+  <div class="algorithm">
+  <dl>
+    <dt>Input</dt>
+      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dt>Output</dt>
+      <dd>None</dd>
+  </dl>
+  <ol>
+    <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+    <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+    <li>Set <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> to null.</li>
+    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to <var>activatingWorker</var>.</li>
+    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activating</code>.</li>
+    <li>If <var>exitingWorker</var> is not null, then:
+      <ol>
+        <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
+        <li>Close and garbage collect <var>exitingWorker</var>.</li>
+      </ol>
+    </li>
+    <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+    <li>Fire <var>activate</var> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+    <li>If any handler calls <code>waitUntil()</code>, then:
+      <ol>
+        <li>Extend this process until the associated promises resolve.</li>
+        <li>If the resulting promise rejects, then:
+          <ol>
+            <li><small>TODO: what now? We may have in-flight requests that we're blocking. We can't roll back. Maybe send all requests to the network?</small></li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.<var>_state</var> to <code>activated</code>.</li>
+    <li>Fire <code>activateend</code> event on <var>navigator.serviceWorker</var> for all documents which match <var>scope</var>.</li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="on-navigation-request-algorithm">
+<h1>_OnNavigationRequest</h1>
 
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>document</var>, the document using the given <a href="#FIXME">ServiceWorkerReistration</a> as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
-      <dt>Output</dt>
-        <dd>None</dd>
-    </dl>
-    <ol>
-      <li>Let <var>serviceWorkerRegistration</var> be the registration used by <var>document</var>.</li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If any other document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null:
-        <ol>
-          <li>Run <a href="#activation-algorithm">_Activatation algorithm</a> with <var>serviceWorkerRegistration</var> at the argument.</li>
-        </ol>
-      </li>
-    </ol>
-  </spec-algorithm>
-  </spec-section>
+  <div class="algorithm">
+  <dl>
+    <dt>Input</dt>
+      <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
+    <dt>Output</dt>
+      <dd>None</dd>
+  </dl>
+  <ol>
+    <li>If <var>request</var> is a force-refresh (shift+refresh), then:
+      <ol><li>Fetch the resource normally and abort these steps.</li></ol>
+    </li>
+    <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
+    <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
+    <li>If <var>serviceWorkerRegistration</var> is null, then:
+      <ol>
+        <li>Fetch the resource normally and abort these steps.</li>
+      </ol>
+    </li>
+    <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+    <li>If <var>matchedServiceWorker</var> is null, then:
+      <ol>
+        <li>Fetch the resource normally and abort these steps.</li>
+      </ol>
+    </li>
+    <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration</li>
+    <li>If <var>matchedServiceWorker</var>.<var>_state</var> is <code>activating</code>, then:
+      <ol>
+        <li>Wait for <var>matchedServiceWorker</var>.<var>_state</var> to become <code>actived</code></li>
+      </ol>
+    </li>
+    <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new FetchEvent object</li>
+    <li>If <code>respondWith()</code> was not called, then:
+      <ol>
+        <li>Fetch the resource normally.</li>
+        <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var>as its argument.</li>
+        <li>Abort these steps.</li>
+      </ol>
+    </li>
+    <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Wait for <var>responsePromise</var> to resolve.</li>
+    <li>If <var>responsePromise</var> rejected, then:
+      <ol>
+        <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+      </ol>
+    </li>
+    <li>If <var>responsePromise</var> resolves to a <a href="#opaque-response-interface"><code>OpaqueResponse</code></a>, then:
+      <ol>
+        <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+      </ol>
+    </li>
+    <li>If <var>responsePromise</var> resolves to an <a href="#abstract-response-interface"><code>AbstractResponse</code></a>, then:
+      <ol>
+        <li>Serve the response.</li>
+        <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as the argument.</li>
+        <li>Abort these steps.</li>
+      </ol>
+    </li>
+    <li>Fail the resource load as if there had been a generic network error and abort these steps.</li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="on-resource-request-algorithm">
+  <h1>_OnResourceRequest</h1>
 
-  <spec-section id="unregistration-algorithm">
-    <h1>Unregistration</h1>
-
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-      <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-    </dl>
-    <ol>
-        <li>Return the result of running <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>scope</var> as the argument.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-
-  <spec-section id="internal-unregistration-algorithm">
-    <h1>_Unregistration</h1>
-
-    <spec-algorithm>
+    <div class="algorithm">
     <dl>
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
@@ -1327,7 +1259,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
           <li>If <var>serviceWorkerRegistration</var> is null, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>NotFoundError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code>NotFoundError</code></li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -1336,20 +1268,20 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
               <li>Set the document's service worker registration to null.</li>
             </ol>
           </li>
-          <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-          <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+          <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a></li>
+          <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var></li>
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
           <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
           <li>Resolve <var>promise</var>.</li>
         </ol>
       </li>
     </ol>
-    </spec-algorithm>
+    </div>
   </spec-section>
   <spec-section id="scope-match-algorithm">
     <h1>_ScopeMatch</h1>
 
-    <spec-algorithm>
+    <div class="algorithm">
     <dl>
       <dt>Input</dt>
         <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
@@ -1357,55 +1289,115 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
         <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
-        <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
-        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
-        <li>Return <var>serviceWorkerRegistration</var>.</li>
-      </ol>
-    </spec-algorithm>
+      <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
+      <li>Return <var>serviceWorkerRegistration</var>.</li>
+    </ol>
+    </div>
   </spec-section>
   <spec-section id="get-registration-algorithm">
     <h1>_GetRegistration</h1>
 
-    <spec-algorithm>
+    <div class="algorithm">
     <dl>
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-      <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-    </dl>
-    <ol>
-        <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
-        <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-        <li>Return <var>serviceWorkerRegistration</var>.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-  <spec-section id="get-newest-worker-algorithm">
-    <h1>_GetNewestWorker</h1>
+    <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+  </dl>
+  <ol>
+    <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+    <li>Return <var>promise</var>.</li>
+    <li>Run the following steps asynchronously:
+      <ol>
+        <li>Let <var>scope</var> be scope resolved against the document url.</li>
+        <li>If the origin of <var>scope</var> does not match the document's origin, then:
+          <ol>
+            <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
+        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
+        <li>If <var>serviceWorkerRegistration</var> is null, then:
+          <ol>
+            <li>Reject <var>promise</var> with a new <code>NotFoundError</code></li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
+        <li>For each document using <var>serviceWorkerRegistration</var>:
+          <ol>
+            <li>Set the document's service worker registration to null.</li>
+          </ol>
+        </li>
+        <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a></li>
+        <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var></li>
+        <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
+        <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
+        <li>Resolve <var>promise</var>.</li>
+      </ol>
+    </li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="scope-match-algorithm">
+  <h1>_ScopeMatch</h1>
 
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
-      <dt>Output</dt>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
-    </dl>
-    <ol>
-      <li>Let <var>newestWorker</var> be null.</li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
-        <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
-        </ol>
-      </li>
-      <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
-        <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-        </ol>
-      </li>
-      <li>Return <var>newestWorker</var>.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
+  <div class="algorithm">
+  <dl>
+    <dt>Input</dt>
+      <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
+    <dt>Output</dt>
+      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+  </dl>
+  <ol>
+    <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
+    <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
+    <li>Return <var>serviceWorkerRegistration</var>.</li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="get-registration-algorithm">
+  <h1>_GetRegistration</h1>
+
+  <div class="algorithm">
+  <dl>
+    <dt>Input</dt>
+      <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+    <dt>Output</dt>
+      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+  </dl>
+  <ol>
+    <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
+    <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+    <li>Return <var>serviceWorkerRegistration</var>.</li>
+  </ol>
+  </div>
+</spec-section>
+<spec-section id="get-newest-worker-algorithm">
+  <h1>_GetNewestWorker</h1>
+
+  <div class="algorithm">
+  <dl>
+    <dt>Input</dt>
+      <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var> and <var>activeWorker</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+    <dt>Output</dt>
+      <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
+  </dl>
+  <ol>
+    <li>Let <var>newestWorker</var> be null.</li>
+    <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+      <ol>
+        <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+      </ol>
+    </li>
+    <li>Else If <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
+      <ol>
+        <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      </ol>
+    </li>
+    <li>Return <var>newestWorker</var>.</li>
+  </ol>
+  </div>
 </spec-clause>
 
 <spec-clause id="acknowledgements">
