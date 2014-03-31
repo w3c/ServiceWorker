@@ -842,14 +842,21 @@ The steps are:
             <li>Abort these steps.</li>
           </ol>
         </li>
-        <li>If fetching the script fails due to the server returning a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then:
+        <li>If fetching the script fails due to the server returning a 4xx response, then:
+          <ol>
+            <li>Reject <var>promise</var> with the result of running the <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>scope</var> as the argument.</li>
+            <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
+        <li>Else if fetching the script fails due to the server returning a 5xx response, or there is a DNS error, or the connection times out, then:
           <ol>
             <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
             <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
-        <li>If the server returned a redirect, then:
+        <li>Else if the server returned a redirect, then:
           <ol>
             <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
             <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
@@ -1149,6 +1156,20 @@ The steps are:
 </div>
 
 <h3 id="unregistration-algorithm">Unregistration</h3>
+
+<div class="algorithm">
+<dl>
+<dt>Input</dt>
+    <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+<dt>Output</dt>
+    <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+</dl>
+<ol>
+    <li>Return the result of running <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>scope</var> as the argument.</li>
+</ol>
+</div>
+
+<h3 id="internal-unregistration-algorithm">_Unregistration</h3>
 
 <div class="algorithm">
 <dl>
