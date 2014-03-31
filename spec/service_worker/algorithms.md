@@ -52,21 +52,25 @@ Service Workers Algorithms
   2. If _promise_ has been rejected (eg, another registration has aborted it), then
     1. Set _serviceWorkerRegistration_.*updatePromise* to null.
     2. Abort these steps.
-  3. If fetching the script fails due to the server returning a 4xx or 5xx response or equivalent, or there is a DNS error, or the connection times out, then
+  3. If fetching the script fails due to the server returning a 4xx response, then
+    1. Reject _promise_ with **_Unregister**(_serviceWorkerRegistration_.*scope*).
+    2. Set _serviceWorkerRegistration_.*updatePromise* to null.
+    3. Abort these steps.
+  4. Else if fetching the script fails due to the server returning 5xx response, or there is a DNS error, or the connection times out, then
     1. Reject _promise_ with a new NetworkError.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
-  4. If the server returned a redirect, then
+  5. Else if the server returned a redirect, then
     1. Reject _promise_ with a new SecurityError.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
-  5. Let _fetchedScript_ be the fetched script.
-  6. Let _activeWorker_ be _serviceWorkerRegistration_.*activeWorker*.
-  7. If _activeWorker_ is not null, and _activeWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _activeWorker_, then
+  6. Let _fetchedScript_ be the fetched script.
+  7. Let _activeWorker_ be _serviceWorkerRegistration_.*activeWorker*.
+  8. If _activeWorker_ is not null, and _activeWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _activeWorker_, then
     1. Resolve _promise_ with _activeWorker_.
     2. Set _serviceWorkerRegistration_.*updatePromise* to null.
     3. Abort these steps.
-  8. Else,
+  9. Else,
     1. Let _serviceWorker_ be a newly-created ServiceWorker object, using _fetchedScript_.
     2. If _promise_ has been rejected (e.g, another registration has aborted it), then
       1. Set _serviceWorkerRegistration_.*updatePromise* to null.
@@ -202,6 +206,11 @@ Service Workers Algorithms
 
 --
 **Unregister**(_scope_)
+
+1. Return **_Unregister**(_scope_).
+
+--
+**_Unregister**(_scope_)
 
 1. Let _promise_ be a newly-created _Promise_.
 2. Return _promise_.
