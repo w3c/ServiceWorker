@@ -33,11 +33,11 @@ In our video example, one cache might be built/managed to help make sure that th
 
 ## Bootstrapping With a ServiceWorker
 
-ServiceWorkers are installed by web pages. A user must visit a page or app for the process to start. Let's assume our page is `http://videos.example.com/index.html`. From there, script on that page might install a ServiceWorker with code like this:
+ServiceWorkers are installed by web pages. A user must visit a page or app for the process to start. The page must also be served over SSL. Let's assume our page is `https://videos.example.com/index.html`. From there, script on that page might install a ServiceWorker with code like this:
 
 ```html
 <!DOCTYPE html>
-<!-- http://videos.example.com/index.html -->
+<!-- https://videos.example.com/index.html -->
 <html>
   <head>
     <script>
@@ -64,11 +64,11 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 
 The ServiceWorker itself is a bit of JavaScript that runs in a context that's very much like a [shared worker](http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers "HTML5 Shared Workers").
 
-The browser now attempts to download and "install" `worker.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `http://videos.example.com/`, `worker.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `worker.js` before the normal browser cache is consulted for them.
+The browser now attempts to download and "install" `worker.js`; a process covered later in this document. Once it is successfully installed, our `success!` message will be sent to the console and, crucially, the next time the user visits `index.html` or any other page located at `https://videos.example.com/`, `worker.js` will be consulted about what to do and what content to load -- even if the device has no internet connection. On pages that are "controlled" in this way, other resources (like the image in the body) are also requested first from `worker.js` before the normal browser cache is consulted for them.
 
 ### Controlled & Uncontrolled Documents
 
-The first time `http://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `worker.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is the first rule of ServiceWorkers:
+The first time `https://videos.example.com/index.html` is loaded, all the resources it requests will come from the network. That means that even if the browser runs the install snippet for `worker.js`, fetches it, and finishes installing it before it begins fetching `logo.png`, the new ServiceWorker script won't be consulted about loading `logo.png`. This is the first rule of ServiceWorkers:
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
@@ -90,7 +90,7 @@ Here's an example of a ServiceWorker that only handles a single resource (`/serv
 // hosted at: /assets/v1/worker.js
 this.version = 1;
 
-var base = "http://videos.example.com";
+var base = "https://videos.example.com";
 var inventory = new URL("/services/inventory/data.json", base) + "";
 
 this.addEventListener("install", function(e) {
@@ -110,14 +110,14 @@ this.addEventListener("fetch", function(e) {
 });
 ```
 
-This simple example will always produce the following output at the console when we load a tab with `http://videos.example.com/index.html`:
+This simple example will always produce the following output at the console when we load a tab with `https://videos.example.com/index.html`:
 
 ```
-> http://videos.example.com/index.html
-> http://videos.example.com/assets/v1/base.css
-> http://videos.example.com/assets/v1/app.js
-> http://videos.example.com/services/inventory/data.json
-> http://videos.example.com/assets/v1/logo.png
+> https://videos.example.com/index.html
+> https://videos.example.com/assets/v1/base.css
+> https://videos.example.com/assets/v1/app.js
+> https://videos.example.com/services/inventory/data.json
+> https://videos.example.com/assets/v1/logo.png
 ```
 
 The contents of all but the inventory will be handled by the normal browser resource fetching system because the `onfetch` event handler didn't call `respondWith` when invoked with their requests. The first time the app is loaded (before the ServiceWorker is installed), `data.json` will also be fetched from the network. Thereafter it'll be computed by the ServiceWorker instead. The important thing to remember here is that _normal resource loading is the fallback behavior for fetch events_.
@@ -164,15 +164,15 @@ Now that we've started to talk about `<iframe>`s, another question comes up: wha
 
 `video.example.com` and `www.example.net` are clearly different domains...should the ServiceWorker for `video.example.com` (registered with the path `/*`) get a crack at it? Because the web's same-origin security model guarantees that documents from different domains will be isolated from each other, it would be a huge error to allow `video.example.com` to return content that would run in the context of `www.example.net`. Code on that page could read cookies and databases, abuse sessions, and do all manner of malicious stuff.
 
-What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the ServiceWorker located at `http://www.example.net/worker.js`. The ServiceWorker on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `http://video.example.com/subcontent.html` or any other page on `http://video.example.com`.
+What happens instead in the scenario is that all navigations -- top level or not -- for `www.example.net` are handled by the ServiceWorker located at `https://www.example.net/worker.js`. The ServiceWorker on `video.example.com` won't get an `onfetch` event for this iframe, but it would if the iframe's `src` property were set to `https://video.example.com/subcontent.html` or any other page on `https://video.example.com`.
 
 Another interesting question: what happens if there are two registrations that might match?
 
-For instance, what if `http://www.example.com/foo.html` contains:
+For instance, what if `https://www.example.com/foo.html` contains:
 
 ```html
 <!DOCTYPE html>
-<!-- http://www.example.com/foo.html -->
+<!-- https://www.example.com/foo.html -->
 <html>
   <head>
     <script>
@@ -182,11 +182,11 @@ For instance, what if `http://www.example.com/foo.html` contains:
 </html>
 ```
 
-While `http://www.example.com/foo/bar.html` contains:
+While `https://www.example.com/foo/bar.html` contains:
 
 ```html
 <!DOCTYPE html>
-<!-- http://www.example.com/foo/bar.html -->
+<!-- https://www.example.com/foo/bar.html -->
 <html>
   <head>
     <script>
@@ -202,7 +202,7 @@ Turns out this is allowed, largely to prevent ServiceWorker scripts from becomin
 
 To break what might otherwise be ties when matching URLs, navigations are mapped to ServiceWorkers by longest-prefix-match. Note that the `*` can only occur _at the end_ of a matching rule, so attempts to register `/foo/*/bar` or `*bar` will throw exceptions. Similarly, registering a pattern that includes a "?" or "#" will also throw exceptions.
 
-In the above example with registrations for `/foo*` and `/foo/bar*`, the following matches would be made when navigating to the following URLs under `http://www.example.com`:
+In the above example with registrations for `/foo*` and `/foo/bar*`, the following matches would be made when navigating to the following URLs under `https://www.example.com`:
 
 ```
 /foo                        -> /foo_worker.js
@@ -234,13 +234,13 @@ One more note: Last-registration wins. If two pages on a site are visited in ord
 
 #### Registrations Map Navigations, Documents Map Fetches
 
-It's important to understand that `navigator.serviceWorker.register()` _only affects navigations_. Let's imagine for just a minute that we have a server that will hand back HTML or JSON for a given URL depending on whether the query parameter `?json=1` is included. Let's say this resource is hosted at `http://www.example.com/services/data`.
+It's important to understand that `navigator.serviceWorker.register()` _only affects navigations_. Let's imagine for just a minute that we have a server that will hand back HTML or JSON for a given URL depending on whether the query parameter `?json=1` is included. Let's say this resource is hosted at `https://www.example.com/services/data`.
 
 Now, let's assume the page served by browsing to that URL is:
 
 ```html
 <!DOCTYPE html>
-<!-- http://www.example.com/services/data -->
+<!-- https://www.example.com/services/data -->
 <html>
   <head>
     <script>
@@ -250,11 +250,11 @@ Now, let's assume the page served by browsing to that URL is:
 </html>
 ```
 
-What happens when we visit `http://www.example.com/index.html` that includes:
+What happens when we visit `https://www.example.com/index.html` that includes:
 
 ```html
 <!DOCTYPE html>
-<!-- http://www.example.com/index.html -->
+<!-- https://www.example.com/index.html -->
 <html>
   <head>
     <script>
@@ -274,7 +274,7 @@ The answer hinges on how requests map to ServiceWorkers. The third rule of Servi
 > All _resource requests_ from a controlled document are sent to _that
 > document's_ ServiceWorker.
 
-Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/worker.js` is started and a single `onfetch` is dispatched to it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/worker.js` that was started when the user initially navigated to `http://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
+Looking back at our `index.html`, we see two different request types: a navigation for an `<iframe>` and a resource request for a script. Since iframe loading is a navigation and not a "naked" resource request, it matches the rules for longest-prefix, an instance of `/services/data/worker.js` is started and a single `onfetch` is dispatched to it. The script loading, on the other hand, is a sub-resource request and not a navigation, so it's send to the instance of `/worker.js` that was started when the user initially navigated to `https://www.example.com/index.html`, either by typing it into the address bar or clicking on a link that took them there.
 
 Since resource requests (not navigations) are always sent to the ServiceWorker for the document it is issued from, and since documents always map to the ServiceWorkers they're born with, our script request will be send to `/worker.js` and not `/services/data/worker.js`.
 
@@ -312,7 +312,7 @@ Using `Cache`s is perhaps simpler than talking about them, so here's some tiny e
 // caching.js
 this.version = 1;
 
-var base = "http://videos.example.com";
+var base = "https://videos.example.com";
 this.addEventListener("install", function(e) {
   // Create a cache of resources. Begins the process of fetching them.
   // URLs are relative to the ServiceWorker
@@ -420,7 +420,7 @@ But what to do when some content isn't available? Assume for a second that the v
 The error handler in our response `Promise` holds the key:
 
 ```js
-var base = "http://videos.example.com";
+var base = "https://videos.example.com";
 var inventory = new URL("/services/inventory/data.json", base)+"";
 var fallbackInventory = new URL("/assets/v1/inventory_fallback.json", base)+"";
 
@@ -607,7 +607,7 @@ Note that CORS plays an important role in the cross-origin story for many resour
 
 A few things to keep in mind regarding cross-origin resources that you may cache or request via `fetch()`:
 
-  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('http://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
+  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('https://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
   * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable from a `fetch` (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.
   * There's no harm in responding to a cross-origin request with a `new Response()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
 
