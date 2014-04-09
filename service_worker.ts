@@ -535,7 +535,7 @@ class Cache {
 
   // TODO: maybe this would be better as a querying method
   // so matchAll(string) would match all entries for that 
-  // url regardless of method & vary
+  // url regardless of vary
   matchAll(request:any) : Promise {
     var thisCache = this;
 
@@ -543,44 +543,6 @@ class Cache {
       return Promise.all(keys.map(function(key) {
         return thisCache._items.get(key);
       }));
-    });
-  }
-
-  // TODO: an alternative to matchAll where queryAll(String)
-  // or queryAll(URL) match all entries with that url, regardless
-  // of method.
-  queryAll(q:any) : Promise {
-    var thisCache = this;
-
-    if (q instanceof String) {
-      q = new URL(q);
-    }
-
-    var results = [];
-    var typeAllowed = (q instanceof URL) || (q instanceof Request);
-    if (!typeAllowed) throw TypeError("Query must be request or url");
-    
-    return this._items.keys().then(function(cachedRequests) {
-      return this._items.values().then(function(cachedResponses) {
-        var cachedRequest;
-        var cachedResponse;
-
-        for (var i = 0; i < cachedRequests.length; i++) {
-          cachedRequest = cachedRequests[i];
-          cachedResponse = cachedResponses[i];
-
-          if (q instanceof URL) {
-            if (q.toString() == cachedRequest.url.toString()) {
-              results.push([cachedRequest, cachedResponse]);
-            }
-          }
-          else if (q instanceof Request) { // yeah, this just be 'else'
-            if (Cache._cacheItemValid(q, cachedRequest, cachedResponse)) {
-              results.push([cachedRequest, cachedResponse]);
-            }
-          }
-        }
-      });
     });
   }
 
@@ -675,6 +637,7 @@ class Cache {
     var thisCache = this;
     request = _castToRequest(request);
 
+    // TODO: if request.method is not GET, throw
     // TODO: cast 'response' to a response
     // Eg, Blob
     // Dataurl string
@@ -695,7 +658,7 @@ class Cache {
     // TODO: this means cache.delete("/hello/world/") may not delete
     // all entries for /hello/world/, because /hello/world/ will be
     // cast to a GET request. It won't remove entries for that url
-    // that have a different method or 'vary' headers that don't match.
+    // that have 'vary' headers that don't match.
     // 
     // We could special-case strings & urls here.
     var thisCache = this;
@@ -705,10 +668,6 @@ class Cache {
         return thisCache._items.delete(cachedRequest);
       }))
     });
-  }
-
-  updateAll() : Promise {
-    return this.add.apply(this, this._items.keys());
   }
 
   // TODO: ready is only useful to validate the items added during construction
