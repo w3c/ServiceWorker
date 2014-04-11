@@ -1,39 +1,34 @@
-<h2>ServiceWorker Design</h2>
-
 ## What's Going On Here?
 
-ServiceWorkers (formerly Navigation Controllers) are a new system in browsers that provide event-driven scripts that run independent of web pages. They are similar to SharedWorkers except that their lifetime is different and they have access to domain-wide events such as network fetches.
+Service Workers are a new browsers feature that provides event-driven scripts that run independent of web pages. Unlike other Service Workers can be shut down at the end of events, not the lack of retained references from documents, and they have access to domain-wide events such as network fetches.
 
 ServiceWorkers also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to "go offline".
 
-ServiceWorkers aren't a new version of the [rightfully-loathed](http://alistapart.com/article/application-cache-is-a-douchebag) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Instead, they are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
+Service Workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Unlike AppCache, Service Workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
-To understand the design and how you might build apps with ServiceWorkers, see the [explainer document](https://github.com/slightlyoff/ServiceWorker/blob/master/explainer.md).
+To understand the design and how you might build apps with ServiceWorkers, see the [explainer document](explainer.md).
 
-For the nitty-gritty of the API, see [`service_worker.ts`](https://github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts), a [TypeScript](http://www.typescriptlang.org/) description of the major bits of the callable interface.
+## Spec and API Development
 
-[A web specification is being drafted](http://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) from the details captured in the [typescript file ](https://github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) and the [resolved issued marked `needs spec`](https://github.com/slightlyoff/ServiceWorker/issues?labels=needs+spec&page=1&state=closed).
+For the nitty-gritty of the API, the [draft W3C specification](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) and [`service_worker.ts`](//github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) are authoritative.
 
-## Building & Contributing to the Design
+Spec development is happens via [issues in this repository](issues). Discussion about design should happen there. For general discussion, please use the [public-webapps@w3.org mailing list](http://lists.w3.org/Archives/Public/public-webapps/).
 
-Most decisions regarding the API and finer points of the design are handled through issues in this repository. Feel free to open one if you don't see an obvious answer to your question in the [Explainer](explainer.md).
+Updates to the spec must reference [resolved issued marked `needs spec`](issues?labels=needs+spec&state=closed).
 
-To make edits to the design, change the TypeScript file (`service_worker.ts`); the JavaScript file is built from it. Building the JS version yourself isn't essential, but here's how:
+To edit the spec locally, you'll need a copy of [the Web Components-based framework which it is built with](//github.com/slightlyoff/web-spec-framework). To fetch it, clone the repo and run:
 
-Requirements:
+```sh
+git submodule update --init --recursive
+```
 
-* [Node.js](http://nodejs.org/) v0.8.15+
+To make edits to the design, please send pull requests against the TypeScript file (`service_worker.ts`) and spec (`spec/service_worker/index.html`). Changes to the spec without corresponding changes to the `.ts` file will not be accepted.
 
-Installing dependencies:
+Building the JS version of the TypeScript API description isn't essential, but here's how:
 
 ```sh
 # From the root of the project directory
 npm install
-```
-
-Building:
-
-```sh
 # From the root of the project directory
 make
 ```
