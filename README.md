@@ -4,13 +4,13 @@ Service Workers are a new browsers feature that provides event-driven scripts th
 
 ServiceWorkers also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to "go offline".
 
-Service Workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Unlike AppCache, Service Workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
+Service Workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](//www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Unlike AppCache, Service Workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
 To understand the design and how you might build apps with ServiceWorkers, see the [explainer document](explainer.md).
 
 ## Spec and API Development
 
-For the nitty-gritty of the API, the [draft W3C specification](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) and [`service_worker.ts`](//github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) are authoritative.
+For the nitty-gritty of the API, the [draft W3C specification](//slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) and [`service_worker.ts`](//github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) are authoritative.
 
 Spec development happens via [issues in this repository](issues). For general discussion, please use the [public-webapps@w3.org mailing list](http://lists.w3.org/Archives/Public/public-webapps/).
 
