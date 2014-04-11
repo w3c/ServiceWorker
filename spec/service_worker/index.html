@@ -465,6 +465,7 @@ interface <dfn id="request-interface" title="Request">Request</dfn> {
   attribute boolean synchronous;
   readonly attribute unsigned long redirectCount;
   attribute boolean forcePreflight;
+  attribute boolean forceSameOrigin;
   attribute boolean omitCredentials;
   readonly attribute <a href="http://goo.gl/Kxbl8E">URL</a> referrer;
   readonly attribute <a href="#header-map-interface">HeaderMap</a> headers; // alternative: sequence&lt;Header&gt; headers;
@@ -476,6 +477,7 @@ dictionary <dfn id="request-init-dictionary" title="RequestInit">RequestInit</df
   DOMString url;
   boolean synchronous = false;
   boolean forcePreflight = false;
+  boolean forceSameOrigin = false;
   boolean omitCredentials = false;
   <a href="http://goo.gl/M46tpy">ByteString</a> method = "GET";
   <a href="#header-map-interface">HeaderMap</a> headers;
@@ -592,14 +594,12 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
 <spec-idl>
 [Constructor((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>)]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="#request-interface">Request</a> or URL or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; matchAll((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any[]&gt; queryAll((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>q</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#request-interface">Request</a>[]&gt; keys((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>filterRequest</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; add((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; set((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>, <a href="#response-interface">Response</a> <var>response</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any[]&gt; delete((<a href="#request-interface">Request</a> or <a href="http://goo.gl/Kxbl8E">URL</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; updateAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; ready();
 };
 </spec-idl>
