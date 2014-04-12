@@ -356,18 +356,22 @@ interface <dfn id="document-install-event-interface" title="DocumentInstallEvent
   <spec-section id="navigator-service-worker-active">
     <h1><code>active</code></h1>
 
-    <p><code>navigator.serviceWorker.active</code> provides a reference to the <a href="#service-worker"><code>ServiceWorker</code></a></p>
-
-    <p><code>navigator.serviceWorker.active</code> is <code>null</code> if the current document was not <a href="#navigation-matching">created under a service worker</a>.</p>
+    <p><code>navigator.serviceWorker.active</code> must return a reference to the current <a href="#service-worker"><code>ServiceWorker</code></a> for the document. <code>navigator.serviceWorker.active</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a service worker</a>, or if the state is not <code>activating</code> or <code>activated</code>.<!-- FIXME(jungkees) state property should be defined. --></p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
+
+    <p><code>navigator.serviceWorker.getAll()</code> method must return a promise that resolves with the array of the ServiceWorker objects in <code>installing</code>, <code>installed</code>, <code>activating</code> and <code>activated</code> states.<!-- FIXME(jungkees) state property should be defined. --></p>
   </spec-section>
   <spec-section id="navigator-service-worker-register">
     <h1><code>register()</code></h1>
+
+    <p><code>navigator.serviceWorker.register(url, options)</code> method must run the <a href="#registration-algorithm">Registration algorithm</a> passing <var>url</var> and <var>options</var>.<var>scope</var> as the arguments.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-unregister">
     <h1><code>unregister()</code></h1>
+
+    <p><code>navigator.serviceWorker.unregister(scope)</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-oninstall">
     <h1><code>oninstall</code></h1>
@@ -436,7 +440,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <h1><code>fetch(request)</code></h1>
     </spec-section>
     <spec-section id="service-worker-global-scope-update">
-      <h1><code>update</code></h1>
+      <h1><code>update()</code></h1>
 
       <p>Ping the server for an updated version of this script without consulting caches. (See the <a href="#update-algorithm">Service Woker Update Algorithm</a>.)</p>
     </spec-section>
