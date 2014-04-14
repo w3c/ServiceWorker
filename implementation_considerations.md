@@ -59,9 +59,9 @@ UAs may even decide to try harder (match against a larger list of SWs) when offl
 
 #### Strategies
 
-  * _Keep the match list in memory_
-  * _Memory-bound the size of the match list_
-  * _Only run matching test against top-level navigations_. Sub-resource requests are always sent to the SW that controls the page (if any) and so don't need to be matched. Only top-level navigations every need to be sent through the matching algorithm.
+  * _*Keep the match list in memory*_.
+  * _*Memory-bound the size of the match list*_.
+  * _*Only run matching test against top-level navigations*_. Sub-resource requests are always sent to the SW that controls the page (if any) and so don't need to be matched. Only top-level navigations every need to be sent through the matching algorithm.
 
 
 ### Events Implicitly Filter
@@ -70,8 +70,8 @@ Only the event handlers registered at the top-level evaluation of the first eval
 
 #### Strategies
 
-  * _Prune the navigation match list based on `onfetch` handlers_
-  * _Warn SW authors that use APIs which would need corresponding handlers which are not registered_. E.g., a call to `navigator.requestSync()` against a SW that doesn't include an `onsync` handler isn't likely to be what the author meant to do.
+  * _*Prune the navigation match list based on `onfetch` handlers*_.
+  * _*Warn SW authors that use APIs which would need corresponding handlers which are not registered*_. E.g., a call to `navigator.requestSync()` against a SW that doesn't include an `onsync` handler isn't likely to be what the author meant to do.
 
 ### Startup _Matters_
 
@@ -79,14 +79,14 @@ The performance of evaluation of the Service Worker script is a key bottleneck t
 
 #### Strategies
 
-  * _Fetch SWs from disk early_. Links in documents to SW-controlled space constitute one of perhaps many available signals about the likelyhood that the next navigation will be to space controlled by a SW. As discussed in the matching section, querying to understand if a navigation will match a SW should be made cheap and, therefore, it's possible to imagine that optimizing implementations may try to pre-fetch SW scripts from disk based on speculative matches; e.g. the user typing `microsoft.co` in the address bar is perhaps a strong signal that a frequent visitor of `microsoft.com` will want a registered SW for that origin to be available quickly. As with all speculative optimizations, the real work here is ensuring good hit rates. PhD interns are the canonical strategy for
-  * _Interpret_. JIT-only VMs (like V8) are at a startup-time disadvantage due to the time taken by JIT codegen. SW scripts aren't likely to be compute intensive (and if they are, your engine can detect as much and flag future runs for JITing). Simpler compilation strategies that get the handlers available faster are a good area to investigate inside the SW execution context.
-  * _Store SW scripts as a single unit_. Storage locality still matters, even in 2014. Commodity MLC flash latency is _atrocious_, and spinning disk isn't getting (much) faster. Since SW scripts will nearly always require their previously `importScripts()` dependencies (which will be cached as a group), it pays to store them in a format that reduces the number of seeks/reads necessary to get the SW started. Also, remember that install-time is async, so there is time/energy available to optimize the storage layout up-front.
-  * _Cache Parse Trees or Snapshot_. SW scripts (and their dependencies) shouldn't change in a single version of the application. Combined with a reduced API surface area, it's possible to apply more exotic strategies for efficiently "rehydrating" the startup execution context of the SW. The spec makes no gaurantees about how frequently a SW context is killed and re-evaluated in relationship to the number of overall events dispatched, so a UA is free to make non-side-effecting global startup appear to be a continuation of a previous execution.
-  * _Warn on nondeterministic imports_. SWs are likely to be invoked when offline. This means that any scripts included via `importScripts()` that aren't from stable URLs _are likely to break when offline_. UAs can help keep developers on the optimization-friendly path by warning at the console whenever
-  * _Warn on non-trivial global work_. Since SWs "pay" for any globally executed code every time they start, it's a good idea for implementations to *_STRONGLY_* discourage doing work outside the defined lifecycle events (`oninstall` and `onactivate`).
-  * _Learn storage/DB patterns_. SW's are going to need to lean on IDB for state keeping across invocations and `Cache` objects for dealing with HTTP responses. In both cases it's possible to observe the set of resources most frequently accessed by a particular varsion of a SW and work to ensure that they're cheaply available by the time the SW is sent a particular event. In particular, speculatively fetching indexes may pay off in some scenarios.
-  * _Delay shutdown_. The cheapest SW to start is the one you haven't killed. Optimizing implementations may consider providing a 'grace period' for the shutdown of SW threads to reduce startup time of subsequent events. This strategy can be further refined with semantic awareness about event types. E.g., a top-level navigation to a SW is _likely_ to generate sub-resource fetch events soon after. Shutting down the original SW execution context quickly may be wasteful.
+  * _*Fetch SWs from disk early*_. Links in documents to SW-controlled space constitute one of perhaps many available signals about the likelyhood that the next navigation will be to space controlled by a SW. As discussed in the matching section, querying to understand if a navigation will match a SW should be made cheap and, therefore, it's possible to imagine that optimizing implementations may try to pre-fetch SW scripts from disk based on speculative matches; e.g. the user typing `microsoft.co` in the address bar is perhaps a strong signal that a frequent visitor of `microsoft.com` will want a registered SW for that origin to be available quickly. As with all speculative optimizations, the real work here is ensuring good hit rates. PhD interns are the canonical strategy for
+  * _*Interpret*_. JIT-only VMs (like V8) are at a startup-time disadvantage due to the time taken by JIT codegen. SW scripts aren't likely to be compute intensive (and if they are, your engine can detect as much and flag future runs for JITing). Simpler compilation strategies that get the handlers available faster are a good area to investigate inside the SW execution context.
+  * _*Store SW scripts as a single unit*_. Storage locality still matters, even in 2014. Commodity MLC flash latency is _atrocious_, and spinning disk isn't getting (much) faster. Since SW scripts will nearly always require their previously `importScripts()` dependencies (which will be cached as a group), it pays to store them in a format that reduces the number of seeks/reads necessary to get the SW started. Also, remember that install-time is async, so there is time/energy available to optimize the storage layout up-front.
+  * _*Cache Parse Trees or Snapshot*_. SW scripts (and their dependencies) shouldn't change in a single version of the application. Combined with a reduced API surface area, it's possible to apply more exotic strategies for efficiently "rehydrating" the startup execution context of the SW. The spec makes no gaurantees about how frequently a SW context is killed and re-evaluated in relationship to the number of overall events dispatched, so a UA is free to make non-side-effecting global startup appear to be a continuation of a previous execution.
+  * _*Warn on nondeterministic imports_. SWs are likely to be invoked when offline. This means that any scripts included via `importScripts()` that aren't from stable URLs _are likely to break when offline*_. UAs can help keep developers on the optimization-friendly path by warning at the console whenever
+  * _*Warn on non-trivial global work*_. Since SWs "pay" for any globally executed code every time they start, it's a good idea for implementations to *_STRONGLY_* discourage doing work outside the defined lifecycle events (`oninstall` and `onactivate`).
+  * _*Learn storage/DB patterns*_. SW's are going to need to lean on IDB for state keeping across invocations and `Cache` objects for dealing with HTTP responses. In both cases it's possible to observe the set of resources most frequently accessed by a particular varsion of a SW and work to ensure that they're cheaply available by the time the SW is sent a particular event. In particular, speculatively fetching indexes may pay off in some scenarios.
+  * _*Delay shutdown*_. The cheapest SW to start is the one you haven't killed. Optimizing implementations may consider providing a 'grace period' for the shutdown of SW threads to reduce startup time of subsequent events. This strategy can be further refined with semantic awareness about event types. E.g., a top-level navigation to a SW is _likely_ to generate sub-resource fetch events soon after. Shutting down the original SW execution context quickly may be wasteful.
 
 ### It's All Async
 
@@ -94,10 +94,10 @@ Aside from `importScripts()`, no synchronous APIs are available to SWs. This is 
 
 #### Strategies
 
-  * _Prioritize the SW thread_. SW execution is likely to be a sensitive component of overall application performance. Ensure it isn't getting descheduled!
-  * _Warn on long periods of SW-thread work_. Remaining responsive requires yeilding to the SW thread's event loop. DevTools can provide value by warning developers of long periods of potentially-blocking work that might reduce responsiveness to incoming events. A reasonable, mobile-friendly starting point might be to warn on any function that takes longer than 20ms to return in the fast path (e.g., `onfetch` or `onmessage`). Recommend to users that they move long-running work to sub-workers, to other turns (via new promises), or that they cache expensive work such that it can be returned via an async API (e.g. IDB).
-  * _Plan features with async in mind_. As you plan to add new features to the platform that you'd like to have exposed to the SW context, remember that they'll need to pass the "async only" test. Using Promises is a good first place to start, and reaching out to the editors of the SW spec early can't hurt.
-  * _Write async tests_. Your implementation is going to need to handle a large degree of variability in timing. Testing (and fuzzing) your scheduling behavior to optimize for overall app performance, particularly in the multiple-tab scenario, is key to keeping an eye on the real-world impact of performance tuning.
+  * _*Prioritize the SW thread*_. SW execution is likely to be a sensitive component of overall application performance. Ensure it isn't getting descheduled!
+  * _*Warn on long periods of SW-thread work*_. Remaining responsive requires yeilding to the SW thread's event loop. DevTools can provide value by warning developers of long periods of potentially-blocking work that might reduce responsiveness to incoming events. A reasonable, mobile-friendly starting point might be to warn on any function that takes longer than 20ms to return in the fast path (e.g., `onfetch` or `onmessage`). Recommend to users that they move long-running work to sub-workers, to other turns (via new promises), or that they cache expensive work such that it can be returned via an async API (e.g. IDB).
+  * _*Plan features with async in mind*_. As you plan to add new features to the platform that you'd like to have exposed to the SW context, remember that they'll need to pass the "async only" test. Using Promises is a good first place to start, and reaching out to the editors of the SW spec early can't hurt.
+  * _*Write async tests*_. Your implementation is going to need to handle a large degree of variability in timing. Testing (and fuzzing) your scheduling behavior to optimize for overall app performance, particularly in the multiple-tab scenario, is key to keeping an eye on the real-world impact of performance tuning.
 
 ### Best Effort
 
@@ -114,8 +114,8 @@ Until installation success a registered SW _will not be sent any performance-sen
 
 #### Strategies
 
-  * _Prioritize SW resource fetching appropriately_. It may improve performance of the installing document to prioritize resource fetches of the foreground page above those of the installing SW.
-  * _Do extra work to optimize SW loading before activation_. UAs have leeway to avoid activating the SW for navigations until they're good and ready to do so. Thinks is your chance to optimize the crud out of them.
+  * _*Prioritize SW resource fetching appropriately*_. It may improve performance of the installing document to prioritize resource fetches of the foreground page above those of the installing SW.
+  * _*Do extra work to optimize SW loading before activation*_. UAs have leeway to avoid activating the SW for navigations until they're good and ready to do so. Thinks is your chance to optimize the crud out of them.
 
 ### Racing Allowed
 
@@ -123,8 +123,8 @@ Annecdotal evidence suggests that commodity OSes and hardware perform VERY badly
 
 #### Strategies
 
-  * _Learn to race on top-level navigations_. Adapting to historical (local) I/O performance may help UAs decide if and when to avoid using local resources. SWs may, at first glance, appear to muddy the waters, but fear not! Nothing about the SW spec forces an implementer to _always_ send navigations to a matching SW. In fact, the implementation can attempt to go to the network for a top-level navigation while concurrently attempting to dispatch an `onfetch` to the matching SW. Assuming the UA chooses to render the doucment produced by the winner of the race, the model from then on is clear. Thanks to the page-ownership model of the SW design, the first system to respond will "control" sub-resource requests. This means that if a SW is used, all subsequent sub-resource requests should be sent to the SW (not raced). If the network wins the race, all sub-resource requests will be sent to the network (not the SW).
-  * _Learn to disable SWs_. In extreme cases, if disk is degraded to the extent that SWs can never start quickly, it may be advantageous to simply disable the SW subsystem entirely. Thanks to the online-fallback model of SWs, applications should continue to function (to the extent that they can).
+  * _*Learn to race on top-level navigations*_. Adapting to historical (local) I/O performance may help UAs decide if and when to avoid using local resources. SWs may, at first glance, appear to muddy the waters, but fear not! Nothing about the SW spec forces an implementer to _always_ send navigations to a matching SW. In fact, the implementation can attempt to go to the network for a top-level navigation while concurrently attempting to dispatch an `onfetch` to the matching SW. Assuming the UA chooses to render the doucment produced by the winner of the race, the model from then on is clear. Thanks to the page-ownership model of the SW design, the first system to respond will "control" sub-resource requests. This means that if a SW is used, all subsequent sub-resource requests should be sent to the SW (not raced). If the network wins the race, all sub-resource requests will be sent to the network (not the SW).
+  * _*Learn to disable SWs*_. In extreme cases, if disk is degraded to the extent that SWs can never start quickly, it may be advantageous to simply disable the SW subsystem entirely. Thanks to the online-fallback model of SWs, applications should continue to function (to the extent that they can).
 
 ### Cache Objects Are HTTP-specific
 
@@ -132,7 +132,7 @@ Objects in `self.caches` are instances of `Cache`. These HTTP-like-cache objects
 
 #### Strategies
 
-  * _Store `Response` objects like HTTP cache entries_. It might be tempting to lean on IDB or other general-purpose storage for handling `Cache` entries. Browser HTTP caches have seen a decade+ of tuning for the specific use-case of returning HTTP data to renderers. It may be advantageous to lean on this engineering where possible.
+  * _*Store `Response` objects like HTTP cache entries*_. It might be tempting to lean on IDB or other general-purpose storage for handling `Cache` entries. Browser HTTP caches have seen a decade+ of tuning for the specific use-case of returning HTTP data to renderers. It may be advantageous to lean on this engineering where possible.
 
 ### Interaction With Prefetch and Prerender Is Sane
 
@@ -142,5 +142,5 @@ Similarly, [pre-rendering](https://developers.google.com/chrome/whitepapers/prer
 
 #### Strategies
 
-  * _Start DNS and TCP early_. It may improve overall performance to begin DNS resolution and TCP warm-up for prefetch-located resources _concurrently_ with dispatching the request to the SW. This, obviously, requires measurement (and perhaps adaption on a per-SW version basis) to verify that requests outbound from a SW usually correspond to the origin of the `Request` sent to the SW itself.
-  * _Pre-fetch to SW-controlled URL space when offline_. Pre-render is a huge boon to app performance when online, but generally isn't available offline. SWs can help by providing a "map" of the available world based on SW registrations with `onfetch` handlers.
+  * _*Start DNS and TCP early*_. It may improve overall performance to begin DNS resolution and TCP warm-up for prefetch-located resources _concurrently_ with dispatching the request to the SW. This, obviously, requires measurement (and perhaps adaption on a per-SW version basis) to verify that requests outbound from a SW usually correspond to the origin of the `Request` sent to the SW itself.
+  * _*Pre-fetch to SW-controlled URL space when offline*_. Pre-render is a huge boon to app performance when online, but generally isn't available offline. SWs can help by providing a "map" of the available world based on SW registrations with `onfetch` handlers.
