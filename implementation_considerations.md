@@ -2,7 +2,7 @@
 
 Or
 
-### _What to Expect When You're Expecting to Implement Service Workers_
+### _What to Expect When You're Expecting to Implement_
 
 So you've got a browser engine, are looking into this whole "Service Workers" thing and have some questions. Take heart, dear reader! Your friendly spec designers/authors are here to answer your (anticipated) questions. Want more answers? [File a bug!](issues) and tag it `implementation-concern`.
 
