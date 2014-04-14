@@ -45,7 +45,7 @@ SWs lean on the DOM Events as the entry point for nearly all work. The contract 
 
 ## Good News, Everybody!
 
-Opportunities to go fast (and, more importantly, avoid going slow) abound. This section is a burn-down list of performance-oriented things to understand as you begin to implement. Each section finishes with a list of potential strategies to investigate in your implementation.
+SWs are designed to enable many optimizations. This section covers some of these opportunities and outlines potential strategies for exploiting them.
 
 _Caveat Emptor_: This document was drafted in early 2014. Architectures and constraints change. The set of areas to consider outlined here is influenced by a lack perfect foreknowledge. Memory and IO might become free. CPU might become expensive. Genetically engineered super-intelligent catdog hybrids may take over the world. YMMV.
 
