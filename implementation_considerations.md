@@ -4,17 +4,17 @@ Or
 
 ### _What to Expect When You're Expecting to Implement_
 
-So you've got a browser engine, are looking into this whole "Service Workers" thing and have some questions. Take heart, dear reader! Your friendly spec designers/authors are here to answer your (anticipated) questions. Want more answers? [File a bug!](issues) and tag it `implementation-concern`.
+So you've got a browser engine, are looking into this whole "Service Workers" thing and have some questions. Take heart, dear reader! Your friendly spec designers/authors are here to answer your (anticipated) questions. Want more answers? [File a bug](issues) and tag it `implementation-concern`.
 
-We'll take this in steps; first looking at the general architecture, then outlining the areas of built-in ambiguity [in the spec](//slightlyoff.github.io/ServiceWorker/spec/service_worker/) that provide opportunities to go fast, and lastly outline a list of strategies that implementations might explore to improve Service Worker performance and reliability.
+This doc looks firat at key concepts then outlines the [areas of helpful built-in ambiguity ](//slightlyoff.github.io/ServiceWorker/spec/service_worker/) that provide opportunities to go fast. Each are of opportunity includes a list of strategies that implementations might explore to improve Service Worker performance.
 
 ## Key Concepts
 
 ### Event-Driven Workers
 
-As an implementer, the biggest thing to understand about Service Workers is that they are _event driven_. Unlike other forms of [Web Worker](http://www.w3.org/TR/workers/), the lifetime of the script execution context of the worker is not related to documents which have handles to the worker. Instead, Service Workers begin (and end) life when events are sent to them.
+The biggest thing to understand about Service Workers is that they are _event driven_. Unlike other forms of [Web Worker](http://www.w3.org/TR/workers/), the lifetime of the script execution context of the worker is not related to documents which have handles to the worker. Instead, Service Workers begin (and end) life when events are sent to them.
 
-In general, the most performance-sensitive of these events is the `fetch` event for top-level document navigation. To ensure that the decision regarding which (if any) Service Worker to boot up to handle a `fetch` event, the spec uses a static tuple of origin + URL pattern to map SW's to navigations. This list will change infrequently and is likely to be something you can cache in memory for fast lookup.
+The most performance-sensitive of these events is the `fetch` event for top-level document navigation. To ensure that the decision regarding which (if any) Service Worker to boot up to handle a `fetch` event, the spec uses a static tuple of origin + URL pattern to map SW's to navigations. This list will change infrequently and is likely to be something you can cache in memory for fast lookup.
 
 Once a Service Worker is a match for a particular navigation, a Service Worker instance is created (if one isn't already running) using the previously cached scripts. It's reasonable to assume that all of the scripts required to start the worker will be in the local cache at this point, so there's little reason to worry about network speed or flakiness here (disk flakiness is another question entirely, see "Racing Allowed" below).
 
