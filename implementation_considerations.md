@@ -47,12 +47,39 @@ SWs lean on the DOM Events as the entry point for nearly all work. The contract 
 
 Opportunities to go fast (and, more importantly, avoid going slow) abound. This section is a burn-down list of performance-oriented things to understand as you begin to implement. Each section finishes with a list of potential strategies to investigate in your implementation.
 
+_Caveat Emptor_: This document was drafted in early 2014. Architectures and constraints change. The set of areas to consider outlined here is influenced by a lack perfect foreknowledge. Memory and IO might become free. CPU might become expensive. Genetically engineered super-intelligent catdog hybrids may take over the world. YMMV.
+
+### Only Matching Navigations Boot SW's
+
+Lets say `example.com` has a SW registered and `acme.com` embeds the image `https://example.com/images/kittens.gif`. Since the SW matching algorithm is primarialy based on _navigations_ and not sub-resource requests, a visit to `acme.com` will _not_ boot the SW for `example.com` for this fetch. Instead, the `onfetch` event is sent to the `acme.com` SW (if there is one).
+
+The need to match navigations may still strike you as a performance burden, but there's reason for hope. First, you're already matching a likely-larger list to provide `:visited` metadata to renderers. Next, the globbing format is designed to be simple to speed matches. Lastly, since a UA may skip a SW entirely, it's feasible for a UA to only match against some set of registered SWs (say, the most recently installed or used).
+
+UAs may even decide to try harder (match against a larger list of SWs) when offline to help provide a better offline experience.
+
+#### Strategies
+
+  * _Keep the match list in memory_
+  * _Memory-bound the size of the match list_
+  * _Only run matching test against top-level navigations_. Sub-resource requests are always sent to the SW that controls the page (if any) and so don't need to be matched. Only top-level navigations every need to be sent through the matching algorithm.
+
+
+### Events Implicitly Filter
+
+Only the event handlers registered at the top-level evaluation of the first evaluation (at install time) of a version of a SW script are guaranteed to be dispatched against in the future. That is to say, if a SW script doesn't register an `onfetch` handler _you can avoid ever sending it `fetch` events_. This is a powerful mechanism for trimming the number of times you need to do potentially expensive work by invoking SWs.
+
+#### Strategies
+
+  * _Prune the navigation match list based on `onfetch` handlers_
+  * _Warn SW authors that use APIs which would need corresponding handlers which are not registered_. E.g., a call to `navigator.requestSync()` against a SW that doesn't include an `onsync` handler isn't likely to be what the author meant to do.
+
 ### Startup _Matters_
 
 The performance of evaluation of the Service Worker script is a key bottleneck to address in ensuring that perceived latency of SW-controlled documents remains low. It isn't possible to send the `fetch` event to the worker until it has been evaluated, potentially including code (via `importScripts()`) from other files.
 
 #### Strategies
 
+  * _Fetch SWs from disk early_. Links in documents to SW-controlled space constitute one of perhaps many available signals about the likelyhood that the next navigation will be to space controlled by a SW. As discussed in the matching section, querying to understand if a navigation will match a SW should be made cheap and, therefore, it's possible to imagine that optimizing implementations may try to pre-fetch SW scripts from disk based on speculative matches; e.g. the user typing `microsoft.co` in the address bar is perhaps a strong signal that a frequent visitor of `microsoft.com` will want a registered SW for that origin to be available quickly. As with all speculative optimizations, the real work here is ensuring good hit rates. PhD interns are the canonical strategy for
   * _Interpret_. JIT-only VMs (like V8) are at a startup-time disadvantage due to the time taken by JIT codegen. SW scripts aren't likely to be compute intensive (and if they are, your engine can detect as much and flag future runs for JITing). Simpler compilation strategies that get the handlers available faster are a good area to investigate inside the SW execution context.
   * _Store SW scripts as a single unit_. Storage locality still matters, even in 2014. Commodity MLC flash latency is _atrocious_, and spinning disk isn't getting (much) faster. Since SW scripts will nearly always require their previously `importScripts()` dependencies (which will be cached as a group), it pays to store them in a format that reduces the number of seeks/reads necessary to get the SW started. Also, remember that install-time is async, so there is time/energy available to optimize the storage layout up-front.
   * _Cache Parse Trees or Snapshot_. SW scripts (and their dependencies) shouldn't change in a single version of the application. Combined with a reduced API surface area, it's possible to apply more exotic strategies for efficiently "rehydrating" the startup execution context of the SW. The spec makes no gaurantees about how frequently a SW context is killed and re-evaluated in relationship to the number of overall events dispatched, so a UA is free to make non-side-effecting global startup appear to be a continuation of a previous execution.
@@ -78,35 +105,42 @@ UA's are free to _not_ start SW's for navigations (or other events), _event if t
 
 UAs, obviously, should try to do their best to enable SWs to do _their_ best in serving meaningful content to users, and we recommend always trying to send sub-resource requests to SWs for documents that begin life based on the SW in question.
 
-#### Strategies
-
-### Only Matching Navigations Boot SW's
-
-Lets say `example.com` has a SW registered and `acme.com` embeds the image `https://example.com/images/kittens.gif`. Since the
-
-#### Strategies
 
 ### Installation is Not in the Fast Path
 
-TODO(slightlyoff)
+The first page loaded from an application that calls `navigator.serviceWorker.register()` cannot, by definition, be served from the SW itself. This illuminates the async nature of SW installation. Because SW installation may take a long time (downloading imported scripts and populating `Cache` objects), the lifecycle events for the SW system are designed to allow authors to inform the UA of installation success.
+
+Until installation success a registered SW _will not be sent any performance-sensitive events_. The async nature of
+
 #### Strategies
 
-### Events Implicitly Filter
-
-TODO(slightlyoff)
-#### Strategies
+  * _Prioritize SW resource fetching appropriately_. It may improve performance of the installing document to prioritize resource fetches of the foreground page above those of the installing SW.
+  * _Do extra work to optimize SW loading before activation_. UAs have leeway to avoid activating the SW for navigations until they're good and ready to do so. Thinks is your chance to optimize the crud out of them.
 
 ### Racing Allowed
 
-TODO(slightlyoff)
+Annecdotal evidence suggests that commodity OSes and hardware perform VERY badly in disk I/O. Some systems are so degraded that local (valid) caches fetched from disk may perform worse than requests for equivalent resources from the network. Improvements in networks, the spread of malware, and the spread of poorly-written virus scanners exacerbate the underlying trend towards poorly performing disk I/O.
+
 #### Strategies
+
+  * _Learn to race on top-level navigations_. Adapting to historical (local) I/O performance may help UAs decide if and when to avoid using local resources. SWs may, at first glance, appear to muddy the waters, but fear not! Nothing about the SW spec forces an implementer to _always_ send navigations to a matching SW. In fact, the implementation can attempt to go to the network for a top-level navigation while concurrently attempting to dispatch an `onfetch` to the matching SW. Assuming the UA chooses to render the doucment produced by the winner of the race, the model from then on is clear. Thanks to the page-ownership model of the SW design, the first system to respond will "control" sub-resource requests. This means that if a SW is used, all subsequent sub-resource requests should be sent to the SW (not raced). If the network wins the race, all sub-resource requests will be sent to the network (not the SW).
+  * _Learn to disable SWs_. In extreme cases, if disk is degraded to the extent that SWs can never start quickly, it may be advantageous to simply disable the SW subsystem entirely. Thanks to the online-fallback model of SWs, applications should continue to function (to the extent that they can).
 
 ### Cache Objects Are HTTP-specific
 
-TODO(slightlyoff)
+Objects in `self.caches` are instances of `Cache`. These HTTP-like-cache objects deal _exclusively_ in HTTP `Response` objects. With the exception of programmatic (not automatic) eviction these `Cache` objects are best thought of a group of native cache items. Most of the operations available for dealing with them will mirror HTTP cache query semantics and will likely be familiar to implementers. You know how to make this stuff fast.
+
 #### Strategies
+
+  * _Store `Response` objects like HTTP cache entries_. It might be tempting to lean on IDB or other general-purpose storage for handling `Cache` entries. Browser HTTP caches have seen a decade+ of tuning for the specific use-case of returning HTTP data to renderers. It may be advantageous to lean on this engineering where possible.
 
 ### Interaction With Prefetch and Prerender Is Sane
 
-TODO(slightlyoff)
+Speculative pre-parsing of documents and CSS resources (not blocking a parser on `<script>` elements, etc.) to locate URLs to speculatively load is an important browser optimization. SWs play well with this optimization since they conceptually sit "behind" the document but in front of the network layer. Sending `onfetch` events for these resources should happen in the usual way.
+
+Similarly, [pre-rendering](https://developers.google.com/chrome/whitepapers/prerender) requests should be sent to SWs. They can help warm-up documents while offline. A UA might decide to only send pre-render requests to URL space with a matching SW registration when offline to avoid wasting resources.
+
 #### Strategies
+
+  * _Start DNS and TCP early_. It may improve overall performance to begin DNS resolution and TCP warm-up for prefetch-located resources _concurrently_ with dispatching the request to the SW. This, obviously, requires measurement (and perhaps adaption on a per-SW version basis) to verify that requests outbound from a SW usually correspond to the origin of the `Request` sent to the SW itself.
+  * _Pre-fetch to SW-controlled URL space when offline_. Pre-render is a huge boon to app performance when online, but generally isn't available offline. SWs can help by providing a "map" of the available world based on SW registrations with `onfetch` handlers.
