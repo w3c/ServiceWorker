@@ -18,9 +18,9 @@ In general, the most performance-sensitive of these events is the `fetch` event 
 
 Once a Service Worker is a match for a particular navigation, a Service Worker instance is created (if one isn't already running) using the previously cached scripts. It's reasonable to assume that all of the scripts required to start the worker will be in the local cache at this point, so there's little reason to worry about network speed or flakiness here (disk flakiness is another question entirely, see "Racing Allowed" below).
 
-Next, an event is dispatched to the now-running worker. If the worker's event handler doesn't call `e.respondWith()`, no further script is implicated in servicing the fetch and normal resource loading can proceed as per usual. If the worker _does_ take a crack at responding to the event, the worker's life is typically extended to enable it to do whatever (asynchronous) work it needs to do to respond. Once the worker is done handling the event (or not), the UA _is free to shut the worker down_ and only revive it again for the next event.
+Next, an event is dispatched to the now-running worker. If the worker's event handler doesn't call `e.respondWith()`, no further script is implicated in servicing the fetch and normal resource loading can proceed as per usual. If the worker _does_ take a crack at responding to the event, the worker's life is typically extended to enable it to do whatever work it needs to do to respond (asynchronously, via the `Promise` provided to `respondWith()`) . Once the worker is done handling the event (or not), the UA _is free to shut the worker down_ and only revive it again for the next event.
 
-It bears repeating: if no event's lifecycle is keeping the SW alive, UA's can shut them down and reclaim whatever resources they might have been using. If this doesn't warm your cold, cold implementer's heart then you might truly be dead inside.
+It bears repeating: if no event's lifecycle is keeping the SW alive, UA's can shut them down and reclaim whatever resources they might have been using. If this doesn't warm your cold, cold implementer's heart then you might truly be dead inside. The opportunities to trade space for speed (and vice versa) are massive. The freedom to start and end SWs at a time of your choosing is the stuff good optimization strategies are made off.
 
 ### Install
 
@@ -35,13 +35,13 @@ Installation of SWs happens as a result of a document calling:
 
 The SW might be humonculous...dozens of imports, loads of code. This is the web and every terrible thing that authors _can_ do _will_ be done. This looks bad, right?
 
-Turns out that SWs have a _defined lifecycle_ that enables us to think about installation as a separate, asynchronous, potentially long-running phase that _doesn't affect the rest of `index.html`_.
+Turns out that SWs have a defined lifecycle that enables us to think about installation as a separate, asynchronous, potentially long-running phase that _doesn't affect the rest of `index.html`_'s loading process.
 
 Installation can be low-priority, and no documents will be controlled by the SW until it succeeds. That means that it's possible to depend on lots of script and cache many resources in an SW without worrying about the "load time" of the SW itself since all subsequent starts of the SW will come from local disk cache.
 
 ### Event Dispatch
 
-TODO(slightlyoff)
+SWs lean on the DOM Events as the entry point for nearly all work. The contract that developers must learn is that they must call `e.waitUntil()` or `e.respondWith()` to lengthen the life of the overall operation. All of the APIs available to them are asynchronous, and the combination of these factors implies that SWs are meant to be async by default. The tools at hand lead developers down this path, and cooperative multi-tasking (ala node.js) is the way that libraries must be structured, both for performance and to work naturally with the SW execution model. Lastly, remember that developers can move work off-thread using sub-workers. They'll also be killed with their parent SWs are collected, but long-running or CPU intensive work that might otherwise cause potential for becoming unresponsive can be delegated to contexts which will not block the SW thread.
 
 ## Good News, Everybody!
 
