@@ -45,11 +45,32 @@ SWs lean on the DOM Events as the entry point for nearly all work. The contract 
 
 ## Good News, Everybody!
 
-Opportunities to go fast (and, more importantly, avoid going slow) abound.
+Opportunities to go fast (and, more importantly, avoid going slow) abound. This section is a burn-down list of performance-oriented things to understand as you begin to implement. Each section finishes with a list of potential strategies to investigate in your implementation.
+
+### Startup _Matters_
+
+The performance of evaluation of the Service Worker script is a key bottleneck to address in ensuring that perceived latency of SW-controlled documents remains low. It isn't possible to send the `fetch` event to the worker until it has been evaluated, potentially including code (via `importScripts()`) from other files.
+
+#### Strategies
+
+  * _Interpret_. JIT-only VMs (like V8) are at a startup-time disadvantage due to the time taken by JIT codegen. SW scripts aren't likely to be compute intensive (and if they are, your engine can detect as much and flag future runs for JITing). Simpler compilation strategies that get the handlers available faster are a good area to investigate inside the SW execution context.
+  * _Store SW scripts as a single unit_. Storage locality still matters, even in 2014. Commodity MLC flash latency is _atrocious_, and spinning disk isn't getting (much) faster. Since SW scripts will nearly always require their previously `importScripts()` dependencies (which will be cached as a group), it pays to store them in a format that reduces the number of seeks/reads necessary to get the SW started. Also, remember that install-time is async, so there is time/energy available to optimize the storage layout up-front.
+  * _Cache Parse Trees or Snapshot_. SW scripts (and their dependencies) shouldn't change in a single version of the application. Combined with a reduced API surface area, it's possible to apply more exotic strategies for efficiently "rehydrating" the startup execution context of the SW. The spec makes no gaurantees about how frequently a SW context is killed and re-evaluated in relationship to the number of overall events dispatched, so a UA is free to make non-side-effecting global startup appear to be a continuation of a previous execution.
+  * _Warn on nondeterministic imports_. SWs are likely to be invoked when offline. This means that any scripts included via `importScripts()` that aren't from stable URLs _are likely to break when offline_. UAs can help keep developers on the optimization-friendly path by warning at the console whenever
+  * _Warn on non-trivial global work_. Since SWs "pay" for any globally executed code every time they start, it's a good idea for implementations to *_STRONGLY_* discourage doing work outside the defined lifecycle events (`oninstall` and `onactivate`).
+  * _Learn storage/DB patterns_. SW's are going to need to lean on IDB for state keeping across invocations and `Cache` objects for dealing with HTTP responses. In both cases it's possible to observe the set of resources most frequently accessed by a particular varsion of a SW and work to ensure that they're cheaply available by the time the SW is sent a particular event. In particular, speculatively fetching indexes may pay off in some scenarios.
+  * _Delay shutdown_. The cheapest SW to start is the one you haven't killed. Optimizing implementations may consider providing a 'grace period' for the shutdown of SW threads to reduce startup time of subsequent events. This strategy can be further refined with semantic awareness about event types. E.g., a top-level navigation to a SW is _likely_ to generate sub-resource fetch events soon after. Shutting down the original SW execution context quickly may be wasteful.
 
 ### It's All Async
 
-TODO(slightlyoff)
+Aside from `importScripts()`, no synchronous APIs are available to SWs. This is by design. Remaining responsive from the shared SW context requires ensuring that decisions are made quickly and long-running work can be deferred to underlying (asynchronous) systems. No API will be added to the SW execution context that can potentially create cross-context mutex holds (e.g., Local Storage) or otherwise block (e.g., synchronous XHR). This discipline makes it simpler to reason about what it means to be a poorly-written SW script.
+
+#### Strategies
+
+  * _Prioritize the SW thread_. SW execution is likely to be a sensitive component of overall application performance. Ensure it isn't getting descheduled!
+  * _Warn on long periods of SW-thread work_. Remaining responsive requires yeilding to the SW thread's event loop. DevTools can provide value by warning developers of long periods of potentially-blocking work that might reduce responsiveness to incoming events. A reasonable, mobile-friendly starting point might be to warn on any function that takes longer than 20ms to return in the fast path (e.g., `onfetch` or `onmessage`). Recommend to users that they move long-running work to sub-workers, to other turns (via new promises), or that they cache expensive work such that it can be returned via an async API (e.g. IDB).
+  * _Plan features with async in mind_. As you plan to add new features to the platform that you'd like to have exposed to the SW context, remember that they'll need to pass the "async only" test. Using Promises is a good first place to start, and reaching out to the editors of the SW spec early can't hurt.
+  * _Write async tests_. Your implementation is going to need to handle a large degree of variability in timing. Testing (and fuzzing) your scheduling behavior to optimize for overall app performance, particularly in the multiple-tab scenario, is key to keeping an eye on the real-world impact of performance tuning.
 
 ### Best Effort
 
@@ -57,26 +78,35 @@ UA's are free to _not_ start SW's for navigations (or other events), _event if t
 
 UAs, obviously, should try to do their best to enable SWs to do _their_ best in serving meaningful content to users, and we recommend always trying to send sub-resource requests to SWs for documents that begin life based on the SW in question.
 
+#### Strategies
+
 ### Only Matching Navigations Boot SW's
 
 Lets say `example.com` has a SW registered and `acme.com` embeds the image `https://example.com/images/kittens.gif`. Since the
 
+#### Strategies
+
 ### Installation is Not in the Fast Path
 
 TODO(slightlyoff)
+#### Strategies
 
 ### Events Implicitly Filter
 
 TODO(slightlyoff)
+#### Strategies
 
 ### Racing Allowed
 
 TODO(slightlyoff)
+#### Strategies
 
 ### Cache Objects Are HTTP-specific
 
 TODO(slightlyoff)
+#### Strategies
 
-### Interaction With Prefetch and Prerender Is SaneTODO(slightlyoff)
+### Interaction With Prefetch and Prerender Is Sane
 
 TODO(slightlyoff)
+#### Strategies
