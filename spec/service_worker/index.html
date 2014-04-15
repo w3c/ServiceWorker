@@ -442,7 +442,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-caches">
       <h1><code>caches</code></h1>
 
-      <p><code>self.caches</code> must return the <code><a href="#cache-list-interface">CacheList</a></code> object that is the global asychronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumeralbe via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Maps</a>.)</p>
+      <p><code>self.caches</code> must return the <code><a href="#cache-list-interface">CacheList</a></code> object that is the global asychronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Maps</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
@@ -456,17 +456,24 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     </spec-section>
     <spec-section id="service-worker-global-scope-fetch">
       <h1><code>fetch(request)</code></h1>
+
+      <p><code>self.fetch(request)</code> method must run the <a href="http://goo.gl/fGMifs">fetch algorithm</a> passing <var>request</var> as the argument.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
 
-      <p>Ping the server for an updated version of this script without consulting caches. (See the <a href="#update-algorithm">Service Woker Update Algorithm</a>.)</p>
+      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <code>self.update()</code> method must run the <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> passing its serviceWorkerRegistration object as the argument which is the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> with <code>self.scope</code> as the argument. (This is conceptually the same operation that UA does maximum once per every 24 hours.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
+
+      <p><code>self.unregister()</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> implicitly passing <code>self.scope</code> as the argument</p>.
     </spec-section>
     <spec-section id="service-worker-global-scope-onmessage">
       <h1><code>onmessage</code></h1>
+
+      <p><code>self.onmessage</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code>ServiceWorkerGlobalScope</code> object. <code>ServiceWorkerGlobalScope</code> objects act as if they had an implicit <code><a href="http://goo.gl/tHBrI6">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the worker is created, but it is not exposed. This object must never be garbage collected before the <code>ServiceWorkerGlobalScope</code> object.</p>
+      <p>All messages received by that port must immediately be retargeted at the <code>ServiceWorkerGlobalScope</code> object. That is, an event named <code>message</code> using the <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code> interface is dispatched on ServiceWorkerGlobalScope object. The <code>event.source</code> of these <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code>s are instances of <code><a href="#client-interface">Client</a></code>.</p>
     </spec-section>
 
   </spec-section>
