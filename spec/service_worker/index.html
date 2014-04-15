@@ -137,13 +137,13 @@
     <li><a href="#events">Events</a>
     <ol>
       <li><a href="#install-phase-event"><code>InstallPhaseEvent</code></a></li>
-      <li><a href="#oninstall"><code>oninstall</code></a>
+      <li><a href="#install-event"><code>oninstall</code></a>
         <ol><li><a href="#install-event"><code>InstallEvent</code></a></li></ol>
       </li>
-      <li><a href="#onactivate"><code>onactivate</code></a>
+      <li><a href="#activate-event"><code>onactivate</code></a>
         <ol><li><a href="#activate-event"><code>ActivateEvent</code></a></li></ol>
       </li>
-      <li><a href="#onfetch"><code>onfetch</code></a>
+      <li><a href="#fetch-event"><code>onfetch</code></a>
         <ol><li><a href="#fetch-event"><code>FetchEvent</code></a></li></ol>
       </li>
     </ol></li>
@@ -224,7 +224,7 @@
 
     <p>A document is "<dfn id="doucment-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the doucment's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#doucment-control">controlled</a> documents.</p>
 
-    <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#oninstall">install</a></code> and <code><a href="#onactivate">activate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
+    <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
 
     <p>Registered Service Workers do not immediately begin to receive <a href="#functional-events">functional events</a> for documents. Registration is the first step in installation, which proceeds through several phases:</p>
 
@@ -238,7 +238,7 @@
       </li>
       <li><em><code>oninstall</code></em>:
       <br>
-      Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#oninstall"><code>install</code></a>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
+      Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#install-event"><code>install</code></a>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
       <br><br>
       Service Workers are not considered "installed" until the <code>oninstall</code> event handler completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
       <br><br>
@@ -250,7 +250,7 @@
       </li>
       <li><em><code>onactivate</code></em>:
       <br>
-      After successful installation and just prior to receiving <a href="#functional-events">functional events</a> (e.g., <code><a href="#onfetch">fetch</a></code>), the <code>activate</code> event is dispatched. The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
+      After successful installation and just prior to receiving <a href="#functional-events">functional events</a> (e.g., <code><a href="#fetch-event">fetch</a></code>), the <code>activate</code> event is dispatched. The primary use of <code>onactivate</code> is for cleanup of resources used in previous versions of a Service Worker script.
       <br><br>
       <div class="note">Like <code>install</code> event, this event may extend its lifetime using <code>event.waitUntil()</code>, however developers should note that activation is particularly performance sensitive. Performance sensitive events may be queued and will be delayed until successful completion of <code>onctivate</code>.</div>
       </li>
@@ -258,7 +258,7 @@
 
     <p>User Agents may request updated Service Worker scripts "in the background" while <a href="#doucment-control">controlled</a> documents for an existing Service Worker and url scope are active. Successful fetch, startup, and <code>oninstall</code> <i>do not</i> gaurantee that the <a href="#worker-in-waiting">worker-in-waiting</a> will begin to immediately handle <a href="#functional-events">functional events</a>. An existing Service Worker script will continue to service documents it controls (and will continue to control new documents in the <a href="#url-scope">url scope</a>) so long as any documents it <a href="#doucment-control">controlled</a> remain. API exists on the <a href="#service-worker-obj">Service Worker</a> to enable immediate activation but this is not the default behavior.<p>
 
-    <p>Once a service worker becomes active, the user agent may dispatch <a href="#functional-events">functional events</a>. These events model various user-agent generated operations; for example the <code><a href="#onfetch">fetch</a></code> event handling HTTP requests.</p>
+    <p>Once a service worker becomes active, the user agent may dispatch <a href="#functional-events">functional events</a>. These events model various user-agent generated operations; for example the <code><a href="#fetch-event">fetch</a></code> event handling HTTP requests.</p>
 
   </spec-section>
 
@@ -442,7 +442,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-caches">
       <h1><code>caches</code></h1>
 
-      <p><code>self.caches</code> must return the <code><a href="#cache-list-interface">CacheList</a></code> object that is the global asychronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Maps</a>.)</p>
+      <p><code>self.caches</code> must return the <code><a href="#cache-list-interface">CacheList</a></code> object that is the global asychronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
@@ -608,14 +608,18 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
     </spec-section>
   </spec-section>
 
-  <spec-section id="fetch">
+  <!--spec-section id="fetch">
     <h1><code>fetch()</code></h1>
-  </spec-section>
+  </spec-section--><!--#FIXME(jungkees) if wrong: fetch(request) is defined in ServiceWorkerGlobalScope section-->
   <spec-section id="cache-objects">
     <h1>Caches</h1>
 
+    <p>To allow authors to fully manage their content caches for offline use, the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context provides the caching methods largely conforming to <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a> with additional convenience methods. A domain can have multiple, named <code><a href="#cache-interface">Cache</a></code> objects, whose contents are entirely under the control of scripts. Caches are not shared across domains, and they are completely isolated from the browser's HTTP cache.</p>
+
     <spec-section id="cache-lifetimes">
       <h1>Understanding Cache Lifetimes</h1>
+
+      <p>The <code><a href="#cache-interface">Cache</a></code> instances are not part of the browser's HTTP cache. The <code><a href="#cache-interface">Cache</a></code> objects are exactly what authors have to manage themselves. The <code><a href="#cache-interface">Cache</a></code> objects do not get updated unless authors explicitly request them to be. The <code><a href="#cache-interface">Cache</a></code> objects do not expire unless authors delete the entries. The <code><a href="#cache-interface">Cache</a></code> objects do not disappear just because the Service Worker script is updated. That is, caches are not updated automatically. Updates must be manually managed. This implies that authors should version their caches by name and make sure to use the caches only from the version of the ServiceWorker that can safely operate on.</p>
     </spec-section>
 
     <spec-section id="cache">
@@ -697,8 +701,8 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 </spec-idl>
     </spec-section>
 
-    <spec-section id="oninstall">
-      <h1><code>oninstall</code></h1>
+    <spec-section id="install-event">
+      <h1><code>install</code> Event</h1>
 
 
       <spec-section id="install-event">
@@ -730,15 +734,15 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
         <p>If the group-reload is canceled <!-- FIXME(slightlyoff) --></p>
       </spec-section>
     </spec-section>
-    <spec-section id="onactivate">
-      <h1><code>onactivate</code></h1>
+    <spec-section id="activate-event">
+      <h1><code>activate</code> Event</h1>
 
       <spec-section id="activate-event">
         <h1><code>ActivateEvent</code></h1>
       </spec-section>
     </spec-section>
-    <spec-section id="onfetch">
-      <h1><code>onfetch</code></h1>
+    <spec-section id="fetch-event">
+      <h1><code>fetch</code> Event</h1>
 
       <spec-section id="fetch-event">
         <h1><code>FetchEvent</code></h1>
