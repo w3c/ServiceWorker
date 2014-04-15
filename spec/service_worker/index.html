@@ -699,12 +699,15 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 </spec-idl>
+
+      <p>Service Workers have two <a href="#lifecycle-events">Lifecycle events</a>, <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. Service Workers use the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface for <code><a href="#activate-event">activate</a></code> event and the <code><a href="#install-event-interface">InstallEvent</a></code> interface, which inherits from the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface, for <code><a href="#install-event">install</a></code> event.</p>
+      <p><code>event.waitUntil(f)</code> method, when called in <code>oninstall</code> or <code>onactivate</code>, extends the lifetime of the event. When called in <code>oninstall</code>, it delays treating the installing worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that a <code>ServiceWorker</code> is not active until all of the core caches it depends on are populated. When called in <code>onactivate</code>, it delays treating the activating worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that any <a href="#functional-events">Functional events</a> are not dispatched to the <code>ServiceWorker</code> until it upgrades database schemas and deletes the outdated cache entries.</p>
     </spec-section>
 
     <spec-section id="install-event">
       <h1><code>install</code> Event</h1>
 
-
+        <p>An event named <code><a href="#install-event">install</a></code> using the <code><a href="#install-event-interface">InstallEvent</a></code> interface is dispatched on <code>ServiceWorkerGlobalScope</code> object when the state of the associated <code>ServiceWorker</code> changes its value to <code>installing</code>. (See step 3 of _Installation algorithm)</p>
       <spec-section id="install-event">
         <h1 id="install-event"><code>InstallEvent</code></h1>
 
@@ -715,6 +718,8 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
 };
 </spec-idl>
+
+        <p>Service Workers use the <code><a href="#install-event-interface">InstallEvent</a></code> interface for <code><a href="#install-event">install</a></code> event.</p>
       </spec-section>
       <spec-section id="replace-method">
         <h1><code>event.replace()</code></h1>
@@ -737,9 +742,12 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
     <spec-section id="activate-event">
       <h1><code>activate</code> Event</h1>
 
-      <spec-section id="activate-event">
+      <p>An event named <code><a href="#activate-event">activate</a></code> using the <code><a href="#install-phase-event">InstallPhaseEvent</a></code> interface is dispatched on <code>ServiceWorkerGlobalScope</code> object when the state of the associated <code>ServiceWorker</code> changes its value to <code>activating</code>. (See step 7 of _Activation algorithm)</p>
+      <p>Service Workers use the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface for <code><a href="#activate-event">activate</a></code> event.</p>
+
+      <!--spec-section id="activate-event">
         <h1><code>ActivateEvent</code></h1>
-      </spec-section>
+      </spec-section--><!-- FIXME(jungkees) if wrong: activate event uses InstallPhaseEvent rather than ActivateEvate -->
     </spec-section>
     <spec-section id="fetch-event">
       <h1><code>fetch</code> Event</h1>
@@ -772,6 +780,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   "navigate"
 };
 </spec-idl>
+        <p>Service Workers use the <code><a href="#fetch-event-interface">FetchEvent</a></code> interface for <code><a href="#fetch-event">fetch</a></code> event.</p>
       </spec-section>
       <spec-section id="respond-with-method">
         <h1><code>event.respondWith(r)</code></h1>
