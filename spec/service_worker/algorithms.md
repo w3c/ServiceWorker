@@ -28,8 +28,9 @@ Service Workers Algorithms
       1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
         1. Resolve promise with _serviceWorkerRegistration_.*updatePromise*.
         1. Abort these steps.
-      1. Else,
-        1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
+      1. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
+      1. If _newestWorker_ is not null, then
+        1. Resolve _promise_ with _newestWorker_.
         1. Abort these steps.
   1. If _serviceWorkerRegistration_ is null, then
     1. Let _serviceWorkerRegistration_ be a newly-created *_ServiceWorkerRegistration* object.
@@ -205,6 +206,9 @@ Service Workers Algorithms
 1. If any other document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Abort these steps.
 1. If _serviceWorkerRegistration_.*uninstalling* is true, then
+  1. Delete _serviceWorkerRegistration_.*scope* from *_ScopeToServiceWorkerRegistrationMap*.
+  1. Abort these steps.
+1. If _serviceWorkerRegistration_.*updatePromise* is null and _serviceWorkerRegistration_.*installingWorker* is null and _serviceWorkerRegistration_.*waitingWorker* is null and _serviceWorkerRegistration_.*currentWorker* is null, then
   1. Delete _serviceWorkerRegistration_.*scope* from *_ScopeToServiceWorkerRegistrationMap*.
   1. Abort these steps.
 1. If _serviceWorkerRegistration_.*waitingWorker* is not null
