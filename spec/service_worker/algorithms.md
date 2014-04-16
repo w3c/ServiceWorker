@@ -88,25 +88,25 @@ Service Workers Algorithms
 
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
   1. Abort these steps.
-1. If _serviceWorkerRegistration_.*nextWorker* is not null, then
+1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
   1. Abort these steps.
 1. Queue a task to call **_Update** with _serviceWorkerRegistration_.
 
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
-1. Set _serviceWorkerRegistration_.*nextWorker* to _serviceWorker_.
-1. Set _serviceWorkerRegistration_.*nextWorker*.*_state* to _installing_.
+1. Set _serviceWorkerRegistration_.*installingWorker* to _serviceWorker_.
+1. Set _serviceWorkerRegistration_.*installingWorker*.*_state* to _installing_.
 1. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. Fire _updatefound_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 1. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
-    1. Set _serviceWorkerRegistration_.*nextWorker* to null
+    1. Set _serviceWorkerRegistration_.*installingWorker* to null
     1. Abort these steps.
-1. Set _serviceWorkerRegistration_.*waitingWorker* to _serviceWorkerRegistration_.*nextWorker*
-1. Set _serviceWorkerRegistration_.*nextWorker* to null
-1. Set _serviceWorkerRegistration_.*nextWorker*.*_state* to _installed_.
+1. Set _serviceWorkerRegistration_.*waitingWorker* to _serviceWorkerRegistration_.*installingWorker*
+1. Set _serviceWorkerRegistration_.*installingWorker* to null
+1. Set _serviceWorkerRegistration_.*installingWorker*.*_state* to _installed_.
 1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
 1. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
@@ -239,8 +239,8 @@ Service Workers Algorithms
 **_GetNewestWorker**(_serviceWorkerRegistration_)
 
 1. Let _newestWorker_ be null.
-1. If _serviceWorkerRegistration_.*nextWorker* is not null, then
-  1. Set _newestWorker_ to _serviceWorkerRegistration_.*nextWorker*.
+1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
+  1. Set _newestWorker_ to _serviceWorkerRegistration_.*installingWorker*.
 1. Else if _serviceWorkerRegistration_.*waitingWorker* is not null, then
   1. Set _newestWorker_ to _serviceWorkerRegistration_.*waitingWorker*.
 1. Else if _serviceWorkerRegistration_.*currentWorker* is not null, then
