@@ -13,6 +13,8 @@ Service Workers Algorithms
 1. Run the following steps asynchronously.
   1. Let _scope_ be _scope_ resolved against the document url.
   1. Let _script_ be _script_ resolved against the document url.
+  1. If the protocol of the document's url is not https, then
+    1. SHOULD reject _promise_ with a new SecurityError. Browsers may provide an option to ignore this rule, for development purposes only.
   1. If the origin of _script_ does not match the document's origin, then
     1. Reject _promise_ with a new SecurityError.
     1. Abort these steps.
