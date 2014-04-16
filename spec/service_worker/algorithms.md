@@ -6,23 +6,23 @@ Service Workers Algorithms
 > - Underscored function and attribute are UA-internal properties.
 
 --
-**Register**(_script_, _scope_)
+**Register**(_scriptUrl_, _scope_)
 
 1. Let _promise_ be a newly-created Promise.
 1. Return _promise_.
 1. Run the following steps asynchronously.
   1. Let _scope_ be _scope_ resolved against the document url.
-  1. Let _script_ be _script_ resolved against the document url.
+  1. Let _scriptUrl_ be _scriptUrl_ resolved against the document url.
   1. If the protocol of the document's url is not https, then
     1. SHOULD reject _promise_ with a new SecurityError. Browsers may provide an option to ignore this rule, for development purposes only.
-  1. If the origin of _script_ does not match the document's origin, then
+  1. If the origin of _scriptUrl_ does not match the document's origin, then
     1. Reject _promise_ with a new SecurityError.
     1. Abort these steps.
   1. If the origin of _scope_ does not match the document's origin, then
     1. Reject _promise_ with a new SecurityError.
     1. Abort these steps.
   1. Let _serviceWorkerRegistration_ be **_GetRegistration**(_scope_).
-  1. If _serviceWorkerRegistration_ is not null and _script_ is equal to _serviceWorkerRegistration_.*scriptUrl*, then
+  1. If _serviceWorkerRegistration_ is not null and _scriptUrl_ is equal to _serviceWorkerRegistration_.*scriptUrl*, then
     1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
       1. Resolve promise with _serviceWorkerRegistration_.*updatePromise*.
       1. Abort these steps.
@@ -33,7 +33,7 @@ Service Workers Algorithms
     1. Let _serviceWorkerRegistration_ be a newly-created *_ServiceWorkerRegistration* object.
     1. Set _serviceWorkerRegistration_ to the value of key _scope_ in *_ScopeToServiceWorkerRegistrationMap*.
     1. Set _serviceWorkerRegistration_.*scope* to _scope_.
-  1. Set _serviceWorkerRegistration_.*scriptUrl* to _script_.
+  1. Set _serviceWorkerRegistration_.*scriptUrl* to _scriptUrl_.
   1. Resolve _promise_ with **_Update**(_serviceWorkerRegistration_).
 
 --
