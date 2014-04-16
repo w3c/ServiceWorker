@@ -18,7 +18,9 @@ class _RegistrationOptionList implements RegistrationOptionList {
 }
 
 interface ServiceWorkerContainer {
-  active?: ServiceWorker; // can be null
+  installing?: ServiceWorker; // worker undergoing the install process
+  waiting?: ServiceWorker; // installed worker, waiting to become current
+  current?: ServiceWorker; // the worker handling resource requests for this page
 
   // FIXME: what's the semantic?
   //    https://github.com/slightlyoff/ServiceWorker/issues/170
@@ -47,20 +49,11 @@ interface ServiceWorkerContainer {
   unregister(scope?: string): Promise; // Defaults to "*"
     // Resolves with no value on success. Rejects if scope is mismatch.
 
-  oninstall: (ev: DocumentInstallEvent) => any;
-    // Fired when an installing worker's installation starts (but is not yet
-    // complete). Provides the ability for a page to converse with a SW that is
-    // being installed behind the current document.
-  oninstallend: (ev: DocumentInstallEvent) => any;
-    // Fired at the end of the install event in the SW, even if there's an
-    // error. Listen for onerror to handle exceptions/errors.
-
-  onactivate: (ev: DocumentInstallPhaseEvent) => any;
-    // called when a new worker takes over for this document, after
-    // navigator.serviceWorker.active has been changed.
-  onactivateend: (ev: DocumentInstallPhaseEvent) => any;
-    // Fired at the end activation, even if there's an error. Listen for
-    // onerror to handle exceptions/errors.
+  onupdatefound: (ev: Event) => any;
+    // Fires when .installing becomes a new worker
+  
+  oncurrentchange: (ev: Event) => any;
+    // Fires when .current changes
 
   onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?
@@ -93,10 +86,8 @@ interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
   scope: string;
   url: string;
-  ready(): Promise;
-  // called when the SW instance that this object corresponds to is no longer
-  // active (e.g., a new version calling `e.replace()`)
-  ondeactivate: (ev: Event) => any;
+  state: string; // "installing" -> "installed" -> "activated" -> "activated" -> "redundant"
+  onstatechange: (ev: Event) => any;
 }
 
 declare var ServiceWorker: {
