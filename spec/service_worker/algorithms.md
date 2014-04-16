@@ -42,10 +42,10 @@ Service Workers Algorithms
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
   1. Reject _serviceWorkerRegistration_.*updatePromise* with a new AbortError.
   1. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*.
-1. If _serviceWorkerRegistration_.*pendingWorker* is not null, then
-  1. Terminate _serviceWorkerRegistration_.*pendingWorker*.
-  1. Set _serviceWorkerRegistration_.*pendingWorker* to null
-  1. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*pendingWorker*.
+1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
+  1. Terminate _serviceWorkerRegistration_.*installingWorker*.
+  1. Set _serviceWorkerRegistration_.*installingWorker* to null
+  1. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*installingWorker*.
 1. Let _promise_ be a newly-created Promise.
 1. Set _serviceWorkerRegistration_.*updatePromise* to _promise_.
 1. Return _promise_.
@@ -63,9 +63,9 @@ Service Workers Algorithms
     1. Set _serviceWorkerRegistration_.*updatePromise* to null.
     1. Abort these steps.
   1. Let _fetchedScript_ be the fetched script.
-  1. Let _activeWorker_ be _serviceWorkerRegistration_.*activeWorker*.
-  1. If _activeWorker_ is not null, and _activeWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _activeWorker_, then
-    1. Resolve _promise_ with _activeWorker_.
+  1. Let _newestWorker_ be **_GetNewestWorker**(_serviceWorkerRegistration_).
+  1. If _newestWorker_ is not null, and _newestWorker_.*url* is equal to _serviceWorkerRegistration_.*scriptUrl* and _fetchedScript_ is a byte-for-byte match with the script of _newestWorker_, then
+    1. Resolve _promise_ with _newestWorker_.
     1. Set _serviceWorkerRegistration_.*updatePromise* to null.
     1. Abort these steps.
   1. Else,
@@ -88,24 +88,26 @@ Service Workers Algorithms
 
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
   1. Abort these steps.
-1. If _serviceWorkerRegistration_.*pendingWorker* is not null, then
+1. If _serviceWorkerRegistration_.*nextWorker* is not null, then
   1. Abort these steps.
 1. Queue a task to call **_Update** with _serviceWorkerRegistration_.
 
 --
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
-1. Set _serviceWorkerRegistration_.*pendingWorker* to _serviceWorker_.
-1. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installing_.
+1. Set _serviceWorkerRegistration_.*nextWorker* to _serviceWorker_.
+1. Set _serviceWorkerRegistration_.*nextWorker*.*_state* to _installing_.
 1. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
-1. Fire _install_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+1. Fire _updatefound_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 1. If any handler called _waitUntil()_, then
-  1. Extend this process until the associated promises resolve.
+  1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
-    1. Set _serviceWorkerRegistration_.*pendingWorker* to null
-    1. Abort these steps. TODO: is this what we want?
-1. Set _serviceWorkerRegistration_.*pendingWorker*.*_state* to _installed_.
-1. Fire _installend_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+    1. Set _serviceWorkerRegistration_.*nextWorker* to null
+    1. Abort these steps.
+1. Set _serviceWorkerRegistration_.*waitingWorker* to _serviceWorkerRegistration_.*nextWorker*
+1. Set _serviceWorkerRegistration_.*nextWorker* to null
+1. Set _serviceWorkerRegistration_.*nextWorker*.*_state* to _installed_.
+1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
 1. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
     1. Set _serviceWorkerRegistration_ as the document's service worker registration.
@@ -117,25 +119,20 @@ Service Workers Algorithms
 --
 **_Activate**(_serviceWorkerRegistration_)
 
-1. Let _activatingWorker_ be _serviceWorkerRegistration_.*pendingWorker*.
-1. Let _exitingWorker_ be _serviceWorkerRegistration_.*activeWorker*.
-1. Set _serviceWorkerRegistration_.*pendingWorker* to null.
-1. Set _serviceWorkerRegistration_.*activeWorker* to _activatingWorker_.
-1. Set _serviceWorkerRegistration_.*activeWorker*.*_state* to _activating_.
+1. Let _activatingWorker_ be _serviceWorkerRegistration_.*waitingWorker*.
+1. Let _exitingWorker_ be _serviceWorkerRegistration_.*currentWorker*.
 1. If _exitingWorker_ is not null, then
   1. Wait for _exitingWorker_ to finish handling any in-progress requests.
   1. Close and garbage collect _exitingWorker_.
+1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
+1. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_.
+1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _activating_.
+1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
-1. Fire _activate_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 1. If any handler calls _waitUntil()_, then
-  1. Extend this process until the associated promises resolve.
-  1. If the resulting promise rejects, then
-    1. Terminate _activatingWorker_
-    1. Set _serviceWorkerRegistration_.*activeWorker* to null
-    1. Allow any pending requests to continue as normal (as if there was no ServiceWorker)
-    1. Abort these steps. TODO: is this what we want? Note that we've introduced another situation where .active can change through the life of a page
-1. Set _serviceWorkerRegistration_.*activeWorker*.*_state* to _actived_.
-1. Fire _activateend_ event on _navigator.serviceWorker_ for all documents which match _scope_.
+  1. Extend this process until the associated promises settle.
+1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _actived_.
+1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
 
 --
 **_OnNavigationRequest**(_request_)
@@ -146,7 +143,7 @@ Service Workers Algorithms
 1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
 1. If _serviceWorkerRegistration_ is null, then
   1. Fetch the resource normally and abort these steps.
-1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*activeWorker*.
+1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*currentWorker*.
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
@@ -158,7 +155,7 @@ Service Workers Algorithms
   1. Queue a task to call **_SoftUpdate** with _serviceWorkerRegistration_.
   1. Abort these steps.
 1. Let _responsePromise_ be value passed into _respondWith_ casted to a promise.
-1. Wait for _responsePromise_ to resolve.
+1. Wait for _responsePromise_ to settle.
 1. If _responsePromise_ rejected, then
   1. Fail the resource load as if there had been a generic network error and abort these steps.
 1. If _responsePromise_ resolves to a OpaqueResponse, then
@@ -199,16 +196,11 @@ Service Workers Algorithms
   1. Abort these steps.
 1. If any other document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Abort these steps.
-1. If _serviceWorkerRegistration_.*pendingWorker* is not null
+1. If _serviceWorkerRegistration_.*waitingWorker* is not null
   1. Call **_Activate**(_serviceWorkerRegistration_).
 
 --
 **Unregister**(_scope_)
-
-1. Return **_Unregister**(_scope_).
-
---
-**_Unregister**(_scope_)
 
 1. Let _promise_ be a newly-created _Promise_.
 1. Return _promise_.
@@ -247,8 +239,10 @@ Service Workers Algorithms
 **_GetNewestWorker**(_serviceWorkerRegistration_)
 
 1. Let _newestWorker_ be null.
-1. If _serviceWorkerRegistration_.*pendingWorker* is not null, then
-  1. Set _newestWorker_ to _serviceWorkerRegistration_.*pendingWorker*.
-1. Else if _serviceWorkerRegistration_.*activeWorker* is not null, then
-  1. Set _newestWorker_ to _serviceWorkerRegistration_.*activeWorker*.
+1. If _serviceWorkerRegistration_.*nextWorker* is not null, then
+  1. Set _newestWorker_ to _serviceWorkerRegistration_.*nextWorker*.
+1. Else if _serviceWorkerRegistration_.*waitingWorker* is not null, then
+  1. Set _newestWorker_ to _serviceWorkerRegistration_.*waitingWorker*.
+1. Else if _serviceWorkerRegistration_.*currentWorker* is not null, then
+  1. Set _newestWorker_ to _serviceWorkerRegistration_.*currentWorker*.
 1. Return _newestWorker_.
