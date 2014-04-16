@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -17,6 +18,7 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
+
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -42,7 +44,7 @@ var DocumentInstallEvent = (function (_super) {
     __extends(DocumentInstallEvent, _super);
     function DocumentInstallEvent() {
         _super.apply(this, arguments);
-        this.previous = null;
+        this.activeWorker = null;
     }
     return DocumentInstallEvent;
 })(DocumentInstallPhaseEvent);
@@ -116,6 +118,7 @@ var InstallEvent = (function (_super) {
     };
     return InstallEvent;
 })(InstallPhaseEvent);
+
 
 // The scope in which worker code is executed
 var ServiceWorkerGlobalScope = (function (_super) {
@@ -199,9 +202,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        get: // This class represents the result of cross-origin fetched resources that are
+        // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        function () {
+        get: function () {
             return "";
         },
         enumerable: true,
@@ -300,7 +303,6 @@ var FetchEvent = (function (_super) {
         //   "connect",
         //   "font",
         //   "img",
-        //   "img",
         //   "object",
         //   "script",
         //   "style",
@@ -328,7 +330,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null;
+        this.client = null; // to allow postMessage, window.topLevel, etc
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -407,7 +409,7 @@ var Cache = (function () {
 
     // TODO: maybe this would be better as a querying method
     // so matchAll(string) would match all entries for that
-    // url regardless of method & vary
+    // url regardless of vary
     Cache.prototype.matchAll = function (request) {
         var thisCache = this;
 
@@ -416,6 +418,38 @@ var Cache = (function () {
                 return thisCache._items.get(key);
             }));
         });
+    };
+
+    Cache._cacheItemValid = function (request, cachedRequest, cachedResponse) {
+        // filter by request method & url
+        if (cachedRequest.method != request.method)
+            return false;
+        if (cachedRequest.url != request.url)
+            return false;
+
+        // filter by 'vary':
+        // If there's no vary header, we have a match!
+        if (!cachedResponse.headers.has('vary'))
+            return true;
+
+        var varyHeaders = cachedResponse.headers.get('vary').split(',');
+        var varyHeader;
+
+        for (var i = 0; i < varyHeaders.length; i++) {
+            varyHeader = varyHeaders[i].trim();
+
+            if (varyHeader == '*') {
+                continue;
+            }
+
+            // TODO: should this treat headers case insensitive?
+            // TODO: should comparison be more lenient than this?
+            if (cachedRequest.headers.get(varyHeader) != request.headers.get(varyHeader)) {
+                return false;
+            }
+        }
+
+        return true;
     };
 
     Cache.prototype.keys = function (filterRequest) {
@@ -430,32 +464,7 @@ var Cache = (function () {
             // get the response
             return this._items.values().then(function (cachedResponses) {
                 return cachedRequests.filter(function (cachedRequest, i) {
-                    var cachedResponse = cachedResponses[i];
-
-                    if (cachedRequest.method != filterRequest.method)
-                        return false;
-                    if (cachedRequest.url != filterRequest.url)
-                        return false;
-
-                    if (!cachedResponse.headers.has('vary'))
-                        return true;
-
-                    var varyHeaders = cachedResponse.headers.get('vary').split(',');
-                    var varyHeader;
-
-                    for (var i = 0; i < varyHeaders.length; i++) {
-                        varyHeader = varyHeaders[i].trim();
-
-                        if (varyHeader == '*') {
-                            continue;
-                        }
-
-                        if (cachedRequest.headers.get(varyHeader) != filterRequest.headers.get(varyHeader)) {
-                            return false;
-                        }
-                    }
-
-                    return true;
+                    return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
                 });
             });
         });
@@ -468,6 +477,7 @@ var Cache = (function () {
         }
         var thisCache = this;
         var newItems = items.map(function (item) {
+            // if item is a response, pair it with a simple request
             if (item instanceof Response) {
                 return {
                     'request': new Request({
@@ -508,6 +518,7 @@ var Cache = (function () {
         var thisCache = this;
         request = _castToRequest(request);
 
+        // TODO: if request.method is not GET, throw
         // TODO: cast 'response' to a response
         // Eg, Blob
         // Dataurl string
@@ -527,7 +538,7 @@ var Cache = (function () {
         // TODO: this means cache.delete("/hello/world/") may not delete
         // all entries for /hello/world/, because /hello/world/ will be
         // cast to a GET request. It won't remove entries for that url
-        // that have a different method or 'vary' headers that don't match.
+        // that have 'vary' headers that don't match.
         //
         // We could special-case strings & urls here.
         var thisCache = this;
@@ -537,10 +548,6 @@ var Cache = (function () {
                 return thisCache._items.delete(cachedRequest);
             }));
         });
-    };
-
-    Cache.prototype.updateAll = function () {
-        return this.add.apply(this, this._items.keys());
     };
 
     // TODO: ready is only useful to validate the items added during construction
@@ -609,6 +616,7 @@ var BroadcastChannel = (function () {
 })();
 ;
 
+
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
     function WorkerGlobalScope() {
@@ -663,6 +671,7 @@ var _URL = (function () {
     }
     return _URL;
 })();
+
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
@@ -782,10 +791,12 @@ var _defaultToBrowserHTTP = function (url) {
 
 // take a string or url and resolve it to a request
 function _castToRequest(item) {
+    // resolve strings to urls with the worker as a base
     if (item instanceof String) {
         item = new _URL(item);
     }
 
+    // create basic GET request from url
     if (item instanceof _URL) {
         item = new Request({
             'url': item

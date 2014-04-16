@@ -44,9 +44,8 @@ interface ServiceWorkerContainer {
     //      with an unhandled exception
     // TBD: possible error values upon rejection?
 
-  unregister(scope?: string): Promise; // Defaults to "/*"
-    // Resolves with a ServiceWorker instance. Rejects if scope is mismatch.
-    // Unregisters all.
+  unregister(scope?: string): Promise; // Defaults to "*"
+    // Resolves with no value on success. Rejects if scope is mismatch.
 
   oninstall: (ev: DocumentInstallEvent) => any;
     // Fired when an installing worker's installation starts (but is not yet
@@ -534,7 +533,7 @@ class Cache {
   }
 
   // TODO: maybe this would be better as a querying method
-  // so matchAll(string) would match all entries for that 
+  // so matchAll(string) would match all entries for that
   // url regardless of vary
   matchAll(request:any) : Promise {
     var thisCache = this;
@@ -610,7 +609,7 @@ class Cache {
       item = _castToRequest(item);
 
       return {
-        'request': item,
+        'request': <Request>item,
         'response': fetch(item)
       };
     });
@@ -642,10 +641,10 @@ class Cache {
     // Eg, Blob
     // Dataurl string
     // Could cast regular string as text/plain response, but is that useful?
-    
+
     // TODO: this delete/set implementation isn't atomic, but needs to be.
     // Not sure how to implement it, maybe via a private _locked promise?
-    // Deleting is garbage collection, but also ensures "uniqueness"    
+    // Deleting is garbage collection, but also ensures "uniqueness"
     return this.delete(request).then(function() {
       return thisCache._items.set(request, response);
     }).then(function() {
@@ -659,7 +658,7 @@ class Cache {
     // all entries for /hello/world/, because /hello/world/ will be
     // cast to a GET request. It won't remove entries for that url
     // that have 'vary' headers that don't match.
-    // 
+    //
     // We could special-case strings & urls here.
     var thisCache = this;
 
