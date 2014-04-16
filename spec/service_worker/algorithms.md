@@ -44,6 +44,8 @@ Service Workers Algorithms
   1. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*.
 1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
   1. Terminate _serviceWorkerRegistration_.*installingWorker*.
+  1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _redundant_
+  1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
   1. Set _serviceWorkerRegistration_.*installingWorker* to null
   1. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*installingWorker*.
 1. Let _promise_ be a newly-created Promise.
@@ -102,11 +104,13 @@ Service Workers Algorithms
 1. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
+    1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _redundant_
+    1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
     1. Set _serviceWorkerRegistration_.*installingWorker* to null
     1. Abort these steps.
 1. Set _serviceWorkerRegistration_.*waitingWorker* to _serviceWorkerRegistration_.*installingWorker*
 1. Set _serviceWorkerRegistration_.*installingWorker* to null
-1. Set _serviceWorkerRegistration_.*installingWorker*.*_state* to _installed_.
+1. Set _serviceWorkerRegistration_.*waitingWorker*.*_state* to _installed_.
 1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
 1. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
@@ -123,9 +127,11 @@ Service Workers Algorithms
 1. Let _exitingWorker_ be _serviceWorkerRegistration_.*currentWorker*.
 1. If _exitingWorker_ is not null, then
   1. Wait for _exitingWorker_ to finish handling any in-progress requests.
-  1. Close and garbage collect _exitingWorker_.
-1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
+  1. Terminate _exitingWorker_.
+  1. Set _exitingWorker_.*state* to _redundant_.
+  1. Fire _stateChange_ on _exitingWorker_.
 1. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_.
+1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
 1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _activating_.
 1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
 1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
@@ -219,7 +225,6 @@ Service Workers Algorithms
   1. Delete _scope_ from *_ScopeToServiceWorkerRegistrationMap*.
   1. Let _exitingWorker_ be _serviceWorkerRegistration_.*activeWorker*.
   1. Wait for _exitingWorker_ to finish handling any in-progress requests.
-  1. Fire _deactivate_ event on _exitingWorker_ object.
   1. Resolve _promise_.
 
 --
