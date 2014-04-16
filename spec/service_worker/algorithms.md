@@ -223,6 +223,43 @@ Service Workers Algorithms
   1. Resolve _promise_.
 
 --
+**_GetInstalling**()
+
+> This is the getter for `window.navigator.installing`
+
+1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
+1. If _serviceWorkerRegistration_ is null, then
+  1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
+1. If _serviceWorkerRegistration_ is null, then
+  1. Return null
+1. Return _serviceWorkerRegistration_.*installingWorker*
+
+--
+**_GetWaiting**()
+
+> This is the getter for `window.navigator.waiting`
+
+1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
+1. If _serviceWorkerRegistration_ is not null, then
+  1. Return _serviceWorkerRegistration_.*waitingWorker*
+1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
+1. If _serviceWorkerRegistration_ is null, then
+  1. Return null
+1. If _serviceWorkerRegistration_.*currentWorker* is not null, then
+  1. Return _serviceWorkerRegistration_.*currentWorker*
+1. Return _serviceWorkerRegistration_.*waitingWorker* (which may be null)
+
+--
+**_GetCurrent**()
+
+> This is the getter for `window.navigator.current`
+
+1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
+1. If _serviceWorkerRegistration_ is null, then
+  1. Return null
+1. Return _serviceWorkerRegistration_.*currentWorker* (which may be null)
+
+--
 **_ScopeMatch**(_url_)
 
 1. Let _matchingScope_ be the longest key in *_ScopeToServiceWorkerRegistrationMap* that glob-matches _url_.
