@@ -386,6 +386,36 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     </spec-section>
 
   </spec-section>
+  <spec-section id="client">
+    <h1><code>Client</code></h1>
+
+<spec-idl>[Constructor()] // no-op constructor
+interface <dfn id="client-interface" title="Client">Client</dfn> {
+  readonly attribute unsigned long id;
+  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
+                   optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+};
+</spec-idl>
+
+    <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is <a href="#doucment-control">controlled</a> by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
+
+    <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
+
+  </spec-section>
+  <spec-section id="service-worker-clients">
+    <h1><code>ServiceWorkerClients</code></h1>
+
+<spec-idl>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
+  // A list of client objects, identifiable by ID, that correspond to windows
+  // (or workers) that are "controlled" by this SW
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#client-interface">Client</a>[]?&gt; getServiced();
+};
+</spec-idl>
+
+      <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#doucment-control">controlled</a> by this Service Worker.</p>
+    </spec-section>
+  </spec-section>
+
   <spec-section id="request-objects">
     <h1><code>Request</code> Objects</h1>
 
@@ -567,36 +597,6 @@ interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
     <p><span class="fixme"><strong>Issue</strong>: the following issues should be addressed in the WebIDL specification: the methods <code>keys()</code> and <code>values()</code> are not allowed to be declared as interface members of an interface declared with the [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute; the return type of <code>get(key)</code>, <code>has(key)</code>, <code>set(key, val)</code>, <code>clear()</code>, <code>delete(key)</code> is meant to be declared as pre-defined IDL fragment. Namely, the interface declared with [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute cannot fully support creating asynchronous map objects.</span></p>
 
   </spec-section>
-  <spec-section id="client">
-    <h1><code>Client</code></h1>
-
-<spec-idl>[Constructor()] // no-op constructor
-interface <dfn id="client-interface" title="Client">Client</dfn> {
-  readonly attribute unsigned long id;
-  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
-                   optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
-};
-</spec-idl>
-
-    <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is <a href="#doucment-control">controlled</a> by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
-
-    <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
-
-  </spec-section>
-  <spec-section id="service-worker-clients">
-    <h1><code>ServiceWorkerClients</code></h1>
-
-<spec-idl>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
-  // A list of client objects, identifiable by ID, that correspond to windows
-  // (or workers) that are "controlled" by this SW
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#client-interface">Client</a>[]?&gt; getServiced();
-};
-</spec-idl>
-
-      <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#doucment-control">controlled</a> by this Service Worker.</p>
-    </spec-section>
-  </spec-section>
-
   <spec-section id="events">
   <h1>Events</h1>
 
