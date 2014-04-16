@@ -6,13 +6,13 @@ Or
 
 So you've got a browser engine, are looking into this whole "Service Workers" thing and have some questions. Take heart, dear reader! Your friendly spec designers/authors are here to answer your (anticipated) questions. Want more answers? [File a bug](issues) and tag it `implementation-concern`.
 
-This doc looks firat at key concepts then outlines the [areas of helpful built-in ambiguity ](//slightlyoff.github.io/ServiceWorker/spec/service_worker/) that provide opportunities to go fast. Each are of opportunity includes a list of strategies that implementations might explore to improve Service Worker performance.
+This doc looks first at key concepts then outlines the [areas of helpful built-in ambiguity ](//slightlyoff.github.io/ServiceWorker/spec/service_worker/) that provide opportunities to go fast. Each opportunity includes a list of strategies that implementations might explore to improve Service Worker performance.
 
 ## Key Concepts
 
 ### Event-Driven Workers
 
-The biggest thing to understand about Service Workers is that they are _event driven_. Unlike other forms of [Web Worker](http://www.w3.org/TR/workers/), the lifetime of the script execution context of the worker is not related to documents which have handles to the worker. Instead, Service Workers begin (and end) life when events are sent to them.
+The biggest thing to understand about Service Workers is that they are _event driven_. Unlike other forms of [Web Worker](http://www.w3.org/TR/workers/), the lifetime of the script execution context of the worker is not related to documents which have handles to the worker. Instead, Service Workers begin life when events are sent to them, and they can end between events.
 
 The most performance-sensitive of these events is the `fetch` event for top-level document navigation. To ensure that the decision regarding which (if any) Service Worker to boot up to handle a `fetch` event, the spec uses a static tuple of origin + URL pattern to map SW's to navigations. This list will change infrequently and is likely to be something you can cache in memory for fast lookup.
 
@@ -41,7 +41,7 @@ Installation can be low-priority, and no documents will be controlled by the SW 
 
 ### Event Dispatch
 
-SWs lean on the DOM Events as the entry point for nearly all work. The contract that developers must learn is that they must call `e.waitUntil()` or `e.respondWith()` to lengthen the life of the overall operation. All of the APIs available to them are asynchronous, and the combination of these factors implies that SWs are meant to be async by default. The tools at hand lead developers down this path, and cooperative multi-tasking (ala node.js) is the way that libraries must be structured, both for performance and to work naturally with the SW execution model. Lastly, remember that developers can move work off-thread using sub-workers. They'll also be killed with their parent SWs are collected, but long-running or CPU intensive work that might otherwise cause potential for becoming unresponsive can be delegated to contexts which will not block the SW thread.
+SWs lean on the DOM Events as the entry point for nearly all work. The contract that developers must learn is that they must call `e.waitUntil()` or `e.respondWith()` to lengthen the life of the overall operation. All of the APIs available to them are asynchronous, and the combination of these factors implies that SWs are meant to be async by default. The tools at hand lead developers down this path, and cooperative multi-tasking (ala node.js) is the way that libraries must be structured, both for performance and to work naturally with the SW execution model. Lastly, remember that developers can move work off-thread using sub-workers. They'll also be killed along with their parent SWs, but long-running or CPU intensive work that might otherwise cause potential for becoming unresponsive can be delegated to contexts which will not block the SW thread.
 
 ## Good News, Everybody!
 
