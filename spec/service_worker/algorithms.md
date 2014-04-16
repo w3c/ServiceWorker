@@ -22,17 +22,20 @@ Service Workers Algorithms
     1. Reject _promise_ with a new SecurityError.
     1. Abort these steps.
   1. Let _serviceWorkerRegistration_ be **_GetRegistration**(_scope_).
-  1. If _serviceWorkerRegistration_ is not null and _scriptUrl_ is equal to _serviceWorkerRegistration_.*scriptUrl*, then
-    1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
-      1. Resolve promise with _serviceWorkerRegistration_.*updatePromise*.
-      1. Abort these steps.
-    1. Else,
-      1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
-      1. Abort these steps.
+  1. If _serviceWorkerRegistration_ is not null, then
+    1. Set _serviceWorkerRegistration_.*uninstalling* to false.
+    1. If _scriptUrl_ is equal to _serviceWorkerRegistration_.*scriptUrl*, then
+      1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
+        1. Resolve promise with _serviceWorkerRegistration_.*updatePromise*.
+        1. Abort these steps.
+      1. Else,
+        1. Resolve _promise_ with **_GetNewestWorker**(_serviceWorkerRegistration_).
+        1. Abort these steps.
   1. If _serviceWorkerRegistration_ is null, then
     1. Let _serviceWorkerRegistration_ be a newly-created *_ServiceWorkerRegistration* object.
     1. Set _serviceWorkerRegistration_ to the value of key _scope_ in *_ScopeToServiceWorkerRegistrationMap*.
     1. Set _serviceWorkerRegistration_.*scope* to _scope_.
+    1. Set _serviceWorkerRegistration_.*uninstalling* to false.
   1. Set _serviceWorkerRegistration_.*scriptUrl* to _scriptUrl_.
   1. Resolve _promise_ with **_Update**(_serviceWorkerRegistration_).
 
@@ -44,8 +47,7 @@ Service Workers Algorithms
   1. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*.
 1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
   1. Terminate _serviceWorkerRegistration_.*installingWorker*.
-  1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _redundant_
-  1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*installingWorker* and _redundant_
   1. Set _serviceWorkerRegistration_.*installingWorker* to null
   1. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*installingWorker*.
 1. Let _promise_ be a newly-created Promise.
@@ -88,6 +90,8 @@ Service Workers Algorithms
 
 > The browser may call this as often as it likes to check for updates
 
+1. If _serviceWorkerRegistration_.*uninstalling* is true, then
+  1. Abort these steps.
 1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
   1. Abort these steps.
 1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
@@ -98,20 +102,20 @@ Service Workers Algorithms
 **_Install**(_serviceWorkerRegistration_, _serviceWorker_)
 
 1. Set _serviceWorkerRegistration_.*installingWorker* to _serviceWorker_.
-1. Set _serviceWorkerRegistration_.*installingWorker*.*_state* to _installing_.
+1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _installing_.
 1. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. Fire _updatefound_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
 1. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
-    1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _redundant_
-    1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
+    1. Call **_StateChange** with _serviceWorkerRegistration_.*installingWorker* and _redundant_
     1. Set _serviceWorkerRegistration_.*installingWorker* to null
     1. Abort these steps.
+1. If _serviceWorkerRegistration_.*waitingWorker* is not null, then
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*waitingWorker* and _redundant_.
 1. Set _serviceWorkerRegistration_.*waitingWorker* to _serviceWorkerRegistration_.*installingWorker*
 1. Set _serviceWorkerRegistration_.*installingWorker* to null
-1. Set _serviceWorkerRegistration_.*waitingWorker*.*_state* to _installed_.
-1. Fire _statechange_ event on _serviceWorkerRegistration_.*waitingWorker*.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*waitingWorker* and _installed_.
 1. If any handler called _replace()_, then
   1. For each document matching _serviceWorkerRegistration_.*scope*
     1. Set _serviceWorkerRegistration_ as the document's service worker registration.
@@ -128,18 +132,15 @@ Service Workers Algorithms
 1. If _exitingWorker_ is not null, then
   1. Wait for _exitingWorker_ to finish handling any in-progress requests.
   1. Terminate _exitingWorker_.
-  1. Set _exitingWorker_.*state* to _redundant_.
-  1. Fire _stateChange_ on _exitingWorker_.
+  1. Call **_StateChange** with _exitingWorker_ and _redundant_.
 1. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_.
 1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
-1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _activating_.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activating_.
 1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
-1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises settle.
-1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _actived_.
-1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _actived_.
 
 --
 **_OnNavigationRequest**(_request_)
@@ -154,8 +155,8 @@ Service Workers Algorithms
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
-1. If _matchedServiceWorker_.*_state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*_state* to become _actived_.
+1. If _matchedServiceWorker_.*state* is _activating_, then
+  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally.
@@ -182,8 +183,8 @@ Service Workers Algorithms
 1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*activeWorker*.
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
-1. If _matchedServiceWorker_.*_state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*_state* to become _actived_.
+1. If _matchedServiceWorker_.*state* is _activating_, then
+  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally and abort these steps.
@@ -203,6 +204,9 @@ Service Workers Algorithms
   1. Abort these steps.
 1. If any other document is using _serviceWorkerRegistration_ as their service worker registration, then
   1. Abort these steps.
+1. If _serviceWorkerRegistration_.*uninstalling* is true, then
+  1. Delete _serviceWorkerRegistration_.*scope* from *_ScopeToServiceWorkerRegistrationMap*.
+  1. Abort these steps.
 1. If _serviceWorkerRegistration_.*waitingWorker* is not null
   1. Call **_Activate**(_serviceWorkerRegistration_).
 
@@ -220,12 +224,27 @@ Service Workers Algorithms
   1. If _serviceWorkerRegistration_ is null, then
     1. Reject _promise_ with a new NotFoundError.
     1. Abort these steps.
-  1. For each document using _serviceWorkerRegistration_
-    1. Set the document's service worker registration to null.
-  1. Delete _scope_ from *_ScopeToServiceWorkerRegistrationMap*.
-  1. Let _exitingWorker_ be _serviceWorkerRegistration_.*activeWorker*.
-  1. Wait for _exitingWorker_ to finish handling any in-progress requests.
+  1. Set _serviceWorkerRegistration_.*uninstalling* to true
+  1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
+    1. Reject _serviceWorkerRegistration_.*updatePromise* with a new AbortError.
+    1. The browser may abort in-flight requests, parsing or worker execution relating to _serviceWorkerRegistration_.*updatePromise*.
+  1. If _serviceWorkerRegistration_.*installingWorker* is not null, then
+    1. Terminate _serviceWorkerRegistration_.*installingWorker*.
+    1. Call **_StateChange** with _serviceWorkerRegistration_.*installingWorker* and _redundant_.
+    1. Set _serviceWorkerRegistration_.*installingWorker* to null
+    1. The user agent may abort any in-flight requests triggered by _serviceWorkerRegistration_.*installingWorker*.
+  1. If _serviceWorkerRegistration_.*waitingWorker* is not null, then
+    1. Call **_StateChange** with _serviceWorkerRegistration_.*waitingWorker* and _redundant_.
+    1. Set _serviceWorkerRegistration_.*waitingWorker* to null
   1. Resolve _promise_.
+  1. If no document is using _serviceWorkerRegistration_ as their service worker registration, then
+    1. Delete _scope_ from *_ScopeToServiceWorkerRegistrationMap*.
+
+--
+**_UpdateState**(_worker_, _state_)
+
+1. Set _worker_.*state* to _state_.
+1. Fire _statechange_ event on _worker_.
 
 --
 **_GetInstalling**()
@@ -269,6 +288,8 @@ Service Workers Algorithms
 
 1. Let _matchingScope_ be the longest key in *_ScopeToServiceWorkerRegistrationMap* that glob-matches _url_.
 1. Let _serviceWorkerRegistration_ be **_GetRegistration**(_matchingScope_).
+1. If _serviceWorkerRegistration_ is not null and _serviceWorkerRegistration_.*uninstalling* is true, then
+  1. Return null.
 1. Return _serviceWorkerRegistration_.
 
 --
