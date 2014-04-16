@@ -127,6 +127,7 @@ Service Workers Algorithms
 1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
 1. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_.
 1. Set _serviceWorkerRegistration_.*currentWorker*.*_state* to _activating_.
+1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
 1. Fire _stateChange_ on _serviceWorkerRegistration_.*currentWorker*.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. If any handler calls _waitUntil()_, then
