@@ -141,7 +141,7 @@ Service Workers Algorithms
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises settle.
-1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _actived_.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activated_.
 
 --
 **_OnNavigationRequest**(_request_)
@@ -157,7 +157,7 @@ Service Workers Algorithms
   1. Fetch the resource normally and abort these steps.
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
 1. If _matchedServiceWorker_.*state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
+  1. Wait for _matchedServiceWorker_.*state* to become _activated_.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally.
@@ -185,7 +185,7 @@ Service Workers Algorithms
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. If _matchedServiceWorker_.*state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
+  1. Wait for _matchedServiceWorker_.*state* to become _activated_.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally and abort these steps.
