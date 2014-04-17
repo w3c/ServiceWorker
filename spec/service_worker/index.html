@@ -188,6 +188,19 @@
 <spec-clause id="document-context">
   <h1>Document Context</h1>
 
+  <p>Example: Bootstrapping with a ServiceWoker</p>
+
+<spec-idl class="prettyprint">// scope defaults to "/*"
+navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
+  function(serviceWorker) {
+    console.log("success!");
+    serviceWorker.postMessage("Howdy from your installing page.");
+    // To use the serviceWorker immediately, you might call window.location.reload()
+  },
+  function(why) {
+    console.error("Installing the worker failed!:", why);
+  });</spec-idl>
+
   <spec-section id="service-worker-obj">
     <h1><code>ServiceWorker</code></h1>
 
@@ -212,16 +225,16 @@ enum <dfn id="state-enum" title="State">State</dfn> {
 
     <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-installing"><code>navigator.serviceWorker.installing</code></a>, <a href="#navigator-service-worker-waiting"><code>navigator.serviceWorker.waiting</code></a> and <a href="#navigator-service-worker-current"><code>navigator.serviceWorker.current</code></a>) will provide meaningful functionality.</p>
 
-    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>http://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
+    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
 
-<spec-idl class="prettyprint">// Script on the page http://example.com/app.html
+<spec-idl class="prettyprint">// Script on the page https://example.com/app.html
 navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-idl>
 
     <p>The value of <code>navigator.serviceWorker.current.scope</code> will be <code>"*"</code>.</p>
 
-    <p>Similarly, in this example, the value of <code>navigator.serviceWorker.current.url</code> will be <code>"http://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+    <p>Similarly, in this example, the value of <code>navigator.serviceWorker.current.url</code> will be <code>"https://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
 
-    <p>The <code>deactivate</code> event is fired in a turn following <a href="#replace-method">replacement</a> of the <code>ServiceWorker</code>.</p>
+    <p>The <code>statechange</code> event is fired when the <code>state</code> attribute of the <code>ServiceWorker</code> object is changed.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker">
@@ -305,6 +318,44 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
 <spec-clause id="execution-context">
   <h1>Execution Context</h1>
+
+  <P>Example: Serving Cached Resources</P>
+
+<spec-idl class="prettyprint">// caching.js
+this.version = 1;
+
+this.addEventListener("install", function(e) {
+  // Create a cache of resources. Begins the process of fetching them.
+  var shellResources = new Cache(
+    "/app.html",
+    "/assets/v1/base.css",
+    "/assets/v1/app.js",
+    "/assets/v1/logo.png",
+    "/assets/v1/intro_video.webm",
+  );
+
+  // The coast is only clear when all the resources are ready.
+  e.waitUntil(shellResources.ready());
+
+  // Add Cache to the global so it can be used later during onfetch
+  caches.set("shell-v1", shellResources);
+});
+
+this.addEventListener("fetch", function(e) {
+  // No "onfetch" events are dispatched to the ServiceWorker until it
+  // successfully installs.
+
+  // All operations on caches are async, including matching URLs, so we use
+  // Promises heavily. e.respondWith() even takes Promises to enable this:
+  e.respondWith(
+    caches.match(e.request).catch(function() {
+      return caches.get("dynamic").then(function(dynamicCache) {
+        dynamicCache.add(e.request);
+        return fetch(e.request);
+      });
+    });
+  );
+});</spec-idl>
 
   <spec-section id="service-worker-global-scope">
     <h1><code>ServiceWorkerGlobalScope</code></h1>
