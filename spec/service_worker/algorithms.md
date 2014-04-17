@@ -169,6 +169,8 @@ Service Workers Algorithms
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
 1. If _matchedServiceWorker_.*state* is _activating_, then
   1. Wait for _matchedServiceWorker_.*state* to become _activated_.
+  1. If activation fails, then
+    1. Fetch the resource normally and abort these steps.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally.
