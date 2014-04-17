@@ -752,9 +752,9 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
         <ol>
           <li>Let <var>scope</var> be <var>scope</var> resolved against the document url.</li>
           <li>Let <var>scriptUrl</var> be <var>scriptUrl</var> resolved against the document url.</li>
-          <li>If the protocol of the document's url is not <code>https</code>, then:
+          <li>If the protocol of the document url is not <code>https</code>, then: <small>// Browsers may ignore this rule for development purposes only.</small>
             <ol>
-              <li>SHOULD Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -772,12 +772,12 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           </li>
           <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
 
-          <li>If <var>serviceWorkerRegistration</var> is not null, then
+          <li>If <var>serviceWorkerRegistration</var> is not null, then:
             <ol>
               <li>Set <var>serviceWorkerRegistration.uninstalling</var> to false.</li>
-              <li>If scriptUrl is equal to <var>serviceWorkerRegistration.scriptUrl</var>, then:
+              <li>If <var>scriptUrl</var> is equal to <var>serviceWorkerRegistration.scriptUrl</var>, then:
                 <ol>
-                  <li>If <var>serviceWorkerRegistration.updatePromise</var> is not null, then
+                  <li>If <var>serviceWorkerRegistration.updatePromise</var> is not null, then:
                     <ol>
                       <li>Resolve <var>promise</var> with <var>serviceWorkerRegistration.updatePromise</var>.</li>
                       <li>Abort these steps.</li>
@@ -821,7 +821,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
@@ -835,7 +835,8 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
         <ol>
           <li>Terminate <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
-          <li>Call _StateChange with <var>serviceWorkerRegistration.installingWorker</var> and <var>redundant</var></li>
+          <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+          <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
           <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
           <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
         </ol>
@@ -852,7 +853,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Else if fetching the script fails due to the server returning a 4xx response or if fetching the script fails due to the server returning a 5xx response, or there is a DNS error, or the connection times out, then:
+          <li>Else if fetching the script fails due to the server returning a 4xx response or a 5xx response, or there is a DNS error, or the connection times out, then:
             <ol>
               <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
@@ -910,7 +911,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -956,21 +957,23 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Extend this process until the associated promises settle.</li>
           <li>If the resulting promise rejects, then:
             <ol>
-              <li>Call <code>_StateChange</code> with <var>serviceWorkerRegistration.installingWorker</var> and <var>redundant</var></li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+              <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
         </ol>
       </li>
-      <li>If serviceWorkerRegistration.waitingWorker is not null, then
+      <li>If serviceWorkerRegistration.waitingWorker is not null, then:
         <ol>
-          <li>Call <code>_StateChange</code> with <var>serviceWorkerRegistration.waitingWorker</var> and <var>redundant</var>.</li>
+          <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
         </ol>
       </li>
       <li>Set <var>serviceWorkerRegistration.waitingWorker</var> to <var>serviceWorkerRegistration.installingWorker</var></li>
       <li>Set <var>serviceWorkerRegistration.installingWorker</var> to null</li>
-      <li>Call <code>_StateChange</code> with <var>serviceWorkerRegistration.waitingWorker</var> and <var>installed</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>installed</code>.</li>
+      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
       <li>If any handler called <code>replace()</code>, then:
         <ol>
           <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
@@ -1004,17 +1007,19 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <ol>
       <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
       <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
-      <li>If exitingWorker is not null, then
+      <li>If <var>exitingWorker</var> is not null, then:
         <ol>
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
           </li>
           <li>Terminate <var>exitingWorker</var>.</li>
-          <li>Call <code>_StateChange</code> with <var>exitingWorker</var> and <var>redundant</var>.</li>
+          <li>Set <var>exitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+          <li>Fire <code>statechange</code> event on <var>exitingWorker</var>.</li>
         </ol>
       </li>
       <li>Set <var>serviceWorkerRegistration.currentWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
-      <li>Call <code>_StateChange</code> with <var>serviceWorkerRegistration.currentWorker</var> and <var>activating</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.<var>state</var> to <code>activating</code>.</li>
+      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
       <li>Fire <code>currentchange</code> event on <var>navigator.serviceWorker</var> for all documents that have selected <var>serviceWorkerRegistration</var>.</li>
       <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any handler calls <code>waitUntil()</code>, then:
@@ -1022,7 +1027,8 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Extend this process until the associated promises settle.</li>
         </ol>
       </li>
-      <li>Call <code>_StateChange</code> with <var>serviceWorkerRegistration.currentWorker</var> and <var>actived</var>.</li>
+      <li>Set <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.<var>state</var> to <code>activated</code>.</li>
+      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1167,13 +1173,13 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If serviceWorkerRegistration.uninstalling is true, then
+      <li>If serviceWorkerRegistration.uninstalling is true, then:
         <ol>
           <li>Delete <var>serviceWorkerRegistration.scope</var> from <var>_ScopeToServiceWorkerRegistrationMap</var>.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration.updatePromise</var> is null and <var>serviceWorkerRegistration.installingWorker</var> is null and <var>serviceWorkerRegistration.waitingWorker</var> is null and <var>serviceWorkerRegistration.currentWorker</var> is null, then
+      <li>If <var>serviceWorkerRegistration.updatePromise</var> is null and <var>serviceWorkerRegistration.installingWorker</var> is null and <var>serviceWorkerRegistration.waitingWorker</var> is null and <var>serviceWorkerRegistration.currentWorker</var> is null, then:
         <ol>
           <li>Delete <var>serviceWorkerRegistration.scope</var> from <var>_ScopeToServiceWorkerRegistrationMap</var>.</li>
           <li>Abort these steps.</li>
@@ -1190,22 +1196,6 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 
   <spec-section id="unregistration-algorithm">
     <h1>Unregistration</h1>
-
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
-      <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
-    </dl>
-    <ol>
-      <li>Return the result of running <a href="#internal-unregistration-algorithm">_Unregistration algorithm</a> passing <var>scope</var> as the argument.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-
-  <spec-section id="internal-unregistration-algorithm">
-    <h1>_Unregistration</h1>
 
     <spec-algorithm>
     <dl>
@@ -1233,16 +1223,35 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>For each document using <var>serviceWorkerRegistration</var>:
+          <li>Set <var>serviceWorkerRegistration</var>.<var>uninstalling</var> to true.</li>
+          <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
             <ol>
-              <li>Set the document's service worker registration to null.</li>
+              <li>Reject <var>serviceWorkerRegistration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
+              <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
             </ol>
           </li>
-          <li>Delete <var>scope</var> from <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-          <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
-          <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.</li>
-          <li>Fire <code>deactivate</code> event on <var>exitingWorker</var> object.</li>
+          <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
+            <ol>
+              <li>Terminate <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+             <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
+              <li>The user agent may abort in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+            </ol>
+          </li>
+          <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
+            <ol>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+              <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
+              <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
+            </ol>
+          </li>
           <li>Resolve <var>promise</var>.</li>
+          <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+            <ol>
+              <li>Delete <var>scope</var> from <var>_ScopeToServiceWorkerRegistrationMap</var></li>
+            </ol>
+          </li>
         </ol>
       </li>
     </ol>
@@ -1257,7 +1266,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
@@ -1275,7 +1284,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
       <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
@@ -1291,20 +1300,25 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>pendingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>newestWorker</var> be null.</li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>pendingWorker</var> is not null, then:
+      <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>pendingWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
         </ol>
       </li>
-      <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
+      <li>Else if <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
+        </ol>
+      </li>
+      <li>Else if <var>serviceWorkerRegistration</var>.<var>currentWorker</var> is not null, then:
+        <ol>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
         </ol>
       </li>
       <li>Return <var>newestWorker</var>.</li>
