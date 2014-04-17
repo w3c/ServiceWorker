@@ -338,8 +338,8 @@ class OpaqueResponse extends AbstractResponse {
 class Response extends AbstractResponse {
   constructor(params?) {
     if (params) {
-      if (typeof params.statusCode != "undefined") {
-        this.statusCode = params.statusCode;
+      if (typeof params.status != "undefined") {
+        this.status = params.status;
       }
       if (typeof params.statusText != "undefined") {
         this.statusText = params.statusText;
@@ -362,7 +362,7 @@ class Response extends AbstractResponse {
 
   // This class represents the result of all other fetched resources, including
   // cross-origin fetched resources using the CORS fetching mode.
-  statusCode: Number;
+  status: Number;
   statusText: string;
   // Explicitly omitting httpVersion
   method: string;
@@ -467,7 +467,7 @@ class FetchEvent extends _Event {
 
     return new Promise(function(resolver){
       resolver.resolve(new Response({
-        statusCode: 302,
+        status: 302,
         headers: { "Location": url.toString() }
       }));
     });
@@ -609,7 +609,7 @@ class Cache {
     return Promise.all(newItems.map(function(item) { return item.response; })).then(function(responses) {
       // TODO: figure out what we consider success/failure
       responses.forEach(function(response) {
-        if (response.statusCode != 200) {
+        if (response.status != 200) {
           throw Error('Request failed');
         }
       });
