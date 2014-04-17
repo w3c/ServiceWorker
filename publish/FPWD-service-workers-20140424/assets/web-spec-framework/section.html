@@ -1,0 +1,64 @@
+<!-- Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!--
+    Recognizes attributes 'id' and 'title', but marking these as attributes
+    cause problems for the ShadowDOM polyfill.
+-->
+<polymer-element name="spec-section" constructor="SpecSectionElement">
+  <template>
+    <style>
+      :host { display: block; }
+      :host:target { background-color: inherit; }
+      :host:target > section > h1 { background-color: #fed; }
+      /* @polyfill header > h1 */
+      ::content h1 {
+        display: inline; font-size: 100%;
+      }
+      header {
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      header::after {
+        clear:both;
+        display: block;
+        content: " ";
+        height: 0;
+      }
+      .section-number, .anchor > a {
+        color: #005A9C;
+      }
+      .anchor {
+        padding-right: 1em;
+        font-size: 0.8em;
+        float:right;
+        text-decoration: none;
+      }
+    </style>
+
+    <section>
+      <header>
+        <span class="section-number">{{sec_num}}</span>
+        <content select="h1"></content>
+        <span class="anchor">
+          <a style="text-decoration: none;" href="#{{id}}">&para;</a>
+        </span>
+      </header>
+      <content></content>
+    </section>
+  </template>
+  <script src="section.js"></script>
+</polymer-element>
