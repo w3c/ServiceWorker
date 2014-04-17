@@ -245,7 +245,7 @@ Service Workers Algorithms
     1. Delete _scope_ from *_ScopeToServiceWorkerRegistrationMap*.
 
 --
-**_UpdateState**(_worker_, _state_)
+**_StateChange**(_worker_, _state_)
 
 1. Set _worker_.*state* to _state_.
 1. Fire _statechange_ event on _worker_.
