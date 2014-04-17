@@ -226,7 +226,7 @@ Service Workers Algorithms
     1. Abort these steps.
   1. Let _serviceWorkerRegistration_ be **_GetRegistration**(_scope_).
   1. If _serviceWorkerRegistration_ is null, then
-    1. Reject _promise_ with a new NotFoundError.
+    1. Resolve _promise_.
     1. Abort these steps.
   1. Set _serviceWorkerRegistration_.*uninstalling* to true
   1. If _serviceWorkerRegistration_.*updatePromise* is not null, then
