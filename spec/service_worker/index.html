@@ -196,22 +196,30 @@
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
   readonly attribute DOMString scope;
   readonly attribute DOMString url;
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready();
+  readonly attribute State state;
 
   // event
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> ondeactivate;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onstatechange;
+};
+
+enum <dfn id="state-enum" title="State">State</dfn> {
+  "installing",
+  "installed",
+  "activating",
+  "activated",
+  "redundant"
 };</spec-idl>
 
-    <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-active"><code>navigator.serviceWorker.active</code></a>) will provide meaningful functionality.</p>
+    <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-installing"><code>navigator.serviceWorker.installing</code></a>, <a href="#navigator-service-worker-waiting"><code>navigator.serviceWorker.waiting</code></a> and <a href="#navigator-service-worker-current"><code>navigator.serviceWorker.current</code></a>) will provide meaningful functionality.</p>
 
     <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>http://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
 
 <spec-idl class="prettyprint">// Script on the page http://example.com/app.html
 navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-idl>
 
-    <p>The value of <code>navigator.serviceWorker.active.scope</code> will be <code>"*"</code>.</p>
+    <p>The value of <code>navigator.serviceWorker.current.scope</code> will be <code>"*"</code>.</p>
 
-    <p>Similarly, in this example, the value of <code>navigator.serviceWorker.active.url</code> will be <code>"http://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+    <p>Similarly, in this example, the value of <code>navigator.serviceWorker.current.url</code> will be <code>"http://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
 
     <p>The <code>deactivate</code> event is fired in a turn following <a href="#replace-method">replacement</a> of the <code>ServiceWorker</code>.</p>
   </spec-section>
@@ -221,7 +229,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-id
 
     <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with service workers that are (or will become) active for the current document.</p>
 
-    <p>The <code>active</code> property of this object provides a reference to the service worker which was consulted during the construction of the current document (if any).</p>
+    <p>The <code>current</code> property of this object provides a reference to the service worker which was consulted during the construction of the current document (if any).</p>
 
     <p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 
@@ -230,17 +238,17 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-id
 };
 
 interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> {
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? installing;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? waiting;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? current;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>[]?&gt; getAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; unregister(DOMString? <var>scope</var>);
 
   // events
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstallend;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivateend;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onupdatefound;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oncurrentchange;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onreloadpage;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onerror;
 };
@@ -251,21 +259,12 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 
 interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPageEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
-};
+};</spec-idl>
 
-interface <dfn id="document-install-phase-event-interface" title="DocumentInstallPhaseEvent">DocumentInstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  readonly attribute <a href="#service-worker-interface">ServiceWorker</a> worker;
-};
+  <spec-section id="navigator-service-worker-current">
+    <h1><code>current</code></h1>
 
-interface <dfn id="document-install-event-interface" title="DocumentInstallEvent">DocumentInstallEvent</dfn> : <a href="#document-install-phase-event-interface">DocumentInstallPhaseEvent</a> {
-  readonly attribute <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
-};
-</spec-idl>
-
-  <spec-section id="navigator-service-worker-active">
-    <h1><code>active</code></h1>
-
-    <p><code>navigator.serviceWorker.active</code> must return a reference to the current <a href="#service-worker"><code>ServiceWorker</code></a> for the document. <code>navigator.serviceWorker.active</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a service worker</a>, or if the state is not <code>activating</code> or <code>activated</code>.<!-- FIXME(jungkees) state property should be defined. --></p>
+    <p><code>navigator.serviceWorker.current</code> must return a reference to the current <a href="#service-worker"><code>ServiceWorker</code></a> for the document. <code>navigator.serviceWorker.current</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a service worker</a>, or if the state is not <code>activating</code> or <code>activated</code>.<!-- FIXME(jungkees) state property should be defined. --></p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
@@ -282,25 +281,15 @@ interface <dfn id="document-install-event-interface" title="DocumentInstallEvent
 
     <p><code>navigator.serviceWorker.unregister(scope)</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
   </spec-section>
-  <spec-section id="navigator-service-worker-oninstall">
-    <h1><code>oninstall</code></h1>
+  <spec-section id="navigator-service-worker-onupdatefound">
+    <h1><code>onupdatefound</code></h1>
 
-    <p><code>navigator.serviceWorker.oninstall</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>install</code> using the <code><a href="#document-install-event-interface">DocumentInstallEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>installing</code>. (See step 4 of <a href="#installation-algorithm">_Installation algorithm</a>)</p>
+    <p><code>navigator.serviceWorker.onupdatefound</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>updatefound</code> using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>installing</code> such that <code>navigator.serviceWorker.installing</code> becomes a new worker. (See step 4 of <a href="#installation-algorithm">_Installation algorithm</a>)</p>
   </spec-section>
-  <spec-section id="navigator-service-worker-oninstallend">
-    <h1><code>oninstallend</code></h1>
+  <spec-section id="navigator-service-worker-oncurrentchange">
+    <h1><code>oncurrentchange</code></h1>
 
-    <p><code>navigator.serviceWorker.oninstallend</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>installend</code> using the <code><a href="#document-install-event-interface">DocumentInstallEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>installed</code>. (See step 7 of <a href="#installation-algorithm">_Installation algorithm</a>)</p>
-  </spec-section>
-  <spec-section id="navigator-service-worker-onactivate">
-    <h1><code>onactivate</code></h1>
-
-    <p><code>navigator.serviceWorker.onactivate</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>activate</code> using the <code><a href="#document-install-phase-event-interface">DocumentInstallPhaseEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>activating</code>. (See step 8 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
-  </spec-section>
-  <spec-section id="navigator-service-worker-onactivateend">
-    <h1><code>onactivateend</code></h1>
-
-    <p><code>navigator.serviceWorker.onactivateend</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>activateend</code> using the <code><a href="#document-install-phase-event-interface">DocumentInstallPhaseEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>activated</code>. (See step 11 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
+    <p><code>navigator.serviceWorker.oncurrentchange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>installend</code> using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>activated</code> such that <code>navigator.serviceWorker.current</code> changes to this associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> object. (See step 8 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onreloadpage">
     <h1><code>onreloadpage</code></h1>
