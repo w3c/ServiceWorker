@@ -106,6 +106,11 @@ Service Workers Algorithms
 1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _installing_.
 1. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. Fire _updatefound_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+1. If the event handler causes a script error, then
+  1. Fire _error_ event on _serviceWorkerRegistration_.*currentWorker*
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*installingWorker* and _redundant_
+  1. Set _serviceWorkerRegistration_.*installingWorker* to null
+  1. Abort these steps.
 1. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
@@ -139,6 +144,12 @@ Service Workers Algorithms
 1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activating_.
 1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
+1. If the event handler leads to a script error, then
+  1. Fire _error_ event on _serviceWorkerRegistration_.*currentWorker*
+     according to Web Workers spec.
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _redundant_.
+  1. Set _serviceWorkerRegistratin_.*currentWorker* to null.
+  1. Abort these steps. **This scope is no longer controlled!**.
 1. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises settle.
 1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activated_.
