@@ -748,23 +748,41 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 <spec-clause id="security-considerations">
   <h1>Security Considerations</h1>
 
+  <p class="note">Service Workers should be implemented to be HTTPS-only. The reasons for SSL-only support include:
+    <ul>
+      <li>Better to protect end users from man-in-the-middle attacks</li>
+      <li>Do good by encouraging HTTPS adoption</li>
+      <li>Existing "palyground" services (e.g. github.io) now work with HTTPS</li>
+      <li>HTTPS is coming across much more of the web quickly</li>
+      <li>Devtools can loosen the restriction for development (file://, localhost, etc.)</li>
+    </ul>
+  </p>
+
   <spec-section id="origin-relativity">
     <h1>Origin Relativity</h1>
+
+    <p class="note">One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other domains. Therefore, Service Workers cannot be hosted on CDNs. But they can include resources via <a href="http://goo.gl/Owcfs2">importScripts()</a>. The reason for this restriction is that Service Workers create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
   </spec-section>
 
   <spec-section id="x-origin-resources">
     <h1>Cross-Origin Resources &amp; CORS</h1>
+
+    <p class="note">Applications tend to cache items that come from a CDN or other domain. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-domain resources when appropriate CORS headers are set.</p>
+    <p>ServiceWorkers enable this by allowing <code>Cache</code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code>Cache</code> as <code><a href="http://goo.gl/3TobQS">Promise</a></code>s for <code>Response</code> instances, the objects stored are <code><a href="http://goo.gl/3TobQS">Promise</a></code>s for <code>OpaqueResponse</code> instances. <code>OpaqueResponse</code> provides a much less expressive API than <code>Response</code>; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code>respondWith()</code> and <code>forwardTo()</code> in the same manner as <code>Response</code>s, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code>Cache</code>s to store them allows applications to avoid re-architecting in most cases.</p>
   </spec-section>
 </spec-clause>
 
 <spec-clause id="storage-considerations">
   <h1>Storage Considerations</h1>
+
+  <p class="note">Service Workers should take a dependency on <a href="http://www.w3.org/TR/quota-api/">Quota Management</a> in preparation for an extension event that communicates storage pressure and pre-eviction information to the application.</p>
 </spec-clause>
 
 <spec-clause id="extensibility">
   <h1>Extensibility</h1>
-</spec-clause>
 
+  <p class="note">The expectation is that service workers are meant to be extensible from other specifications. As of now, <a href="https://github.com/slightlyoff/BackgroundSync">BackgroundSync</a> event, <a href="http://www.w3.org/2012/sysapps/web-alarms/">TaskScheduler</a> and <a href="https://dvcs.w3.org/hg/push/raw-file/tip/index.html">Push API</a> would be the prime candidates and more will come. That said, we want to make sure that the future works won't be adding synchronous cruft, etc. This section will provide template text for how to extend the service workers.</p>
+</spec-clause>
 
 <spec-clause id="algorithms">
   <h1>Appendix A: Algorithms</h1>
