@@ -130,8 +130,25 @@ class InstallEvent extends InstallPhaseEvent {
   //     by subsequent event handlers.
   //   - therefore, replace doesn't happen immediately.
   replace(): void {}
+}
 
-  // Assists in restarting all windows with the new worker.
+interface InstallEventHandler { (e:InstallEvent); }
+interface ActivateEventHandler { (e:InstallPhaseEvent); }
+interface FetchEventHandler { (e:FetchEvent); }
+
+// FIXME: need custom event types!
+interface BeforeCacheEvictionEventHandler { (e:_Event); }
+interface CacheEvictionEventHandler { (e:_Event); }
+
+interface OnlineEventHandler { (e:_Event); }
+interface OfflineEventHandler { (e:_Event); }
+
+interface ServiceWorkerClients {
+  // A list of window objects, identifiable by ID, that correspond to windows
+  // (or workers) that are "controlled" by this SW
+  getServiced(): Promise; // Promise for Array<Client>
+
+  // Assists in restarting all windows
   //
   // Return a new Promise
   // For each attached window:
@@ -165,23 +182,6 @@ class InstallEvent extends InstallPhaseEvent {
 
     });
   }
-}
-
-interface InstallEventHandler { (e:InstallEvent); }
-interface ActivateEventHandler { (e:InstallPhaseEvent); }
-interface FetchEventHandler { (e:FetchEvent); }
-
-// FIXME: need custom event types!
-interface BeforeCacheEvictionEventHandler { (e:_Event); }
-interface CacheEvictionEventHandler { (e:_Event); }
-
-interface OnlineEventHandler { (e:_Event); }
-interface OfflineEventHandler { (e:_Event); }
-
-interface ServiceWorkerClients {
-  // A list of window objects, identifiable by ID, that correspond to windows
-  // (or workers) that are "controlled" by this SW
-  getServiced(): Promise; // Promise for Array<Client>
 }
 
 // The scope in which worker code is executed
