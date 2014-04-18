@@ -322,8 +322,6 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <P>Example: Serving Cached Resources</P>
 
 <spec-idl class="prettyprint">// caching.js
-this.version = 1;
-
 this.addEventListener("install", function(e) {
   // Create a cache of resources. Begins the process of fetching them.
   var shellResources = new Cache(
@@ -349,11 +347,10 @@ this.addEventListener("fetch", function(e) {
   // Promises heavily. e.respondWith() even takes Promises to enable this:
   e.respondWith(
     caches.match(e.request).catch(function() {
-      return caches.get("dynamic").then(function(dynamicCache) {
-        dynamicCache.add(e.request);
-        return fetch(e.request);
-      });
-    });
+      return e.default();
+    }).catch(function() {
+      return caches.match("/fallback.html");
+    })
   );
 });</spec-idl>
 
