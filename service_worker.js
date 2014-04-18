@@ -10,7 +10,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -18,7 +17,6 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
-
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -82,8 +80,20 @@ var InstallEvent = (function (_super) {
     //   - therefore, replace doesn't happen immediately.
     InstallEvent.prototype.replace = function () {
     };
+    return InstallEvent;
+})(InstallPhaseEvent);
 
-    // Assists in restarting all windows with the new worker.
+var ServiceWorkerClients = (function () {
+    function ServiceWorkerClients() {
+    }
+    // A list of window objects, identifiable by ID, that correspond to windows
+    // (or workers) that are "controlled" by this SW
+    ServiceWorkerClients.prototype.getServiced = function () {
+        return new Promise(function () {
+        });
+    };
+
+    // Assists in restarting all windows
     //
     // Return a new Promise
     // For each attached window:
@@ -112,13 +122,12 @@ var InstallEvent = (function (_super) {
     // Activate the new worker
     // Reload all windows asynchronously
     // Resolve promise
-    InstallEvent.prototype.reloadAll = function () {
+    ServiceWorkerClients.prototype.reloadAll = function () {
         return new Promise(function () {
         });
     };
-    return InstallEvent;
-})(InstallPhaseEvent);
-
+    return ServiceWorkerClients;
+})();
 
 // The scope in which worker code is executed
 var ServiceWorkerGlobalScope = (function (_super) {
@@ -202,9 +211,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        // This class represents the result of cross-origin fetched resources that are
+        get: // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        get: function () {
+        function () {
             return "";
         },
         enumerable: true,
@@ -217,8 +226,8 @@ var Response = (function (_super) {
     __extends(Response, _super);
     function Response(params) {
         if (params) {
-            if (typeof params.statusCode != "undefined") {
-                this.statusCode = params.statusCode;
+            if (typeof params.status != "undefined") {
+                this.status = params.status;
             }
             if (typeof params.statusText != "undefined") {
                 this.statusText = params.statusText;
@@ -330,7 +339,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null; // to allow postMessage, window.topLevel, etc
+        this.client = null;
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -370,7 +379,7 @@ var FetchEvent = (function (_super) {
 
         return new Promise(function (resolver) {
             resolver.resolve(new Response({
-                statusCode: 302,
+                status: 302,
                 headers: { "Location": url.toString() }
             }));
         });
@@ -421,14 +430,11 @@ var Cache = (function () {
     };
 
     Cache._cacheItemValid = function (request, cachedRequest, cachedResponse) {
-        // filter by request method & url
         if (cachedRequest.method != request.method)
             return false;
         if (cachedRequest.url != request.url)
             return false;
 
-        // filter by 'vary':
-        // If there's no vary header, we have a match!
         if (!cachedResponse.headers.has('vary'))
             return true;
 
@@ -442,8 +448,6 @@ var Cache = (function () {
                 continue;
             }
 
-            // TODO: should this treat headers case insensitive?
-            // TODO: should comparison be more lenient than this?
             if (cachedRequest.headers.get(varyHeader) != request.headers.get(varyHeader)) {
                 return false;
             }
@@ -477,7 +481,6 @@ var Cache = (function () {
         }
         var thisCache = this;
         var newItems = items.map(function (item) {
-            // if item is a response, pair it with a simple request
             if (item instanceof Response) {
                 return {
                     'request': new Request({
@@ -502,7 +505,7 @@ var Cache = (function () {
         })).then(function (responses) {
             // TODO: figure out what we consider success/failure
             responses.forEach(function (response) {
-                if (response.statusCode != 200) {
+                if (response.status != 200) {
                     throw Error('Request failed');
                 }
             });
@@ -616,7 +619,6 @@ var BroadcastChannel = (function () {
 })();
 ;
 
-
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
     function WorkerGlobalScope() {
@@ -671,7 +673,6 @@ var _URL = (function () {
     }
     return _URL;
 })();
-
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
@@ -791,12 +792,10 @@ var _defaultToBrowserHTTP = function (url) {
 
 // take a string or url and resolve it to a request
 function _castToRequest(item) {
-    // resolve strings to urls with the worker as a base
     if (item instanceof String) {
         item = new _URL(item);
     }
 
-    // create basic GET request from url
     if (item instanceof _URL) {
         item = new Request({
             'url': item

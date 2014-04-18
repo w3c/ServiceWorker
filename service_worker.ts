@@ -49,9 +49,15 @@ interface ServiceWorkerContainer {
   unregister(scope?: string): Promise; // Defaults to "*"
     // Resolves with no value on success. Rejects if scope is mismatch.
 
+  // Returns a Promise that resolves with the associated SW object when it
+  // becomes either waiting or current worker for the document. (i.e., sw.state
+  // is "installed" or "activating" or "activated", and the promise never
+  // rejects in any case.)
+  whenReady(): Promise; // Promise<ServiceWorker>
+
   onupdatefound: (ev: Event) => any;
     // Fires when .installing becomes a new worker
-  
+
   oncurrentchange: (ev: Event) => any;
     // Fires when .current changes
 
@@ -143,10 +149,14 @@ interface CacheEvictionEventHandler { (e:_Event); }
 interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
-interface ServiceWorkerClients {
+class ServiceWorkerClients {
   // A list of window objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  getServiced(): Promise; // Promise for Array<Client>
+  getServiced(): Promise { // Promise for Array<Client>
+    return new Promise(function() {
+
+    });
+  }
 
   // Assists in restarting all windows
   //
