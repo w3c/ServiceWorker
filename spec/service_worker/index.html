@@ -307,7 +307,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-onreloadpage">
     <h1><code>onreloadpage</code></h1>
 
-    <p><code>navigator.serviceWorker.onreloadpage</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>reloadpage</code> using the <code><a href="#reload-page-event-interface">ReloadPageEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when <code>event.<a href="#reloadall-method">reloadAll()</a></code> is called during the <a href="#installation-algorithm">installation</a> of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code>.</p>
+    <p><code>navigator.serviceWorker.onreloadpage</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>reloadpage</code> using the <code><a href="#reload-page-event-interface">ReloadPageEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when <code><a href="#reloadall-method">navigator.serviceWorker.clients.reloadAll()</a></code> method is called.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onerror">
     <h1><code>onerror</code></h1>
@@ -446,10 +446,18 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#client-interface">Client</a>[]?&gt; getServiced();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
 };
 </spec-idl>
 
     <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#document-control">controlled</a> by this Service Worker.</p>
+    <spec-section id="reloadall-method">
+      <h1 id="reloadall-method"><code>reloadAll()</code></h1>
+
+      <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
+
+      <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
+    </spec-section>
   </spec-section>
 
   <spec-section id="request-objects">
@@ -515,7 +523,7 @@ interface <dfn id="abstract-response-interface" title="AbstractResponse">Abstrac
 };
 
 interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
-  readonly attribute unsigned short statusCode;
+  readonly attribute unsigned short status;
   readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
   readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
   // Returns a filtered list of headers. See <a href="#opaque-response">prose for details</a>.
@@ -530,7 +538,7 @@ interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</d
 
 [Constructor(optional <a href="#response-init-dictionary">ResponseInit</a> <var>responseInitDict</var>)]
 interface <dfn id="response-interface" title="Response">Response</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
-  attribute unsigned short statusCode;
+  attribute unsigned short status;
   attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
   attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
   getter <a href="#header-map-interface">HeaderMap</a> headers();
@@ -540,7 +548,7 @@ interface <dfn id="response-interface" title="Response">Response</dfn> : <a href
 };
 
 dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit</dfn> {
-  unsigned short statusCode = 200;
+  unsigned short status = 200;
   <a href="http://goo.gl/M46tpy">ByteString</a> statusText = "OK";
   <a href="http://goo.gl/M46tpy">ByteString</a> method;
   <a href="#header-map-interface">HeaderMap</a> headers;
@@ -661,7 +669,6 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
   void replace();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
 };
 </spec-idl>
 
@@ -676,13 +683,6 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
           <li>Replacement only happens upon successful installation</li>
           <li>Therefore, replacement of the <a href="#FIXME">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
         </ul>
-      </spec-section>
-      <spec-section id="reloadall-method">
-        <h1 id="reloadall-method"><code>event.reloadAll()</code></h1>
-
-        <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
-
-        <p>If the group-reload is canceled <!-- FIXME(slightlyoff) --></p>
       </spec-section>
     </spec-section>
     <spec-section id="activate-event">
