@@ -126,13 +126,13 @@
 
   <p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#docment-control">control</a>.</p>
 
-  <p>Service Workers are <a href="#installation">installed</a> by user agents after being <a href="#registration">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="#FIXME">origin</a>.</p>
+  <p>Service Workers are <a href="#installation-algorithm">installed</a> by user agents after being <a href="#navigator-service-worker-register">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="http://goo.gl/58tlSE">origin</a>.</p>
 
   <p><a href="#registration-algorithm">Registration</a> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-scope">url scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#registration-algorithm">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
 
-  <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#algorithm-matching">longest-prefix wildcard matching</a>.</p>
+  <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#scope-match-algorithm">longest-prefix wildcard matching</a>.</p>
 
-  <p>A document is "<dfn id="document-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#algorithm-matching">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-controlled">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents.</p>
+  <p>A document is "<dfn id="document-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-control">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents.</p>
 
   <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
 
@@ -141,7 +141,7 @@
   <ol>
     <li><em>Fetch</em>:
     <br>
-    The script URL provided by the author (via a call to <a href="#register-service-worker"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+    The script URL provided by the author (via a call to <a href="#navigator-service-worker-register"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
     If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
@@ -222,9 +222,9 @@ enum <dfn id="state-enum" title="State">State</dfn> {
   "redundant"
 };</spec-idl>
 
-    <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <a href="#navigator-service-worker-installing"><code>navigator.serviceWorker.installing</code></a>, <a href="#navigator-service-worker-waiting"><code>navigator.serviceWorker.waiting</code></a> and <a href="#navigator-service-worker-current"><code>navigator.serviceWorker.current</code></a>) will provide meaningful functionality.</p>
+    <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <code>navigator.serviceWorker.installing</code>, <code>navigator.serviceWorker.waiting</code> and <code>navigator.serviceWorker.current</code>) will provide meaningful functionality.</p>
 
-    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
+    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration-internal-interface">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
 
 <spec-idl class="prettyprint">// Script on the page https://example.com/app.html
 navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-idl>
@@ -245,7 +245,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-id
 
     <p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 
-<spec-idl>partial interface <a href="http://www.w3.org/html/wg/drafts/html/master/webappapis.html#navigator-0">Navigator</a> {
+<spec-idl>partial interface <a href="http://goo.gl/I7WAhg">Navigator</a> {
   readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> serviceWorker;
 };
 
@@ -364,7 +364,7 @@ this.addEventListener("fetch", function(e) {
     <h1><code>ServiceWorkerGlobalScope</code></h1>
 
 <spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
-interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/mkHcfYglobalscope">WorkerGlobalScope</a> {
+interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/xBhqNU">WorkerGlobalScope</a> {
   readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
@@ -479,7 +479,7 @@ interface <dfn id="request-interface" title="Request">Request</dfn> {
   attribute DOMString url;
   attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
   readonly attribute DOMString origin;
-  readonly attribute <a href="#mode-dictionary">Mode</a> mode;
+  readonly attribute <a href="#mode-enum">Mode</a> mode;
   attribute boolean synchronous;
   readonly attribute unsigned long redirectCount;
   attribute boolean forcePreflight;
@@ -795,7 +795,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="registration-algorithm">
     <h1>Registration</h1>
 
-    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#navigation-matching-algorithm">navigation matching</a>.</p>
+    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
 
     <spec-algorithm>
     <dl>
@@ -881,7 +881,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
