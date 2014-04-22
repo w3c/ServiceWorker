@@ -115,7 +115,7 @@
 
     <p>Developers using the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the Service Worker is that errors should <em>always</em> be recoverable. Many details of the update process of Service Workers are designed to avoid these hazards.</p>
 
-    <p>Service Workers are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a href="http://www.w3.org/TR/workers/#sharedworker">Shared Workers</a> and <a href="http://developer.chrome.com/extensions/background_pages.html">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, Service Workers bear more than a passing resemblance to <a href="http://developer.chrome.com/extensions/event_pages.html">Chrome Event Pages</a>, the successor to Background Pages. Service Workers may be started by user agents <em>without an attached document</em> and may be killed by the user agent at nearly any time. Conceptually, Service Workers can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that Service Workers may be started and killed many times a second.</p>
+    <p>Service Workers are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a href="http://www.w3.org/TR/workers/#sharedworker">Shared Workers</a> and <a href="https://developer.chrome.com/extensions/background_pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, Service Workers bear more than a passing resemblance to <a href="https://developer.chrome.com/extensions/event_pages">Chrome Event Pages</a>, the successor to Background Pages. Service Workers may be started by user agents <em>without an attached document</em> and may be killed by the user agent at nearly any time. Conceptually, Service Workers can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that Service Workers may be started and killed many times a second.</p>
 
     <p>Service Workers are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).</p>
   </spec-section>
@@ -144,7 +144,7 @@
     The script URL provided by the author (via a call to <a href="#navigator-service-worker-register"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
-    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#worker-script-caching">"Worker Script Caching"</a>.
+    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#update-algorithm">"Worker Script Caching"<!--TODO(jungkees): add worker script caching section--></a>.
     </li>
     <li><em><code>oninstall</code></em>:
     <br>
@@ -802,13 +802,13 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="registration-algorithm">
     <h1>Registration</h1>
 
-    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#registration-internal-interface">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
+    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#registration-internal-interface">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <code>scriptUrl</code> to an <a href="http://goo.gl/56C6hc">origin</a> + <code>scope</code> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
         <dd><var>scriptUrl</var>, the URL of the script to register; a string</dd>
-        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+        <dd><var>scope</var>, a string representing a <a href="#url-scope">relative URL pattern</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
@@ -863,8 +863,8 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           </li>
           <li>If <var>serviceWorkerRegistration</var> is null, then:
             <ol>
-              <li>Let <var>serviceWorkerRegistration</var> be a newly-created <a href="#FIXME">_ServiceWorkerRegistration</a> object.</li>
-              <li>Set <var>serviceWorkerRegistration</var> to the value of key <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+              <li>Let <var>serviceWorkerRegistration</var> be a newly-created <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object.</li>
+              <li>Set <var>serviceWorkerRegistration</var> to the value of key <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>scope</var> to <var>scope</var>.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>uninstalling</var> to false.</li>
             </ol>
@@ -880,7 +880,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="update-algorithm">
     <h1>_Update</h1>
 
-    <p>The <a href="#update-algorithm">Service Worker _Update Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> which becomes the <a href="#FIXME">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
+    <p>The <a href="#update-algorithm">Service Worker _Update Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#worker-in-waiting">Service Worker in waiting</a> which becomes the <a href="#navigator-service-worker-current">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
 
   <!--
   #FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. As such, Promise is not used for its output.
@@ -978,7 +978,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1009,7 +1009,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
@@ -1067,7 +1067,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1224,7 +1224,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
     <dt>Input</dt>
-        <dd><var>document</var>, the document using the given <a href="#FIXME">ServiceWorkerReistration</a> as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
+        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">_ServiceWorkerReistration</a> object as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1267,7 +1267,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+        <dd><var>scope</var>, a string representing a <a href="#url-scope">relative URL pattern</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
@@ -1331,12 +1331,12 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>url</var>, a string representing a <a href="#FIXME">relative URL pattern</a>; a string</dd>
+        <dd><var>url</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the longest key in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest key in <dfn id="scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
       <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
       <li>Return <var>serviceWorkerRegistration</var>.</li>
     </ol>
@@ -1349,13 +1349,13 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#FIXME">relative URL pattern</a></dd>
+        <dd><var>scope</var>, a string representing a <a href="#url-scope">relative URL pattern</a></dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
-      <li>If there is no record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
-      <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#FIXME">_ScopeToServiceWorkerRegistrationMap</a>.</li>
+      <li>If there is no record for <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>.</li>
       <li>Return <var>serviceWorkerRegistration</var>.</li>
     </ol>
     </spec-algorithm>
@@ -1367,9 +1367,9 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#FIXME">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, the internal map structure keyed by <var>scope</var> with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#FIXME">ServiceWorker</a> object</dd>
+        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>newestWorker</var> be null.</li>
