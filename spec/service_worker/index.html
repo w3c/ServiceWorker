@@ -124,7 +124,7 @@
 <spec-clause id="concepts">
   <h1>Concepts</h1>
 
-  <p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#docment-control">control</a>.</p>
+  <p>A <dfn id="service-worker">Service Worker</dfn> is a type of <a href="http://www.w3.org/TR/workers/">Web Worker</a>. Unlike other types of Web Worker, the lifetime of a Service Worker is tied to the execution lifetime of events, not references held by documents to the <a href="#service-worker-obj">worker object</a>. In practice, this means that <a href="#service-worker">Service Workers</a> may begin, end, and restart execution many times over the life of documents which they logically <a href="#document-control">control</a>.</p>
 
   <p>Service Workers are <a href="#installation-algorithm">installed</a> by user agents after being <a href="#navigator-service-worker-register">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="http://goo.gl/58tlSE">origin</a>.</p>
 
@@ -132,7 +132,7 @@
 
   <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative url</a> which may, optionally, terminate with the charachter <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#scope-match-algorithm">longest-prefix wildcard matching</a>.</p>
 
-  <p>A document is "<dfn id="document-control">controlled</dfn>" if an <a href="#FIXME">active</a> <a href="#service-worker">Service Worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-control">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents.</p>
+  <p>A document is "<dfn id="document-control">controlled</dfn>" if an <a href="#navigator-service-worker-current">active</a> <a href="#service-worker">Service Worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-control">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents.</p>
 
   <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
 
@@ -150,13 +150,13 @@
     <br>
     Once a Service Worker has been fetched and started, it is ready to process <a href="http://dom.spec.whatwg.org/#interface-event">events</a>. The first event sent to every Service Worker is <a href="#install-event"><code>install</code></a>. Workers that handle this event are encouraged to use it as a way to prime the available storage mechanisms for supporting offline application use; perhaps by populating <a href="http://www.w3.org/TR/IndexedDB/">IndexedDB databases</a> or <a href="#cache-objects"><code>Cache</code> objects</a>.
     <br><br>
-    Service Workers are not considered "installed" until the <code>oninstall</code> event handler completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#lifetime-extension">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
+    Service Workers are not considered "installed" until the <code>oninstall</code> event handler completes. Given that many tasks, such as populating caches, may take a long time and are asynchronous, <a href="#wait-until-method">mechanisms are provided</a> to let applications signal to the user agent when they consider themselves prepared to handle further events.
     <br><br>
     If no <code>oninstall</code> event handler is registered, the Service Worker is considered to be <dfn id="successfully-installed">successfully installed</dfn>.
     <br><br>
     If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
     <br><br>
-    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-scope">url scope</a>.
+    Assuming a worker <a href="#successfully-installed">is successfully installed</a>, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#navigator-service-worker-current">active worker</a> and one <a href="#worker-in-waiting">worker in waiting</a> for a given <a href="#url-scope">url scope</a>.
     </li>
     <li><em><code>onactivate</code></em>:
     <br>
@@ -208,7 +208,7 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
   readonly attribute DOMString scope;
   readonly attribute DOMString url;
-  readonly attribute ServiceWorkerState state;
+  readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> state;
 
   // event
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onstatechange;
@@ -224,7 +224,7 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
 
     <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <code>navigator.serviceWorker.installing</code>, <code>navigator.serviceWorker.waiting</code> and <code>navigator.serviceWorker.current</code>) will provide meaningful functionality.</p>
 
-    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration-internal-interface">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#navigation-matching">matches</a> via the following registration call which has been previously executed:</p>
+    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration-internal-interface">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-navigation-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
 <spec-idl class="prettyprint">// Script on the page https://example.com/app.html
 navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-idl>
@@ -317,7 +317,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-onerror">
     <h1><code>onerror</code></h1>
 
-    <p><code>navigator.serviceWorker.onerror</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>error</code> using the <code><a href="#error-event-interface">ErrorEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object for any error from the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> objects.</p>
+    <p><code>navigator.serviceWorker.onerror</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>error</code> using the <code><a href="http://goo.gl/FKuWgu">ErrorEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object for any error from the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> objects.</p>
   </spec-section>
 </spec-section>
 </spec-clause>
@@ -440,9 +440,9 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 };
 </spec-idl>
 
-    <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is <a href="#document-control">controlled</a> by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#FIXME"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
+    <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is <a href="#document-control">controlled</a> by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#get-serviced-method"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
 
-    <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="#FIXME">MessageEvent</a></code> to be dispatched at the client object.</p>
+    <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
 
   </spec-section>
   <spec-section id="service-worker-clients">
@@ -456,11 +456,14 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 };
 </spec-idl>
 
-    <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects. The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#document-control">controlled</a> by this Service Worker.</p>
+    <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects.</p>
+    <spec-section id="get-serviced-method">
+      <p>The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#document-control">controlled</a> by this Service Worker.</p>
+    </spec-section>
     <spec-section id="reloadall-method">
       <h1><code>reloadAll()</code></h1>
 
-      <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#FIXME"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="#FIXME"><code>e.preventDefault()</code></a>.</p>
+      <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">url scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#wait-until-method"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="http://goo.gl/2zH6ie"><code>e.preventDefault()</code></a>.</p>
 
       <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
     </spec-section>
@@ -661,7 +664,10 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 </spec-idl>
 
       <p>Service Workers have two <a href="#lifecycle-events">Lifecycle events</a>, <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. Service Workers use the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface for <code><a href="#activate-event">activate</a></code> event and the <code><a href="#install-event-interface">InstallEvent</a></code> interface, which inherits from the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface, for <code><a href="#install-event">install</a></code> event.</p>
-      <p><code>event.waitUntil(f)</code> method, when called in <code>oninstall</code> or <code>onactivate</code>, extends the lifetime of the event. When called in <code>oninstall</code>, it delays treating the installing worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that a <code>ServiceWorker</code> is not active until all of the core caches it depends on are populated. When called in <code>onactivate</code>, it delays treating the activating worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that any <a href="#functional-events">Functional events</a> are not dispatched to the <code>ServiceWorker</code> until it upgrades database schemas and deletes the outdated cache entries.</p>
+
+      <spec-section id="wait-until-method">
+        <p><code>event.waitUntil(f)</code> method, when called in <code>oninstall</code> or <code>onactivate</code>, extends the lifetime of the event. When called in <code>oninstall</code>, it delays treating the installing worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that a <code>ServiceWorker</code> is not active until all of the core caches it depends on are populated. When called in <code>onactivate</code>, it delays treating the activating worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that any <a href="#functional-events">Functional events</a> are not dispatched to the <code>ServiceWorker</code> until it upgrades database schemas and deletes the outdated cache entries.</p>
+      </spec-section>
     </spec-section>
 
     <spec-section id="install-event">
@@ -687,7 +693,7 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
         <ul>
           <li>Successful installation can be delayed by <code>waitUntil</code>, perhaps by subsequent event handlers.</li>
           <li>Replacement only happens upon successful installation</li>
-          <li>Therefore, replacement of the <a href="#FIXME">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
+          <li>Therefore, replacement of the <a href="#navigator-service-worker-current">active worker</a> (if any) is not immediate, however it may occur as soon as the end of the current turn.</li>
         </ul>
       </spec-section>
     </spec-section>
@@ -795,7 +801,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="registration-algorithm">
     <h1>Registration</h1>
 
-    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#FIXME">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
+    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#registration-internal-interface">registration</a> for some amount of <a href="#url-scope">url scope</a>. If successful, a registration ties the provided <a href="#FIXME">script</a> to an <a href="#FIXME">origin</a> + <a href="#FIXME">scope</a> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
 
     <spec-algorithm>
     <dl>
@@ -873,7 +879,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
   <spec-section id="update-algorithm">
     <h1>_Update</h1>
 
-    <p>The <a href="#upgrade-algorithm">Service Worker Upgrade Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> which becomes the <a href="#FIXME">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
+    <p>The <a href="#update-algorithm">Service Worker _Update Algorithm</a>, run by the user agent, upgrades an <a href="#successfully-installed">installed</a> Service Worker to a new version for the same <a href="#url-scope">url scope</a>. If successful, the newly <a href="#successfully-installed">installed</a> Service Worker becomes the <a href="#FIXME">Service Worker in waiting</a> which becomes the <a href="#FIXME">active</a> Service Worker as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
 
   <!--
   #FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. As such, Promise is not used for its output.
