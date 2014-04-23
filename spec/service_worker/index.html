@@ -618,14 +618,14 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
     <spec-section id="cache">
       <h1><code>Cache</code></h1>
 <spec-idl>
-[Constructor((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>)]
+[Constructor((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>)]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="#request-interface">Request</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; matchAll((<a href="#request-interface">Request</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#request-interface">Request</a>[]&gt; keys((<a href="#request-interface">Request</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>filterRequest</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; add((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; set((<a href="#request-interface">Request</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>, <a href="#response-interface">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any[]&gt; delete((<a href="#request-interface">Request</a> [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; matchAll((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#request-interface">Request</a>[]&gt; keys((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>filterRequest</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; add((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString)... <var>items</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; set((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>, <a href="#response-interface">Response</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any[]&gt; delete((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>[]&gt; ready();
 };
 </spec-idl>
@@ -980,7 +980,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1011,7 +1011,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
@@ -1069,7 +1069,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1335,10 +1335,10 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>url</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the key in <dfn id="scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</dfn> where <var>matchingScope.pathname</var> longest-glob-matches <var>url</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest key in <dfn id="scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</dfn> that glob-matches <var>url</var>.</li>
       <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
       <li>Return <var>serviceWorkerRegistration</var>.</li>
     </ol>
@@ -1353,7 +1353,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
       <li>If there is no record for <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
@@ -1369,7 +1369,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
     </dl>
