@@ -290,7 +290,7 @@ Service Workers Algorithms
 --
 **_ScopeMatch**(_url_)
 
-1. Let _matchingScope_ be the longest key in *_ScopeToServiceWorkerRegistrationMap* that glob-matches _url_.
+1. Let _matchingScope_ be the key in *_ScopeToServiceWorkerRegistrationMap* where _matchingScope_.*pathname* longest-glob-matches _url_.*pathname*.
 1. Let _serviceWorkerRegistration_ be **_GetRegistration**(_matchingScope_).
 1. If _serviceWorkerRegistration_ is not null and _serviceWorkerRegistration_.*uninstalling* is true, then
   1. Return null.
