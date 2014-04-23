@@ -224,16 +224,32 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
 
     <p>The <code>ServiceWorker</code> interface represents the document-side view of a Service Worker. This object provides a no-op constructor. Callers should note that only <code>ServiceWorker</code> objects created by the user agent (see <code>navigator.serviceWorker.installing</code>, <code>navigator.serviceWorker.waiting</code> and <code>navigator.serviceWorker.current</code>) will provide meaningful functionality.</p>
 
-    <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration-internal-interface">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-navigation-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
+    <spec-section id="service-worker-scope">
+      <h1><code>scope</code></h1>
+
+      <p>The <code>scope</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the url representing the <a href="#url-scope">url scope</a> of the <a href="#service-worker-interface">ServiceWorker</a> object.</p>
+
+      <p>The <code>scope</code> of a <code>ServiceWorker</code> reflects the scope of the <code>ServiceWorker</code>'s <a href="#registration-internal-interface">registration</a>. For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-navigation-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
 <spec-idl class="prettyprint">// Script on the page https://example.com/app.html
-navigator.serviceWorker.register("/service_worker.js", { scope: "*" });</spec-idl>
+navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-idl>
 
-    <p>The value of <code>navigator.serviceWorker.current.scope</code> will be <code>"*"</code>.</p>
+      <p>The value of <code>navigator.serviceWorker.current.scope</code> will be <code>"https://example.com/*"</code>.</p>
+    </spec-section>
 
-    <p>Similarly, in this example, the value of <code>navigator.serviceWorker.current.url</code> will be <code>"https://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+    <spec-section id="service-worker-url">
+      <h1><code>url</code></h1>
 
-    <p>The <code>statechange</code> event is fired when the <code>state</code> attribute of the <code>ServiceWorker</code> object is changed.</p>
+      <p>The <code>url</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the url identifying the script resource that is running in the worker that the <a href="#service-worker-interface">ServiceWorker</a> object represents.</p>
+
+      <p>Similarly, in the above example, the value of <code>navigator.serviceWorker.current.url</code> will be <code>"https://example.com/service_worker.js"</code>. The <code>url</code> property is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+    </spec-section>
+
+    <spec-section id="service-worker-on-state-change">
+      <h1><code>onstatechange</code></h1>
+
+      <p><code>onstatechange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-interface">ServiceWorker</a></code> object. A <code>statechange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-interface">ServiceWorker</a></code> object when the <code>state</code> attribute of the <code>ServiceWorker</code> object is changed.</p>
+    </spec-section>
   </spec-section>
 
   <spec-section id="navigator-service-worker">
@@ -725,7 +741,7 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
   readonly attribute boolean isReload;
 
   void respondWith(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo(([<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>url</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo([<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString <var>url</var>);
   <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; default();
 };
 
