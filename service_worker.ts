@@ -253,7 +253,6 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   //  - custom "accept/reject" handling, perhaps with global config
   //  - flag to consult the HTTP cache first?
   fetch(request:Request);
-  fetch(request:URL); // a URL
   fetch(request:string); // a URL
 
   fetch(request:any) : ResponsePromise {
@@ -288,7 +287,6 @@ class Request {
         this.timeout = params.timeout;
       }
       if (typeof params.url != "undefined") {
-        // should be "new URL(params.url)" but TS won't allow it
         this.url = params.url;
       }
       if (typeof params.synchronous != "undefined") {
@@ -463,8 +461,7 @@ class FetchEvent extends _Event {
            _defaultToBrowserHTTP);
   }
 
-  forwardTo(url: URL) : Promise;
-  forwardTo(url: string) : Promise;
+  forwardTo(url: string) : Promise; // treated as url
   // "any" to make the TS compiler happy:
   forwardTo(url: any) : Promise {
     if (!(url instanceof _URL) || typeof url != "string") {
@@ -689,7 +686,6 @@ class CacheList implements AsyncMap<any, any> {
   // If no matching item is found in a named cache, the response is rjected.
   // If no cacheName is specified and no matching item is found in any cache,
   // the response is rejected.
-  match(url: URL, cacheName?: String) : ResponsePromise;
   match(url: String, cacheName?: String) : ResponsePromise;
   // "any" to make the TS compiler happy
   match(url: any, cacheName?: any) : ResponsePromise {
@@ -935,19 +931,10 @@ var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
 // take a string or url and resolve it to a request
 function _castToRequest(item:any) : Request {
   // resolve strings to urls with the worker as a base
-  if (item instanceof String) {
-    item = new _URL(item/*, worker scope url */);
-  }
-
-  // create basic GET request from url
-  if (item instanceof _URL) {
+  if (!(item instanceof Request)) {
     item = new Request({
       'url': item
     });
-  }
-
-  if (!(item instanceof Request)) {
-    throw TypeError("Param must be string/URL/Request");
   }
 
   return item;
