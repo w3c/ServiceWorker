@@ -1,0 +1,65 @@
+<!-- Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!-- Draws a table of contents based on the <spec-clause> and <spec-section> elements. -->
+
+<polymer-element name="spec-toc">
+  <template>
+    <link rel="stylesheet" href="base.css">
+    <style>
+      :host {
+        display: block;
+      }
+      nav > ol {
+        font-size: 0.9em;
+      }
+      ol {
+        font-weight: normal;
+        padding-left:0;
+        margin-left: 0;
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      /* Browsers don't support ::marker or display:marker, so emulate it. */
+      li {
+        list-style-type: none;
+      }
+      .marker { display: inline-block; }
+      li .marker { width: 1em; text-align: left; }
+      ol ol { margin-left: 1.75em; }
+      li li .marker { width: 2em; }
+      ol ol ol { margin-left: 2em; }
+      li li li .marker { width: 3em; }
+      ol ol ol ol { margin-left: 3em; }
+      li li li li .marker { width: 3.25em; }
+    </style>
+    <nav>
+      <h2>Table of Contents</h2>
+      <template bind="" id="hierarchy">
+        <template if="{{sections.length > 0}}">
+          <ol>
+            <template repeat="{{sections}}">
+              <li>
+                <span class="marker">{{elem.sec_num}}</span>
+                <a href="#{{elem.id}}">{{title.textContent}}</a><template bind="" ref="hierarchy"
+              ></template></li>
+            </template>
+          </ol>
+        </template>
+      </template>
+    </nav>
+  </template>
+  <script src="toc.js"></script>
+</polymer-element>
