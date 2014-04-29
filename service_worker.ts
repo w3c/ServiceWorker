@@ -580,12 +580,15 @@ class Cache {
 
     filterRequest = _castToRequest(filterRequest);
 
-    return this._items.keys().then(function(cachedRequests) {
-      // get the response
-      return this._items.values().then(function(cachedResponses) {
-        return cachedRequests.filter(function(cachedRequest, i) {
-          return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
-        });
+    return Promise.all([
+      this._items.keys(),
+      this._items.values()
+    ]).then(function(values) {
+      var cachedRequests = values[0];
+      var cachedResults = values[1];
+
+      return cachedRequests.filter(function(cachedRequest, i) {
+        return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
       });
     });
   }
