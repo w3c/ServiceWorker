@@ -106,14 +106,6 @@ class ReloadPageEvent extends _Event {
   waitUntil(f: Promise): void {}
 }
 
-class DocumentInstallPhaseEvent extends _Event {
-  worker: ServiceWorker;
-}
-
-class DocumentInstallEvent extends DocumentInstallPhaseEvent {
-  activeWorker: ServiceWorker = null;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
