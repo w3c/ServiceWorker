@@ -703,6 +703,8 @@ class Cache implements AsyncMap<Request, Response> {
       return Promise.all(records.map(function(r, i) {
         return callback.call(thisArg, records[0][i], records[1][i], thisCache);
       }));
+    }).then(function() {
+      return undefined;
     });
   }
 }
