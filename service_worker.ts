@@ -501,171 +501,210 @@ class FetchEvent extends _Event {
 // This largely describes the current Application Cache API. It's only available
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
-class Cache {
-  // FIXME: need to add some way to get progress out
-  _items: AsyncMap<Request, Response>;
-  _readyPromise: Promise;
+class Cache implements AsyncMap<Request, Response> {
+  // this is for spec purposes only, the browser will use something async and disk-based
+  _items: Map<Request, Response>;
 
-  constructor(...items:any[]) {
-    this._readyPromise = this.add.apply(this, items);
+  constructor() {
   }
 
-  match(request:any) : Promise {
-    // the UA will do something more optimal than this:
-    return this.matchAll(request).then(function(responses) {
+  // also for spec purposes only
+  _query(request:any, params?) : AbstractResponse[] {
+    params = params || {};
+    
+    var thisCache = this;
+    var ignoreQuerystring = Boolean(params.ignoreQuerystring);
+    var ignoreMethod = Boolean(params.ignoreMethod);
+    var ignoreVary = Boolean(params.ignoreVary);
+    var matchLongerPaths = Boolean(params.matchLongerPaths);
+
+    request = _castToRequest(request);
+
+    if (!ignoreMethod && request.method !== 'GET' && request.method !== 'HEAD') {
+      // we only store GET responses at the moment, so no match
+      return [];
+    }
+
+    var cachedRequests = this._items.keys().filter(function(cachedRequest) {
+      var cachedUrl = new URL(cachedRequest.url);
+      var requestUrl = new URL(request.url);
+      
+      if (ignoreQuerystring) {
+        cachedUrl.search = '';
+        requestUrl.search = '';
+      }
+
+      if (matchLongerPaths) {
+        cachedUrl.pathname = cachedUrl.pathname.slice(0, requestPath.pathname.length);
+      }
+
+      return cachedUrl.href != cachedUrl.href;
+    });
+
+    var cachedResponses = cachedRequests.map(this._items.get.bind(this._items));
+    var results = [];
+
+    cachedResponses.forEach(function(cachedReponse, i) {
+      if (!cachedResponse.headers.has('vary') || ignoreVary) {
+        results.push([cachedRequests[i], cachedResponse]);
+        return;
+      }
+
+      var varyHeaders = cachedResponse.headers.get('vary').split(',');
+      var varyHeader;
+
+      for (var j = 0; j < varyHeaders.length; j++) {
+        varyHeader = varyHeaders[j].trim();
+
+        if (varyHeader == '*') {
+          continue;
+        }
+
+        // TODO: should this treat headers case insensitive?
+        // TODO: should comparison be more lenient than this?
+        if (cachedRequests[i].headers.get(varyHeader) != request.headers.get(varyHeader)) {
+          return;
+        }
+      }
+
+      results.push([cachedRequests[i], cachedResponse]);
+    });
+
+    return results;
+  }
+
+  match(request:any, params?) : Promise {
+    // the UA may do something more optimal than this:
+    return this.values(request, params).then(function(responses) {
       if (responses[0]) {
         return responses[0];
       }
-      throw Error("No match");
-    });
-    // TODO: is it weird that this rejects on no result whereas matchAll/Keys resolve with empty array?
-    // This needs to reject to work well with respondWith
-  }
-
-  // TODO: maybe this would be better as a querying method
-  // so matchAll(string) would match all entries for that
-  // url regardless of vary
-  matchAll(request:any) : Promise {
-    var thisCache = this;
-
-    return this.keys(request).then(function(keys) {
-      return Promise.all(keys.map(function(key) {
-        return thisCache._items.get(key);
-      }));
+      throw new NotFoundError();
     });
   }
 
-  static _cacheItemValid(request:Request, cachedRequest:Request, cachedResponse:Response) : Boolean {
-    // filter by request method & url
-    if (cachedRequest.method != request.method) return false;
-    if (cachedRequest.url != request.url) return false;
-
-    // filter by 'vary':
-    // If there's no vary header, we have a match!
-    if (!cachedResponse.headers.has('vary')) return true;
-
-    var varyHeaders = cachedResponse.headers.get('vary').split(',');
-    var varyHeader;
-
-    for (var i = 0; i < varyHeaders.length; i++) {
-      varyHeader = varyHeaders[i].trim();
-
-      if (varyHeader == '*') {
-        // TODO: should we just ignore vary: *?
-        continue;
-      }
-
-      // TODO: should this treat headers case insensitive?
-      // TODO: should comparison be more lenient than this?
-      if (cachedRequest.headers.get(varyHeader) != request.headers.get(varyHeader)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  keys(filterRequest:any) : Promise {
+  values(request?:any, params?) : Promise {
     var thisCache = this;
 
-    if (!filterRequest) return this._items.keys();
-
-    filterRequest = _castToRequest(filterRequest);
-
-    return Promise.all([
-      this._items.keys(),
-      this._items.values()
-    ]).then(function(values) {
-      var cachedRequests = values[0];
-      var cachedResults = values[1];
-
-      return cachedRequests.filter(function(cachedRequest, i) {
-        return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
-      });
+    return Promise.resolve().then(function() {
+      if (request) {
+        return thisCache._query(request, params).map(function(requestResponse) {
+          return requestResponse[1];
+        });
+      }
+      else {
+        return thisCache._items.values();
+      }
     });
   }
 
-  add(...items:any[]) : Promise {
+  get(request:Request) : Promise {
     var thisCache = this;
-    var newItems:any = items.map(function(item) {
-      // if item is a response, pair it with a simple request
-      if (item instanceof Response) {
-        return {
-          'request': new Request({
-            'url': item.url,
-            'method': item.method
-          }),
-          'response': item
-        };
+    
+    return Promise.resolve().then(function() {
+      return thisCache._items.get(request);
+    });
+  }
+
+  keys(request?:any, params?) : Promise {
+    var thisCache = this;
+
+    return Promise.resolve().then(function() {
+      if (request) {
+        return thisCache._query(request, params).map(function(requestResponse) {
+          return requestResponse[0];
+        });
       }
+      else {
+        return thisCache._items.keys();
+      }
+    });
+  }
 
-      item = _castToRequest(item);
+  add(...requests:any[]) : Promise {
+    var thisCache = this;
+    requests = requests.map(_castToRequest);
 
-      return {
-        'request': <Request>item,
-        'response': fetch(item)
-      };
+    var responses = requests.map(function(request) {
+      return fetch(request);
     });
 
     // wait for all our requests to complete
-    return Promise.all(newItems.map(function(item) { return item.response; })).then(function(responses) {
+    return Promise.all(responses).then(function(responses) {
       // TODO: figure out what we consider success/failure
       responses.forEach(function(response) {
         if (response.status != 200) {
-          throw Error('Request failed');
+          throw new NetworkError();
         }
       });
 
-      return Promise.all(
-        responses.map(function(response, i) {
-          return thisCache.set(newItems[i].request, response);
-        })
-      );
+      // these set operations must be sync, so the update is atomic
+      responses.forEach(function(response, i) {
+        thisCache._query(requests[i]).forEach(function(cachedRequest) {
+          thisCache._items.delete(cachedRequest);
+        });
+        thisCache._items.set(requests[i], response);
+      });
+
+      return;
     });
   }
 
   // TODO: accept ResponsePromise too?
-  set(request:any, response:any) : Promise {
+  set(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
-    request = _castToRequest(request);
+    
+    return Promise.resolve().then(function() {
+      request = _castToRequest(request);
 
-    // TODO: if request.method is not GET, throw
-    // TODO: cast 'response' to a response
-    // Eg, Blob
-    // Dataurl string
-    // Could cast regular string as text/plain response, but is that useful?
+      if (request.method !== 'GET') {
+        throw new TypeError();
+      }
 
-    // TODO: this delete/set implementation isn't atomic, but needs to be.
-    // Not sure how to implement it, maybe via a private _locked promise?
-    // Deleting is garbage collection, but also ensures "uniqueness"
-    return this.delete(request).then(function() {
-      return thisCache._items.set(request, response);
-    }).then(function() {
-      return response;
+      if (!(response instanceof AbstractResponse)) {
+        throw new TypeError();
+      }      
+
+      // this must be atomic
+      thisCache._query(request).forEach(function(cachedRequest) {
+        thisCache._items.delete(cachedRequest);
+      });
+      thisCache._items.set(request, response);
     });
   }
 
   // delete zero or more entries
-  delete(request) : Promise {
-    // TODO: this means cache.delete("/hello/world/") may not delete
-    // all entries for /hello/world/, because /hello/world/ will be
-    // cast to a GET request. It won't remove entries for that url
-    // that have 'vary' headers that don't match.
-    //
-    // We could special-case strings & urls here.
+  delete(request:any, params?) : Promise {
     var thisCache = this;
 
-    return this.keys(request).then(function(cachedRequests) {
-      return Promise.all(cachedRequests.map(function(cachedRequest) {
-        return thisCache._items.delete(cachedRequest);
-      }))
+    return Promise.resolve().then(function() {
+      return thisCache._query(request, params).reduce(function(previousResult, requestResponse) {
+        return previousResult || thisCache._items.delete(requestResponse[0]);
+      }, false);
     });
   }
 
-  // TODO: ready is only useful to validate the items added during construction
-  // maybe we should get rid of the constructor param and force people to use
-  // add() which returns a promise for that atomic operation
-  ready(): Promise { return this._readyPromise; }
+  has(request:any, params?) : Promise {
+    // The UA will probably do this a more optimal way
+    return this.match(request, params).then(function() {
+      return true;
+    }).catch(function() {
+      return false;
+    });
+  }
+
+  forEach(callback: Function, thisArg?: Object) : Promise {
+    var thisCache = this;
+
+    return Promise.all([
+      this.values(),
+      this.keys()
+    ]).then(function(records) {
+      return Promise.all(records.map(function(r, i) {
+        return callback.call(thisArg, records[0][i], records[1][i], thisCache);
+      }));
+    });
+  }
 }
 
 class CacheList implements AsyncMap<any, any> {
@@ -923,14 +962,11 @@ interface AsyncMap<K, V> {
 var _useWorkerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
 
-// take a string or url and resolve it to a request
-function _castToRequest(item:any) : Request {
-  // resolve strings to urls with the worker as a base
-  if (!(item instanceof Request)) {
-    item = new Request({
-      'url': item
+function _castToRequest(request:any) {
+  if (!(request instanceof Request)) {
+    request = new Request({
+      'url': new URL(request/*, this script url */).href
     });
   }
-
-  return item;
+  return request;
 }
