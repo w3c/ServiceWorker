@@ -20,7 +20,8 @@ class _RegistrationOptionList implements RegistrationOptionList {
 interface ServiceWorkerContainer {
   installing?: ServiceWorker; // worker undergoing the install process
   waiting?: ServiceWorker; // installed worker, waiting to become current
-  current?: ServiceWorker; // the worker handling resource requests for this page
+  active?: ServiceWorker; // the activating/activated worker, can be used as a controller
+  controller?: ServiceWorker; // the worker handling resource requests for this page
 
   // FIXME: what's the semantic?
   //    https://github.com/slightlyoff/ServiceWorker/issues/170
