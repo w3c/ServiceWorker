@@ -288,9 +288,6 @@ class Request {
       if (typeof params.forcePreflight != "undefined") {
         this.forcePreflight = params.forcePreflight;
       }
-      if (typeof params.forceSameOrigin != "undefined") {
-        this.forceSameOrigin = params.forceSameOrigin;
-      }
       if (typeof params.omitCredentials != "undefined") {
         this.omitCredentials = params.omitCredentials;
       }
@@ -312,12 +309,10 @@ class Request {
   method: string = "GET";
   origin: string;
   // FIXME: mode doesn't seem useful here.
-  mode: string; // Can be one of "same origin", "tainted x-origin", "CORS"
+  mode: string; // Can be one of "same origin", "tainted cross-origin", "CORS", "CORS-with-forced-preflight"
   // FIXME: we only provide async!
   synchronous: boolean = false;
-  redirectCount: Number = 0;
   forcePreflight: boolean = false;
-  forceSameOrigin: boolean = false;
   omitCredentials: boolean = false;
   referrer: URL;
   headers: Map<string, string>; // Needs filtering!
@@ -345,9 +340,6 @@ class Response extends AbstractResponse {
       if (typeof params.statusText != "undefined") {
         this.statusText = params.statusText;
       }
-      if (typeof params.method != "undefined") {
-        this.method = params.method;
-      }
       if (typeof params.headers != "undefined") {
         this.headers = params.headers;
       }
@@ -366,7 +358,7 @@ class Response extends AbstractResponse {
   status: Number;
   statusText: string;
   // Explicitly omitting httpVersion
-  method: string;
+
   // NOTE: the internal "_headers" is not meant to be exposed. Only here for
   //       pseudo-impl purposes.
   _headers: Map<string, string>; // FIXME: Needs filtering!
@@ -512,7 +504,7 @@ class Cache implements AsyncMap<Request, Response> {
   // also for spec purposes only
   _query(request:any, params?) : AbstractResponse[] {
     params = params || {};
-    
+
     var thisCache = this;
     var ignoreQuerystring = Boolean(params.ignoreQuerystring);
     var ignoreMethod = Boolean(params.ignoreMethod);
@@ -529,7 +521,7 @@ class Cache implements AsyncMap<Request, Response> {
     var cachedRequests = this._items.keys().filter(function(cachedRequest) {
       var cachedUrl = new URL(cachedRequest.url);
       var requestUrl = new URL(request.url);
-      
+
       if (ignoreQuerystring) {
         cachedUrl.search = '';
         requestUrl.search = '';
@@ -601,7 +593,7 @@ class Cache implements AsyncMap<Request, Response> {
 
   get(request:Request) : Promise {
     var thisCache = this;
-    
+
     return Promise.resolve().then(function() {
       return thisCache._items.get(request);
     });
@@ -654,7 +646,7 @@ class Cache implements AsyncMap<Request, Response> {
   // TODO: accept ResponsePromise too?
   set(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
-    
+
     return Promise.resolve().then(function() {
       request = _castToRequest(request);
 
@@ -664,7 +656,7 @@ class Cache implements AsyncMap<Request, Response> {
 
       if (!(response instanceof AbstractResponse)) {
         throw new TypeError();
-      }      
+      }
 
       // this must be atomic
       thisCache._query(request).forEach(function(cachedRequest) {

@@ -501,9 +501,7 @@ interface <dfn id="request-interface" title="Request">Request</dfn> {
   readonly attribute DOMString origin;
   readonly attribute <a href="#mode-enum">Mode</a> mode;
   attribute boolean synchronous;
-  readonly attribute unsigned long redirectCount;
   attribute boolean forcePreflight;
-  attribute boolean forceSameOrigin;
   attribute boolean omitCredentials;
   readonly attribute DOMString referrer;
   readonly attribute <a href="#header-map-interface">HeaderMap</a> headers; // alternative: sequence&lt;Header&gt; headers;
@@ -515,7 +513,6 @@ dictionary <dfn id="request-init-dictionary" title="RequestInit">RequestInit</df
   DOMString url;
   boolean synchronous = false;
   boolean forcePreflight = false;
-  boolean forceSameOrigin = false;
   boolean omitCredentials = false;
   <a href="http://goo.gl/M46tpy">ByteString</a> method = "GET";
   <a href="#header-map-interface">HeaderMap</a> headers;
@@ -524,8 +521,9 @@ dictionary <dfn id="request-init-dictionary" title="RequestInit">RequestInit</df
 
 enum <dfn id="mode-enum" title="Mode">Mode</dfn> {
   "same origin",
-  "tainted x-origin",
-  "CORS"
+  "tainted cross-origin",
+  "CORS",
+  "CORS-with-forced-preflight"
 };
 
 [<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, DOMString)]
@@ -551,7 +549,6 @@ interface <dfn id="abstract-response-interface" title="AbstractResponse">Abstrac
 interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
   readonly attribute unsigned short status;
   readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
-  readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
   // Returns a filtered list of headers. See <a href="#opaque-response">prose for details</a>.
   getter <a href="#header-map-interface">HeaderMap</a> headers();
   // No setter for headers
@@ -566,7 +563,6 @@ interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</d
 interface <dfn id="response-interface" title="Response">Response</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
   attribute unsigned short status;
   attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
-  attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
   getter <a href="#header-map-interface">HeaderMap</a> headers();
   setter void headers(<a href="#header-map-interface">HeaderMap</a> items);
   attribute DOMString url;
@@ -576,7 +572,6 @@ interface <dfn id="response-interface" title="Response">Response</dfn> : <a href
 dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit</dfn> {
   unsigned short status = 200;
   <a href="http://goo.gl/M46tpy">ByteString</a> statusText = "OK";
-  <a href="http://goo.gl/M46tpy">ByteString</a> method;
   <a href="#header-map-interface">HeaderMap</a> headers;
 };
 </spec-idl>
@@ -763,7 +758,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <spec-section id="respond-with-method">
         <h1><code>event.respondWith(r)</code></h1>
 
-        <p>The <var>r</var> argument must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for x-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
+        <p>The <var>r</var> argument must resolve with a <a href="#response-interface">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">request</a>ed URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
       </spec-section>
       <spec-section id="is-reload-attribute">
         <h1><code>event.isReload</code></h1>
@@ -792,7 +787,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <p class="note">One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other domains. Therefore, Service Workers cannot be hosted on CDNs. But they can include resources via <a href="http://goo.gl/Owcfs2">importScripts()</a>. The reason for this restriction is that Service Workers create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
   </spec-section>
 
-  <spec-section id="x-origin-resources">
+  <spec-section id="cross-origin-resources">
     <h1>Cross-Origin Resources &amp; CORS</h1>
 
     <p class="note">Applications tend to cache items that come from a CDN or other domain. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-domain resources when appropriate CORS headers are set.</p>
