@@ -106,6 +106,11 @@ Service Workers Algorithms
 1. Set _serviceWorkerRegistration_.*installingWorker*.*state* to _installing_.
 1. Fire _install_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. Fire _updatefound_ event on _navigator.serviceWorker_ for all documents which match _serviceWorkerRegistration_.*scope*.
+1. If the event handler causes a script error, then
+  1. Fire _error_ event on _serviceWorkerRegistration_.*currentWorker*
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*installingWorker* and _redundant_
+  1. Set _serviceWorkerRegistration_.*installingWorker* to null
+  1. Abort these steps.
 1. If any handler called _waitUntil()_, then
   1. Extend this process until the associated promises settle.
   1. If the resulting promise rejects, then
@@ -139,9 +144,15 @@ Service Workers Algorithms
 1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activating_.
 1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
+1. If the event handler leads to a script error, then
+  1. Fire _error_ event on _serviceWorkerRegistration_.*currentWorker*
+     according to Web Workers spec.
+  1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _redundant_.
+  1. Set _serviceWorkerRegistratin_.*currentWorker* to null.
+  1. Abort these steps. **This scope is no longer controlled!**.
 1. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises settle.
-1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _actived_.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activated_.
 
 --
 **_OnNavigationRequest**(_request_)
@@ -157,7 +168,9 @@ Service Workers Algorithms
   1. Fetch the resource normally and abort these steps.
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
 1. If _matchedServiceWorker_.*state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
+  1. Wait for _matchedServiceWorker_.*state* to become _activated_.
+  1. If activation fails, then
+    1. Fetch the resource normally and abort these steps.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally.
@@ -185,7 +198,7 @@ Service Workers Algorithms
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. If _matchedServiceWorker_.*state* is _activating_, then
-  1. Wait for _matchedServiceWorker_.*state* to become _actived_.
+  1. Wait for _matchedServiceWorker_.*state* to become _activated_.
 1. Fire _fetch_ event on the associated _ServiceWorkerGlobalScope_ object with a new FetchEvent object.
 1. If _respondWith_ was not called, then
   1. Fetch the resource normally and abort these steps.
@@ -245,7 +258,7 @@ Service Workers Algorithms
     1. Delete _scope_ from *_ScopeToServiceWorkerRegistrationMap*.
 
 --
-**_UpdateState**(_worker_, _state_)
+**_StateChange**(_worker_, _state_)
 
 1. Set _worker_.*state* to _state_.
 1. Fire _statechange_ event on _worker_.
