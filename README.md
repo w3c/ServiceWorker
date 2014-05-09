@@ -1,6 +1,6 @@
 ## What's Going On Here?
 
-Service Workers are a new browsers feature that provides event-driven scripts that run independent of web pages. Unlike other Service Workers can be shut down at the end of events, not the lack of retained references from documents, and they have access to domain-wide events such as network fetches.
+Service Workers are a new browser feature that provides event-driven scripts that run independently from web pages. Unlike other Shared Workers, Service Workers can be shut down at the end of events, will keep running without references from documents, and they have access to domain-wide events such as network fetches.
 
 ServiceWorkers also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to "go offline".
 
