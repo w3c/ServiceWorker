@@ -730,7 +730,7 @@ class CacheList implements AsyncMap<any, any> {
   items(): Promise { return accepted([]); }
   keys(): Promise { return accepted([]); }
   values(): Promise { return accepted([]); }
-  get size(): number { return 0; }
+  size(): Promise { return Promise.resolve(0); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
