@@ -129,19 +129,19 @@ Service Workers Algorithms
 **_Activate**(_serviceWorkerRegistration_)
 
 1. Let _activatingWorker_ be _serviceWorkerRegistration_.*waitingWorker*.
-1. Let _exitingWorker_ be _serviceWorkerRegistration_.*currentWorker*.
+1. Let _exitingWorker_ be _serviceWorkerRegistration_.*activeWorker*.
 1. If _exitingWorker_ is not null, then
   1. Wait for _exitingWorker_ to finish handling any in-progress requests.
   1. Terminate _exitingWorker_.
   1. Call **_StateChange** with _exitingWorker_ and _redundant_.
-1. Set _serviceWorkerRegistration_.*currentWorker* to _activatingWorker_.
+1. Set _serviceWorkerRegistration_.*activeWorker* to _activatingWorker_.
 1. Set _serviceWorkerRegistration_.*waitingWorker* to null.
-1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _activating_.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*activeWorker* and _activating_.
 1. Fire _currentchange_ event on _navigator.serviceWorker_ for all documents that have selected _serviceWorkerRegistration_.
 1. Fire _activate_ event on the associated _ServiceWorkerGlobalScope_ object.
 1. If any handler calls _waitUntil()_, then
   1. Extend this process until the associated promises settle.
-1. Call **_StateChange** with _serviceWorkerRegistration_.*currentWorker* and _actived_.
+1. Call **_StateChange** with _serviceWorkerRegistration_.*activeWorker* and _actived_.
 
 --
 **_OnNavigationRequest**(_request_)
@@ -152,7 +152,7 @@ Service Workers Algorithms
 1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
 1. If _serviceWorkerRegistration_ is null, then
   1. Fetch the resource normally and abort these steps.
-1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*currentWorker*.
+1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*activeWorker*.
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. Document will now use _serviceWorkerRegistration_ as its service worker registration.
@@ -208,7 +208,7 @@ Service Workers Algorithms
 1. If _serviceWorkerRegistration_.*uninstalling* is true, then
   1. Delete _serviceWorkerRegistration_.*scope* from *_ScopeToServiceWorkerRegistrationMap*.
   1. Abort these steps.
-1. If _serviceWorkerRegistration_.*updatePromise* is null and _serviceWorkerRegistration_.*installingWorker* is null and _serviceWorkerRegistration_.*waitingWorker* is null and _serviceWorkerRegistration_.*currentWorker* is null, then
+1. If _serviceWorkerRegistration_.*updatePromise* is null and _serviceWorkerRegistration_.*installingWorker* is null and _serviceWorkerRegistration_.*waitingWorker* is null and _serviceWorkerRegistration_.*activeWorker* is null, then
   1. Delete _serviceWorkerRegistration_.*scope* from *_ScopeToServiceWorkerRegistrationMap*.
   1. Abort these steps.
 1. If _serviceWorkerRegistration_.*waitingWorker* is not null
@@ -253,39 +253,42 @@ Service Workers Algorithms
 --
 **_GetInstalling**()
 
-> This is the getter for `window.navigator.installing`
+> This is the getter for `window.navigator.serviceWorker.installing`
 
-1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
-1. If _serviceWorkerRegistration_ is null, then
-  1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
+1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
 1. If _serviceWorkerRegistration_ is null, then
   1. Return null
-1. Return _serviceWorkerRegistration_.*installingWorker*
+1. Return _serviceWorkerRegistration_.*installingWorker* (which may be null)
 
 --
 **_GetWaiting**()
 
-> This is the getter for `window.navigator.waiting`
+> This is the getter for `window.navigator.serviceWorker.waiting`
 
-1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
-1. If _serviceWorkerRegistration_ is not null, then
-  1. Return _serviceWorkerRegistration_.*waitingWorker*
 1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
 1. If _serviceWorkerRegistration_ is null, then
   1. Return null
-1. If _serviceWorkerRegistration_.*currentWorker* is not null, then
-  1. Return _serviceWorkerRegistration_.*currentWorker*
 1. Return _serviceWorkerRegistration_.*waitingWorker* (which may be null)
+
+--
+**_GetActive**()
+
+> This is the getter for `window.navigator.serviceWorker.active`
+
+1. Let _serviceWorkerRegistration_ be **_ScopeMatch**(_parsedUrl_).
+1. If _serviceWorkerRegistration_ is null, then
+  1. Return null
+1. Return _serviceWorkerRegistration_.*activeWorker* (which may be null)
 
 --
 **_GetCurrent**()
 
-> This is the getter for `window.navigator.current`
+> This is the getter for `window.navigator.serviceWorker.current`
 
 1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
 1. If _serviceWorkerRegistration_ is null, then
   1. Return null
-1. Return _serviceWorkerRegistration_.*currentWorker* (which may be null)
+1. Return _serviceWorkerRegistration_.*activeWorker* (which may be null)
 
 --
 **_ScopeMatch**(_url_)
@@ -311,6 +314,6 @@ Service Workers Algorithms
   1. Set _newestWorker_ to _serviceWorkerRegistration_.*installingWorker*.
 1. Else if _serviceWorkerRegistration_.*waitingWorker* is not null, then
   1. Set _newestWorker_ to _serviceWorkerRegistration_.*waitingWorker*.
-1. Else if _serviceWorkerRegistration_.*currentWorker* is not null, then
-  1. Set _newestWorker_ to _serviceWorkerRegistration_.*currentWorker*.
+1. Else if _serviceWorkerRegistration_.*activeWorker* is not null, then
+  1. Set _newestWorker_ to _serviceWorkerRegistration_.*activeWorker*.
 1. Return _newestWorker_.
