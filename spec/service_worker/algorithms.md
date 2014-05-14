@@ -178,10 +178,7 @@ Service Workers Algorithms
 --
 **_OnResourceRequest**(_request_)
 
-1. Let _serviceWorkerRegistration_ be the registration used by this document.
-1. If _serviceWorkerRegistration_ is null, then
-  1. Fetch the resource normally and abort these steps.
-1. Let _matchedServiceWorker_ be _serviceWorkerRegistration_.*activeWorker*.
+1. Let _matchedServiceWorker_ be **_GetController()**.
 1. If _matchedServiceWorker_ is null, then
   1. Fetch the resource normally and abort these steps.
 1. If _matchedServiceWorker_.*state* is _activating_, then
@@ -281,9 +278,9 @@ Service Workers Algorithms
 1. Return _serviceWorkerRegistration_.*activeWorker* (which may be null)
 
 --
-**_GetCurrent**()
+**_GetController**()
 
-> This is the getter for `window.navigator.serviceWorker.current`
+> This is the getter for `window.navigator.serviceWorker.controller`
 
 1. Let _serviceWorkerRegistration_ be the worker registration selected by this document.
 1. If _serviceWorkerRegistration_ is null, then
