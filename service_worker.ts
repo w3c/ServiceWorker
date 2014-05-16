@@ -404,7 +404,8 @@ class FetchEvent extends _Event {
   //   "popup",
   //   "child",
   //   "navigate"
-  purpose: string = "connect";
+  // TODO: this should go on the request object
+  context: string = "connect";
 
   // Has the user provided intent for the page to be reloaded fresher than
   // their current view? Eg: pressing the refresh button
