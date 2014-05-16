@@ -19,7 +19,7 @@ class _RegistrationOptionList implements RegistrationOptionList {
 
 interface ServiceWorkerContainer {
   installing?: ServiceWorker; // worker undergoing the install process
-  waiting?: ServiceWorker; // installed worker, waiting to become current
+  waiting?: ServiceWorker; // installed worker, waiting to become active
   active?: ServiceWorker; // the activating/activated worker, can be used as a controller
   controller?: ServiceWorker; // the worker handling resource requests for this page
 
@@ -51,7 +51,7 @@ interface ServiceWorkerContainer {
     // Resolves with no value on success. Rejects if scope is mismatch.
 
   // Returns a Promise that resolves with the associated SW object when it
-  // becomes either waiting or current worker for the document. (i.e., sw.state
+  // becomes either waiting or active worker for the document. (i.e., sw.state
   // is "installed" or "activating" or "activated", and the promise never
   // rejects in any case.)
   whenReady(): Promise; // Promise<ServiceWorker>
@@ -59,8 +59,8 @@ interface ServiceWorkerContainer {
   onupdatefound: (ev: Event) => any;
     // Fires when .installing becomes a new worker
 
-  oncurrentchange: (ev: Event) => any;
-    // Fires when .current changes
+  oncontrollerchange: (ev: Event) => any;
+    // Fires when .controller changes
 
   onreloadpage: (ev: ReloadPageEvent) => any;
     // FIXME: do we really need tihs?

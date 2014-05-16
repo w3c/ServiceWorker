@@ -255,9 +255,9 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-i
   <spec-section id="navigator-service-worker">
     <h1><code>navigator.serviceWorker</code></h1>
 
-    <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with service workers that are (or will become) active for the current document.</p>
+    <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with Service Workers that are (or will become) active for the current document.</p>
 
-    <p>The <code>current</code> property of this object provides a reference to the service worker which was consulted during the construction of the current document (if any).</p>
+    <p>The <code>current</code> property of this object provides a reference to the Service Worker which was consulted during the construction of the current document (if any).</p>
 
     <p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 
@@ -268,7 +268,8 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-i
 interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? installing;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? waiting;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? current;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? controller;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; getAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
@@ -277,7 +278,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 
   // events
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onupdatefound;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oncurrentchange;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oncontrollerchange;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onreloadpage;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onerror;
 };
@@ -290,10 +291,10 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };</spec-idl>
 
-  <spec-section id="navigator-service-worker-current">
-    <h1><code>current</code></h1>
+  <spec-section id="navigator-service-worker-controller">
+    <h1><code>controller</code></h1>
 
-    <p><code>navigator.serviceWorker.current</code> must return a reference to the current <a href="#service-worker"><code>ServiceWorker</code></a> for the document. <code>navigator.serviceWorker.current</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a service worker</a>, or if the state is not <code>activating</code> or <code>activated</code>.<!-- FIXME(jungkees) state property should be defined. --></p>
+    <p><code>navigator.serviceWorker.controller</code> must return a reference to the active <a href="#service-worker"><code>ServiceWorker</code></a> that handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a Service Worker</a> or the request is a force refresh.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
@@ -320,10 +321,10 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p><code>navigator.serviceWorker.onupdatefound</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An <code>updatefound</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>installing</code> such that <code>navigator.serviceWorker.installing</code> becomes a new worker. (See step 4 of <a href="#installation-algorithm">_Installation algorithm</a>)</p>
   </spec-section>
-  <spec-section id="navigator-service-worker-oncurrentchange">
-    <h1><code>oncurrentchange</code></h1>
+  <spec-section id="navigator-service-worker-oncontrollerchange">
+    <h1><code>oncontrollerchange</code></h1>
 
-    <p><code>navigator.serviceWorker.oncurrentchange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An <code>currentchange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>activated</code> such that <code>navigator.serviceWorker.current</code> changes to this associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> object. (See step 8 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
+    <p><code>navigator.serviceWorker.oncontrollerchange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. A <code>controllerchange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the state of the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> changes its value to <code>activated</code> such that <code>navigator.serviceWorker.current</code> changes to this associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> object. (See step 8 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onreloadpage">
     <h1><code>onreloadpage</code></h1>
@@ -804,7 +805,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
 <spec-clause id="extensibility">
   <h1>Extensibility</h1>
 
-  <p class="note">The expectation is that service workers are meant to be extensible from other specifications. As of now, <a href="https://github.com/slightlyoff/BackgroundSync">BackgroundSync</a> event, <a href="http://www.w3.org/2012/sysapps/web-alarms/">TaskScheduler</a> and <a href="https://dvcs.w3.org/hg/push/raw-file/tip/index.html">Push API</a> would be the prime candidates and more will come. That said, we want to make sure that the future works won't be adding synchronous cruft, etc. This section will provide template text for how to extend the service workers.</p>
+  <p class="note">The expectation is that Service Workers are meant to be extensible from other specifications. As of now, <a href="https://github.com/slightlyoff/BackgroundSync">BackgroundSync</a> event, <a href="http://www.w3.org/2012/sysapps/web-alarms/">TaskScheduler</a> and <a href="https://dvcs.w3.org/hg/push/raw-file/tip/index.html">Push API</a> would be the prime candidates and more will come. That said, we want to make sure that the future works won't be adding synchronous cruft, etc. This section will provide template text for how to extend the Service Workers.</p>
 </spec-clause>
 
 <spec-clause id="algorithms">
@@ -915,8 +916,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
         <ol>
           <li>Terminate <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
-          <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
           <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
           <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
         </ol>
@@ -1037,8 +1037,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Extend this process until the associated promises settle.</li>
           <li>If the resulting promise rejects, then:
             <ol>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
-              <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
@@ -1047,25 +1046,24 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       </li>
       <li>If serviceWorkerRegistration.waitingWorker is not null, then:
         <ol>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
+          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
       <li>Set <var>serviceWorkerRegistration.waitingWorker</var> to <var>serviceWorkerRegistration.installingWorker</var></li>
       <li>Set <var>serviceWorkerRegistration.installingWorker</var> to null</li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>installed</code>.</li>
-      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>installed</code> as the arguments.</li>
       <li>If any handler called <code>replace()</code>, then:
         <ol>
           <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
             <ol>
-              <li>Set <var>serviceWorkerRegistration</var> as the document's service worker registration.</li>
+              <li>Set <var>serviceWorkerRegistration</var> as the document's Service Worker registration.</li>
             </ol>
           </li>
           <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+      <li>If no document is using <var>serviceWorkerRegistration</var> as their Service Worker registration, then:
         <ol>
           <li>Queue a task to invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
         </ol>
@@ -1092,23 +1090,20 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
           </li>
           <li>Terminate <var>exitingWorker</var>.</li>
-          <li>Set <var>exitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
-          <li>Fire <code>statechange</code> event on <var>exitingWorker</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>exitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
       <li>Set <var>serviceWorkerRegistration.currentWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.<var>state</var> to <code>activating</code>.</li>
-      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
-      <li>Fire <code>currentchange</code> event on <var>navigator.serviceWorker</var> for all documents that have selected <var>serviceWorkerRegistration</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
+      <li>Fire <code>controllerchange</code> event on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker registration.</li>
       <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any handler calls <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.<var>state</var> to <code>activated</code>.</li>
-      <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activated</code> as the arguments.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1142,7 +1137,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Fetch the resource normally and abort these steps.</li>
         </ol>
       </li>
-      <li>Document will now use <var>serviceWorkerRegistration</var> as its service worker registration.</li>
+      <li>Document will now use <var>serviceWorkerRegistration</var> as its Service Worker registration.</li>
       <li>If <var>matchedServiceWorker</var>.<var>state</var> is <code>activating</code>, then:
         <ol>
           <li>Wait for <var>matchedServiceWorker</var>.<var>state</var> to become <code>activated</code>.</li>
@@ -1156,7 +1151,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.<dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>gl/3TobQS">promise</a>.</li>
       <li>Wait for <var>responsePromise</var> to settle.</li>
       <li>If <var>responsePromise</var> rejected, then:
         <ol>
@@ -1191,7 +1186,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>serviceWorkerRegistration</var> be the registration used by this document.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the Service Worker registration used by this document.</li>
       <li>If <var>serviceWorkerRegistration</var> is null, then:
         <ol>
           <li>Fetch the resource normally and abort these steps.</li>
@@ -1237,18 +1232,18 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
     <dt>Input</dt>
-        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">_ServiceWorkerReistration</a> object as its service worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
+        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">_ServiceWorkerReistration</a> object as its Service Worker registration; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>serviceWorkerRegistration</var> be the registration used by <var>document</var>.</li>
+      <li>Let <var>serviceWorkerRegistration</var> be the Service Worker registration used by <var>document</var>.</li>
       <li>If <var>serviceWorkerRegistration</var> is null, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If any other document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+      <li>If any other document is using <var>serviceWorkerRegistration</var> as their Service Worker registration, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
@@ -1313,27 +1308,43 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
             <ol>
               <li>Terminate <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
-             <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
               <li>The user agent may abort in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
             </ol>
           </li>
           <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
             <ol>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.<var>state</var> to <code>redundant</code>.</li>
-              <li>Fire <code>statechange</code> event on <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
+              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
               <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
             </ol>
           </li>
           <li>Resolve <var>promise</var>.</li>
-          <li>If no document is using <var>serviceWorkerRegistration</var> as their service worker registration, then:
+          <li>If no document is using <var>serviceWorkerRegistration</var> as their Service Worker registration, then:
             <ol>
               <li>Delete <var>scope</var> from <var>_ScopeToServiceWorkerRegistrationMap</var></li>
             </ol>
           </li>
         </ol>
       </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+  <spec-section id="update-state-algorithm">
+    <h1>_UpdateState</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
+        <dd><var>state</var>, the enumeration of the Service Worker state; a <a href="#service-worker-state-enum">ServiceWorkerState</a> enum</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Set <var>serviceWorker</var>.<var>state</var> to <var>state</var>.</li>
+      <li>Fire <code>statechange</code> event on <var>serviceWorker</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
