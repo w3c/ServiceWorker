@@ -248,14 +248,13 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   fetch(request:Request);
   fetch(request:string); // a URL
 
-  fetch(request:any) : ResponsePromise {
+  fetch(request:any) : Promise {
     // Notes:
-    //  ResponsePromise resolves as soon as headers are available
-    //  The ResponsePromise and the Response object both contain a
-    //   toBlob() method that return a Promise for the body content.
-    //  The toBlob() promise will reject if the response is a OpaqueResponse
-    //  or if the original ResponsePromise is rejected.
-    return new ResponsePromise(function(r) {
+    //  Promise resolves as soon as headers are available
+    //  The Response object both contains a toBlob() method that returns a
+    //  Promise for the body content.
+    //  The toBlob() promise will reject if the response is a OpaqueResponse.
+    return new Promise(function(r) {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
@@ -386,12 +385,6 @@ class CORSResponse extends Response {
   // TODO: slightlyoff: make CORS headers readable but not setable?
   // TODO: outline the whitelist of readable headers
 }
-
-
-class ResponsePromise extends Promise {
-  toBlob(): Promise { return accepted(new Blob()); }
-}
-class RequestPromise extends Promise {}
 
 class FetchEvent extends _Event {
   // The body of the request.
@@ -643,7 +636,6 @@ class Cache implements AsyncMap<Request, Response> {
     });
   }
 
-  // TODO: accept ResponsePromise too?
   set(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
 
@@ -705,7 +697,7 @@ class Cache implements AsyncMap<Request, Response> {
 class CacheList implements AsyncMap<any, any> {
   constructor(iterable: Array<any>) { }
 
-  // Convenience method to get ResponsePromise from caches. Returns the
+  // Convenience method to get Promise from caches. Returns the
   // first url match from the fist cache (in insertion order, per ES6 Maps).
   // The second optional cache name parameter invokes a search inside a
   // specific Cache object.
@@ -715,10 +707,10 @@ class CacheList implements AsyncMap<any, any> {
   // If no matching item is found in a named cache, the response is rjected.
   // If no cacheName is specified and no matching item is found in any cache,
   // the response is rejected.
-  match(url: String, cacheName?: String) : ResponsePromise;
+  match(url: String, cacheName?: String) : Promise;
   // "any" to make the TS compiler happy
-  match(url: any, cacheName?: any) : ResponsePromise {
-    return new ResponsePromise(function(){});
+  match(url: any, cacheName?: any) : Promise {
+    return new Promise(function(){});
   }
 
   get(key: any): Promise { return accepted(); }
@@ -911,8 +903,8 @@ function accepted(v: any = true) : Promise {
   });
 }
 
-function acceptedResponse() : ResponsePromise {
-  return new ResponsePromise(function(r) {
+function acceptedResponse() : Promise {
+  return new Promise(function(r) {
     r.accept(new Response());
   });
 }
