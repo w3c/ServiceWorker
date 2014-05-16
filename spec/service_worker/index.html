@@ -864,7 +864,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>Let newestWorker be <a href="#get-newest-worker-algorithm">_GetNewestWorker</a>(<var>serviceWorkerRegistration</var>).</li>
+                  <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
                   <li>If newestWorker is not null, then:
                     <ol>
                       <li>Resolve promise with <var>newestWorker</var>.</li>
@@ -902,7 +902,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <dfn id="registration-internal-interface">_ServiceWorkerRegistration</dfn> object</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
@@ -948,7 +948,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
             </ol>
           </li>
           <li>Let <var>fetchedScript</var> be the fetched script.</li>
-          <li>Let <var>newestWorker</var> be <code>_GetNewestWorker</code>(<var>serviceWorkerRegistration</var>).</li>
+          <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
           <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
             <ol>
               <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
@@ -991,7 +991,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1022,7 +1022,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
@@ -1078,13 +1078,13 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
       <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
-      <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
+      <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
       <li>If <var>exitingWorker</var> is not null, then:
         <ol>
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
@@ -1093,7 +1093,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>exitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration.currentWorker</var> to <var>activatingWorker</var>.</li>
+      <li>Set <var>serviceWorkerRegistration.activeWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
       <li>Fire <code>controllerchange</code> event on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker registration.</li>
@@ -1131,7 +1131,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Fetch the resource normally and abort these steps.</li>
         </ol>
       </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
+      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
       <li>If <var>matchedServiceWorker</var> is null, then:
         <ol>
           <li>Fetch the resource normally and abort these steps.</li>
@@ -1151,7 +1151,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.<dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>gl/3TobQS">promise</a>.</li>
+      <li>Let <var>responsePromise</var> be value passed into <code>respondWith()</code> casted to a <a href="http://goo.gl/3TobQS">promise</a>.</li>
       <li>Wait for <var>responsePromise</var> to settle.</li>
       <li>If <var>responsePromise</var> rejected, then:
         <ol>
@@ -1254,7 +1254,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration.updatePromise</var> is null and <var>serviceWorkerRegistration.installingWorker</var> is null and <var>serviceWorkerRegistration.waitingWorker</var> is null and <var>serviceWorkerRegistration.currentWorker</var> is null, then:
+      <li>If <var>serviceWorkerRegistration.updatePromise</var> is null and <var>serviceWorkerRegistration.installingWorker</var> is null and <var>serviceWorkerRegistration.waitingWorker</var> is null and <var>serviceWorkerRegistration.activeWorker</var> is null, then:
         <ol>
           <li>Delete <var>serviceWorkerRegistration.scope</var> from <var>_ScopeToServiceWorkerRegistrationMap</var>.</li>
           <li>Abort these steps.</li>
@@ -1357,11 +1357,16 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>url</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>matchingScope</var> be the longest key in <dfn id="scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</dfn> that glob-matches <var>url</var>.</li>
       <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
+      <li>If <var>serviceWorkerRegistration</var> is not null and <var>serviceWorkerRegistration</var>.<var>uninstalling</var> is true, then:
+        <ol>
+          <li>Return null.</li>
+        </ol>
+      </li>
       <li>Return <var>serviceWorkerRegistration</var>.</li>
     </ol>
     </spec-algorithm>
@@ -1375,7 +1380,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
     </dl>
     <ol>
       <li>If there is no record for <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
@@ -1391,7 +1396,7 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>currentWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>serviceWorkerRegistration</var>, a record of the internal map structure keyed by a <a href="#url-scope">relative URL pattern</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var>, <var>waitingWorker</var>, <var>activeWorker</var> and <var>updatePromise</var>; a <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
       <dt>Output</dt>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
     </dl>
@@ -1407,9 +1412,9 @@ enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
           <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
         </ol>
       </li>
-      <li>Else if <var>serviceWorkerRegistration</var>.<var>currentWorker</var> is not null, then:
+      <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>currentWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
         </ol>
       </li>
       <li>Return <var>newestWorker</var>.</li>
