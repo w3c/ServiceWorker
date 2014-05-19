@@ -388,7 +388,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> clients;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString scope;
 
-  <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; fetch((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
+  <a href="#promise-interface">Promise</a>&lt;any&gt; fetch((<a href="#request-interface">Request</a> or [<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString) <var>request</var>);
 
   void update();
   void unregister();
@@ -490,10 +490,6 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
   <spec-section id="request-objects">
     <h1><code>Request</code> Objects</h1>
 
-<spec-idl>
-interface <dfn id="request-promise-interface" title="RequestPromise">RequestPromise</dfn> : <a href="http://goo.gl/3TobQS">Promise</a> {
-};
-
 [Constructor(optional <a href="#request-init-dictionary">RequestInit</a> <var>init</var>)]
 interface <dfn id="request-interface" title="Request">Request</dfn> {
   attribute unsigned long timeout;
@@ -537,11 +533,6 @@ interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
     <h1><code>Response</code> Objects</h1>
 
     <p><code>Response</code> objects model HTTP responses.</p>
-
-<spec-idl>
-interface <dfn id="response-promise-interface" title="ResponsePromise">ResponsePromise</dfn> : <a href="http://goo.gl/3TobQS">Promise</a> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://goo.gl/dqRadv">Blob</a>&gt; toBlob();
-};
 
 [Constructor]
 interface <dfn id="abstract-response-interface" title="AbstractResponse">AbstractResponse</dfn> {
@@ -648,7 +639,7 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
 <spec-idl>
 [<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, <a href="#cache-interface">Cache</a>)]
 interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
-  <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; match([<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString <var>url</var>, optional DOMString <var>cacheName</var>);
+  <a href="#promise-interface">Promise</a>&lt;any&gt; match([<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString <var>url</var>, optional DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>key</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>key</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
@@ -733,15 +724,15 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   readonly attribute <a href="#request-interface">Request</a> request;
   readonly attribute Client client; // The window issuing the request.
-  readonly attribute <a href="#purpose-enum">Purpose</a> purpose;
+  readonly attribute <a href="#context-enum">Context</a> context;
   readonly attribute boolean isReload;
 
   void respondWith(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo([<a href="http://goo.gl/VdmjMo">EnsureUTF16</a>] DOMString <var>url</var>);
-  <a href="#response-promise-interface">ResponsePromise</a>&lt;any&gt; default();
+  <a href="#promise-interface">Promise</a>&lt;any&gt; default();
 };
 
-enum <dfn id="purpose-enum" title="Purpose">Purpose</dfn> {
+enum <dfn id="context-enum" title="Context">Context</dfn> {
   "connect",
   "font",
   "img",

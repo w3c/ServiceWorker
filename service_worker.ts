@@ -251,7 +251,7 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   fetch(request:any) : Promise {
     // Notes:
     //  Promise resolves as soon as headers are available
-    //  The Response object both contains a toBlob() method that returns a
+    //  The Response object contains a toBlob() method that returns a
     //  Promise for the body content.
     //  The toBlob() promise will reject if the response is a OpaqueResponse.
     return new Promise(function(r) {
@@ -458,6 +458,21 @@ class FetchEvent extends _Event {
       }));
     });
   }
+
+  // event.default() returns a Promise, which resolves to…
+  // If it's a navigation
+  //   If the response is a redirect
+  //     It resolves to a OpaqueResponse for the redirect
+  //     This is tagged with "other supermagic only-for-this happytime", meaning
+  //     this request cannot be used for anything other than a response for this
+  //     request (cannot go into cache)
+  //   Else resolves as fetch(event.request)
+  // Else
+  //   Follow all redirects
+  //   Tag response as "supermagic change url"
+  //   When the page receives this response it should update the resource url to
+  //   the response url (for base url construction etc)
+  default() : Promise {}
 
   constructor() {
     super("fetch", { cancelable: true, bubbles: false });
