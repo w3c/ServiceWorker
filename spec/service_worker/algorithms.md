@@ -221,6 +221,7 @@ Service Workers Algorithms
 1. Return _promise_.
 1. Run the following steps asynchronously.
   1. Let _scope_ be _scope_ resolved against the document url.
+  1. Let _scope_ be _scope_ with the url fragment removed.
   1. If the origin of _scope_ does not match the document's origin, then
     1. Reject _promise_ with a new SecurityError.
     1. Abort these steps.
