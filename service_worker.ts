@@ -206,9 +206,6 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // SW's can use this to disambiguate which context they were started from.
   scope: string;
 
-  // The url of this serviceworker, can be used as the base for urls
-  url: string;
-
   //
   // Events
   //
