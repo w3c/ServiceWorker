@@ -32,3 +32,7 @@ npm install
 # From the root of the project directory
 make
 ```
+
+## Examples
+
+The w3c web mobile group have defined a [series of use-cases where ServiceWorker is particularly useful](https://github.com/w3c-webmob/ServiceWorker). You can help by adding more use cases, draft implementation code, or even working examples once browsers support the required APIs.
