@@ -274,12 +274,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
   <spec-section id="navigator-service-worker">
     <h1><code>navigator.serviceWorker</code></h1>
 
-    <p><code>navigator.serviceWorker</code> is an object which provides access to registration, removal, upgrade, and communication with Service Workers that are (or will become) active for the current document.</p>
-
-    <p>The <code>current</code> property of this object provides a reference to the Service Worker which was consulted during the construction of the current document (if any).</p>
-
-    <p>Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
-
+    <p>The <code>serviceWorker</code> attribute of the <a href="http://goo.gl/I7WAhg">Navigator</a> interface must return an instance of the <code>ServiceWorkerContainer</code> interface, which provides access to registration, removal, upgrade, and communication with Service Workers that are (or will become) active for the current document. Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 <spec-idl>partial interface <a href="http://goo.gl/I7WAhg">Navigator</a> {
   readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> serviceWorker;
 };
@@ -310,10 +305,28 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };</spec-idl>
 
+  <spec-section id="navigator-service-worker-installing">
+    <h1><code>installing</code></h1>
+
+    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the installing Service Worker that is currently undergoing the <dfn id="installation-process">installation process</dfn> (See from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the active Service Worker. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
+  </spec-section>
+
+  <spec-section id="navigator-service-worker-waiting">
+    <h1><code>waiting</code></h1>
+
+    <p><code>navigator.serviceWorker.waiting</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the waiting Service Worker that is considered the <a href="#worker-in-waiting">worker in waiting</a> for the document. <code>navigator.serviceWorker.waiting</code> returns <code>null</code> if there is no <a href="#worker-in-waiting">worker in waiting</a> for the document.</p>
+  </spec-section>
+
+  <spec-section id="navigator-service-worker-active">
+    <h1><code>active</code></h1>
+
+    <p><code>navigator.serviceWorker.active</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the active Service Worker that is currently undergoing the <dfn id="activation-process">activation process</dfn> (See from step 6 to step 10 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
+  </spec-section>
+
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><code>navigator.serviceWorker.controller</code> must return a reference to the active <a href="#service-worker"><code>ServiceWorker</code></a> that handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#scope-match-algorithm">created under a Service Worker</a> or the request is a force refresh.</p>
+    <p><code>navigator.serviceWorker.controller</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the active Service Worker that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-navigation-request-algorithm">created under a Service Worker</a> (See step 7 of <a href="#on-navigation-request-algorithm">_OnNavigationRequest</a> algorithm) or the request is a force refresh.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
