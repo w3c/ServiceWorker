@@ -511,7 +511,7 @@ class Cache {
     params = params || {};
 
     var thisCache = this;
-    var ignoreQuerystring = Boolean(params.ignoreQuerystring);
+    var ignoreSearch = Boolean(params.ignoreSearch);
     var ignoreMethod = Boolean(params.ignoreMethod);
     var ignoreVary = Boolean(params.ignoreVary);
     var prefixMatch = Boolean(params.prefixMatch);
@@ -529,7 +529,7 @@ class Cache {
       var cachedUrl = new URL(cachedRequest.url);
       var requestUrl = new URL(request.url);
 
-      if (ignoreQuerystring) {
+      if (ignoreSearch) {
         cachedUrl.search = '';
         requestUrl.search = '';
       }
