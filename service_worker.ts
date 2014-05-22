@@ -469,7 +469,7 @@ class FetchEvent extends _Event {
   //   Tag response as "supermagic change url"
   //   When the page receives this response it should update the resource url to
   //   the response url (for base url construction etc)
-  default() : Promise {}
+  default() : Promise { return accepted(); }
 
   constructor() {
     super("fetch", { cancelable: true, bubbles: false });
@@ -526,8 +526,8 @@ class Cache {
     }
 
     var cachedRequests = this._items.keys().filter(function(cachedRequest) {
-      var cachedUrl = new URL(cachedRequest.url);
-      var requestUrl = new URL(request.url);
+      var cachedUrl = new _URL(cachedRequest.url);
+      var requestUrl = new _URL(request.url);
 
       if (ignoreSearch) {
         cachedUrl.search = '';
@@ -536,8 +536,7 @@ class Cache {
 
       if (prefixMatch) {
         // FIXME(slightlyoff): handle globbing?
-        cachedUrl.href = cachedUrl.href.slice(0,
-                                                requestUrl.href.length);
+        cachedUrl.href = cachedUrl.href.slice(0, requestUrl.href.length);
       }
 
       return cachedUrl.href != cachedUrl.href;
@@ -547,7 +546,7 @@ class Cache {
                               this._items.get.bind(this._items));
     var results = [];
 
-    cachedResponses.forEach(function(cachedReponse, i) {
+    cachedResponses.forEach(function(cachedResponse, i) {
       if (!cachedResponse.headers.has('vary') || ignoreVary) {
         results.push([cachedRequests[i], cachedResponse]);
         return;
@@ -590,7 +589,7 @@ class Cache {
   matchAll(request?:any, params?) : Promise {
     var thisCache = this;
 
-    return Promise.resolve().then(function() {
+    return accepted().then(function() {
       if (request) {
         return thisCache._query(request, params).map(function(requestResponse) {
           return requestResponse[1];
@@ -794,6 +793,9 @@ class WorkerGlobalScope extends _EventTarget
 // Cause, you know, the stock definition claims that URL isn't a class. FML.
 class _URL {
   constructor(url:any) {}
+  get search() { return "" }
+  get pathname() { return "" }
+  get href() { return "" }
 }
 
 // http://tc39wiki.calculist.org/es6/map-set/

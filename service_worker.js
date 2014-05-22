@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -17,6 +18,7 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
+
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -29,23 +31,6 @@ var ReloadPageEvent = (function (_super) {
     };
     return ReloadPageEvent;
 })(_Event);
-
-var DocumentInstallPhaseEvent = (function (_super) {
-    __extends(DocumentInstallPhaseEvent, _super);
-    function DocumentInstallPhaseEvent() {
-        _super.apply(this, arguments);
-    }
-    return DocumentInstallPhaseEvent;
-})(_Event);
-
-var DocumentInstallEvent = (function (_super) {
-    __extends(DocumentInstallEvent, _super);
-    function DocumentInstallEvent() {
-        _super.apply(this, arguments);
-        this.activeWorker = null;
-    }
-    return DocumentInstallEvent;
-})(DocumentInstallPhaseEvent);
 
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
@@ -82,6 +67,7 @@ var InstallEvent = (function (_super) {
     };
     return InstallEvent;
 })(InstallPhaseEvent);
+
 
 var ServiceWorkerClients = (function () {
     function ServiceWorkerClients() {
@@ -137,12 +123,11 @@ var ServiceWorkerGlobalScope = (function (_super) {
     }
     ServiceWorkerGlobalScope.prototype.fetch = function (request) {
         // Notes:
-        //  ResponsePromise resolves as soon as headers are available
-        //  The ResponsePromise and the Response object both contain a
-        //   toBlob() method that return a Promise for the body content.
-        //  The toBlob() promise will reject if the response is a OpaqueResponse
-        //  or if the original ResponsePromise is rejected.
-        return new ResponsePromise(function (r) {
+        //  Promise resolves as soon as headers are available
+        //  The Response object contains a toBlob() method that returns a
+        //  Promise for the body content.
+        //  The toBlob() promise will reject if the response is a OpaqueResponse.
+        return new Promise(function (r) {
             r.resolve(_defaultToBrowserHTTP(request));
         });
     };
@@ -160,16 +145,13 @@ var Request = (function () {
         this.method = "GET";
         // FIXME: we only provide async!
         this.synchronous = false;
-        this.redirectCount = 0;
         this.forcePreflight = false;
-        this.forceSameOrigin = false;
         this.omitCredentials = false;
         if (params) {
             if (typeof params.timeout != "undefined") {
                 this.timeout = params.timeout;
             }
             if (typeof params.url != "undefined") {
-                // should be "new URL(params.url)" but TS won't allow it
                 this.url = params.url;
             }
             if (typeof params.synchronous != "undefined") {
@@ -177,9 +159,6 @@ var Request = (function () {
             }
             if (typeof params.forcePreflight != "undefined") {
                 this.forcePreflight = params.forcePreflight;
-            }
-            if (typeof params.forceSameOrigin != "undefined") {
-                this.forceSameOrigin = params.forceSameOrigin;
             }
             if (typeof params.omitCredentials != "undefined") {
                 this.omitCredentials = params.omitCredentials;
@@ -211,9 +190,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        get: // This class represents the result of cross-origin fetched resources that are
+        // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        function () {
+        get: function () {
             return "";
         },
         enumerable: true,
@@ -231,9 +210,6 @@ var Response = (function (_super) {
             }
             if (typeof params.statusText != "undefined") {
                 this.statusText = params.statusText;
-            }
-            if (typeof params.method != "undefined") {
-                this.method = params.method;
             }
             if (typeof params.headers != "undefined") {
                 this.headers = params.headers;
@@ -286,24 +262,6 @@ var CORSResponse = (function (_super) {
     return CORSResponse;
 })(Response);
 
-var ResponsePromise = (function (_super) {
-    __extends(ResponsePromise, _super);
-    function ResponsePromise() {
-        _super.apply(this, arguments);
-    }
-    ResponsePromise.prototype.toBlob = function () {
-        return accepted(new Blob());
-    };
-    return ResponsePromise;
-})(Promise);
-var RequestPromise = (function (_super) {
-    __extends(RequestPromise, _super);
-    function RequestPromise() {
-        _super.apply(this, arguments);
-    }
-    return RequestPromise;
-})(Promise);
-
 var FetchEvent = (function (_super) {
     __extends(FetchEvent, _super);
     function FetchEvent() {
@@ -319,7 +277,8 @@ var FetchEvent = (function (_super) {
         //   "popup",
         //   "child",
         //   "navigate"
-        this.purpose = "connect";
+        // TODO: this should go on the request object
+        this.context = "connect";
         // Has the user provided intent for the page to be reloaded fresher than
         // their current view? Eg: pressing the refresh button
         // Clicking a link & hitting back shouldn't be considered a reload.
@@ -339,7 +298,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null;
+        this.client = null; // to allow postMessage, window.topLevel, etc
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -384,6 +343,23 @@ var FetchEvent = (function (_super) {
             }));
         });
     };
+
+    // event.default() returns a Promise, which resolves to…
+    // If it's a navigation
+    //   If the response is a redirect
+    //     It resolves to a OpaqueResponse for the redirect
+    //     This is tagged with "other supermagic only-for-this happytime", meaning
+    //     this request cannot be used for anything other than a response for this
+    //     request (cannot go into cache)
+    //   Else resolves as fetch(event.request)
+    // Else
+    //   Follow all redirects
+    //   Tag response as "supermagic change url"
+    //   When the page receives this response it should update the resource url to
+    //   the response url (for base url construction etc)
+    FetchEvent.prototype.default = function () {
+        return accepted();
+    };
     return FetchEvent;
 })(_Event);
 
@@ -398,213 +374,224 @@ var FetchEvent = (function (_super) {
 // feature of the event worker. This is likely to change!
 var Cache = (function () {
     function Cache() {
-        var items = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            items[_i] = arguments[_i + 0];
-        }
-        this._readyPromise = this.add.apply(this, items);
     }
-    Cache.prototype.match = function (request) {
-        // the UA will do something more optimal than this:
-        return this.matchAll(request).then(function (responses) {
+    // also for spec purposes only
+    Cache.prototype._query = function (request, params) {
+        params = params || {};
+
+        var thisCache = this;
+        var ignoreSearch = Boolean(params.ignoreSearch);
+        var ignoreMethod = Boolean(params.ignoreMethod);
+        var ignoreVary = Boolean(params.ignoreVary);
+        var prefixMatch = Boolean(params.prefixMatch);
+
+        request = _castToRequest(request);
+
+        if (!ignoreMethod && request.method !== 'GET' && request.method !== 'HEAD') {
+            // we only store GET responses at the moment, so no match
+            return [];
+        }
+
+        var cachedRequests = this._items.keys().filter(function (cachedRequest) {
+            var cachedUrl = new _URL(cachedRequest.url);
+            var requestUrl = new _URL(request.url);
+
+            if (ignoreSearch) {
+                cachedUrl.search = '';
+                requestUrl.search = '';
+            }
+
+            if (prefixMatch) {
+                // FIXME(slightlyoff): handle globbing?
+                cachedUrl.href = cachedUrl.href.slice(0, requestUrl.href.length);
+            }
+
+            return cachedUrl.href != cachedUrl.href;
+        });
+
+        var cachedResponses = cachedRequests.map(this._items.get.bind(this._items));
+        var results = [];
+
+        cachedResponses.forEach(function (cachedResponse, i) {
+            if (!cachedResponse.headers.has('vary') || ignoreVary) {
+                results.push([cachedRequests[i], cachedResponse]);
+                return;
+            }
+
+            var varyHeaders = cachedResponse.headers.get('vary').split(',');
+            var varyHeader;
+
+            for (var j = 0; j < varyHeaders.length; j++) {
+                varyHeader = varyHeaders[j].trim();
+
+                if (varyHeader == '*') {
+                    continue;
+                }
+
+                // TODO(slighltyoff): should this treat headers case insensitive?
+                // TODO(slighltyoff): should comparison be more lenient than this?
+                if (cachedRequests[i].headers.get(varyHeader) != request.headers.get(varyHeader)) {
+                    return;
+                }
+            }
+
+            results.push([cachedRequests[i], cachedResponse]);
+        });
+
+        return results;
+    };
+
+    Cache.prototype.match = function (request, params) {
+        // the UA may do something more optimal than this:
+        return this.matchAll(request, params).then(function (responses) {
             if (responses[0]) {
                 return responses[0];
             }
-            throw Error("No match");
-        });
-        // TODO: is it weird that this rejects on no result whereas matchAll/Keys resolve with empty array?
-        // This needs to reject to work well with respondWith
-    };
-
-    // TODO: maybe this would be better as a querying method
-    // so matchAll(string) would match all entries for that
-    // url regardless of vary
-    Cache.prototype.matchAll = function (request) {
-        var thisCache = this;
-
-        return this.keys(request).then(function (keys) {
-            return Promise.all(keys.map(function (key) {
-                return thisCache._items.get(key);
-            }));
+            throw new NotFoundError();
         });
     };
 
-    Cache._cacheItemValid = function (request, cachedRequest, cachedResponse) {
-        if (cachedRequest.method != request.method)
-            return false;
-        if (cachedRequest.url != request.url)
-            return false;
-
-        if (!cachedResponse.headers.has('vary'))
-            return true;
-
-        var varyHeaders = cachedResponse.headers.get('vary').split(',');
-        var varyHeader;
-
-        for (var i = 0; i < varyHeaders.length; i++) {
-            varyHeader = varyHeaders[i].trim();
-
-            if (varyHeader == '*') {
-                continue;
-            }
-
-            if (cachedRequest.headers.get(varyHeader) != request.headers.get(varyHeader)) {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    Cache.prototype.keys = function (filterRequest) {
+    Cache.prototype.matchAll = function (request, params) {
         var thisCache = this;
 
-        if (!filterRequest)
-            return this._items.keys();
-
-        filterRequest = _castToRequest(filterRequest);
-
-        return this._items.keys().then(function (cachedRequests) {
-            // get the response
-            return this._items.values().then(function (cachedResponses) {
-                return cachedRequests.filter(function (cachedRequest, i) {
-                    return Cache._cacheItemValid(filterRequest, cachedRequest, cachedResponses[i]);
+        return accepted().then(function () {
+            if (request) {
+                return thisCache._query(request, params).map(function (requestResponse) {
+                    return requestResponse[1];
                 });
-            });
+            } else {
+                return thisCache._items.values();
+            }
         });
     };
 
     Cache.prototype.add = function () {
-        var items = [];
+        var requests = [];
         for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            items[_i] = arguments[_i + 0];
+            requests[_i] = arguments[_i + 0];
         }
         var thisCache = this;
-        var newItems = items.map(function (item) {
-            if (item instanceof Response) {
-                return {
-                    'request': new Request({
-                        'url': item.url,
-                        'method': item.method
-                    }),
-                    'response': item
-                };
-            }
+        requests = requests.map(_castToRequest);
 
-            item = _castToRequest(item);
-
-            return {
-                'request': item,
-                'response': fetch(item)
-            };
+        var responses = requests.map(function (request) {
+            return fetch(request);
         });
 
         // wait for all our requests to complete
-        return Promise.all(newItems.map(function (item) {
-            return item.response;
-        })).then(function (responses) {
+        return Promise.all(responses).then(function (responses) {
             // TODO: figure out what we consider success/failure
             responses.forEach(function (response) {
                 if (response.status != 200) {
-                    throw Error('Request failed');
+                    throw new NetworkError();
                 }
             });
 
-            return Promise.all(responses.map(function (response, i) {
-                return thisCache.set(newItems[i].request, response);
-            }));
+            // these set operations must be sync, so the update is atomic
+            responses.forEach(function (response, i) {
+                thisCache._query(requests[i]).forEach(function (cachedRequest) {
+                    thisCache._items.delete(cachedRequest);
+                });
+                thisCache._items.set(requests[i], response);
+            });
+
+            return;
         });
     };
 
-    // TODO: accept ResponsePromise too?
-    Cache.prototype.set = function (request, response) {
+    Cache.prototype.put = function (request, response) {
         var thisCache = this;
-        request = _castToRequest(request);
 
-        // TODO: if request.method is not GET, throw
-        // TODO: cast 'response' to a response
-        // Eg, Blob
-        // Dataurl string
-        // Could cast regular string as text/plain response, but is that useful?
-        // TODO: this delete/set implementation isn't atomic, but needs to be.
-        // Not sure how to implement it, maybe via a private _locked promise?
-        // Deleting is garbage collection, but also ensures "uniqueness"
-        return this.delete(request).then(function () {
-            return thisCache._items.set(request, response);
-        }).then(function () {
-            return response;
+        return Promise.resolve().then(function () {
+            request = _castToRequest(request);
+
+            if (request.method !== 'GET') {
+                throw new TypeError();
+            }
+
+            if (!(response instanceof AbstractResponse)) {
+                throw new TypeError();
+            }
+
+            // this must be atomic
+            thisCache._query(request).forEach(function (cachedRequest) {
+                thisCache._items.delete(cachedRequest);
+            });
+            thisCache._items.set(request, response);
         });
     };
 
     // delete zero or more entries
-    Cache.prototype.delete = function (request) {
-        // TODO: this means cache.delete("/hello/world/") may not delete
-        // all entries for /hello/world/, because /hello/world/ will be
-        // cast to a GET request. It won't remove entries for that url
-        // that have 'vary' headers that don't match.
-        //
-        // We could special-case strings & urls here.
+    Cache.prototype.delete = function (request, params) {
         var thisCache = this;
 
-        return this.keys(request).then(function (cachedRequests) {
-            return Promise.all(cachedRequests.map(function (cachedRequest) {
-                return thisCache._items.delete(cachedRequest);
-            }));
+        return Promise.resolve().then(function () {
+            return thisCache._query(request, params).reduce(function (previousResult, requestResponse) {
+                return previousResult || thisCache._items.delete(requestResponse[0]);
+            }, false);
         });
     };
 
-    // TODO: ready is only useful to validate the items added during construction
-    // maybe we should get rid of the constructor param and force people to use
-    // add() which returns a promise for that atomic operation
-    Cache.prototype.ready = function () {
-        return this._readyPromise;
+    Cache.prototype.each = function (callback, thisArg) {
+        var thisCache = this;
+
+        // FIXME(slightlyoff): this version blocks on keys() and values() before
+        // beginning iteration. Instead it should be allowed to begin iteration as
+        // soon as the first item(s) are available. Further, developers should be
+        // able to extend the lifetime of an item's iteration by returning a
+        // Promise.
+        return Promise.all([
+            this.values(),
+            this.keys()
+        ]).then(function (records) {
+            return Promise.all(records.map(function (r, i) {
+                return callback.call(thisArg, records[0][i], records[1][i], thisCache);
+            }));
+        }).then(function () {
+            return undefined;
+        });
     };
     return Cache;
 })();
 
-var CacheList = (function () {
-    function CacheList(iterable) {
+var CacheStorage = (function () {
+    function CacheStorage(iterable) {
     }
     // "any" to make the TS compiler happy
-    CacheList.prototype.match = function (url, cacheName) {
-        return new ResponsePromise(function () {
+    CacheStorage.prototype.match = function (url, cacheName) {
+        return new Promise(function () {
         });
     };
 
-    CacheList.prototype.get = function (key) {
+    CacheStorage.prototype.get = function (key) {
         return accepted();
     };
-    CacheList.prototype.has = function (key) {
+    CacheStorage.prototype.has = function (key) {
         return accepted();
     };
-    CacheList.prototype.set = function (key, val) {
+    CacheStorage.prototype.set = function (key, val) {
         return accepted(this);
     };
-    CacheList.prototype.clear = function () {
+    CacheStorage.prototype.clear = function () {
         return accepted();
     };
-    CacheList.prototype.delete = function (key) {
+    CacheStorage.prototype.delete = function (key) {
         return accepted();
     };
-    CacheList.prototype.forEach = function (callback, thisArg) {
+    CacheStorage.prototype.forEach = function (callback, thisArg) {
     };
-    CacheList.prototype.items = function () {
+    CacheStorage.prototype.entries = function () {
         return accepted([]);
     };
-    CacheList.prototype.keys = function () {
+    CacheStorage.prototype.keys = function () {
         return accepted([]);
     };
-    CacheList.prototype.values = function () {
+    CacheStorage.prototype.values = function () {
         return accepted([]);
     };
-    Object.defineProperty(CacheList.prototype, "size", {
-        get: function () {
-            return 0;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return CacheList;
+    CacheStorage.prototype.size = function () {
+        return Promise.resolve(0);
+    };
+    return CacheStorage;
 })();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -618,6 +605,7 @@ var BroadcastChannel = (function () {
     return BroadcastChannel;
 })();
 ;
+
 
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
@@ -671,8 +659,30 @@ var WorkerGlobalScope = (function (_super) {
 var _URL = (function () {
     function _URL(url) {
     }
+    Object.defineProperty(_URL.prototype, "search", {
+        get: function () {
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(_URL.prototype, "pathname", {
+        get: function () {
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(_URL.prototype, "href", {
+        get: function () {
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
     return _URL;
 })();
+
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
@@ -756,7 +766,7 @@ function accepted(v) {
 }
 
 function acceptedResponse() {
-    return new ResponsePromise(function (r) {
+    return new Promise(function (r) {
         r.accept(new Response());
     });
 }
@@ -790,21 +800,11 @@ var _defaultToBrowserHTTP = function (url) {
     return accepted();
 };
 
-// take a string or url and resolve it to a request
-function _castToRequest(item) {
-    if (item instanceof String) {
-        item = new _URL(item);
-    }
-
-    if (item instanceof _URL) {
-        item = new Request({
-            'url': item
+function _castToRequest(request) {
+    if (!(request instanceof Request)) {
+        request = new Request({
+            'url': new URL(request).href
         });
     }
-
-    if (!(item instanceof Request)) {
-        throw TypeError("Param must be string/URL/Request");
-    }
-
-    return item;
+    return request;
 }
