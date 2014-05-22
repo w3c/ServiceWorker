@@ -579,7 +579,7 @@ class Cache {
 
   match(request:any, params?) : Promise {
     // the UA may do something more optimal than this:
-    return this.values(request, params).then(function(responses) {
+    return this.matchAll(request, params).then(function(responses) {
       if (responses[0]) {
         return responses[0];
       }
