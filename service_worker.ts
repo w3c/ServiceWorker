@@ -191,7 +191,7 @@ class ServiceWorkerClients {
 class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
-  caches: CacheList;
+  caches: CacheStorage;
 
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
@@ -685,7 +685,7 @@ class Cache {
   }
 }
 
-class CacheList implements AsyncMap<any, any> {
+class CacheStorage implements AsyncMap<any, any> {
   constructor(iterable: Array<any>) { }
 
   // Convenience method to get Promise from caches. Returns the
@@ -710,7 +710,7 @@ class CacheList implements AsyncMap<any, any> {
   clear(): Promise { return accepted(); }
   delete(key: any): Promise { return accepted(); }
   forEach(callback: Function, thisArg?: Object): void {}
-  items(): Promise { return accepted([]); }
+  entries(): Promise { return accepted([]); }
   keys(): Promise { return accepted([]); }
   values(): Promise { return accepted([]); }
   size(): Promise { return Promise.resolve(0); }
@@ -809,7 +809,7 @@ class Map {
   clear(): void {}
   delete(key: any): boolean { return true; }
   forEach(callback: Function, thisArg?: Object): void {}
-  items(): any[] { return []; }
+  entries(): any[] { return []; }
   keys(): any[] { return []; }
   values(): any[] { return []; }
 }
@@ -932,7 +932,7 @@ interface AsyncMap<K, V> {
   clear(): Promise;
   delete(key: K): Promise;
   forEach(callback: Function, thisArg?: Object): void;
-  items(): Promise;
+  entries(): Promise;
   keys(): Promise;
   values(): Promise;
 }

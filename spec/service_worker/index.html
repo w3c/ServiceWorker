@@ -300,7 +300,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-installing">
     <h1><code>installing</code></h1>
 
-    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the installing Service Worker that is currently undergoing the <dfn id="installation-process">installation process</dfn> (See from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the active Service Worker. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
+    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the installing Service Worker that is currently undergoing the <dfn id="installation-process">installation process</dfn> (See from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the active Service Worker. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-waiting">
@@ -406,7 +406,7 @@ this.addEventListener("fetch", function(e) {
 
 <spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/xBhqNU">WorkerGlobalScope</a> {
-  readonly attribute <a href="#cache-list-interface">CacheList</a> caches;
+  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> caches;
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> clients;
@@ -435,7 +435,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-caches">
       <h1><code>caches</code></h1>
 
-      <p><code>self.caches</code> must return the <code><a href="#cache-list-interface">CacheList</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
+      <p><code>self.caches</code> must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
@@ -628,9 +628,6 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
     </spec-section>
   </spec-section>
 
-  <!--spec-section id="fetch">
-    <h1><code>fetch()</code></h1>
-  </spec-section--><!--#FIXME(jungkees) if wrong: fetch(request) is defined in ServiceWorkerGlobalScope section-->
   <spec-section id="cache-objects">
     <h1>Caches</h1>
 
@@ -645,34 +642,44 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
     <spec-section id="cache">
       <h1><code>Cache</code></h1>
 <spec-idl>
-[Constructor((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>items</var>)]
+[Constructor]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; match((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#response-interface">Response</a>&gt;&gt; matchAll((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#response-interface">Response</a>&gt;&gt; add((<a href="#request-interface">Request</a> or <a href="#response-interface">Response</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>items</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#response-interface">Response</a>&gt; put((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="#response-interface">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;any&gt;&gt; delete((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; match((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt;&gt; matchAll((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="#abstract-response-interface">AbstractResponse</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a> each(Function <var>callback</var>, optional Object scope);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#response-interface">Response</a>&gt;&gt; ready();
+};
+
+dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</dfn> {
+  boolean ignoreQuerystring;
+  boolean ignoreMethod;
+  boolean ignoreVary;
+  boolean prefiMatch;
 };
 </spec-idl>
     </spec-section>
-    <spec-section id="cache-list">
-      <h1><code>CacheList</code></h1>
+    <spec-section id="cache-storage">
+      <h1><code>CacheStorage</code></h1>
 
 <spec-idl>
-[<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, <a href="#cache-interface">Cache</a>)]
-interface <dfn id="cache-list-interface" title="CacheList">CacheList</dfn> {
+[Constructor(sequence&lt;any&gt;) iterable]
+interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
   <a href="#promise-interface">Promise</a>&lt;any&gt; match(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>, optional DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>key</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>key</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
-  <a href="#cache-list-interface">CacheList</a> items();
-  sequence&lt;DOMString&gt; keys();
-  sequence&lt;<a href="#cache-interface">Cache</a>&gt; values();
-  getter unsigned long size();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>key</var>);
+  void forEach(CacheStorageIterationCallback callback, optional object <var>thisArg</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;any&gt;&gt; entries();
+  <a href="http://goo.gl/3TobQS">Promise</a>&t;sequence&lt;DOMString&gt;&gt; keys();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#cache-interface">Cache</a>&gt;&gt; values();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;unsigned long&gt; size();
 };
+
+callback CacheStorageIterationCallback = void (Cache value, DOMString key, CacheStorage map);
 </spec-idl>
 
       <p><span class="fixme"><strong>Issue</strong>: the following issues should be addressed in the WebIDL specification: the methods <code>keys()</code> and <code>values()</code> are not allowed to be declared as interface members of an interface declared with the [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute; the return type of <code>get(key)</code>, <code>has(key)</code>, <code>set(key, val)</code>, <code>clear()</code>, <code>delete(key)</code> is meant to be declared as pre-defined IDL fragment. Namely, the interface declared with [<a class="external" href="http://goo.gl/lJQaAt">MapClass</a>] extended attribute cannot fully support creating asynchronous map objects.</span></p>
