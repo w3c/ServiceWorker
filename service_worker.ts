@@ -500,12 +500,11 @@ class FetchEvent extends _Event {
 // This largely describes the current Application Cache API. It's only available
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
-class Cache implements AsyncMap<Request, Response> {
+class Cache {
   // this is for spec purposes only, the browser will use something async and disk-based
   _items: Map<Request, Response>;
 
-  constructor() {
-  }
+  constructor() { }
 
   // also for spec purposes only
   _query(request:any, params?) : AbstractResponse[] {
@@ -515,11 +514,13 @@ class Cache implements AsyncMap<Request, Response> {
     var ignoreQuerystring = Boolean(params.ignoreQuerystring);
     var ignoreMethod = Boolean(params.ignoreMethod);
     var ignoreVary = Boolean(params.ignoreVary);
-    var matchLongerPaths = Boolean(params.matchLongerPaths);
+    var prefixMatch = Boolean(params.prefixMatch);
 
     request = _castToRequest(request);
 
-    if (!ignoreMethod && request.method !== 'GET' && request.method !== 'HEAD') {
+    if (!ignoreMethod &&
+        request.method !== 'GET' &&
+        request.method !== 'HEAD') {
       // we only store GET responses at the moment, so no match
       return [];
     }
@@ -533,14 +534,17 @@ class Cache implements AsyncMap<Request, Response> {
         requestUrl.search = '';
       }
 
-      if (matchLongerPaths) {
-        cachedUrl.pathname = cachedUrl.pathname.slice(0, requestPath.pathname.length);
+      if (prefixMatch) {
+        // FIXME(slightlyoff): handle globbing?
+        cachedUrl.pathname = cachedUrl.pathname.slice(0,
+                                                requestPath.pathname.length);
       }
 
       return cachedUrl.href != cachedUrl.href;
     });
 
-    var cachedResponses = cachedRequests.map(this._items.get.bind(this._items));
+    var cachedResponses = cachedRequests.map(
+                              this._items.get.bind(this._items));
     var results = [];
 
     cachedResponses.forEach(function(cachedReponse, i) {
@@ -559,9 +563,10 @@ class Cache implements AsyncMap<Request, Response> {
           continue;
         }
 
-        // TODO: should this treat headers case insensitive?
-        // TODO: should comparison be more lenient than this?
-        if (cachedRequests[i].headers.get(varyHeader) != request.headers.get(varyHeader)) {
+        // TODO(slighltyoff): should this treat headers case insensitive?
+        // TODO(slighltyoff): should comparison be more lenient than this?
+        if (cachedRequests[i].headers.get(varyHeader) !=
+                request.headers.get(varyHeader)) {
           return;
         }
       }
@@ -582,7 +587,7 @@ class Cache implements AsyncMap<Request, Response> {
     });
   }
 
-  values(request?:any, params?) : Promise {
+  matchAll(request?:any, params?) : Promise {
     var thisCache = this;
 
     return Promise.resolve().then(function() {
@@ -593,29 +598,6 @@ class Cache implements AsyncMap<Request, Response> {
       }
       else {
         return thisCache._items.values();
-      }
-    });
-  }
-
-  get(request:Request) : Promise {
-    var thisCache = this;
-
-    return Promise.resolve().then(function() {
-      return thisCache._items.get(request);
-    });
-  }
-
-  keys(request?:any, params?) : Promise {
-    var thisCache = this;
-
-    return Promise.resolve().then(function() {
-      if (request) {
-        return thisCache._query(request, params).map(function(requestResponse) {
-          return requestResponse[0];
-        });
-      }
-      else {
-        return thisCache._items.keys();
       }
     });
   }
@@ -649,7 +631,7 @@ class Cache implements AsyncMap<Request, Response> {
     });
   }
 
-  set(request:any, response:AbstractResponse) : Promise {
+  put(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
 
     return Promise.resolve().then(function() {
@@ -682,18 +664,14 @@ class Cache implements AsyncMap<Request, Response> {
     });
   }
 
-  has(request:any, params?) : Promise {
-    // The UA will probably do this a more optimal way
-    return this.match(request, params).then(function() {
-      return true;
-    }).catch(function() {
-      return false;
-    });
-  }
-
-  forEach(callback: Function, thisArg?: Object) : Promise {
+  each(callback: Function, thisArg?: Object) : Promise {
     var thisCache = this;
 
+    // FIXME(slightlyoff): this version blocks on keys() and values() before
+    // beginning iteration. Instead it should be allowed to begin iteration as
+    // soon as the first item(s) are available. Further, developers should be
+    // able to extend the lifetime of an item's iteration by returning a
+    // Promise.
     return Promise.all([
       this.values(),
       this.keys()
