@@ -536,8 +536,8 @@ class Cache {
 
       if (prefixMatch) {
         // FIXME(slightlyoff): handle globbing?
-        cachedUrl.pathname = cachedUrl.pathname.slice(0,
-                                                requestPath.pathname.length);
+        cachedUrl.href = cachedUrl.href.slice(0,
+                                                requestUrl.href.length);
       }
 
       return cachedUrl.href != cachedUrl.href;
