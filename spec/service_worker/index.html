@@ -649,7 +649,7 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="#abstract-response-interface">AbstractResponse</a> <var>response</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a> each(Function <var>callback</var>, optional Object scope);
+  <a href="http://goo.gl/3TobQS">Promise</a> each(<a href="#cache-iteration-callback-callback">CacheIterationCallback</a> <var>callback</var>, optional object <var>thisArg</var>);
 };
 
 dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</dfn> {
@@ -658,13 +658,15 @@ dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</df
   boolean ignoreVary;
   boolean prefiMatch;
 };
+
+callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallback">CacheIterationCallback</dfn> = void (<a href="#abstract-response-interface">AbstractResponse</a> <var>value</var>, (<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>key</var>, <a href="#cache-storage-interface">Cache</a> <var>map</var>);
 </spec-idl>
     </spec-section>
     <spec-section id="cache-storage">
       <h1><code>CacheStorage</code></h1>
 
 <spec-idl>
-[Constructor(sequence&lt;any&gt;) iterable]
+[Constructor(sequence&lt;any&gt; iterable)]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
   <a href="#promise-interface">Promise</a>&lt;any&gt; match(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>, optional DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>key</var>);
@@ -672,14 +674,14 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>key</var>);
-  void forEach(<a href="#cache-storate-iteration-callback-callback">CacheStorageIterationCallback</a> callback, optional object <var>thisArg</var>);
+  void forEach(<a href="#cache-storate-iteration-callback-callback">CacheStorageIterationCallback</a> <var>callback</var>, optional object <var>thisArg</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;any&gt;&gt; entries();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#cache-interface">Cache</a>&gt;&gt; values();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;unsigned long&gt; size();
 };
 
-callback <dfn id="cache-storate-iteration-callback-callback" title="CacheStorageIterationCallback">CacheStorageIterationCallback</dfn> = void (<a href="#cache-interface">Cache</a> value, DOMString key, <a href="#cache-storage-interface">CacheStorage</a> map);
+callback <dfn id="cache-storate-iteration-callback-callback" title="CacheStorageIterationCallback">CacheStorageIterationCallback</dfn> = void (<a href="#cache-interface">Cache</a> <var>value</var>, DOMString <var>key</var>, <a href="#cache-storage-interface">CacheStorage</a> <var>map</var>);
 </spec-idl>
 
       <p><span class="fixme"><strong>Note</strong>: <a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a> with additional convenience methods.</span></p>
