@@ -462,12 +462,12 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
             <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
             <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
               <ol>
-                <li>Reject <var>promise</var> with a <a href="http://goo.gl/jprjjc">network error</a>.</li>
+                <li>Reject <var>promise</var> with a new <a href="http://goo.gl/A0U8qC">DOMException</a> whose name is "<a href="http://goo.gl/lud5HB">NetworkError</a>".</li>
               </ol>
             </li>
             <li>Else,
               <ol>
-                <li>Resolve <var>promise</var> with <var>response</var>.</li>
+                <li>Resolve <var>promise</var> with <var>response</var>. <small>// FIXME(jungkees): response will be replaced by an actual response object.</small></li>
               </ol>
             </li>
           </ol>
@@ -805,38 +805,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-section id="respond-with-method">
         <h1><code>event.respondWith(r)</code></h1>
 
-        <p><code>event.respondWith(r)</code> method must run these steps:</p>
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>promise</var> be null.</li>
-          <li>Set <var>promise</var> to r.</li>
-          <li>Wait for <var>promise</var> to settle.</li>
-          <li>If <var>promise</var> rejected with a <a href="http://goo.gl/jprjjc">network error</a>, then:
-            <ol>
-              <li><a href="FIXME(jungkees)-fetch-hook-needed">Respond</a> the <a href="http://goo.gl/jprjjc">network error</a> to <code>event.client</code> (the source of fetch request).</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>If <var>promise</var> resolves to a <code>OpaqueResponse</code> and <code>event.request.context</code> is <code>"navigate"</code>, then:
-            <ol>
-              <li><a href="FIXME(jungkees)-fetch-hook-needed">Respond</a> the <a href="http://goo.gl/jprjjc">network error</a> to <code>event.client</code> (the source of fetch request).</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>If <var>promise</var> resolves to an <code>AbstractResponse</code>, then:
-            <ol>
-              <li><a href="FIXME(jungkees)-fetch-hook-needed">Respond</a> the <var>response</var> to <code>event.client</code> (the source of fetch request).</li>
-              <li>If <code>event.context</code> is <code>"navigate"</code>, then:
-                <ol>
-                  <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with the <a href="#registration">registration</a> of the Service Worker represented by <code>self</code> object as the argument.</li>
-                </ol>
-              </li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li><a href="FIXME(jungkees)-fetch-hook-needed">Respond</a> the <a href="http://goo.gl/jprjjc">network error</a> to <code>event.client</code> (the source of fetch request).</li>
-        </ol>
-        </spec-algorithm>
+        <p><code>event.respondWith(r)</code> method must run the steps, from step 11 to step 16, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
 
         <p>The <var>r</var> argument must resolve with a <a href="#abstract-response-interface">AbstractResponse</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
       </spec-section>
@@ -847,21 +816,19 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <p><code>event.default()</code> method must run these steps:</p>
         <spec-algorithm>
         <ol>
-          <li>Let <var>request</var> be <code>event.request</code>.</li>
-          <li>Set <var>request</var>.<var>client</var> to the <a href="http://goo.gl/ifwwCC">JavaScript global environment</a> represented by <code>self</code> object. <small>// FIXME(jungkees) Should we do this?</small></li>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
           <li>Return <var>promise.</var></li>
           <li>Run the following steps asynchronously:
             <ol>
-              <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
+              <li>Wait for the <a href="http://goo.gl/fGMifs">fetch algorithm</a> to invoke <dfn id="resume-with-default-reponse" title="Resume with default response">resume with default response</dfn> with <var>response</var>.</li>
               <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
                 <ol>
-                  <li>Reject <var>promise</var> with a <a href="http://goo.gl/jprjjc">network error</a>.</li>
+                  <li>Reject <var>promise</var> with a new <a href="http://goo.gl/A0U8qC">DOMException</a> whose name is "<a href="http://goo.gl/lud5HB">NetworkError</a>".</li>
                 </ol>
               </li>
               <li>Else,
                 <ol>
-                  <li>Resolve <var>promise</var> with <var>response</var>.</li>
+                  <li>Resolve <var>promise</var> with <var>response</var>. <small>// FIXME(jungkees): response will be replaced by an actual response object.</small></li>
                 </ol>
               </li>
             </ol>
@@ -1226,6 +1193,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   <spec-section id="on-fetch-request-algorithm">
     <h1>_OnFetchRequest</h1>
 
+    <p>The <a href="on-fetch-request-algorithm">_OnFetchRequest algorithm</a> is the entry point of the <a href="http://goo.gl/fGMifs">fetch</a> handling handed to the Service Worker context. The invocation of <dfn id="handle-a-fetch" title="Handle a fetch">handle a fetch</dfn> with <var>request</var> must act as if the caller immediately invoked <a href="on-fetch-request-algorithm">_OnFetchRequest algorithm</a> with <var>request</var>.</p>
+
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
@@ -1238,8 +1207,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <ol>
           <li>If <var>request</var> is a force-refresh (shift+refresh), then:
             <ol>
-              <li>Queue a task to invoke <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
-              <li>Abort these steps.</li>
+              <li>Return null.</li>
             </ol>
           </li>
           <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
@@ -1253,15 +1221,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>If <var>serviceWorkerRegistration</var> is null, then:
         <ol>
-          <li>Queue a task to invoke <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
-          <li>Abort these steps.</li>
+          <li>Return null.</li>
         </ol>
       </li>
       <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
       <li>If <var>matchedServiceWorker</var> is null, then:
         <ol>
-          <li>Queue a task to invoke <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
-          <li>Abort these steps.</li>
+          <li>Return null.</li>
         </ol>
       </li>
       <li>If <var>request.context</var> is <code>"navigate"</code>, then:
@@ -1275,16 +1241,46 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         </ol>
       </li>
       <li>Fire <code>fetch</code> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object with a new <code>FetchEvent</code> object.</li>
-      <li>If <code>respondWith()</code> was not called, then:
+      <li>If the <code>onfetch</code> event handler on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object was not set, or if the <code>respondWith()</code> method was not called, then:
         <ol>
-          <li>Queue a task to invoke <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
+          <li>Return null and run the following steps asynchronously.</li>
           <li>If <var>request.context</var> is <code>"navigate"</code>, then:
             <ol>
               <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+              <li>Abort these steps.</li>
             </ol>
           </li>
         </ol>
       </li>
+      <li>If the <code>fetch</code> event's <code>default()</code> method is called, then:
+        <ol>
+          <li>Returns to the <a href="http://goo.gl/fGMifs">fetch algorithm</a> with the <a href="#FIXME(jungkees)"><var>default fetch flag</var></a> set and run the following steps asynchronously.</li>
+        </ol>
+      </li>
+      <li>Let <var>promise</var> be the value of the argument, casted to a promise, passed into the <code>respondWith()</code> method on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li>Wait for <var>promise</var> to settle.</li>
+      <li>If <var>promise</var> rejected, then:
+        <ol>
+          <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
+        </ol>
+      </li>
+      <li>If <var>promise</var> resolves to an <code>OpaqueResponse</code> and <code>event.context</code> is <code>"navigate"</code>, then:
+        <ol>
+          <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
+        </ol>
+      </li>
+      <li>If <var>promise</var> resolves to an <code>AbstractResponse</code>, then:
+        <ol>
+          <li>Return the <var>response</var> and run the following steps asynchronously.</li>
+          <li>If <code>event.context</code> is <code>"navigate"</code>, then:
+            <ol>
+              <li>Queue a task to invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with the <a href="#registration">registration</a> of the Service Worker represented by <code>self</code> object as the argument.</li>
+            </ol>
+          </li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
