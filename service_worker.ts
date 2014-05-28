@@ -502,7 +502,7 @@ class FetchEvent extends _Event {
 // feature of the event worker. This is likely to change!
 class Cache {
   // this is for spec purposes only, the browser will use something async and disk-based
-  _items: Map<Request, Response>;
+  _items: _ES6Map<Request, AbstractResponse>;
 
   constructor() { }
 
@@ -546,7 +546,7 @@ class Cache {
                               this._items.get.bind(this._items));
     var results = [];
 
-    cachedResponses.forEach(function(cachedResponse, i) {
+    cachedResponses.forEach(function(cachedResponse: Response, i) {
       if (!cachedResponse.headers.has('vary') || ignoreVary) {
         results.push([cachedRequests[i], cachedResponse]);
         return;
@@ -582,7 +582,8 @@ class Cache {
       if (responses[0]) {
         return responses[0];
       }
-      throw new NotFoundError();
+      // throw new NotFoundError();
+      throw new Error("Faux NotFoundError");
     });
   }
 
@@ -614,13 +615,14 @@ class Cache {
       // TODO: figure out what we consider success/failure
       responses.forEach(function(response) {
         if (response.status != 200) {
-          throw new NetworkError();
+          // throw new NetworkError();
+          throw new Error("Faux NetworkError");
         }
       });
 
       // these set operations must be sync, so the update is atomic
       responses.forEach(function(response, i) {
-        thisCache._query(requests[i]).forEach(function(cachedRequest) {
+        thisCache._query(requests[i]).forEach(function(cachedRequest:Request) {
           thisCache._items.delete(cachedRequest);
         });
         thisCache._items.set(requests[i], response);
@@ -633,7 +635,7 @@ class Cache {
   put(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
 
-    return Promise.resolve().then(function() {
+    return accepted().then(function() {
       request = _castToRequest(request);
 
       if (request.method !== 'GET') {
@@ -645,7 +647,7 @@ class Cache {
       }
 
       // this must be atomic
-      thisCache._query(request).forEach(function(cachedRequest) {
+      thisCache._query(request).forEach(function(cachedRequest: Request) {
         thisCache._items.delete(cachedRequest);
       });
       thisCache._items.set(request, response);
@@ -656,7 +658,7 @@ class Cache {
   delete(request:any, params?) : Promise {
     var thisCache = this;
 
-    return Promise.resolve().then(function() {
+    return accepted().then(function() {
       return thisCache._query(request, params).reduce(function(previousResult, requestResponse) {
         return previousResult || thisCache._items.delete(requestResponse[0]);
       }, false);
@@ -672,8 +674,9 @@ class Cache {
     // able to extend the lifetime of an item's iteration by returning a
     // Promise.
     return Promise.all([
-      this.values(),
-      this.keys()
+      this.matchAll(),
+      // FIXME(slightlyoff)
+      // this.keys()
     ]).then(function(records) {
       return Promise.all(records.map(function(r, i) {
         return callback.call(thisArg, records[0][i], records[1][i], thisCache);
@@ -712,7 +715,7 @@ class CacheStorage implements AsyncMap<any, any> {
   entries(): Promise { return accepted([]); }
   keys(): Promise { return accepted([]); }
   values(): Promise { return accepted([]); }
-  size(): Promise { return Promise.resolve(0); }
+  size(): Promise { return accepted(0); }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -802,7 +805,34 @@ class _URL {
 // http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
 // http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
 // http://people.mozilla.org/~jorendorff/es6-draft.html#sec-15.14.4
+class _ES6Map<K, V> implements Map<K, V> {
+  // Base decl.
+  size: number;
+  constructor(iterable?:any[]) {}
+  get(key: K): any {}
+  has(key: K): boolean { return true; }
+  set(key: K, val: V): _ES6Map<K, V> { return new _ES6Map<K, V>() }
+  clear(): void {}
+  delete(key: K): boolean { return true; }
+  forEach(callback: Function, thisArg?: Object): void {}
+  entries(): any[] { return []; }
+  keys(): any[] { return []; }
+  values(): any[] { return []; }
+}
 /*
+interface Map<K, V> {
+    clear(): void;
+    delete(key: K): boolean;
+    forEach(callbackfn: (value: V, index: K, map: Map<K, V>) => void, thisArg?: any): void;
+    get(key: K): V;
+    has(key: K): boolean;
+    set(key: K, value: V): Map<K, V>;
+    size: number;
+}
+declare var Map: {
+    new <K, V>(): Map<K, V>;
+}
+
 class Map {
   constructor(iterable?:any[]) {}
   get(key: any): any {}
@@ -942,10 +972,10 @@ interface AsyncMap<K, V> {
 var _useWorkerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
 
-function _castToRequest(request:any) {
+function _castToRequest(request:any): Request {
   if (!(request instanceof Request)) {
     request = new Request({
-      'url': new URL(request/*, this script url */).href
+      'url': new _URL(request/*, this script url */).href
     });
   }
   return request;

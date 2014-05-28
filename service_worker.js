@@ -447,7 +447,8 @@ var Cache = (function () {
             if (responses[0]) {
                 return responses[0];
             }
-            throw new NotFoundError();
+
+            throw new Error("Faux NotFoundError");
         });
     };
 
@@ -482,7 +483,7 @@ var Cache = (function () {
             // TODO: figure out what we consider success/failure
             responses.forEach(function (response) {
                 if (response.status != 200) {
-                    throw new NetworkError();
+                    throw new Error("Faux NetworkError");
                 }
             });
 
@@ -501,7 +502,7 @@ var Cache = (function () {
     Cache.prototype.put = function (request, response) {
         var thisCache = this;
 
-        return Promise.resolve().then(function () {
+        return accepted().then(function () {
             request = _castToRequest(request);
 
             if (request.method !== 'GET') {
@@ -524,7 +525,7 @@ var Cache = (function () {
     Cache.prototype.delete = function (request, params) {
         var thisCache = this;
 
-        return Promise.resolve().then(function () {
+        return accepted().then(function () {
             return thisCache._query(request, params).reduce(function (previousResult, requestResponse) {
                 return previousResult || thisCache._items.delete(requestResponse[0]);
             }, false);
@@ -540,8 +541,7 @@ var Cache = (function () {
         // able to extend the lifetime of an item's iteration by returning a
         // Promise.
         return Promise.all([
-            this.values(),
-            this.keys()
+            this.matchAll()
         ]).then(function (records) {
             return Promise.all(records.map(function (r, i) {
                 return callback.call(thisArg, records[0][i], records[1][i], thisCache);
@@ -589,7 +589,7 @@ var CacheStorage = (function () {
         return accepted([]);
     };
     CacheStorage.prototype.size = function () {
-        return Promise.resolve(0);
+        return accepted(0);
     };
     return CacheStorage;
 })();
@@ -681,6 +681,40 @@ var _URL = (function () {
         configurable: true
     });
     return _URL;
+})();
+
+// http://tc39wiki.calculist.org/es6/map-set/
+// http://wiki.ecmascript.org/doku.php?id=harmony:simple_maps_and_sets
+// http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts
+// http://people.mozilla.org/~jorendorff/es6-draft.html#sec-15.14.4
+var _ES6Map = (function () {
+    function _ES6Map(iterable) {
+    }
+    _ES6Map.prototype.get = function (key) {
+    };
+    _ES6Map.prototype.has = function (key) {
+        return true;
+    };
+    _ES6Map.prototype.set = function (key, val) {
+        return new _ES6Map();
+    };
+    _ES6Map.prototype.clear = function () {
+    };
+    _ES6Map.prototype.delete = function (key) {
+        return true;
+    };
+    _ES6Map.prototype.forEach = function (callback, thisArg) {
+    };
+    _ES6Map.prototype.entries = function () {
+        return [];
+    };
+    _ES6Map.prototype.keys = function () {
+        return [];
+    };
+    _ES6Map.prototype.values = function () {
+        return [];
+    };
+    return _ES6Map;
 })();
 
 
@@ -803,7 +837,7 @@ var _defaultToBrowserHTTP = function (url) {
 function _castToRequest(request) {
     if (!(request instanceof Request)) {
         request = new Request({
-            'url': new URL(request).href
+            'url': new _URL(request).href
         });
     }
     return request;
