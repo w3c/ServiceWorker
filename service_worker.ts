@@ -17,7 +17,7 @@ class _RegistrationOptionList implements RegistrationOptionList {
   scope = "/*";
 }
 
-interface ServiceWorkerContainer {
+interface ServiceWorkerContainer extends EventTarget {
   installing?: ServiceWorker; // worker undergoing the install process
   waiting?: ServiceWorker; // installed worker, waiting to become active
   active?: ServiceWorker; // the activating/activated worker, can be used as a controller

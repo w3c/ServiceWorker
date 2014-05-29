@@ -10,7 +10,6 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -18,7 +17,6 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
-
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -67,7 +65,6 @@ var InstallEvent = (function (_super) {
     };
     return InstallEvent;
 })(InstallPhaseEvent);
-
 
 var ServiceWorkerClients = (function () {
     function ServiceWorkerClients() {
@@ -190,9 +187,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        // This class represents the result of cross-origin fetched resources that are
+        get: // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        get: function () {
+        function () {
             return "";
         },
         enumerable: true,
@@ -298,7 +295,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null; // to allow postMessage, window.topLevel, etc
+        this.client = null;
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -428,8 +425,6 @@ var Cache = (function () {
                     continue;
                 }
 
-                // TODO(slighltyoff): should this treat headers case insensitive?
-                // TODO(slighltyoff): should comparison be more lenient than this?
                 if (cachedRequests[i].headers.get(varyHeader) != request.headers.get(varyHeader)) {
                     return;
                 }
@@ -606,7 +601,6 @@ var BroadcastChannel = (function () {
 })();
 ;
 
-
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
     function WorkerGlobalScope() {
@@ -716,7 +710,6 @@ var _ES6Map = (function () {
     };
     return _ES6Map;
 })();
-
 
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
