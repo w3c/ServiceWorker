@@ -820,8 +820,20 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return <var>promise.</var></li>
           <li>Run the following steps asynchronously:
             <ol>
-              <li>Let <var>request</var> be a <a href="http://goo.gl/ucOuXl">request</a> represented by <var>event.request</var>.</li>
-              <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> using <var>request</var>, with the <var>service worker default fetch flag</var> set. <small>// FIXME(jungkees): the name of this flag is subject to change upon the related fetch hook</small></li>
+              <li>Let <var>request</var> be null.</li>
+              <li>If <var>event</var>'s request attribute is null, then:
+                <ol>
+                  <li>Reject <var>promise</var> with a new <a href="http://goo.gl/A0U8qC">DOMException</a> whose name is "<a href="http://goo.gl/lud5HB">NetworkError</a>".</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Else,
+                <ol>
+                  <li>Set <var>request</var> to a <a href="http://goo.gl/ucOuXl">request</a> represented by <var>event</var>'s <var>request</var> attribute.</li>
+                </ol>
+              </li>
+              <li>Set <var>request</var>'s <var>service worker default fetch flag</var>. <small>// FIXME(jungkees): the name of this flag is subject to change upon the related fetch hook</small></li>
+              <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
               <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
                 <ol>
                   <li>Reject <var>promise</var> with a new <a href="http://goo.gl/A0U8qC">DOMException</a> whose name is "<a href="http://goo.gl/lud5HB">NetworkError</a>".</li>
