@@ -122,7 +122,7 @@
 
   <p><dfn id="registration">Registration</dfn> maps a <a href="#service-worker">Service Worker</a> script to <dfn id="url-scope">URL scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#path-expression">path expression</a> of the registration differs. <a href="#registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
 
-  <p>A <a href="#registration">registration</a> may have an associated <dfn id="installing-worker" title="Installing Worker">installing worker</dfn>, which is a Service Worker for the <a href="#registration">registration</a> entered the <a href="#installation-process">installation process</a>, and an associated <dfn id="active-worker" title="Active Worker">active worker</dfn>, which is a Service Worker for the <a href="#registration">registration</a> entered the <a href="#activation-process">activation process</a>.</p>
+  <p>A <a href="#registration">registration</a> may have an associated <dfn id="installing-worker" title="Installing Worker">installing worker</dfn>, which is a Service Worker, for the <a href="#registration">registration</a>, which has entered and is running the steps in the <a href="#installation-process">installation process</a>, and an associated <dfn id="active-worker" title="Active Worker">active worker</dfn>, which is a Service Worker, for the <a href="#registration">registration</a>, which has entered and may have completed the <a href="#activation-process">activation process</a>.</p>
 
   <p>A <dfn id="path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative URL</a> which may, optionally, terminate with the character <code>"*"</code>. Ending a <a href="#path-expression">path expression</a> with <code>"*"</code> enables <a href="#scope-match-algorithm">longest-prefix wildcard matching</a>.</p>
 
@@ -150,7 +150,7 @@
     <br><br>
     If any <code>oninstall</code> handler throws an exception, or if any lifetime extension via <code>event.waitUntil()</code> fails (via Promise rejection), installation fails and activation is not carried out.
     <br><br>
-    Assuming a <a href="#installing-worker">installing worker</a> is successfully installed, it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a>, one <a href="#worker-in-waiting">worker in waiting</a> and one <a href="#installing-worker">installing worker</a> for a given <a href="#url-scope">URL scope</a>.
+    Assuming an <a href="#installing-worker">installing worker</a> completes the steps in the <a href="#installation-process">installation process</a> (i.e. succesfully installed), it is now considered the <dfn id="worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#active-worker">active worker</a>, one <a href="#worker-in-waiting">worker in waiting</a> and one <a href="#installing-worker">installing worker</a> for a given <a href="#url-scope">URL scope</a>.
     </li>
     <li><em><code>onactivate</code></em>:
     <br>
@@ -246,13 +246,13 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
 
       <dl>
         <dt><code>"installing"</code></dt>
-        <dd>The <a href="#installation-algorithm">_Installation algorithm</a> has been successfully invoked. During this state, <code>e.waitUntil(p)</code> can be called inside the <code>oninstall</code> handler of the <a href="#service-worker-glober-scope-interface">ServiceWorkerGloberScope</a> object to extend the life of the <a href="#installing-worker">installing worker</a> until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that the Service Worker is not active until all of the core caches are populated.</dd>
+        <dd>The Service Worker represented by the <a href="#service-worker-interface">ServiceWorker</a> object has entered and is running the steps in the <a href="#installation-process">installation process</a>. During this state, <code>e.waitUntil(p)</code> can be called inside the <code>oninstall</code> event handler of the associcated <a href="#service-worker-glober-scope-interface">ServiceWorkerGloberScope</a> object to extend the life of the <a href="#installing-worker">installing worker</a> until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that the Service Worker is not active until all of the core caches are populated.</dd>
         <dt><code>"installed"</code></dt>
-        <dd>The <a href="#installing-worker">installing worker</a> is successfully installed. The <a href="#service-worker-interface">ServiceWorker</a> object in this state is considered the <a href="#worker-in-waiting">worker in waiting</a>.</dd>
+        <dd>The Service Worker represented by the <a href="#service-worker-interface">ServiceWorker</a> object has completed the steps in the <a href="#installation-process">installation process</a>. The Service Worker in this state is considered the <a href="#worker-in-waiting">worker in waiting</a>.</dd>
         <dt><code>"activating"</code></dt>
-        <dd>The <a href="#activation-algorithm">_Activation algorithm</a> has been successfully invoked, and the previously <a href="#active-worker">active worker</a>, if any, has been terminated. During this state, <code>e.waitUntil(p)</code> can be called inside the <code>onactivate</code> handler of the <a href="#service-worker-global-scope-interface">ServiceWorkerGloberScope</a> object to extend the life of the activating Service Worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. Note that no <a href="#functional-events">functional events</a> are dispatched until the state becomes <code>"activated"</code>.</dd>
+        <dd>The Service Worker represented by the <a href="#service-worker-interface">ServiceWorker</a> object has entered and is running the steps in the <a href="#activation-process">activation process</a>. During this state, <code>e.waitUntil(p)</code> can be called inside the <code>onactivate</code> event handler of the associated <a href="#service-worker-global-scope-interface">ServiceWorkerGloberScope</a> object to extend the life of the activating <a href="#active-worker">active worker</a> until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. Note that no <a href="#functional-events">functional events</a> are dispatched until the state becomes <code>"activated"</code>.</dd>
         <dt><code>"activated"</code></dt>
-        <dd>The activating Service Worker is successfully activated. The <a href="#service-worker-interface">ServiceWorker</a> object in this state is considered the <a href="#FIXME(jungkees)">active worker</a> that <a href="#document-control">controls</a> the associated documents.</dd>
+        <dd>The Service Worker represented by the <a href="#service-worker-interface">ServiceWorker</a> object has completed the steps in the <a href="#activation-process">activation process</a>. The Service Worker in this state is considered the <a href="#active-worker">active worker</a> ready to <a href="#document-control">control</a> the documents in matching scope upon subsequence <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>.</dd>
         <dt><code>"redundant"</code></dt>
         <dd>A newly created Service Worker <a href="#registration">registration</a> is replacing the current <a href="#registration">registration</a> of the Service Worker.</dd>
       </dl>
@@ -302,7 +302,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-installing">
     <h1><code>installing</code></h1>
 
-    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 9 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
+    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-waiting">
@@ -314,7 +314,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-active">
     <h1><code>active</code></h1>
 
-    <p><code>navigator.serviceWorker.active</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing the <dfn id="activation-process">activation process</dfn> (from step 6 to step 10 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
+    <p><code>navigator.serviceWorker.active</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing or completed the <dfn id="activation-process">activation process</dfn> (from step 4 to step 9 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-controller">
@@ -1115,9 +1115,9 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to <var>serviceWorker</var>.</li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.<var>state</var> to <code>installing</code>.</li>
-      <li>Fire <code>install</code> event on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
-      <li>Fire <code>updatefound</code> event on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
       <li>If any handler called <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
@@ -1130,13 +1130,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
-      <li>If serviceWorkerRegistration.waitingWorker is not null, then:
+      <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
         <ol>
           <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration.waitingWorker</var> to <var>serviceWorkerRegistration.installingWorker</var></li>
-      <li>Set <var>serviceWorkerRegistration.installingWorker</var> to null</li>
+      <li>Set <var>serviceWorkerRegistration.waitingWorker</var> to <var>serviceWorkerRegistration.installingWorker</var>.</li>
+      <li>Set <var>serviceWorkerRegistration.installingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>installed</code> as the arguments.</li>
       <li>If any handler called <code>replace()</code>, then:
         <ol>
@@ -1182,8 +1182,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>serviceWorkerRegistration.activeWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
-      <li>Fire <code>controllerchange</code> event on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
-      <li>Fire <var>activate</var> event on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <var>activate</var> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any handler calls <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
@@ -1403,7 +1403,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Set <var>serviceWorker</var>.<var>state</var> to <var>state</var>.</li>
-      <li>Fire <code>statechange</code> event on <var>serviceWorker</var>.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>statechange</code> on <var>serviceWorker</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
