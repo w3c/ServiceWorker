@@ -23,6 +23,12 @@ interface ServiceWorkerContainer extends EventTarget {
   active?: ServiceWorker; // the activating/activated worker, can be used as a controller
   controller?: ServiceWorker; // the worker handling resource requests for this page
 
+  // This atribute returns a Promise that resolves with the associated SW
+  // object when it becomes either waiting or active worker for the document.
+  // (i.e., sw.state is "installed" or "activating" or "activated", and the
+  // promise never rejects in any case.)
+  whenReady: Promise; // Promise<ServiceWorker>
+
   // FIXME: what's the semantic?
   //    https://github.com/slightlyoff/ServiceWorker/issues/170
   getAll(): Promise; // Promise<Array<ServiceWorker>>
@@ -49,12 +55,6 @@ interface ServiceWorkerContainer extends EventTarget {
 
   unregister(scope?: string): Promise; // Defaults to "*"
     // Resolves with no value on success. Rejects if scope is mismatch.
-
-  // Returns a Promise that resolves with the associated SW object when it
-  // becomes either waiting or active worker for the document. (i.e., sw.state
-  // is "installed" or "activating" or "activated", and the promise never
-  // rejects in any case.)
-  whenReady(): Promise; // Promise<ServiceWorker>
 
   onupdatefound: (ev: Event) => any;
     // Fires when .installing becomes a new worker

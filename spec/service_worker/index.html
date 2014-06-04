@@ -278,11 +278,11 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? waiting;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? controller;
+  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; whenReady;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; getAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; unregister(DOMString? <var>scope</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; whenReady();
 
   // events
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onupdatefound;
@@ -322,6 +322,11 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p><code>navigator.serviceWorker.controller</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">_OnFetchRequest</a> algorithm) or the request is a force refresh (shift+refresh).</p>
   </spec-section>
+  <spec-section id="navigator-service-worker-when-ready">
+    <h1><code>whenReady</code></h1>
+
+    <p><code>navigator.serviceWorker.whenReady</code> attribute must return a promise that resolves with the associated <a href="#service-worker"><code>ServiceWorker</code></a> object when it becomes either <a href="#waiting-worker">waiting worker</a> or <a href="#active-worker">active worker</a> for the document. That is, the <code>state</code> of the <a href="#service-worker"><code>ServiceWorker</code></a> is either <code>installed</code>, <code>activating</code> or <code>activated</code>, and the promise never rejects in any case.</p>
+  </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
 
@@ -336,11 +341,6 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <h1><code>unregister()</code></h1>
 
     <p><code>navigator.serviceWorker.unregister(scope)</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
-  </spec-section>
-  <spec-section id="navigator-service-worker-when-ready">
-    <h1><code>whenReady()</code></h1>
-
-    <p><code>navigator.serviceWorker.whenReady()</code> method must return a promise that resolves with the associated <a href="#service-worker"><code>ServiceWorker</code></a> object when it becomes either waiting or current worker for the document. That is, the <code>state</code> of the <a href="#service-worker"><code>ServiceWorker</code></a> is either <code>installed</code>, <code>activating</code> or <code>activated</code>, and the promise never rejects in any case.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onupdatefound">
     <h1><code>onupdatefound</code></h1>
