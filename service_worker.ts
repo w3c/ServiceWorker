@@ -27,7 +27,7 @@ interface ServiceWorkerContainer extends EventTarget {
   // object when it becomes either waiting or active worker for the document.
   // (i.e., sw.state is "installed" or "activating" or "activated", and the
   // promise never rejects in any case.)
-  whenReady: Promise; // Promise<ServiceWorker>
+  ready: Promise; // Promise<ServiceWorker>
 
   // FIXME: what's the semantic?
   //    https://github.com/slightlyoff/ServiceWorker/issues/170
@@ -93,7 +93,7 @@ interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
   scope: string;
   url: string;
-  state: string; // "installing" -> "installed" -> "activated" -> "activated" -> "redundant"
+  state: string; // "installing" -> "installed" -> "activating" -> "activated" -> "redundant"
   onstatechange: (ev: Event) => any;
 }
 

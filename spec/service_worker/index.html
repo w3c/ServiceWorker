@@ -278,7 +278,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? waiting;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? controller;
-  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; whenReady;
+  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; getAll();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
@@ -322,10 +322,41 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p><code>navigator.serviceWorker.controller</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">_OnFetchRequest</a> algorithm) or the request is a force refresh (shift+refresh).</p>
   </spec-section>
-  <spec-section id="navigator-service-worker-when-ready">
-    <h1><code>whenReady</code></h1>
+  <spec-section id="navigator-service-worker-ready">
+    <h1><code>ready</code></h1>
 
-    <p><code>navigator.serviceWorker.whenReady</code> attribute must return a promise that resolves with the associated <a href="#service-worker"><code>ServiceWorker</code></a> object when it becomes either <a href="#waiting-worker">waiting worker</a> or <a href="#active-worker">active worker</a> for the document. That is, the <code>state</code> of the <a href="#service-worker"><code>ServiceWorker</code></a> is either <code>installed</code>, <code>activating</code> or <code>activated</code>, and the promise never rejects in any case.</p>
+    <p><code>navigator.serviceWorker.ready</code> attribute must return the result of running these steps:</p>
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Return <var>promise</var>.</li>
+      <li>Run the following steps asynchronously:
+        <ol>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> with document's url as its argument.</li>
+          <li>If <var>registration</var> is null, then:
+            <ol>
+              <li>Wait for the document to have a matching <a href="#registration">registration</a>.</li>
+            </ol>
+          </li>
+          <li>If the <a href="#registration">registration</a>, represented by <var>registration</var>, for the document has an <a href="#active-worker">active worker</a>, then:
+            <ol>
+              <li>Resolve <var>promise</var> with the <a href="#service-worker-interface">ServiceWorker</a> object associated with the <a href="#active-worker">active worker</a>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>If the <a href="#registration">registration</a>, represented by <var>registration</var>, for the document has a <a href="#worker-in-waiting">worker in waiting</a>, then:
+            <ol>
+              <li>Resolve <var>promise</var> with the <a href="#service-worker-interface">ServiceWorker</a> object associated with the <a href="#worker-in-waiting">worker in waiting</a>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Wait until the <a href="#registration">registration</a>, represented by <var>registration</var>, for the document acquires a <a href="#worker-in-waiting">worker in waiting</a> through a new <a href="#installation-process">installation process</a>.</li>
+          <li>Resolve promise with the ServiceWorker object associated with the <a href="#worker-in-waiting">worker in waiting</a>.</li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+    <p class="note">Note that ready attribute is desinged in a way that the returned promise will never reject. Instead, it waits untils the promise resolves with a newly installed worker in waiting. Hance, the <code>state</code> of the <a href="#service-worker"><code>ServiceWorker</code></a> object resolved is either <code>installed</code>, <code>activating</code> or <code>activated</code>.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
