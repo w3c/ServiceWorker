@@ -351,12 +351,12 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
             </ol>
           </li>
           <li>Wait until the <a href="#registration">registration</a>, represented by <var>registration</var>, for the document acquires a <a href="#worker-in-waiting">worker in waiting</a> through a new <a href="#installation-process">installation process</a>.</li>
-          <li>Resolve promise with the ServiceWorker object associated with the <a href="#worker-in-waiting">worker in waiting</a>.</li>
+          <li>Resolve <var>promise</var> with the <a href="#service-worker-interface">ServiceWorker</a> object associated with the <a href="#worker-in-waiting">worker in waiting</a>.</li>
         </ol>
       </li>
     </ol>
     </spec-algorithm>
-    <p class="note">Note that <code>ready</code> attribute is desinged in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits untils the <a href="http://goo.gl/3TobQS">promise</a> resolves with a newly installed <a href="#worker-in-waiting">worker in waiting</a>. Hence, the <code>state</code> of the acquired <a href="#service-worker"><code>ServiceWorker</code></a> object is either <code>installed</code>, <code>activating</code> or <code>activated</code>.</p>
+    <p class="note">Note that <code>ready</code> attribute is desinged in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with a newly installed <a href="#worker-in-waiting">worker in waiting</a>. Hence, the <code>state</code> of the acquired <a href="#service-worker"><code>ServiceWorker</code></a> object is either <code>installed</code>, <code>activating</code> or <code>activated</code>.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
@@ -478,7 +478,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-scope">
       <h1><code>scope</code></h1>
 
-      <p><code>self.scope</code> must return the pattern string for which this Service Worker instance was registered.</p>
+      <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <code>scope</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-fetch">
       <h1><code>fetch(request)</code></h1>
@@ -500,7 +500,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
             </li>
             <li>Else,
               <ol>
-                <li>Resolve <var>promise</var> with <var>response</var>. <small>// FIXME(jungkees): response will be replaced by an actual response object.</small></li>
+                <li>Resolve <var>promise</var> with a new <a href="http://goo.gl/Deazjv">Response</a> object associated with <var>response</var>.</li>
               </ol>
             </li>
           </ol>
@@ -794,7 +794,7 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
     <spec-section id="activate-event">
       <h1><code>activate</code> Event</h1>
 
-      <p>An event named <code><a href="#activate-event">activate</a></code> using the <code><a href="#install-phase-event">InstallPhaseEvent</a></code> interface is dispatched on <code>ServiceWorkerGlobalScope</code> object when the state of the associated <code>ServiceWorker</code> changes its value to <code>activating</code>. (See step 7 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
+      <p>An event named <code><a href="#activate-event">activate</a></code> using the <code><a href="#install-phase-event">InstallPhaseEvent</a></code> interface is dispatched on <code>ServiceWorkerGlobalScope</code> object when the state of the associated <code>ServiceWorker</code> changes its value to <code>activating</code>. (See step 6 of <a href="#activation-algorithm">_Activation algorithm</a>)</p>
       <p>Service Workers use the <code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code> interface for <code><a href="#activate-event">activate</a></code> event.</p>
 
       <!--spec-section id="activate-event">
@@ -863,7 +863,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               </li>
               <li>Else,
                 <ol>
-                  <li>Resolve <var>promise</var> with <var>response</var>. <small>// FIXME(jungkees): response will be replaced by an actual response object.</small></li>
+                  <li>Resolve <var>promise</var> with a new <a href="http://goo.gl/Deazjv">Response</a> object associated with <var>response</var>.</li>
                 </ol>
               </li>
             </ol>
