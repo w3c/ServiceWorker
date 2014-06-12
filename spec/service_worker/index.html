@@ -750,6 +750,7 @@ callback <dfn id="cache-storate-iteration-callback-callback" title="CacheStorage
       <h1><code>InstallPhaseEvent</code></h1>
 
 <spec-idl>
+[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
@@ -772,9 +773,14 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
         <h1><code>InstallEvent</code></h1>
 
 <spec-idl>
+[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
-  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? activeWorker;
+  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <var>activeWorker</var>;
   void replace();
+};
+
+dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">InstallEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
+  <a href="#service-worker-interface">ServiceWorker</a> <var>activeWorker</var>;
 };
 </spec-idl>
 
@@ -808,16 +814,23 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
         <h1><code>FetchEvent</code></h1>
 
 <spec-idl>
-[Constructor]
+[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  readonly attribute <a href="#request-interface">Request</a> request;
-  readonly attribute <a href="#client-interface">Client</a> client; // The window issuing the request.
-  readonly attribute <a href="#context-enum">Context</a> context;
-  readonly attribute boolean isReload;
+  readonly attribute <a href="#request-interface">Request</a> <var>request</var>;
+  readonly attribute <a href="#client-interface">Client</a> <var>client</var>; // The window issuing the request.
+  readonly attribute <a href="#context-enum">Context</a> <var>context</var>;
+  readonly attribute boolean <var>isReload</var>;
 
   void respondWith(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
   <a href="#promise-interface">Promise</a>&lt;any&gt; default();
+};
+
+dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
+  <a href="#request-interface">Request</a> <var>request</var>;
+  <a href="#client-interface">Client</a> <var>client</var>;
+  <a href="#context-enum">Context</a> <var>context</var>;
+  boolean <var>isReload</var>;
 };
 
 enum <dfn id="context-enum" title="Context">Context</dfn> {
@@ -1149,7 +1162,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to <var>serviceWorker</var>.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
       <li>If any handler called <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
@@ -1214,7 +1227,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>serviceWorkerRegistration.activeWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <var>activate</var> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any handler calls <code>waitUntil()</code>, then:
         <ol>
@@ -1435,7 +1448,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Set <var>serviceWorker</var>.<var>state</var> to <var>state</var>.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>statechange</code> on <var>serviceWorker</var>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> on <var>serviceWorker</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
