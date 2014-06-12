@@ -511,7 +511,16 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
 
-      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <code>self.update()</code> method must run the <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> passing its serviceWorkerRegistration object as the argument which is the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> with <code>self.scope</code> as the argument. (This is conceptually the same operation that UA does maximum once per every 24 hours.)</p>
+      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <code>self.update()</code> method must run these steps:</p>
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>scope</var> be a string representing the <a href="#path-expression">path expression</a> of the <a href="#url-scope">URL scope</a> of the Service Worker.</li>
+        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
+        <li>Invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+      </ol>
+      </spec-algorithm>
+
+      <p class="note">Note: This is conceptually the same operation that UA does maximum once per every 24 hours.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
@@ -1144,7 +1153,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Invoke <a href="#update-algorithm">_Update algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
     </ol>
     </spec-algorithm>
-    <P class="issue">Inspect whether the <var>promise</var> returned from <a href="#update-algorithm">_Update algorithm</a> should be returned to the caller (either UA internal context or <code>self.update()</code>).</P>
+    <P class="issue">Issue: Inspect whether the <var>promise</var> returned from <a href="#update-algorithm">_Update algorithm</a> should be returned to the caller (either UA internal context or <code>self.update()</code>).</P>
   </spec-section>
 
   <spec-section id="installation-algorithm">
