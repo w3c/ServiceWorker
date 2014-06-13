@@ -198,14 +198,14 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
     <h1><code>ServiceWorker</code></h1>
 
     <p></p>
-<spec-idl>[Constructor()] // no-op constructor
+<spec-idl>[Constructor] // no-op constructor
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
-  readonly attribute DOMString scope;
-  readonly attribute DOMString url;
-  readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> state;
+  readonly attribute DOMString <a href="#service-worker-scope-attribute">scope</a>;
+  readonly attribute DOMString <a href="#service-worker-url-attribute">url</a>;
+  readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
 
   // event
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onstatechange;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-onstatechange-attribute">onstatechange</a>;
 };
 
 enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> {
@@ -221,7 +221,7 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
     <spec-section id="service-worker-scope">
       <h1><code>scope</code></h1>
 
-      <p>The <code>scope</code> of a <code>ServiceWorker</code> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <code>scope</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
+      <p>The <code>scope</code> of a <code>ServiceWorker</code> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <dfn id="service-worker-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
 
       <p>For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-fetch-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
@@ -234,7 +234,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
     <spec-section id="service-worker-url">
       <h1><code>url</code></h1>
 
-      <p>The <code>url</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL of the script of the Service Worker, identified by its <a href="#url-scope">URL scope</a>, that is associated with the <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code>url</code> attribute is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+      <p>The <dfn id="service-worker-url-attribute"><code>url</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL of the script of the Service Worker, identified by its <a href="#url-scope">URL scope</a>, that is associated with the <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code>url</code> attribute is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
 
       <p>In the example in section 3.1.1, the value of <code>navigator.serviceWorker.controller.url</code> will be <code>"https://example.com/service_worker.js"</code>.</p>
     </spec-section>
@@ -242,7 +242,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
     <spec-section id="service-worker-state">
       <h1><code>state</code></h1>
 
-      <p>The <a href="#service-worker-interface">ServiceWorker</a> object can be in several states. The <code>state</code> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration:</p>
+      <p>The <a href="#service-worker-interface">ServiceWorker</a> object can be in several states. The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration:</p>
 
       <dl>
         <dt><code>"installing"</code></dt>
@@ -261,40 +261,46 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
     <spec-section id="service-worker-on-state-change">
       <h1><code>onstatechange</code></h1>
 
-      <p><code>onstatechange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-interface">ServiceWorker</a></code> object. A <code>statechange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-interface">ServiceWorker</a></code> object when the <code>state</code> attribute of the <code>ServiceWorker</code> object is changed.</p>
+      <p><dfn id="service-worker-onstatechange-attribute"><code>onstatechange</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-interface">ServiceWorker</a></code> object. A <code>statechange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-interface">ServiceWorker</a></code> object when the <code>state</code> attribute of the <code>ServiceWorker</code> object is changed.</p>
     </spec-section>
   </spec-section>
 
   <spec-section id="navigator-service-worker">
     <h1><code>navigator.serviceWorker</code></h1>
 
-    <p>The <code>serviceWorker</code> attribute of the <a href="http://goo.gl/I7WAhg">Navigator</a> interface must return an instance of the <code>ServiceWorkerContainer</code> interface, which provides access to registration, removal, upgrade, and communication with Service Workers that are (or will become) active for the current document. Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
 <spec-idl>partial interface <a href="http://goo.gl/I7WAhg">Navigator</a> {
-  readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> serviceWorker;
-};
+  readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
+};</spec-idl>
 
-interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="http://goo.gl/x4hwQd">EventTarget</a> {
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? installing;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? waiting;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? active;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? controller;
-  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; ready;
+    <p>The <dfn id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute of the <a href="http://goo.gl/I7WAhg">Navigator</a> interface must return an instance of the <code>ServiceWorkerContainer</code> interface, which provides access to registration, removal, upgrade, and communication with Service Workers that are (or will become) active for the current document. Communication with these workers is provided via standard <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html">HTML5 messaging APIs</a>, and <a href="http://www.w3.org/TR/workers/#dom-worker-postmessage">messaging occurs as per usual with Web Workers</a>.</p>
+  </spec-section>
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; getAll();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; register(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; unregister(DOMString? <var>scope</var>);
+  <spec-section id="service-worker-container">
+    <h1><code>ServiceWorkerContainer</code></h1>
+
+<spec-idl>interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="http://goo.gl/x4hwQd">EventTarget</a> {
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-installing-attribute">installing</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-waiting-attribute">waiting</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-active-attribute">active</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
+  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
+
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; <a href="#service-worker-container-getall-method">getAll</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-register-method">register</a>(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-container-unregister-method">unregister</a>(DOMString? <var>scope</var>);
 
   // events
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onupdatefound;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oncontrollerchange;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onreloadpage;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onerror;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onupdatefound-attribute">onupdatefound</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-oncontrollerchange-attribute">oncontrollerchange</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onreloadpage-attribute">onreloadpage</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onerror-attribute">onerror</a>;
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptionList">RegistrationOptionList</dfn> {
   DOMString scope = "/*";
 };
 
+[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPageEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };</spec-idl>
@@ -302,30 +308,30 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-installing">
     <h1><code>installing</code></h1>
 
-    <p><code>navigator.serviceWorker.installing</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
+    <p><dfn id="service-worker-container-installing-attribute"><code>installing</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-waiting">
     <h1><code>waiting</code></h1>
 
-    <p><code>navigator.serviceWorker.waiting</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the waiting Service Worker that is considered the <a href="#worker-in-waiting">worker in waiting</a> for the document. <code>navigator.serviceWorker.waiting</code> returns <code>null</code> if there is no <a href="#worker-in-waiting">worker in waiting</a> for the document.</p>
+    <p><dfn id="service-worker-container-waiting-attribute"><code>waiting</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the waiting Service Worker that is considered the <a href="#worker-in-waiting">worker in waiting</a> for the document. <code>navigator.serviceWorker.waiting</code> returns <code>null</code> if there is no <a href="#worker-in-waiting">worker in waiting</a> for the document.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-active">
     <h1><code>active</code></h1>
 
-    <p><code>navigator.serviceWorker.active</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing or completed the <dfn id="activation-process">activation process</dfn> (from step 4 to step 9 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
+    <p><dfn id="service-worker-container-active-attribute"><code>active</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing or completed the <dfn id="activation-process">activation process</dfn> (from step 4 to step 9 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><code>navigator.serviceWorker.controller</code> must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">_OnFetchRequest</a> algorithm) or the request is a force refresh (shift+refresh).</p>
+    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">_OnFetchRequest</a> algorithm) or the request is a force refresh (shift+refresh).</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
     <h1><code>ready</code></h1>
 
-    <p><code>navigator.serviceWorker.ready</code> attribute must return the result of running these steps:</p>
+    <p><dfn id="service-worker-container-ready-attribute"><code>ready</code></dfn> attribute must return the result of running these steps:</p>
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
@@ -361,37 +367,37 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
 
-    <p><code>navigator.serviceWorker.getAll()</code> method must return a promise that resolves with the array of the ServiceWorker objects in <code>installing</code>, <code>installed</code>, <code>activating</code> and <code>activated</code> states.<!-- FIXME(jungkees) state property should be defined. --></p>
+    <p><dfn id="service-worker-container-getall-method"><code>getAll()</code></dfn> method must return a promise that resolves with the array of the ServiceWorker objects in <code>installing</code>, <code>installed</code>, <code>activating</code> and <code>activated</code> states.<!-- FIXME(jungkees) state property should be defined. --></p>
   </spec-section>
   <spec-section id="navigator-service-worker-register">
     <h1><code>register()</code></h1>
 
-    <p><code>navigator.serviceWorker.register(url, options)</code> method must run the <a href="#registration-algorithm">Registration algorithm</a> passing <var>url</var> and <var>options</var>.<var>scope</var> as the arguments.</p>
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>url</var>, <var>options</var>)</code></dfn> method must run the <a href="#registration-algorithm">Registration algorithm</a> passing <var>url</var> and <var>options</var>.<var>scope</var> as the arguments.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-unregister">
     <h1><code>unregister()</code></h1>
 
-    <p><code>navigator.serviceWorker.unregister(scope)</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
+    <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onupdatefound">
     <h1><code>onupdatefound</code></h1>
 
-    <p><code>navigator.serviceWorker.onupdatefound</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An <code>updatefound</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object (See step 4 of the <a href="#installation-algorithm">_Installation algorithm</a>) when the associated Service Worker <a href="#registration">registration</a> for the document enters the <a href="#installation-process">installation process</a> such that <code>navigator.serviceWorker.installing</code> becomes the new <a href="#installing-worker">installing worker</a>.</p>
+    <p><dfn id="service-worker-container-onupdatefound-attribute"><code>onupdatefound</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An <code>updatefound</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object (See step 4 of the <a href="#installation-algorithm">_Installation algorithm</a>) when the associated Service Worker <a href="#registration">registration</a> for the document enters the <a href="#installation-process">installation process</a> such that <code>navigator.serviceWorker.installing</code> becomes the new <a href="#installing-worker">installing worker</a>.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-oncontrollerchange">
     <h1><code>oncontrollerchange</code></h1>
 
-    <p><code>navigator.serviceWorker.oncontrollerchange</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. A <code>controllerchange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object (See step 7 of the <a href="#activation-algorithm">_Activation algorithm</a>) when the associated Service Worker <a href="#registration">registration</a> for the document enters the <a href="#activation-process">activation process</a>. When the <a href="#activation-process">activation process</a> is triggered by <code>replace()</code> method call within the event handler of the <code>install</code> event, <code>navigator.serviceWorker.controller</code> immediately reflects the <a href="#active-worker">active worker</a> as the Service Worker that <a href="#document-control">controls</a> the document.</p>
+    <p><dfn id="service-worker-container-oncontrollerchange-attribute"><code>oncontrollerchange</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. A <code>controllerchange</code> event using the <code><a href="http://goo.gl/Mzv7Dv">Event</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object (See step 7 of the <a href="#activation-algorithm">_Activation algorithm</a>) when the associated Service Worker <a href="#registration">registration</a> for the document enters the <a href="#activation-process">activation process</a>. When the <a href="#activation-process">activation process</a> is triggered by <code>replace()</code> method call within the event handler of the <code>install</code> event, <code>navigator.serviceWorker.controller</code> immediately reflects the <a href="#active-worker">active worker</a> as the Service Worker that <a href="#document-control">controls</a> the document.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onreloadpage">
     <h1><code>onreloadpage</code></h1>
 
-    <p><code>navigator.serviceWorker.onreloadpage</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>reloadpage</code> using the <code><a href="#reload-page-event-interface">ReloadPageEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the page reload is triggered by the <code><a href="#reloadall-method">self.clients.reloadAll()</a></code> method call from the <a href="#active-worker">active worker</a>, represented by its associated <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object, for the document.</p>
+    <p><dfn id="service-worker-container-onreloadpage-attribute"><code>onreloadpage</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>reloadpage</code> using the <code><a href="#reload-page-event-interface">ReloadPageEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object when the page reload is triggered by the <code><a href="#reloadall-method">self.clients.reloadAll()</a></code> method call from the <a href="#active-worker">active worker</a>, represented by its associated <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object, for the document.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-onerror">
     <h1><code>onerror</code></h1>
 
-    <p><code>navigator.serviceWorker.onerror</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>error</code> using the <code><a href="http://goo.gl/FKuWgu">ErrorEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object for any error from the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> objects.</p>
+    <p><dfn id="service-worker-container-onerror-attribute"><code>onerror</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object. An event named <code>error</code> using the <code><a href="http://goo.gl/FKuWgu">ErrorEvent</a></code> interface is dispatched on <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object for any error from the associated <code><a href="#service-worker-interface" title="ServiceWorker">ServiceWorker</a></code> objects.</p>
   </spec-section>
 </spec-section>
 </spec-clause>
@@ -439,25 +445,25 @@ this.addEventListener("fetch", function(e) {
 
 <spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/xBhqNU">WorkerGlobalScope</a> {
-  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> caches;
+  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#service-worker-global-scope-caches-attribute">caches</a>;
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
-  readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> clients;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString scope;
+  readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString <a href="#service-worker-global-scope-caches-attribute">scope</a>;
 
-  <a href="#promise-interface">Promise</a>&lt;any&gt; fetch((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
+  <a href="#promise-interface">Promise</a>&lt;any&gt; <a href="#service-worker-global-scope-fetch-method">fetch</a>((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
 
-  void update();
-  void unregister();
+  void <a href="#service-worker-global-scope-update-method">update</a>();
+  void <a href="#service-worker-global-scope-unregister-method">unregister</a>();
 
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> oninstall;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onactivate;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onfetch;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onbeforeevicted;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onevicted;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onfetch-attribute">onfetch</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onbeforeevicted-attribute">onbeforeevicted</a>;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onevicted-attribute">onevicted</a>;
 
   // The event.source of these MessageEvents are instances of Client
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> onmessage;
+  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onmessage-attribute">onmessage</a>;
 
   // close() method inherited from WorkerGlobalScope is not exposed.
 };
@@ -468,22 +474,22 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-caches">
       <h1><code>caches</code></h1>
 
-      <p><code>self.caches</code> must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
+      <p><dfn id="service-worker-global-scope-caches-attribute"><code>caches</code></dfn> attribute must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code>self.caches</code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
 
-      <p><code>self.clients</code> must return the <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> object containing a list of client objects, identifiable by ID, that correspond to windows or workers that are <a href="#document-control">controlled</a> by this Service Worker.</p>
+      <p><dfn id="service-worker-global-scope-clients-attribute"><code>clients</code></dfn> must return the <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> object containing a list of client objects, identifiable by ID, that correspond to windows or workers that are <a href="#document-control">controlled</a> by this Service Worker.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-scope">
       <h1><code>scope</code></h1>
 
-      <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <code>scope</code> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
+      <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <dfn id="service-worker-global-scope-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-fetch">
       <h1><code>fetch(request)</code></h1>
 
-      <p><code>self.fetch(request)</code> method must run these steps:</p>
+      <p><dfn id="service-worker-global-scope-fetch-method"><code>fetch(<var>request</var>)</code></dfn> method must run these steps:</p>
       <spec-algorithm>
       <ol>
         <li>Let <var>request</var> be a <a href="http://goo.gl/ucOuXl">request</a> represented by <var>request</var>.</li>
@@ -511,7 +517,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
 
-      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <code>self.update()</code> method must run these steps:</p>
+      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <dfn id="service-worker-global-scope-update-method"><code>update()</code></dfn> method must run these steps:</p>
       <spec-algorithm>
       <ol>
         <li>Let <var>scope</var> be a string representing the <a href="#path-expression">path expression</a> of the <a href="#url-scope">URL scope</a> of the Service Worker.</li>
@@ -525,12 +531,12 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
 
-      <p><code>self.unregister()</code> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> implicitly passing <code>self.scope</code> as the argument.</p>
+      <p><dfn id="service-worker-global-scope-unregister-mthod"><code>unregister()</code></dfn> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> implicitly passing <code>self.scope</code> as the argument.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-onmessage">
       <h1><code>onmessage</code></h1>
 
-      <p><code>self.onmessage</code> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code>ServiceWorkerGlobalScope</code> object. <code>ServiceWorkerGlobalScope</code> objects act as if they had an implicit <code><a href="http://goo.gl/tHBrI6">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the worker is created, but it is not exposed. This object must never be garbage collected before the <code>ServiceWorkerGlobalScope</code> object.</p>
+      <p><dfn id="service-worker-global-scope-onmessage-attribute"><code>onmessage</code></dfn> is the <a href="http://goo.gl/rBfiz0">event handler</a> that must be supported as attribute by the <code>ServiceWorkerGlobalScope</code> object. <code>ServiceWorkerGlobalScope</code> objects act as if they had an implicit <code><a href="http://goo.gl/tHBrI6">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the worker is created, but it is not exposed. This object must never be garbage collected before the <code>ServiceWorkerGlobalScope</code> object.</p>
       <p>All messages received by that port must immediately be retargeted at the <code>ServiceWorkerGlobalScope</code> object. That is, an event named <code>message</code> using the <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code> interface is dispatched on ServiceWorkerGlobalScope object. The <code>event.source</code> of these <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code>s are instances of <code><a href="#client-interface">Client</a></code>.</p>
     </spec-section>
 
@@ -538,17 +544,17 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   <spec-section id="client">
     <h1><code>Client</code></h1>
 
-<spec-idl>[Constructor()] // no-op constructor
+<spec-idl>[Constructor] // no-op constructor
 interface <dfn id="client-interface" title="Client">Client</dfn> {
-  readonly attribute unsigned long id;
-  void postMessage(any <var>message</var>, DOMString <var>targetOrigin</var>,
+  readonly attribute unsigned long <a href="#client-id-attribute">id</a>;
+  void <a href="http://goo.gl/Kze9t3">postMessage</a>(any <var>message</var>, DOMString <var>targetOrigin</var>,
                    optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
 };
 </spec-idl>
 
     <p>The <code>Client</code> interface represents the window or the worker (defined as client) that is <a href="#document-control">controlled</a> by the Service Worker. This object provides a no-op constructor. Callers should note that only <code>Client</code> objects created by the user agent (see <a href="#get-serviced-method"><code>this.clients.getServiced()</code></a>) will provide meaningful functionality.</p>
 
-    <p>The <code>id</code> of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(message, targetOrigin, transfer)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
+    <p>The <dfn id="client-id-attribute"><code>id</code></dfn> attribute of a <code>Client</code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code>postMessage(<var>message</var>, <var>targetOrigin</var>, <var>transfer</var>)</code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
 
   </spec-section>
   <spec-section id="service-worker-clients">
@@ -557,20 +563,22 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 <spec-idl>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; getServiced();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; reloadAll();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#service-worker-clients-getserviced-method">getServiced</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();
 };
 </spec-idl>
 
     <p>The <code>ServiceWorkerClients</code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects.</p>
     <spec-section id="get-serviced-method">
       <h1><code>getServiced()</code></h1>
-      <p>The <code>getServiced()</code> method of a <code>ServiceWorkerClients</code>, when called, returns a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#document-control">controlled</a> by this Service Worker.</p>
+      <p>The <dfn id="service-worker-clients-getserviced-method"><code>getServiced()</code></dfn> method must return a <a href="http://goo.gl/3TobQS">Promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#document-control">controlled</a> by this Service Worker.</p>
     </spec-section>
     <spec-section id="reloadall-method">
       <h1><code>reloadAll()</code></h1>
 
-      <p><code>reloadAll()</code> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">URL scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#wait-until-method"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="http://goo.gl/2zH6ie"><code>e.preventDefault()</code></a>.</p>
+      <p><dfn id="service-worker-clients-reloadall-method"><code>reloadAll()</code></dfn> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">URL scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#wait-until-method"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="http://goo.gl/2zH6ie"><code>e.preventDefault()</code></a>.</p>
+
+      <p class="note">Note: The algorithm will be updated in a more formal language.</p>
 
       <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
     </spec-section>
@@ -761,7 +769,7 @@ callback <dfn id="cache-storate-iteration-callback-callback" title="CacheStorage
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#install-phase-event-waituntil-method">waitUntil</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 </spec-idl>
 
@@ -770,7 +778,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
       <spec-section id="wait-until-method">
         <h1><code>event.waitUntil(f)</code></h1>
 
-        <p><code>event.waitUntil(f)</code> method, when called in <code>oninstall</code> or <code>onactivate</code>, extends the lifetime of the event. When called in <code>oninstall</code>, it delays treating the installing worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that a <code>ServiceWorker</code> is not active until all of the core caches it depends on are populated. When called in <code>onactivate</code>, it delays treating the activating worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that any <a href="#functional-events">Functional events</a> are not dispatched to the <code>ServiceWorker</code> until it upgrades database schemas and deletes the outdated cache entries.</p>
+        <p><dfn id="install-phase-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method, when called in <code>oninstall</code> or <code>onactivate</code>, extends the lifetime of the event. When called in <code>oninstall</code>, it delays treating the installing worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that a <code>ServiceWorker</code> is not active until all of the core caches it depends on are populated. When called in <code>onactivate</code>, it delays treating the activating worker until the passed <a href="http://goo.gl/3TobQS">Promise</a> resolves successfully. This is primarily used to ensure that any <a href="#functional-events">Functional events</a> are not dispatched to the <code>ServiceWorker</code> until it upgrades database schemas and deletes the outdated cache entries.</p>
       </spec-section>
     </spec-section>
 
@@ -784,12 +792,12 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
-  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <var>activeWorker</var>;
-  void replace();
+  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
+  void <a href="#install-event-replace-method">replace</a>();
 };
 
 dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">InstallEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
-  <a href="#service-worker-interface">ServiceWorker</a> <var>activeWorker</var>;
+  <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
 };
 </spec-idl>
 
@@ -798,7 +806,7 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
       <spec-section id="replace-method">
         <h1><code>event.replace()</code></h1>
 
-        <p><code>replace()</code> interacts with <code>waitUntil</code> method in the following way:</p>
+        <p><dfn id="install-event-replace-method"><code>replace()</code></dfn> method interacts with <code>waitUntil</code> method in the following way:</p>
         <ul>
           <li>Successful installation can be delayed by <code>waitUntil</code>, perhaps by subsequent event handlers.</li>
           <li>Replacement only happens upon successful installation</li>
@@ -825,21 +833,21 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  readonly attribute <a href="#request-interface">Request</a> <var>request</var>;
-  readonly attribute <a href="#client-interface">Client</a> <var>client</var>; // The window issuing the request.
-  readonly attribute <a href="#context-enum">Context</a> <var>context</var>;
-  readonly attribute boolean <var>isReload</var>;
+  readonly attribute <a href="#request-interface">Request</a> request;
+  readonly attribute <a href="#client-interface">Client</a> client; // The window issuing the request.
+  readonly attribute <a href="#context-enum">Context</a> context;
+  readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
-  void respondWith(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
+  void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
-  <a href="#promise-interface">Promise</a>&lt;any&gt; default();
+  <a href="#promise-interface">Promise</a>&lt;any&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
-  <a href="#request-interface">Request</a> <var>request</var>;
-  <a href="#client-interface">Client</a> <var>client</var>;
-  <a href="#context-enum">Context</a> <var>context</var>;
-  boolean <var>isReload</var>;
+  <a href="#request-interface">Request</a> request;
+  <a href="#client-interface">Client</a> client;
+  <a href="#context-enum">Context</a> context;
+  boolean isReload;
 };
 
 enum <dfn id="context-enum" title="Context">Context</dfn> {
@@ -860,7 +868,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-section id="respond-with-method">
         <h1><code>event.respondWith(r)</code></h1>
 
-        <p><code>event.respondWith(r)</code> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
+        <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
 
         <p>The <var>r</var> argument must resolve with a <a href="#abstract-response-interface">AbstractResponse</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
       </spec-section>
@@ -868,7 +876,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-section id="default-method">
         <h1><code>event.default()</code></h1>
 
-        <p><code>event.default()</code> method must run these steps:</p>
+        <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps:</p>
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
@@ -897,7 +905,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-section id="is-reload-attribute">
         <h1><code>event.isReload</code></h1>
 
-        <p>Returns true if <var>event</var> was dispatched with the user's intention for the page reload, and false otherwise. Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
+        <p><dfn id="fetch-event-isreload-attribute"><code>isReload</code></dfn> attribute must return true if <var>event</var> was dispatched with the user's intention for the page reload, and false otherwise. Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
       </spec-section>
     </spec-section>
   </spec-section>
