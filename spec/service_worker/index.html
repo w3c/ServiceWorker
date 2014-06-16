@@ -138,7 +138,7 @@
     The script URL provided by the author (via a call to <a href="#navigator-service-worker-register"><code>navigator.serviceWorker.register([script URL], [registration option])</code></a> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
-    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Worker specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#update-algorithm">"Worker Script Caching"<!--TODO(jungkees): add worker script caching section--></a>.
+    If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Workers specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#update-algorithm">"Worker Script Caching"<!--TODO(jungkees): add worker script caching section--></a>.
     </li>
     <li><em><code>oninstall</code></em>:
     <br>
@@ -1180,6 +1180,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li>If any uncaught runtime script error occurs in the event handlers, then:
+        <ol>
+          <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
       <li>If any handler called <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
@@ -1245,7 +1253,15 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
       <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <var>activate</var> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li>If any uncaught runtime script error occurs in the event handlers, then:
+        <ol>
+          <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to null.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
       <li>If any handler calls <code>waitUntil()</code>, then:
         <ol>
           <li>Extend this process until the associated promises settle.</li>
@@ -1304,6 +1320,11 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>If <var>matchedServiceWorker</var>.<var>state</var> is <code>activating</code>, then:
         <ol>
           <li>Wait for <var>matchedServiceWorker</var>.<var>state</var> to become <code>activated</code>.</li>
+          <li>If <var>matchedServiceWorker</var>'s activation fails, then:
+            <ol>
+              <li>Return null.</li>
+            </ol>
+          </li>
         </ol>
       </li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>request</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <a href="http://goo.gl/kMzwgq">request</a>, in the form of <a href="#client-interface">Client</a> object, represented by <var>request</var>, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <a href="http://goo.gl/kMzwgq">request</a> represented by <var>request</var>, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
