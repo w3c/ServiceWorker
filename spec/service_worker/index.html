@@ -451,7 +451,8 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString <a href="#service-worker-global-scope-caches-attribute">scope</a>;
 
-  <a href="#promise-interface">Promise</a>&lt;any&gt; <a href="#service-worker-global-scope-fetch-method">fetch</a>((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
+  // <a href="#service-worker-global-scope-fetch">fetch</a>(<var>input</var>, <var>init</var>) method is defined in <a href="http://fetch.spec.whatwg.org/">Fetch</a>
+  // Promise&lt;Response&gt; fetch(RequestInfo input, optional RequestInit init);
 
   void <a href="#service-worker-global-scope-update-method">update</a>();
   void <a href="#service-worker-global-scope-unregister-method">unregister</a>();
@@ -487,32 +488,9 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <dfn id="service-worker-global-scope-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-fetch">
-      <h1><code>fetch(request)</code></h1>
+      <h1><code>fetch(<var>input</var>, <var>init</var>)</code></h1>
 
-      <p><dfn id="service-worker-global-scope-fetch-method"><code>fetch(<var>request</var>)</code></dfn> method must run these steps:</p>
-      <spec-algorithm>
-      <ol>
-        <li>Let <var>request</var> be a <a href="http://goo.gl/ucOuXl">request</a> represented by <var>request</var>.</li>
-        <li>Set <a href="http://goo.gl/Oxj4xQ"><var>client</var></a> of <var>request</var> to the <a href="http://goo.gl/ifwwCC">JavaScript global environment</a> represented by <code>self</code> object.</li>
-        <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Return <var>promise.</var></li>
-        <li>Run the following steps asynchronously:
-          <ol>
-            <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
-            <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
-              <ol>
-                <li>Reject <var>promise</var> with a new <a href="http://goo.gl/A0U8qC">DOMException</a> whose name is "<a href="http://goo.gl/lud5HB">NetworkError</a>".</li>
-              </ol>
-            </li>
-            <li>Else,
-              <ol>
-                <li>Resolve <var>promise</var> with a new <a href="http://goo.gl/Deazjv">Response</a> object associated with <var>response</var>.</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-      </ol>
-      </spec-algorithm>
+      <p><dfn id="service-worker-global-scope-fetch"><code>fetch(<var>input</var>, <var>init</var>)</code></dfn> method is defined on the <a href="http://fetch.spec.whatwg.org/#globalfetch">GlobalFetch</a> interface implemented by the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> interface that the <a href="#service-worker-global-scope-interface">ServiceWorkerGlbalScope</a> inherits from. When a script invokes the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method on a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object, the UA must run the <a href="http://fetch.spec.whatwg.org/#dom-global-fetch">steps</a> defined in the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
@@ -578,7 +556,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 
       <p><dfn id="service-worker-clients-reloadall-method"><code>reloadAll()</code></dfn> provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#url-scope">URL scope</a>. An event named <code>reloadpage</code> is dispatched on the <code>navigator.serviceWorker</code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <a href="#wait-until-method"><code>e.waitUntil()</code></a>), or cancel the collective reload by calling <a href="http://goo.gl/2zH6ie"><code>e.preventDefault()</code></a>.</p>
 
-      <p class="note">Note: The algorithm will be updated in a more formal language.</p>
+      <p class="note"><strong>Note</strong>: The algorithm will be updated in a more formal language.</p>
 
       <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
     </spec-section>
@@ -586,118 +564,17 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 
   <spec-section id="request-objects">
     <h1><code>Request</code> Objects</h1>
+    <p><code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> objects model HTTP requests. The <a href="http://fetch.spec.whatwg.org/#request">Request</a> interface is defined in <a href="http://fetch.spec.whatwg.org/">Fetch</a>. A <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> is an input to <a href="http://fetch.spec.whatwg.org/#concept-fetch">fetch</a>, and accordingly a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object is used as the first argument for the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method. A <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object is a key for the <code><a href="#cache-interface">Cache</a></code> object.</p>
 
-<spec-idl>[Constructor(optional <a href="#request-init-dictionary">RequestInit</a> <var>init</var>)]
-interface <dfn id="request-interface" title="Request">Request</dfn> {
-  attribute unsigned long timeout;
-  attribute DOMString url;
-  attribute <a href="http://goo.gl/M46tpy">ByteString</a> method;
-  readonly attribute DOMString origin;
-  readonly attribute <a href="#mode-enum">Mode</a> mode;
-  attribute boolean synchronous;
-  attribute boolean forcePreflight;
-  attribute boolean omitCredentials;
-  readonly attribute DOMString referrer;
-  readonly attribute <a href="#header-map-interface">HeaderMap</a> headers; // alternative: sequence&lt;Header&gt; headers;
-  attribute any body;
-};
-
-dictionary <dfn id="request-init-dictionary" title="RequestInit">RequestInit</dfn> {
-  unsigned long timeout = 0;
-  DOMString url;
-  boolean synchronous = false;
-  boolean forcePreflight = false;
-  boolean omitCredentials = false;
-  <a href="http://goo.gl/M46tpy">ByteString</a> method = "GET";
-  <a href="#header-map-interface">HeaderMap</a> headers;
-  any body;
-};
-
-enum <dfn id="mode-enum" title="Mode">Mode</dfn> {
-  "same origin",
-  "tainted cross-origin",
-  "CORS",
-  "CORS-with-forced-preflight"
-};
-
-[<a href="http://goo.gl/lJQaAt">MapClass</a>(DOMString, DOMString)]
-interface <dfn id="header-map-interface" title="HeaderMap">HeaderMap</dfn> {
-};
-</spec-idl>
+    <p class="note"><strong>Note:</strong> The section will be updated.</p>
   </spec-section>
 
   <spec-section id="response-objects">
     <h1><code>Response</code> Objects</h1>
 
-    <p><code>Response</code> objects model HTTP responses.</p>
+    <p><code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> objects model HTTP responses. The <a href="http://fetch.spec.whatwg.org/#response">Response</a> interface is defined in <a href="http://fetch.spec.whatwg.org/">Fetch</a>. A <a href="http://fetch.spec.whatwg.org/#concept-response">response</a> is an output as a result of performing a <a href="http://fetch.spec.whatwg.org/#concept-fetch">fetch</a>, and accordingly a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object is the value the returned <a href="http://goo.gl/3TobQS">Promise</a> object from <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method resolves with. A <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object is a value for the <code><a href="#cache-interface">Cache</a></code> object.</p>
 
-<spec-idl>[Constructor]
-interface <dfn id="abstract-response-interface" title="AbstractResponse">AbstractResponse</dfn> {
-};
-
-interface <dfn id="opaque-response-interface" title="OpaqueResponse">OpaqueResponse</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
-  readonly attribute unsigned short status;
-  readonly attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
-  // Returns a filtered list of headers. See <a href="#opaque-response">prose for details</a>.
-  readonly attribute <a href="#header-map-interface">HeaderMap</a> headers;
-  // No setter for headers
-  readonly attribute DOMString url;
-};
-
-interface <dfn id="cors-response-interface" title="CORSResponse">CORSResponse</dfn> : <a href="#response-interface">Response</a> {
-  readonly attribute <a href="#header-map-interface">HeaderMap</a> headers;
-};
-
-[Constructor(optional <a href="#response-init-dictionary">ResponseInit</a> <var>responseInitDict</var>)]
-interface <dfn id="response-interface" title="Response">Response</dfn> : <a href="#abstract-response-interface">AbstractResponse</a> {
-  attribute unsigned short status;
-  attribute <a href="http://goo.gl/M46tpy">ByteString</a> statusText;
-  readonly attribute <a href="#header-map-interface">HeaderMap</a> headers;
-  attribute DOMString url;
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://goo.gl/dqRadv">Blob</a>&gt; toBlob();
-};
-
-dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit</dfn> {
-  unsigned short status = 200;
-  <a href="http://goo.gl/M46tpy">ByteString</a> statusText = "OK";
-  <a href="#header-map-interface">HeaderMap</a> headers;
-};
-</spec-idl>
-
-    <spec-section id="abstract-response">
-      <h1><code>AbstractResponse</code></h1>
-
-      <p><code>AbstractResponse</code> is a superclass for all <code>Response</code> types. It should not be directly constructed (although, for compatibility with JavaScript, a constructor is provided).</p>
-    </spec-section>
-
-    <spec-section id="response">
-      <h1><code>Response</code></h1>
-
-      <p><code>Response</code> objects are mutable and constructable. They model HTTP responses. The <code>fetch()</code> API returns this type for same-origin responses.</p>
-
-      <p class="note">It may be possible to set the <code>Location</code> header of a <code>Response</code> object to someplace not in the current origin but this is not a security issue. Cross-origin response bodies are opaque to script, and since only same-origin documents will encounter these responses, the only systems the Service Worker can "lie to" are same-origin (and therefore safe from the perspective of other origins).</p>
-    </spec-section>
-
-    <spec-section id="header">
-      <h1><code>headers</code></h1>
-      <!-- TODO(slightlyoff): whitelist readable headers -->
-    </spec-section>
-
-    <spec-section id="opaque-response">
-      <h1><code>OpaqueResponse</code></h1>
-
-      <p><code>OpaqueResponse</code> objects are immutable but constructable. The <code>fetch()</code> API returns this type for cross-origin responses.</p>
-
-      <p>Their role is to encapsulate the security properties of the web platform. As such, their <code>body</code> attribute will always be <code>undefined</code> and the list of readable <code>headers</code> is heavily filtered.</p>
-
-      <p><code>OpaqueResponse</code> objects may be forwarded on to rendering documents in exactly the same way as mutable <code>Response</code> objects.</p>
-    </spec-section>
-
-    <!-- TODO(slightlyoff): whitelist readable headers -->
-
-    <spec-section id="cors-response">
-      <h1><code>CORSResponse</code></h1>
-    </spec-section>
+    <p class="note"><strong>Note:</strong> The section will be updated.</p>
   </spec-section>
 
   <spec-section id="cache-objects">
@@ -716,11 +593,11 @@ dictionary <dfn id="response-init-dictionary" title="ResponseInit">ResponseInit<
 <spec-idl>
 [Constructor]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; match((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt;&gt; matchAll((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="#abstract-response-interface">AbstractResponse</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; each(<a href="#cache-iteration-callback-callback">CacheIterationCallback</a> <var>callback</var>, optional object <var>thisArg</var>);
 };
 
@@ -731,7 +608,7 @@ dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</df
   boolean prefixMatch;
 };
 
-callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallback">CacheIterationCallback</dfn> = void (<a href="#abstract-response-interface">AbstractResponse</a> <var>value</var>, (<a href="#request-interface">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>key</var>, <a href="#cache-storage-interface">Cache</a> <var>map</var>);
+callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallback">CacheIterationCallback</dfn> = void (<a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>value</var>, (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>key</var>, <a href="#cache-storage-interface">Cache</a> <var>map</var>);
 </spec-idl>
     </spec-section>
     <spec-section id="cache-storage">
@@ -833,18 +710,18 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>)]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  readonly attribute <a href="#request-interface">Request</a> request;
+  readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
   readonly attribute <a href="#client-interface">Client</a> client; // The window issuing the request.
   readonly attribute <a href="#context-enum">Context</a> context;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
-  void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#abstract-response-interface">AbstractResponse</a>&gt; <var>r</var>);
+  void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
   <a href="#promise-interface">Promise</a>&lt;any&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
-  <a href="#request-interface">Request</a> request;
+  <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
   <a href="#client-interface">Client</a> client;
   <a href="#context-enum">Context</a> context;
   boolean isReload;
@@ -870,7 +747,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 
         <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
 
-        <p>The <var>r</var> argument must resolve with a <a href="#abstract-response-interface">AbstractResponse</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="#opaque-response-interface">OpaqueResponse</a> (an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="#response-interface">Response</a> body, not URLs.</p>
+        <p>The <var>r</var> argument must resolve with a <a href="http://fetch.spec.whatwg.org/#response">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="http://fetch.spec.whatwg.org/#response">Response</a> whose <code>type</code> attribute is <code>"opaque"</code> (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="http://fetch.spec.whatwg.org/#response">Response</a> body, not URLs.</p>
       </spec-section>
 
       <spec-section id="default-method">
@@ -893,7 +770,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               </li>
               <li>Else,
                 <ol>
-                  <li>Resolve <var>promise</var> with a new <a href="http://goo.gl/Deazjv">Response</a> object associated with <var>response</var>.</li>
+                  <li>Resolve <var>promise</var> with a new <a href="http://fetch.spec.whatwg.org/#response">Response</a> object associated with <var>response</var>.</li>
                 </ol>
               </li>
             </ol>
@@ -933,7 +810,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <h1>Cross-Origin Resources &amp; CORS</h1>
 
     <p class="note">Applications tend to cache items that come from a CDN or other domain. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-domain resources when appropriate CORS headers are set.</p>
-    <p>ServiceWorkers enable this by allowing <code>Cache</code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code>Cache</code> as <code><a href="http://goo.gl/3TobQS">Promise</a></code>s for <code>Response</code> instances, the objects stored are <code><a href="http://goo.gl/3TobQS">Promise</a></code>s for <code>OpaqueResponse</code> instances. <code>OpaqueResponse</code> provides a much less expressive API than <code>Response</code>; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code>respondWith()</code> and <code>forwardTo()</code> in the same manner as <code>Response</code>s, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code>Cache</code>s to store them allows applications to avoid re-architecting in most cases.</p>
+    <p>ServiceWorkers enable this by allowing <code>Cache</code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code>Cache</code> as <code>Response</code> objects with the <code>type</code> attribute set to <code>"basic"</code>, the objects stored are <code>Response</code> objects with the <code>type</code> attribute set to <code>"opaque"</code>. <code>Response</code>s typed <code>"opaque"</code> provide a much less expressive API than <code>Response</code>s typed <code>"basic"</code>; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code>respondWith()</code> and <code>forwardTo()</code> in the same manner as the <code>Response<code>s typed <code>"basic"</code>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code>Cache</code>s to store them allows applications to avoid re-architecting in most cases.</p>
   </spec-section>
 </spec-clause>
 
@@ -1279,7 +1156,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="#request-interface">Request</a> object</dd>
+        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1326,7 +1203,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>request</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <a href="http://goo.gl/kMzwgq">request</a>, in the form of <a href="#client-interface">Client</a> object, represented by <var>request</var>, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <a href="http://goo.gl/kMzwgq">request</a> represented by <var>request</var>, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>request</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>, in the form of <a href="#client-interface">Client</a> object, represented by <var>request</var>, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> represented by <var>request</var>, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If the <code>respondWith()</code> method was not called, then:
         <ol>
           <li>Return null and run the following steps asynchronously.</li>
@@ -1345,12 +1222,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
         </ol>
       </li>
-      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <code>OpaqueResponse</code> interface, and <code>event.context</code> is <code>"navigate"</code>, then:
+      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <code>Response</code> interface whose <code>type</code> attribute is <code>"opaque"</code>, and <code>event.context</code> is <code>"navigate"</code>, then:
         <ol>
           <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
         </ol>
       </li>
-      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <code>AbstractResponse</code> interface, then:
+      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <a href="http://fetch.spec.whatwg.org/#response"><code>Response</code></a> interface, then:
         <ol>
           <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following steps asynchronously.</li>
           <li>If <code>event.context</code> is <code>"navigate"</code>, then:
