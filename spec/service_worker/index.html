@@ -38,17 +38,7 @@
     dd {
       padding-bottom: 7px;
     }
-    spec-section code {
-      background-color: #eee;
-      font-family: 'Droid Sans Mono', monospace;
-      font-size: 1.0em;
-    }
-    spec-idl code {
-      background-color: #eee;
-      font-family: 'Droid Sans Mono', monospace;
-      font-size: 1.0em;
-    }
-    spec-code code {
+    spec-clause code {
       background-color: #eee;
       font-family: 'Droid Sans Mono', monospace;
       font-size: 1.0em;
@@ -621,7 +611,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-fetch">
       <h1><code>fetch(<var>input</var>, <var>init</var>)</code></h1>
 
-      <p><dfn id="service-worker-global-scope-fetch"><code>fetch(<var>input</var>, <var>init</var>)</code></dfn> method is defined on the <a href="http://fetch.spec.whatwg.org/#globalfetch">GlobalFetch</a> interface implemented by the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> interface that the <a href="#service-worker-global-scope-interface">ServiceWorkerGlbalScope</a> inherits from. When a script invokes the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method on a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object, the UA must run the <a href="http://fetch.spec.whatwg.org/#dom-global-fetch">steps</a> defined in the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method.</p>
+      <p><dfn id="service-worker-global-scope-fetch-method"><code>fetch(<var>input</var>, <var>init</var>)</code></dfn> method is defined on the <a href="http://fetch.spec.whatwg.org/#globalfetch">GlobalFetch</a> interface implemented by the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> interface that the <a href="#service-worker-global-scope-interface">ServiceWorkerGlbalScope</a> inherits from. When a script invokes the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method on a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object, the UA must run the <a href="http://fetch.spec.whatwg.org/#dom-global-fetch">steps</a> defined in the <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch</a>(<var>input</var>, <var>init</var>)</code> method.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
@@ -894,10 +884,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
 
       <p>The <var>r</var> argument must resolve with a <a href="http://fetch.spec.whatwg.org/#response">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="http://fetch.spec.whatwg.org/#response">Response</a> whose <code>type</code> attribute is <code>"opaque"</code> (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="http://fetch.spec.whatwg.org/#response">Response</a> body, not URLs.</p>
+
+      <p class="note"><strong>Note:</strong> The section will be rephrased.</p>
     </spec-section>
 
     <spec-section id="default-method">
       <h1><code>event.default()</code></h1>
+
+      <p>The invocation of <code>event.<a href="#fetch-event-default-method">default</a>()</code> method performs a <a href="http://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <code>event.request</code>. <code>event.request</code> represents the original request from the <a href="#document-control">controlled</a> document. During the execution, the original request is not altered (except the <a href="http://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>), and thus <code>event.<a href="#fetch-event-default-method">default</a>()</code> fetches the original request through the UA's HTTP stack. <code>event.<a href="#fetch-event-default-method">default</a>()</code> returns a Promise, which resolves with a <a href="http://fetch.spec.whatwg.org/#response">Response</a> object, that can be an argument to the <code>event.<a href="#fetch-event-respondwith-method">respondWith</a>(<var>r</var>)</code> method.</p>
 
       <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps:</p>
       <spec-algorithm>
@@ -959,7 +953,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <tr>
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
           <td><code><a href="#fetch-event-interface">FetchEvent</a></code></td>
-          <td>[<a href="#functional-events">Functional event</a>] <a href="http://fetch.spec.whatwg.org/">Fetch</a> invokes <a href="#handle-a-fetch">handle a fetch</a> with <var>request</var>.</td>
+          <td>[<a href="#functional-events">Functional event</a>] <a href="http://fetch.spec.whatwg.org/">Fetch</a> invokes <a href="#handle-a-fetch">handle a fetch</a> with <var>request</var>. As a result of performing <a href="#handle-a-fetch">handle a fetch</a>, the Service Woker returns a <a href="http://fetch.spec.whatwg.org/#concept-response">response</a> to <a href="http://fetch.spec.whatwg.org/">Fetch</a>. The <a href="http://fetch.spec.whatwg.org/#concept-response">response</a>, represented by a <a href="http://fetch.spec.whatwg.org/#response">Response</a> object, can be retrieved from a <a href="#cache-interface">Cache</a> object or directly from network using <code>self.<a href="#service-worker-global-scope-fetch-method">fetch</a>(<var>input</var>, <var>init</var>)</code> method or <code>event.<a href="#fetch-event-default-method">default</a>()</code> method. (A custom <a href="http://fetch.spec.whatwg.org/#response">Response</a> object can be another option.)</td>
         </tr>
       </tbody>
     </table>
