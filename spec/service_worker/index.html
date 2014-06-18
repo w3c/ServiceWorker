@@ -162,7 +162,7 @@
 
   <p>A <a href="#registration">registration</a> may have an associated <dfn id="installing-worker" title="Installing Worker">installing worker</dfn> when the <a href="#registration">registration</a> has entered and is running the steps in the <a href="#installation-process">installation process</a>. A <a href="#registration">registration</a> may have an an associated <dfn id="active-worker" title="Active Worker">active worker</dfn> when the <a href="#registration">registration</a> has entered (or may have completed) the <a href="#activation-process">activation process</a>.</p>
 
-  <p>A document is <dfn id="document-control">controlled</dfn> if an <a href="#active-worker">active worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-control">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents.</p>
+  <p>A document is <dfn id="document-control">controlled</dfn> if an <a href="#active-worker">active worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#document-control">controlled</a> by a single <a href="#service-worker">Service Worker</a> instance. That is, <a href="#service-worker">Service Workers</a> have a one-to-many relationship with <a href="#document-control">controlled</a> documents. When a document is <a href="#document-control">controlled</a> by a <a href="#service-worker">Service Worker</a>, it is considered the document is <dfn id="dfn-document-use">using</dfn> the <a href="#service-worker">Service Worker</a>'s associated <a href="#registration">registration</a>.</p>
 
   <p>The <dfn id="lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#lifecycle-events">lifecycle events</a> of the Service Worker.</p>
 
@@ -236,8 +236,8 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
     <p></p>
 <spec-idl>[Constructor] // no-op constructor
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
-  readonly attribute DOMString <a href="#service-worker-scope-attribute">scope</a>;
-  readonly attribute DOMString <a href="#service-worker-url-attribute">url</a>;
+  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-scope-attribute">scope</a>;
+  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-url-attribute">url</a>;
   readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
 
   // event
@@ -337,8 +337,8 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
   readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; <a href="#service-worker-container-getall-method">getAll</a>();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-register-method">register</a>(DOMString <var>url</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-container-unregister-method">unregister</a>(DOMString? <var>scope</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-container-unregister-method">unregister</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>? <var>scope</var>);
 
   // events
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onupdatefound-attribute">onupdatefound</a>;
@@ -348,7 +348,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptionList">RegistrationOptionList</dfn> {
-  DOMString scope = "/*";
+  <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> scope = "/*";
 };
 
 [Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
@@ -359,7 +359,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-installing">
     <h1><code>installing</code></h1>
 
-    <p><dfn id="service-worker-container-installing-attribute"><code>installing</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 7 of the <a href="#installation-algorithm">_Installation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
+    <p><dfn id="service-worker-container-installing-attribute"><code>installing</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#installing-worker">installing worker</a> that is currently undergoing the <dfn id="installation-process">installation process</dfn> (from step 1 to step 7 of the <a href="#installation-algorithm">[[Install]]</a> algorithm) for the given <a href="#url-scope">URL scope</a> in which the document may be <a href="#document-control">controlled</a> when the Service Worker becomes the <a href="#active-worker">active worker</a>. <code>navigator.serviceWorker.installing</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#installation-process">installation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-waiting">
@@ -371,13 +371,13 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-active">
     <h1><code>active</code></h1>
 
-    <p><dfn id="service-worker-container-active-attribute"><code>active</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing or completed the <dfn id="activation-process">activation process</dfn> (from step 4 to step 9 of the <a href="#activation-algorithm">_Activation algorithm</a>) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
+    <p><dfn id="service-worker-container-active-attribute"><code>active</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that is currently undergoing or completed the <dfn id="activation-process">activation process</dfn> (from step 4 to step 9 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm) for the given <a href="#url-scope">URL scope</a> in which the document is controlled (or to be controlled). <code>navigator.serviceWorker.active</code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#activation-process">activation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">_OnFetchRequest</a> algorithm) or the request is a force refresh (shift+refresh).</p>
+    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <a href="#service-worker-interface">ServiceWorker</a> object representing the <a href="#active-worker">active worker</a> that currently handles resource requests for the document. <code>navigator.serviceWorker.controller</code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm) or the request is a force refresh (shift+refresh).</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
     <h1><code>ready</code></h1>
@@ -389,7 +389,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
       <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> with document's url as its argument.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as its argument.</li>
           <li>If <var>registration</var> is null, then:
             <ol>
               <li>Wait for the document to have a matching <a href="#registration">registration</a>.</li>
@@ -421,14 +421,21 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <p><dfn id="service-worker-container-getall-method"><code>getAll()</code></dfn> method must return a promise that resolves with the array of the ServiceWorker objects in <code>installing</code>, <code>installed</code>, <code>activating</code> and <code>activated</code> states.<!-- FIXME(jungkees) state property should be defined. --></p>
   </spec-section>
   <spec-section id="navigator-service-worker-register">
-    <h1><code>register()</code></h1>
+    <h1><code>register(<var>scriptURL</var>, <var>options</var>)</code></h1>
 
-    <p><dfn id="service-worker-container-register-method"><code>register(<var>url</var>, <var>options</var>)</code></dfn> method must run the <a href="#registration-algorithm">Registration algorithm</a> passing <var>url</var> and <var>options</var>.<var>scope</var> as the arguments.</p>
+    <p>The <a href="#service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></a> method creates or updates a <a href="#registration">registration</a> for some amount of <a href="#url-scope">URL scope</a>. If successful, a <a href="#registration">registration</a> ties the provided <var>url</var> to a <a href="#url-scope">URL scope</a>, which is subsequently used for <a href="#scope-match-algorithm">navigation matching</a>.</p>
+
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#registration-algorithm">[[Register]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scriptURL</var> and <var>options</var>.<var>scope</var> as the argument.</p>
+
+    <spec-algorithm>
+
+    </spec-algorithm>
+
   </spec-section>
   <spec-section id="navigator-service-worker-unregister">
-    <h1><code>unregister()</code></h1>
+    <h1><code>unregister(<var>scope</var>)</code></h1>
 
-    <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> passing <var>scope</var> as the argument.</p>
+    <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must return the result of running the <a href="#unregistration-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</p>
   </spec-section>
 
   <spec-section id="service-worker-container-event-handlers">
@@ -501,12 +508,12 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
         <tr>
           <td><dfn id="service-worker-container-updatefound-event"><code>updatefound</code></dfn></td>
           <td><code><a href="http://dom.spec.whatwg.org/#event">Event</a></code></td>
-          <td>The document's associated <a href="#registration">registration</a> enters the <a href="#installation-process">installation process</a> such that <code>navigator.serviceWorker.installing</code> becomes the new <a href="#installing-worker">installing worker</a> (See step 4 of the <a href="#installation-algorithm">_Installation algorithm</a>).</td>
+          <td>The document's associated <a href="#registration">registration</a> enters the <a href="#installation-process">installation process</a> such that <code>navigator.serviceWorker.installing</code> becomes the new <a href="#installing-worker">installing worker</a> (See step 4 of the <a href="#installation-algorithm">[[Install]]</a> algorithm).</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td><code><a href="http://dom.spec.whatwg.org/#event">Event</a></code></td>
-          <td>The document's associated <a href="#registration">registration</a> enters the <a href="#activation-process">activation process</a>. (See step 7 of the <a href="#activation-algorithm">_Activation algorithm</a>. When the <a href="#activation-process">activation process</a> is triggered by <a href="#install-event-replace-method">replace</a>() method call within the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> of the <a href="#service-worker-global-scope-install-event">install event</a>, <code>navigator.serviceWorker.controller</code> immediately reflects the <a href="#active-worker">active worker</a> as the Service Worker that <a href="#document-control">controls</a> the document.)</td>
+          <td>The document's associated <a href="#registration">registration</a> enters the <a href="#activation-process">activation process</a>. (See step 7 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm. When the <a href="#activation-process">activation process</a> is triggered by <a href="#install-event-replace-method">replace</a>() method call within the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> of the <a href="#service-worker-global-scope-install-event">install event</a>, <code>navigator.serviceWorker.controller</code> immediately reflects the <a href="#active-worker">active worker</a> as the Service Worker that <a href="#document-control">controls</a> the document.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-reloadpage-event"><code>reloadpage</code></dfn></td>
@@ -570,7 +577,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute DOMString <a href="#service-worker-global-scope-caches-attribute">scope</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-global-scope-caches-attribute">scope</a>;
 
   // <a href="#service-worker-global-scope-fetch">fetch</a>(<var>input</var>, <var>init</var>) method is defined in <a href="http://fetch.spec.whatwg.org/">Fetch</a>
   // Promise&lt;Response&gt; fetch(RequestInfo input, optional RequestInit init);
@@ -616,12 +623,14 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-update">
       <h1><code>update()</code></h1>
 
-      <p><code>update()</code> pings the server for an updated version of this script without consulting caches. <dfn id="service-worker-global-scope-update-method"><code>update()</code></dfn> method must run these steps:</p>
+      <p><code>update()</code> pings the server for an updated version of this script without consulting caches.</p>
+      <p><dfn id="service-worker-global-scope-update-method"><code>update()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>Let <var>scope</var> be a string representing the <a href="#path-expression">path expression</a> of the <a href="#url-scope">URL scope</a> of the Service Worker.</li>
-        <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
-        <li>Invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+        <li>Let <var>workerGlobalScope</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a>.</li>
+        <li>Let <var>scope</var> be an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a>, <a href="http://url.spec.whatwg.org/#concept-host-serializer">serialized</a>, representing the <a href="#url-scope">URL scope</a> of the Service Worker associated with <var>workerGlobalScope</var>.</li>
+        <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>scope</var> as the argument.</li>
+        <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
       </ol>
       </spec-algorithm>
 
@@ -630,7 +639,15 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
 
-      <p><dfn id="service-worker-global-scope-unregister-mthod"><code>unregister()</code></dfn> method must run the <a href="#unregistration-algorithm">Unregistration algorithm</a> implicitly passing <code>self.scope</code> as the argument.</p>
+      <p><dfn id="service-worker-global-scope-unregister-mthod"><code>unregister()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>workerGlobalScope</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a>.</li>
+        <li>Let <var>scope</var> be a string representing the <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a> of the Service Worker associated with <var>workerGlobalScope</var>.</li>
+        <li>Invoke <a href="#unregistration-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="service-worker-global-scope-event-handlers">
@@ -881,7 +898,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-section id="respond-with-method">
       <h1><code>event.respondWith(r)</code></h1>
 
-      <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">_OnFetchRequest algorithm</a>.</p>
+      <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm.</p>
 
       <p>The <var>r</var> argument must resolve with a <a href="http://fetch.spec.whatwg.org/#response">Response</a>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <a href="http://fetch.spec.whatwg.org/#response">Response</a> whose <code>type</code> attribute is <code>"opaque"</code> (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <a href="http://fetch.spec.whatwg.org/#response">Response</a> body, not URLs.</p>
 
@@ -893,7 +910,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 
       <p>The invocation of <code>event.<a href="#fetch-event-default-method">default</a>()</code> method performs a <a href="http://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <code>event.request</code>. <code>event.request</code> represents the original request from the <a href="#document-control">controlled</a> document. During the execution, the original request is not altered (except the <a href="http://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>), and thus <code>event.<a href="#fetch-event-default-method">default</a>()</code> fetches the original request through the UA's HTTP stack. <code>event.<a href="#fetch-event-default-method">default</a>()</code> returns a Promise, which resolves with a <a href="http://fetch.spec.whatwg.org/#response">Response</a> object, that can be an argument to the <code>event.<a href="#fetch-event-respondwith-method">respondWith</a>(<var>r</var>)</code> method.</p>
 
-      <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps:</p>
+      <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
         <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
@@ -943,12 +960,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <tr>
           <td><dfn id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
           <td><code><a href="#install-event-interface">InstallEvent</a></code></td>
-          <td>[<a href="#lifecycle-events">Lifecycle event</a>] A <a href="#registration">registration</a>'s installing Service Worker enters the <a href="#installing-process">installation process</a>. (See step 3 of the <a href="#installation-algorithm">_Installation algorithm</a>.)</td>
+          <td>[<a href="#lifecycle-events">Lifecycle event</a>] A <a href="#registration">registration</a>'s installing Service Worker enters the <a href="#installing-process">installation process</a>. (See step 3 of the <a href="#installation-algorithm">[[Install]]</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
           <td><code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code></td>
-          <td>[<a href="#lifecycle-events">Lifecycle event</a>] A <a href="#registration">registration</a>'s activating Service Worker enters the <a href="#activation-process">activation process</a>. (See step 6 of the <a href="#activation-algorithm">_Activation algorithm</a>.)</td>
+          <td>[<a href="#lifecycle-events">Lifecycle event</a>] A <a href="#registration">registration</a>'s activating Service Worker enters the <a href="#activation-process">activation process</a>. (See step 6 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
@@ -1003,21 +1020,18 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 <spec-clause id="algorithms">
   <h1>Appendix A: Algorithms</h1>
 
-  <p class="note">Underscored functions and interfaces are UA-internal properties.</p>
+  <p class="note">The double square bracket notation (<strong>[[</strong><em>name of method</em> or <em>name of property</em><strong>]]</strong>) is used throughout the specification to indicate user agent's internal methods and internal properties.</p>
   <spec-algorithm>
-  <dfn id="service-worker-registration-internal-interface">_ServiceWorkerRegistration</dfn> represents a record of the internal map structure, <a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>, keyed by a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a>, <var>scope</var>, with the value of properties, <var>scriptUrl</var>, <var>installingWorker</var> associated with an <a href="#installing-worker">installing worker</a>, <var>waitingWorker</var> associated with a <a href="#worker-in-waiting">worker in wating</a>, <var>activeWorker</var> asscociated with an <a href="#active-worker">active worker</a>, and <var>updatePromise</var>. <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object captures the Service Worker <a href="#registration">registration</a>.
-  <dfn id="service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</dfn> represents an internal map structure that stores the entries of <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object.
+  <dfn id="service-worker-registration-internal-interface">[[Registration]]</dfn> represents a <a href="#registration">registration</a>. A <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object has <var>scope</var> associated with a <a href="#url-scope">URL scope</a>, <var>scriptURL</var>, <var>installingWorker</var> associated with an <a href="#installing-worker">installing worker</a>, <var>waitingWorker</var> associated with a <a href="#worker-in-waiting">worker in wating</a>, <var>activeWorker</var> asscociated with an <a href="#active-worker">active worker</a>, and <var>updatePromise</var>. <dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of a <var>scope</var> and <a href="#service-worker-registration-internal-interface">[[Registration]]</a> pair.
   </spec-algorithm>
 
   <spec-section id="registration-algorithm">
-    <h1>Registration</h1>
-
-    <p>The <a href="#registration-algorithm">Service Worker Registration Algorithm</a> creates or updates a <a href="#registration-internal-interface">registration</a> for some amount of <a href="#url-scope">URL scope</a>. If successful, a registration ties the provided <code>scriptUrl</code> to an <a href="http://goo.gl/56C6hc">origin</a> + <code>scope</code> pair which is subsequently consulted by the user for <a href="#scope-match-algorithm">navigation matching</a>.</p>
+    <h1>[[Register]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scriptUrl</var>, the URL of the script to register; a string</dd>
+        <dd><var>scriptURL</var>, the URL of the script to register; a string</dd>
         <dd><var>scope</var>, a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
@@ -1027,44 +1041,44 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
-          <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with the document's <a href="http://url.spec.whatwg.org/#concept-base-url">base URL</a>.</li>
+          <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>options</var>.<var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Let <var>scope</var> be <var>scope</var> with the fragment part, "<code>#</code>" concatenated with <var>scope</var>'s <a href="http://goo.gl/ld1M50">fragment</a>, removed, if any.</li>
-          <li>Let <var>scriptUrl</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptUrl</var> with the document's <a href="http://url.spec.whatwg.org/#concept-base-url">base URL</a>.</li>
-          <li>If the scheme of the document URL is not <code>https</code>, then: <small>// Browsers may ignore this rule for development purposes only.</small>
+          <li>Let <var>scriptURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
+          <li>If the <a href="http://url.spec.whatwg.org/#concept-url-scheme">scheme</a> of <var>scriptURL</var> is not "<code>https</code>", then: <small>// Browsers may ignore this rule for development purposes only.</small>
             <ol>
-              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>If the origin of <var>scriptUrl</var> does not match the document's origin, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scriptURL</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>If the origin of <var>scope</var> does not match the document's origin, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Let <var>serviceWorkerRegistration</var> be the result of running the <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
+          <li>Let <var>registration</var> be the result of running the <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>scope</var> as the argument.</li>
 
-          <li>If <var>serviceWorkerRegistration</var> is not null, then:
+          <li>If <var>registration</var> is not null, then:
             <ol>
-              <li>Set <var>serviceWorkerRegistration.uninstalling</var> to false.</li>
-              <li>If <var>scriptUrl</var> is equal to <var>serviceWorkerRegistration.scriptUrl</var>, then:
+              <li>Set <var>registration.uninstalling</var> to false.</li>
+              <li>If <var>scriptURL</var> is equal to <var>registration.scriptURL</var>, then:
                 <ol>
-                  <li>If <var>serviceWorkerRegistration.updatePromise</var> is not null, then:
+                  <li>If <var>registration.updatePromise</var> is not null, then:
                     <ol>
-                      <li>Resolve <var>promise</var> with <var>serviceWorkerRegistration.updatePromise</var>.</li>
+                      <li>Resolve <var>promise</var> with <var>registration.updatePromise</var>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-                  <li>If newestWorker is not null, then:
+                  <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">[[GetNewestWorker]]</a> algorithm passing <var>registration</var> as the argument.</li>
+                  <li>If <var>newestWorker</var> is not null, then:
                     <ol>
-                      <li>Resolve promise with <var>newestWorker</var>.</li>
+                      <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
@@ -1072,16 +1086,16 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               </li>
             </ol>
           </li>
-          <li>If <var>serviceWorkerRegistration</var> is null, then:
+          <li>Else:
             <ol>
-              <li>Let <var>serviceWorkerRegistration</var> be a newly-created <a href="#registration-internal-interface">_ServiceWorkerRegistration</a> object.</li>
-              <li>Set <var>serviceWorkerRegistration</var> to the value of key <var>scope</var> in <a href="#scope-to-service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>scope</var> to <var>scope</var>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>uninstalling</var> to false.</li>
+              <li>Let <var>registration</var> be a newly-created <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object.</li>
+              <li>Set a newly-created entry of <var>scope</var> and <var>registration</var> pair to <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
+              <li>Set <var>registration</var>.<var>scope</var> to <var>scope</var>.</li>
+              <li>Set <var>registration</var>.<var>uninstalling</var> to false.</li>
             </ol>
           </li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> to <var>scriptUrl</var>.</li>
-          <li>Resolve <var>promise</var> with the result of running the <a href="#update-algorithm">_Update algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+          <li>Set <var>registration</var>.<var>scriptURL</var> to <var>scriptURL</var>.</li>
+          <li>Resolve <var>promise</var> with the result of running the <a href="#update-algorithm">[[Update]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
         </ol>
       </li>
     </ol>
@@ -1089,9 +1103,9 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="update-algorithm">
-    <h1>_Update</h1>
+    <h1>[[Update]]</h1>
 
-    <p>The <a href="#update-algorithm">Service Worker _Update Algorithm</a>, run by the user agent, upgrades an <a href="#active-worker">active worker</a> to a new version for the same <a href="#url-scope">URL scope</a>. If successful, the newly installed Service Worker becomes the <a href="#worker-in-waiting">worker in waiting</a> which later becomes the <a href="#active-worker">active worker</a> as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
+    <p>The <a href="#update-algorithm">[[Update]]</a> algorithm, run by the user agent, upgrades an <a href="#active-worker">active worker</a> to a new version for the same <a href="#url-scope">URL scope</a>. If successful, the newly installed Service Worker becomes the <a href="#worker-in-waiting">worker in waiting</a> which later becomes the <a href="#active-worker">active worker</a> as soon as all the documents served by the previous Service Worker are closed. When scheduling a fetch of a new version, the user agent should honor the HTTP cache headers with the upper limit of 24 hours:</p>
 
   <!--
   #FIXME: (Checkpoint) This is a platform implmentation not exposing APIs to userland. As such, Promise is not used for its output.
@@ -1099,57 +1113,57 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
     </dl>
     <ol>
-      <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+      <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
         <ol>
-          <li>Reject <var>serviceWorkerRegistration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
-          <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
+          <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
+          <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
+      <li>If <var>registration</var>.<var>installingWorker</var> is not null, then:
         <ol>
-          <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
-          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
-          <li>The user agent may abort any in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+          <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installingWorker</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
+          <li>The user agent may abort any in-flight requests triggered by <var>registration</var>.<var>installingWorker</var>.</li>
         </ol>
       </li>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
+      <li>Set <var>registration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
       <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
-          <li>Perform a fetch of <var>serviceWorkerRegistration</var>.<var>scriptUrl</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
+          <li>Perform a fetch of <var>registration</var>.<var>scriptURL</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
           <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
             <ol>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>Else if fetching the script fails due to the server returning a 4xx response or a 5xx response, or there is a DNS error, or the connection times out, then:
             <ol>
               <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>Else if the server returned a redirect, then:
             <ol>
               <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>Let <var>fetchedScript</var> be the fetched script.</li>
-          <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">_GetNewestWorker algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
-          <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>.<var>url</var> is equal to <var>serviceWorkerRegistration</var>.<var>scriptUrl</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
+          <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">[[GetNewestWorker]]</a> algorithm passing <var>registration</var> as the argument.</li>
+          <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>.<var>url</var> is equal to <var>registration</var>.<var>scriptURL</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
             <ol>
               <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+              <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -1158,20 +1172,20 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               <li>Let <var>serviceWorker</var> be a newly-created <a href="#service-worker-interface">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
               <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
                 <ol>
-                  <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+                  <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
               <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
                 <ol>
                   <li>Reject <var>promise</var> with the error.</li>
-                  <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
+                  <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
               <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>updatePromise</var> to null.</li>
-              <li>Invoke <a href="#installation-algorithm">_Installation algorithm</a> with <var>serviceWorkerRegistration</var> and <var>serviceWorker</var> as its arguments.</li>
+              <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
+              <li>Invoke <a href="#installation-algorithm">[[Install]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> and <var>serviceWorker</var> as its arguments.</li>
             </ol>
           </li>
         </ol>
@@ -1181,60 +1195,60 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="soft-update-algorithm">
-    <h1>_SoftUpdate</h1>
+    <h1>[[SoftUpdate]]</h1>
 
-    <p>The browser may call this as often as it likes to check for updates.</p>
+    <p>The user agent may call this as often as it likes to check for updates.</p>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>If <var>serviceWorkerRegistration</var>.<var>uninstalling</var> is true, then:
+      <li>If <var>registration</var>.<var>uninstalling</var> is true, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+      <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
+      <li>If <var>registration</var>.<var>installingWorker</var> is not null, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Invoke <a href="#update-algorithm">_Update algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+      <li>Invoke <a href="#update-algorithm">[[Update]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
     </ol>
     </spec-algorithm>
-    <P class="issue">Issue: Inspect whether the <var>promise</var> returned from <a href="#update-algorithm">_Update algorithm</a> should be returned to the caller (either UA internal context or <code>self.update()</code>).</P>
+    <P class="issue">Issue: Inspect whether the <var>promise</var> returned from <a href="#update-algorithm">[[Update]]</a> algorithm should be returned to the caller (either UA internal context or <code>self.update()</code>).</P>
   </spec-section>
 
   <spec-section id="installation-algorithm">
-    <h1>_Installation</h1>
+    <h1>[[Install]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to <var>serviceWorker</var>.</li>
-      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
+      <li>Set <var>registration</var>.<var>installingWorker</var> to <var>serviceWorker</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>serviceWorkerRegistration</var>.<var>scope</var>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>registration</var>.<var>scope</var>.</li>
       <li>If any uncaught runtime script error occurs in the event handlers, then:
         <ol>
           <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
@@ -1243,35 +1257,35 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Extend this process until the associated promises settle.</li>
           <li>If the resulting promise rejects, then:
             <ol>
-              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
+              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
+              <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
+      <li>If <var>registration</var>.<var>waitingWorker</var> is not null, then:
         <ol>
-          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration.waitingWorker</var> to <var>serviceWorkerRegistration.installingWorker</var>.</li>
-      <li>Set <var>serviceWorkerRegistration.installingWorker</var> to null.</li>
-      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>installed</code> as the arguments.</li>
+      <li>Set <var>registration.waitingWorker</var> to <var>registration.installingWorker</var>.</li>
+      <li>Set <var>registration.installingWorker</var> to null.</li>
+      <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>waitingWorker</var> and <code>installed</code> as the arguments.</li>
       <li>If any handler called <code>replace()</code>, then:
         <ol>
-          <li>For each document matching <var>serviceWorkerRegistration</var>.<var>scope</var>:
+          <li>For each document matching <var>registration</var>.<var>scope</var>:
             <ol>
-              <li>Set <var>serviceWorkerRegistration</var> as the document's Service Worker <a href="#registration">registration</a>.</li>
+              <li>Set <var>registration</var> as the document's Service Worker <a href="#registration">registration</a>.</li>
             </ol>
           </li>
-          <li>Run <a href="#activation-algorithm">_Activation algorithm</a> passing <var>serviceWorkerRegistration</var> as the argument.</li>
+          <li>Run <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If no document is using <var>serviceWorkerRegistration</var> as their Service Worker <a href="#registration">registration</a>, then:
+      <li>If no document is using <var>registration</var> as their Service Worker <a href="#registration">registration</a>, then:
         <ol>
-          <li>Invoke <a href="#activation-algorithm">_Activation algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+          <li>Invoke <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
         </ol>
       </li>
     </ol>
@@ -1279,36 +1293,36 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="activation-algorithm">
-    <h1>_Activation</h1>
+    <h1>[[Activate]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>activatingWorker</var> be <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
-      <li>Let <var>exitingWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      <li>Let <var>activatingWorker</var> be <var>registration</var>.<var>waitingWorker</var>.</li>
+      <li>Let <var>exitingWorker</var> be <var>registration</var>.<var>activeWorker</var>.</li>
       <li>If <var>exitingWorker</var> is not null, then:
         <ol>
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
           </li>
           <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>exitingWorker</var>.</li>
-          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>exitingWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>exitingWorker</var> and <code>redundant</code> as the arguments.</li>
         </ol>
       </li>
-      <li>Set <var>serviceWorkerRegistration.activeWorker</var> to <var>activatingWorker</var>.</li>
-      <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
-      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+      <li>Set <var>registration.activeWorker</var> to <var>activatingWorker</var>.</li>
+      <li>Set <var>registration</var>.<var>waitingWorker</var> to null.</li>
+      <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any uncaught runtime script error occurs in the event handlers, then:
         <ol>
           <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>redundant</code> as the arguments.</li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>activeWorker</var> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and <code>redundant</code> as the arguments.</li>
+          <li>Set <var>registration</var>.<var>activeWorker</var> to null.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
@@ -1317,15 +1331,15 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Extend this process until the associated promises settle.</li>
         </ol>
       </li>
-      <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>activeWorker</var> and <code>activated</code> as the arguments.</li>
+      <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and <code>activated</code> as the arguments.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
 
   <spec-section id="on-fetch-request-algorithm">
-    <h1>_OnFetchRequest</h1>
+    <h1>[[HandleFetch]]</h1>
 
-    <p>The <a href="on-fetch-request-algorithm">_OnFetchRequest algorithm</a> is the entry point for the <a href="http://goo.gl/fGMifs">fetch</a> handling handed to the Service Worker context. The invocation of <dfn id="handle-a-fetch" title="Handle a fetch">handle a fetch</dfn> with <var>request</var> must act as if the caller immediately invoked <a href="on-fetch-request-algorithm">_OnFetchRequest algorithm</a> with <var>request</var>.</p>
+    <p>The <a href="on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm is the entry point for the <a href="http://goo.gl/fGMifs">fetch</a> handling handed to the Service Worker context. The invocation of <dfn id="handle-a-fetch" title="Handle a fetch">handle a fetch</dfn> with <var>request</var> must act as if the caller immediately invoked <a href="on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm with <var>request</var>.</p>
 
     <spec-algorithm>
     <dl>
@@ -1343,20 +1357,20 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
-          <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#scope-match-algorithm">_ScopeMatch algorithm</a> passing <var>parsedUrl</var> as the argument.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>parsedUrl</var> as the argument.</li>
         </ol>
       </li>
       <li>Else,
         <ol>
-          <li>Let <var>serviceWorkerRegistration</var> be the Service Worker <a href="#registration">registration</a> used by this document.</li>
+          <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> used by this document.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
+      <li>If <var>registration</var> is null, then:
         <ol>
           <li>Return null.</li>
         </ol>
       </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+      <li>Let <var>matchedServiceWorker</var> be <var>registration</var>.<var>activeWorker</var>.</li>
       <li>If <var>matchedServiceWorker</var> is null, then:
         <ol>
           <li>Return null.</li>
@@ -1364,7 +1378,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>If <var>request.context</var> is <code>"navigate"</code>, then:
         <ol>
-          <li>Document will now use <var>serviceWorkerRegistration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+          <li>Document will now use <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
         </ol>
       </li>
       <li>If <var>matchedServiceWorker</var>.<var>state</var> is <code>activating</code>, then:
@@ -1383,7 +1397,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return null and run the following steps asynchronously.</li>
           <li>If <var>request.context</var> is <code>"navigate"</code>, then:
             <ol>
-              <li>Invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with <var>serviceWorkerRegistration</var> as its argument.</li>
+              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
             </ol>
           </li>
           <li>Abort these steps.</li>
@@ -1406,7 +1420,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following steps asynchronously.</li>
           <li>If <code>event.context</code> is <code>"navigate"</code>, then:
             <ol>
-              <li>Invoke <a href="#soft-update-algorithm">_SoftUpdate algorithm</a> with the <a href="#registration">registration</a> of the Service Worker represented by <code>self</code> object as the argument.</li>
+              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with the <a href="#registration">registration</a> of the Service Worker represented by <code>self</code> object as the argument.</li>
             </ol>
           </li>
           <li>Abort these steps.</li>
@@ -1418,42 +1432,42 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="on-document-unload-algorithm">
-    <h1>_OnDocumentUnload</h1>
+    <h1>[[HandleDocumentUnload]]</h1>
 
     <spec-algorithm>
     <dl>
     <dt>Input</dt>
-        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">_ServiceWorkerReistration</a> object as its Service Worker <a href="#registration">registration</a>; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
+        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">[[Reistration]]</a> object as its Service Worker <a href="#registration">registration</a>; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>serviceWorkerRegistration</var> be the Service Worker <a href="#registration">registration</a> used by <var>document</var>.</li>
-      <li>If <var>serviceWorkerRegistration</var> is null, then:
+      <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> used by <var>document</var>.</li>
+      <li>If <var>registration</var> is null, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If any other document is using <var>serviceWorkerRegistration</var> as their Service Worker <a href="#registration">registration</a>, then:
+      <li>If any other document is using <var>registration</var> as their Service Worker <a href="#registration">registration</a>, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If serviceWorkerRegistration.uninstalling is true, then:
+      <li>If registration.uninstalling is true, then:
         <ol>
-          <li>Delete <var>serviceWorkerRegistration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a></var>.</li>
+          <li>Delete <var>registration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var>.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration.updatePromise</var> is null and <var>serviceWorkerRegistration.installingWorker</var> is null and <var>serviceWorkerRegistration.waitingWorker</var> is null and <var>serviceWorkerRegistration.activeWorker</var> is null, then:
+      <li>If <var>registration.updatePromise</var> is null and <var>registration.installingWorker</var> is null and <var>registration.waitingWorker</var> is null and <var>registration.activeWorker</var> is null, then:
         <ol>
-          <li>Delete <var>serviceWorkerRegistration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a></var>.</li>
+          <li>Delete <var>registration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var>.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null:
+      <li>If <var>registration</var>.<var>waitingWorker</var> is not null:
         <ol>
-          <li>Run <a href="#activation-algorithm">_Activatation algorithm</a> with <var>serviceWorkerRegistration</var> at the argument.</li>
+          <li>Run <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> at the argument.</li>
         </ol>
       </li>
     </ol>
@@ -1461,7 +1475,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="unregistration-algorithm">
-    <h1>Unregistration</h1>
+    <h1>[[Unregister]]</h1>
 
     <spec-algorithm>
     <dl>
@@ -1475,46 +1489,46 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
-          <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with the document's <a href="http://url.spec.whatwg.org/#concept-base-url">base URL</a>.</li>
+          <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Let <var>scope</var> be <var>scope</var> with the fragment part, "<code>#</code>" concatenated with <var>scope</var>'s <a href="http://goo.gl/ld1M50">fragment</a>, removed, if any.</li>
-          <li>If the origin of <var>scope</var> does not match the document's origin, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>scope</var> as the argument.</li>
-          <li>If <var>serviceWorkerRegistration</var> is null, then:
+          <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>scope</var> as the argument.</li>
+          <li>If <var>registration</var> is null, then:
             <ol>
               <li>Resolve <var>promise</var>.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Set <var>serviceWorkerRegistration</var>.<var>uninstalling</var> to true.</li>
-          <li>If <var>serviceWorkerRegistration</var>.<var>updatePromise</var> is not null, then:
+          <li>Set <var>registration</var>.<var>uninstalling</var> to true.</li>
+          <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
             <ol>
-              <li>Reject <var>serviceWorkerRegistration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
-              <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>serviceWorkerRegistration</var>.<var>updatePromise</var>.</li>
+              <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>.</li>
+              <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
             </ol>
           </li>
-          <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
+          <li>If <var>registration</var>.<var>installingWorker</var> is not null, then:
             <ol>
-              <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
-              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>installingWorker</var> to null.</li>
-              <li>The user agent may abort in-flight requests triggered by <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+              <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installingWorker</var>.</li>
+              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>redundant</code> as the arguments.</li>
+              <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
+              <li>The user agent may abort in-flight requests triggered by <var>registration</var>.<var>installingWorker</var>.</li>
             </ol>
           </li>
-          <li>If <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
+          <li>If <var>registration</var>.<var>waitingWorker</var> is not null, then:
             <ol>
-              <li>Run the <a href="#update-state-algorithm">_UpdateState algorithm</a> passing <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
-              <li>Set <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> to null.</li>
+              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>waitingWorker</var> and <code>redundant</code> as the arguments.</li>
+              <li>Set <var>registration</var>.<var>waitingWorker</var> to null.</li>
             </ol>
           </li>
           <li>Resolve <var>promise</var>.</li>
-          <li>If no document is using <var>serviceWorkerRegistration</var> as their Service Worker <a href="#registration">registration</a>, then:
+          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#registration">registration</a>, then:
             <ol>
-              <li>Delete <var>scope</var> from <var><a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a></var></li>
+              <li>Delete the entry keyed by <var>scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var></li>
             </ol>
           </li>
         </ol>
@@ -1524,7 +1538,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="update-state-algorithm">
-    <h1>_UpdateState</h1>
+    <h1>[[UpdateState]]</h1>
 
     <spec-algorithm>
     <dl>
@@ -1542,71 +1556,71 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   </spec-section>
 
   <spec-section id="scope-match-algorithm">
-    <h1>_ScopeMatch</h1>
+    <h1>[[MatchScope]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
         <dd><var>url</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the longest key in <a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a> that glob-matches <var>url</var>.</li>
-      <li>Let <var>serviceWorkerRegistration</var> be the result of running <a href="#get-registration-algorithm">_GetRegistration algorithm</a> passing <var>matchingScope</var> as the argument.</li>
-      <li>If <var>serviceWorkerRegistration</var> is not null and <var>serviceWorkerRegistration</var>.<var>uninstalling</var> is true, then:
+      <li>Let <var>matchingScope</var> be the longest key in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>url</var>.</li>
+      <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>matchingScope</var> as the argument.</li>
+      <li>If <var>registration</var> is not null and <var>registration</var>.<var>uninstalling</var> is true, then:
         <ol>
           <li>Return null.</li>
         </ol>
       </li>
-      <li>Return <var>serviceWorkerRegistration</var>.</li>
+      <li>Return <var>registration</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
 
   <spec-section id="get-registration-algorithm">
-    <h1>_GetRegistration</h1>
+    <h1>[[GetRegistration]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
         <dd><var>scope</var>, a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
     <ol>
-      <li>If there is no record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>, then return null.</li>
-      <li>Let <var>serviceWorkerRegistration</var> be the record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">_ScopeToServiceWorkerRegistrationMap</a>.</li>
-      <li>Return <var>serviceWorkerRegistration</var>.</li>
+      <li>If there is no record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>, then return null.</li>
+      <li>Let <var>registration</var> be the record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
+      <li>Return <var>registration</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
 
   <spec-section id="get-newest-worker-algorithm">
-    <h1>_GetNewestWorker</h1>
+    <h1>[[GetNewestWorker]]</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorkerRegistration</var>, a <a href="#service-worker-registration-internal-interface">_ServiceWorkerRegistration</a> object</dd>
+        <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
         <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>newestWorker</var> be null.</li>
-      <li>If <var>serviceWorkerRegistration</var>.<var>installingWorker</var> is not null, then:
+      <li>If <var>registration</var>.<var>installingWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>installingWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>registration</var>.<var>installingWorker</var>.</li>
         </ol>
       </li>
-      <li>Else if <var>serviceWorkerRegistration</var>.<var>waitingWorker</var> is not null, then:
+      <li>Else if <var>registration</var>.<var>waitingWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>waitingWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>registration</var>.<var>waitingWorker</var>.</li>
         </ol>
       </li>
-      <li>Else if <var>serviceWorkerRegistration</var>.<var>activeWorker</var> is not null, then:
+      <li>Else if <var>registration</var>.<var>activeWorker</var> is not null, then:
         <ol>
-          <li>Set <var>newestWorker</var> to <var>serviceWorkerRegistration</var>.<var>activeWorker</var>.</li>
+          <li>Set <var>newestWorker</var> to <var>registration</var>.<var>activeWorker</var>.</li>
         </ol>
       </li>
       <li>Return <var>newestWorker</var>.</li>
