@@ -1120,8 +1120,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <ol>
       <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
         <ol>
-          <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code>AbortError</code>.</li>
-          <li>The browser may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
+          <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>.</li>
+          <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
         </ol>
       </li>
       <li>If <var>registration</var>.<var>installingWorker</var> is not null, then:
@@ -1146,14 +1146,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
           <li>Else if fetching the script fails due to the server returning a 4xx response or a 5xx response, or there is a DNS error, or the connection times out, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>NetworkError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>.</li>
               <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>Else if the server returned a redirect, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code>SecurityError</code>.</li>
+              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
               <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
@@ -1316,7 +1316,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>registration.activeWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>registration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and <code>activating</code> as the arguments.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have used <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have <a href="#dfn-document-use">used</a> <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <a href="#service-worker-global-scope-interface"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li>If any uncaught runtime script error occurs in the event handlers, then:
         <ol>
@@ -1362,7 +1362,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>Else,
         <ol>
-          <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> used by this document.</li>
+          <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> <a href="#dfn-document-use">used</a> by this document.</li>
         </ol>
       </li>
       <li>If <var>registration</var> is null, then:
@@ -1378,7 +1378,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>If <var>request.context</var> is <code>"navigate"</code>, then:
         <ol>
-          <li>Document will now use <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
+          <li>Document will now <a href="#dfn-document-use">use</a> <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
         </ol>
       </li>
       <li>If <var>matchedServiceWorker</var>.<var>state</var> is <code>activating</code>, then:
@@ -1442,7 +1442,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> used by <var>document</var>.</li>
+      <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> <a href="#dfn-document-use">used</a> by <var>document</var>.</li>
       <li>If <var>registration</var> is null, then:
         <ol>
           <li>Abort these steps.</li>
