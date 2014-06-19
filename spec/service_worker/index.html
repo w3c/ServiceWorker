@@ -237,7 +237,7 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
 <spec-idl>[Constructor] // no-op constructor
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
   readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-scope-attribute">scope</a>;
-  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-url-attribute">url</a>;
+  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-url-attribute">scriptURL</a>;
   readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
 
   // event
@@ -257,7 +257,17 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
     <spec-section id="service-worker-scope">
       <h1><code>scope</code></h1>
 
-      <p>The <code>scope</code> of a <code>ServiceWorker</code> object reflects the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>. The <dfn id="service-worker-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#url-scope">URL scope</a> of the associated Service Worker <a href="#registration">registration</a>.</p>
+      <p>The <code><a href="#service-worker-scope-attribute">scope</a></code> of a <code><a href="#service-worker-interface">ServiceWorker</a></code> object reflects the <a href="#url-scope">URL scope</a> of the associated <a href="#service-worker">Service Worker</a>'s <a href="#registration">registration</a>.</p>
+
+      <p>The <dfn id="service-worker-scope-attribute"><code>scope</code></dfn> attribute must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>scope</var> be the URL representing the <a href="#url-scope">URL scope</a> of the associated <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object.</li>
+        <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> with <var>scope</var>.</li>
+        <li>Return <var>scope</var>.</li>
+      </ol>
+      </spec-algorithm>
 
       <p>For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-fetch-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
@@ -268,17 +278,29 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
     </spec-section>
 
     <spec-section id="service-worker-url">
-      <h1><code>url</code></h1>
+      <h1><code>scriptURL</code></h1>
 
-      <p>The <dfn id="service-worker-url-attribute"><code>url</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL of the script of the Service Worker, identified by its <a href="#url-scope">URL scope</a>, that is associated with the <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code>url</code> attribute is always an <a href="http://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a> corresponding to the script file which the Service Worker evaluates.</p>
+      <p>The <code><a href="#service-worker-url-attribute">scriptURL</a></code> of a <code><a href="#service-worker-interface">ServiceWorker</a></code> object reflects the script's URL of the associated <a href="#service-worker">Service Worker</a>.</p>
 
-      <p>In the example in section 3.1.1, the value of <code>navigator.serviceWorker.controller.url</code> will be <code>"https://example.com/service_worker.js"</code>.</p>
+      <p>The <dfn id="service-worker-url-attribute"><code>scriptURL</code></dfn> attribute must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>scriptURL</var> be the URL of the script of the <a href="#service-worker">Service Worker</a> identifed by its <a href="#url-scope">URL scope</a>.</li>
+        <li>Set <var>scriptURL</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> with <var>scriptURL</var>.</li>
+        <li>Return <var>scriptURL</var>.</li>
+      </ol>
+      </spec-algorithm>
+
+      <p>In the example in section 3.1.1, the value of <code>navigator.serviceWorker.controller.scriptURL</code> will be <code>"https://example.com/service_worker.js"</code>.</p>
     </spec-section>
 
     <spec-section id="service-worker-state">
       <h1><code>state</code></h1>
 
-      <p>The <a href="#service-worker-interface">ServiceWorker</a> object can be in several states. The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration:</p>
+      <p>A <a href="#service-worker-interface">ServiceWorker</a> object can be in several states.</p>
+
+      <p>The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration:</p>
 
       <dl>
         <dt><code>"installing"</code></dt>
@@ -1022,7 +1044,9 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 
   <p class="note">The double square bracket notation (<strong>[[</strong><em>name of method</em> or <em>name of property</em><strong>]]</strong>) is used throughout the specification to indicate user agent's internal methods and internal properties.</p>
   <spec-algorithm>
-  <dfn id="service-worker-registration-internal-interface">[[Registration]]</dfn> represents a <a href="#registration">registration</a>. A <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object has <var>scope</var> associated with a <a href="#url-scope">URL scope</a>, <var>scriptURL</var>, <var>installingWorker</var> associated with an <a href="#installing-worker">installing worker</a>, <var>waitingWorker</var> associated with a <a href="#worker-in-waiting">worker in wating</a>, <var>activeWorker</var> asscociated with an <a href="#active-worker">active worker</a>, and <var>updatePromise</var>. <dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of a <var>scope</var> and <a href="#service-worker-registration-internal-interface">[[Registration]]</a> pair.
+  <p><dfn id="service-worker-registration-internal-interface">[[Registration]]</dfn> represents a <a href="#registration">registration</a>. A <a href="#service-worker-registration-internal-interface">[[Registration]]</a> has <var>scope</var>, a URL representing a <a href="#url-scope">URL scope</a>, <var>scriptURL</var>, a URL of the script, <var>installingWorker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object representing a <a href="#installing-worker">installing worker</a>, <var>waitingWorker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object representing a <a href="#worker-in-waiting">worker in wating</a>, <var>activeWorker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object representing an <a href="#active-worker">active worker</a>, and <var>updatePromise</var>.</p>
+
+  <p><dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of a <var>scope</var> and <a href="#service-worker-registration-internal-interface">[[Registration]]</a> pair.</p>
   </spec-algorithm>
 
   <spec-section id="registration-algorithm">
@@ -1031,10 +1055,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scriptURL</var>, the URL of the script to register; a string</dd>
-        <dd><var>scope</var>, a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scriptURL</var>, a URL of the script</dd>
+        <dd><var>scope</var>, a URL representing a <a href="#path-expression">path expression</a> or a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
@@ -1115,7 +1139,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <dt>Input</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
     <ol>
       <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
@@ -1169,23 +1193,23 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
           <li>Else,
             <ol>
-              <li>Let <var>serviceWorker</var> be a newly-created <a href="#service-worker-interface">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
+              <li>Let <var>worker</var> be a newly-created <a href="#service-worker-interface">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
               <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
                 <ol>
                   <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>If <var>serviceWorker</var> fails to start up, due to parse errors or uncaught errors, then:
+              <li>If <var>worker</var> fails to start up, due to parse errors or uncaught errors, then:
                 <ol>
                   <li>Reject <var>promise</var> with the error.</li>
                   <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Resolve <var>promise</var> with <var>serviceWorker</var>.</li>
+              <li>Resolve <var>promise</var> with <var>worker</var>.</li>
               <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
-              <li>Invoke <a href="#installation-algorithm">[[Install]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> and <var>serviceWorker</var> as its arguments.</li>
+              <li>Invoke <a href="#installation-algorithm">[[Install]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> and <var>worker</var> as its arguments.</li>
             </ol>
           </li>
         </ol>
@@ -1235,12 +1259,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <dl>
       <dt>Input</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
+        <dd><var>worker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Set <var>registration</var>.<var>installingWorker</var> to <var>serviceWorker</var>.</li>
+      <li>Set <var>registration</var>.<var>installingWorker</var> to <var>worker</var>.</li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and <code>installing</code> as the arguments.</li>
       <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <a href="#service-worker-global-scope"><code>ServiceWorkerGlobalScope</code></a> object.</li>
       <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code>navigator.serviceWorker</code> for all documents which match <var>registration</var>.<var>scope</var>.</li>
@@ -1339,30 +1363,31 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   <spec-section id="on-fetch-request-algorithm">
     <h1>[[HandleFetch]]</h1>
 
-    <p>The <a href="on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm is the entry point for the <a href="http://goo.gl/fGMifs">fetch</a> handling handed to the Service Worker context. The invocation of <dfn id="handle-a-fetch" title="Handle a fetch">handle a fetch</dfn> with <var>request</var> must act as if the caller immediately invoked <a href="on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm with <var>request</var>.</p>
+    <p>The <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm is the entry point for the <a href="http://goo.gl/fGMifs">fetch</a> handling handed to the Service Worker context. The invocation of <dfn id="handle-a-fetch" title="Handle a fetch">handle a fetch</dfn> with <var>request</var> must act as if the caller immediately invoked <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm with <var>request</var>.</p>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>request</var>, the object representing the request of fetching a resource; a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object</dd>
+        <dd><var>request</var>, a <a href="http://fetch.spec.whatwg.org/#concept-request-request">request</a></dd>
       <dt>Output</dt>
-        <dd>None</dd>
+        <dd><var>response</var>, a <a href="http://fetch.spec.whatwg.org/#concept-response-response">response</a></dd>
     </dl>
     <ol>
+      <li>Let <var>request</var> be a new <a href="http://fetch.spec.whatwg.org/#request">Request</a> object associated with <var>request</var>.</li>
       <li>If <var>request.context</var> is <code>"navigate"</code>, then:
         <ol>
-          <li>If <var>request</var> is a force-refresh (shift+refresh), then:
+          <li>If <var>request</var> is triggered by a force-refresh (shift+refresh), then:
             <ol>
               <li>Return null.</li>
             </ol>
           </li>
-          <li>Let <var>parsedUrl</var> be the result of parsing <var>request</var>.<var>url</var>.</li>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>parsedUrl</var> as the argument.</li>
+          <li>Let <var>parsedURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>request</var>.<var>url</var>.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>parsedURL</var> as the argument.</li>
         </ol>
       </li>
       <li>Else,
         <ol>
-          <li>Let <var>registration</var> be the Service Worker <a href="#registration">registration</a> <a href="#dfn-document-use">used</a> by this document.</li>
+          <li>Let <var>registration</var> be the <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object associated with the <a href="#registration">registration</a> <a href="#dfn-document-use">used</a> by the document.</li>
         </ol>
       </li>
       <li>If <var>registration</var> is null, then:
@@ -1370,8 +1395,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return null.</li>
         </ol>
       </li>
-      <li>Let <var>matchedServiceWorker</var> be <var>registration</var>.<var>activeWorker</var>.</li>
-      <li>If <var>matchedServiceWorker</var> is null, then:
+      <li>Let <var>matchedWorker</var> be <var>registration</var>.<var>activeWorker</var>.</li>
+      <li>If <var>matchedWorker</var> is null, then:
         <ol>
           <li>Return null.</li>
         </ol>
@@ -1381,10 +1406,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Document will now <a href="#dfn-document-use">use</a> <var>registration</var> as its Service Worker <a href="#registration">registration</a>.</li>
         </ol>
       </li>
-      <li>If <var>matchedServiceWorker</var>.<var>state</var> is <code>activating</code>, then:
+      <li>If <var>matchedWorker</var>.<var>state</var> is <code>activating</code>, then:
         <ol>
-          <li>Wait for <var>matchedServiceWorker</var>.<var>state</var> to become <code>activated</code>.</li>
-          <li>If <var>matchedServiceWorker</var>'s activation fails, then:
+          <li>Wait for <var>matchedWorker</var>.<var>state</var> to become <code>activated</code>.</li>
+          <li>If <var>matchedWorker</var>'s activation fails, then:
             <ol>
               <li>Return null.</li>
             </ol>
@@ -1437,7 +1462,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
     <dt>Input</dt>
-        <dd><var>document</var>, the document using the given <a href="#registration-internal-interface">[[Reistration]]</a> object as its Service Worker <a href="#registration">registration</a>; a <a href="http://www.w3.org/TR/dom/#document"><code>Document</code></a> object</dd>
+        <dd><var>document</var>, a document using the given <a href="#registration-internal-interface">[[Reistration]]</a> object as its <a href="#registration">registration</a></dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -1480,9 +1505,9 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a URL representing a <a href="#path-expression">path expression</a> or <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a> whose resolution indicates the success or failure of the algorithm</dd>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
@@ -1543,14 +1568,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
-        <dd><var>state</var>, the enumeration of the Service Worker state; a <a href="#service-worker-state-enum">ServiceWorkerState</a> enum</dd>
+        <dd><var>worker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
+        <dd><var>state</var>, a <a href="#service-worker-state-enum">state</a></dd>
       <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Set <var>serviceWorker</var>.<var>state</var> to <var>state</var>.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> on <var>serviceWorker</var>.</li>
+      <li>Set <var>worker</var>.<var>state</var> to <var>state</var>.</li>
+      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> at <var>worker</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1561,12 +1586,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>url</var>, a string representing a <a href="#url-scope">relative URL pattern</a>; a string</dd>
+        <dd><var>scope</var>, a URL representing a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the longest key in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>url</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest key in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>scope</var>.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>matchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>.<var>uninstalling</var> is true, then:
         <ol>
@@ -1584,7 +1609,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a string representing a <a href="#path-expression">path expression</a> of <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a URL representing a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
@@ -1604,7 +1629,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <dt>Input</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
       <dt>Output</dt>
-        <dd><var>serviceWorker</var>, the object representing the document-side view of a Service Worker; a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
+        <dd><var>worker</var>, a <a href="#service-worker-interface">ServiceWorker</a> object</dd>
     </dl>
     <ol>
       <li>Let <var>newestWorker</var> be null.</li>
