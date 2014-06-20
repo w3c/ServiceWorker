@@ -360,7 +360,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt;?&gt; <a href="#service-worker-container-getall-method">getAll</a>();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-interface">ServiceWorker</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-container-unregister-method">unregister</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>? <var>scope</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-container-unregister-method">unregister</a>(optional <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scope</var> = "/*");
 
   // events
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onupdatefound-attribute">onupdatefound</a>;
@@ -447,17 +447,49 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p>The <a href="#service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></a> method creates or updates a <a href="#registration">registration</a> for some amount of <a href="#url-scope">URL scope</a>. If successful, a <a href="#registration">registration</a> ties the provided <var>url</var> to a <a href="#url-scope">URL scope</a>, which is subsequently used for <a href="#scope-match-algorithm">navigation matching</a>.</p>
 
-    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#registration-algorithm">[[Register]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scriptURL</var> and <var>options</var>.<var>scope</var> as the argument.</p>
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+    </p>
 
     <spec-algorithm>
-
+    <ol>
+      <li>Let <var>scope</var> be null.</li>
+      <li>If <var>options</var>.<var>scope</var> is an empty string, <code>""</code>, then:
+        <ol>
+          <li>Set <var>scope</var> to the default scope, <code>"/*"</code>.</li>
+        </ol>
+      </li>
+      <li>Else:
+        <ol>
+          <li>Set <var>scope</var> to <var>options</var>.<var>scope</var>.</li>
+        </ol>
+      </li>
+      <li>Return the result of running the <a href="#registration-algorithm">[[Register]]</a> algorithm passing <var>scriptURL</var> and <var>scope</var> as the argument.</li>
+    </ol>
     </spec-algorithm>
 
   </spec-section>
   <spec-section id="navigator-service-worker-unregister">
     <h1><code>unregister(<var>scope</var>)</code></h1>
 
-    <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must return the result of running the <a href="#unregistration-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</p>
+    <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>localScope</var> be null.</li>
+      <li>If <var>scope</var> is an empty string, <code>""</code>, then:
+        <ol>
+          <li>Set <var>localScope</var> to the default scope, <code>"/*"</code>.</li>
+        </ol>
+      </li>
+      <li>Else:
+        <ol>
+          <li>Set <var>localScope</var> to <var>scope</var>.</li>
+        </ol>
+      </li>
+      <li>Return the result of running the <a href="#unregistration-algorithm">[[Unregister]]</a> algorithm passing <var>localScope</var> as the argument.</li>
+    </ol>
+    </spec-algorithm>
   </spec-section>
 
   <spec-section id="service-worker-container-event-handlers">
@@ -1055,8 +1087,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scriptURL</var>, a URL of the script</dd>
-        <dd><var>scope</var>, a URL representing a <a href="#path-expression">path expression</a> or a <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scriptURL</var>, a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> that represents the URL of the script</dd>
+        <dd><var>scope</var>, a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> that represents a <a href="#path-expression">path expression</a> or a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
@@ -1066,7 +1098,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Run the following steps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
-          <li>Let <var>scope</var> be <var>scope</var> with the fragment part, "<code>#</code>" concatenated with <var>scope</var>'s <a href="http://goo.gl/ld1M50">fragment</a>, removed, if any.</li>
+          <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
           <li>Let <var>scriptURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>If the <a href="http://url.spec.whatwg.org/#concept-url-scheme">scheme</a> of <var>scriptURL</var> is not "<code>https</code>", then: <small>// Browsers may ignore this rule for development purposes only.</small>
             <ol>
@@ -1505,7 +1537,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a URL representing a <a href="#path-expression">path expression</a> or <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> that represents a <a href="#path-expression">path expression</a> or a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
@@ -1515,7 +1547,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Run the following steps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
-          <li>Let <var>scope</var> be <var>scope</var> with the fragment part, "<code>#</code>" concatenated with <var>scope</var>'s <a href="http://goo.gl/ld1M50">fragment</a>, removed, if any.</li>
+          <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
@@ -1586,7 +1618,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a URL representing a <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> that represents a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
@@ -1609,7 +1641,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a URL representing a <a href="#url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> that represents a <a href="#url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
