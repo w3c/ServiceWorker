@@ -948,14 +948,48 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 };
 </spec-idl>
 
+    <p>Each event using <code><a href="#fetch-event-interface">FetchEvent</a></code> interface has the following associated flag that is initially unset:
+      <ul>
+        <li><dfn id="wait-to-respond-flag">wait to respond flag</dfn></li>
+        <li><dfn id="respond-with-error-flag">respond-with error flag</dfn></li>
+      </ul>
+    </p>
+
     <spec-section id="respond-with-method">
       <h1><code>event.respondWith(r)</code></h1>
 
-      <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm.</p>
+      <p><code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method must run the steps, from step 10 to step 15, defined in the <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm.</p>
 
       <p>The <var>r</var> argument must resolve with a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> whose <code>type</code> attribute is "<code>opaque</code>" (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> body, not URLs.</p>
 
-      <p class="note"><strong>Note:</strong> The section will be rephrased.</p>
+      <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>If the <a href="#wait-to-respond-flag">wait to respond flag</a> is true, then:
+          <ol>
+            <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+          </ol>
+        </li>
+        <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
+        <li>Wait until <var>r</var> settles.</li>
+        <li>If <var>r</var> rejected, then:
+          <ol>
+            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
+          </ol>
+        </li>
+        <li>If <var>r</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface whose <code>type</code> attribute is "<code>opaque</code>", and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+          <ol>
+            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>
+          </ol>
+        </li>
+        <li>If <var>r</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+          <ol>
+            <li>Do nothing.</li>
+          </ol>
+        </li>
+        <li>Unset the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="default-method">
@@ -1438,7 +1472,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>response</var>, a <a href="http://fetch.spec.whatwg.org/#concept-response">response</a></dd>
     </dl>
     <ol>
+      <li>Let <var>handleFetchFalied</var> be false.</li>
+      <li>Let <var>respondWithEntered</var> be false.</li>
       <li>Let <var>request</var> be a new <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>request</var>.</li>
+      <li>Let <var>response</var> be null.</li>
       <li>If <var>request.context</var> is "<code>navigate</code>", then:
         <ol>
           <li>If <var>request</var> is triggered by a force-refresh (shift+refresh), then:
@@ -1446,8 +1483,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               <li>Return null.</li>
             </ol>
           </li>
-          <li>Let <var>parsedURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>request</var>.<var>url</var>.</li>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>parsedURL</var> as the argument.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>request</var>.<var>url</var> as the argument.</li>
         </ol>
       </li>
       <li>Else,
@@ -1481,42 +1517,62 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>request</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>, in the form of <a href="#client-interface">Client</a> object, represented by <var>request</var>, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> represented by <var>request</var>, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
-      <li>If the <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method was not called, then:
+      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>request</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> represented by <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> represented by <var>request</var>, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+      <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+        <ol>
+          <li>If any uncaught runtime script error occurs, then:
+            <ol>
+              <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>redundant</code>" as the arguments.</li>
+              <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+          <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
+            <ol>
+              <li>Set <var>respondWithEntered</var> to true.</li>
+              <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
+              <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, then:
+                <ol>
+                  <li>Set <var>handleFetchFalied</var> to true.</li>
+                </ol>
+              </li>
+              <li>Else:
+                <ol>
+                  <li>Set <var>response</var> to the value, which the argument passed into the <var>event</var>'s <code><a href="#fetch-event-respondwith-method">respondWith(<var>r</var>)</a></code> method resolved with.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>If <var>respondWithEntered</var> is false, then:
         <ol>
           <li>Return null and run the following steps asynchronously.</li>
           <li>If <var>request.context</var> is "<code>navigate</code>", then:
             <ol>
-              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
+              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
           </li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Let <var>promise</var> be the value of the argument, casted to a promise, passed into the <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
-      <li>Wait for <var>promise</var> to settle.</li>
-      <li>If <var>promise</var> rejected, then:
+      <li>If <var>handleFetchFalied</var> is true, then:
         <ol>
           <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
         </ol>
       </li>
-      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface whose <code>type</code> attribute is "<code>opaque</code>", and <code><a href="#context-enum">event.context</a></code> is "<code>navigate</code>", then:
-        <ol>
-          <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
-        </ol>
-      </li>
-      <li>If <var>promise</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+      <li>Else:
         <ol>
           <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following steps asynchronously.</li>
-          <li>If <code><a href="#context-enum">event.context</a></code> is "<code>navigate</code>", then:
+          <li>If <var>request.context</var> is "<code>navigate</code>", then:
             <ol>
-              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with the <a href="#dfn-registration">registration</a> of the Service Worker represented by <code>self</code> object as the argument.</li>
+              <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
           </li>
-          <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Return a <a href="http://goo.gl/jprjjc">network error</a>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
