@@ -782,7 +782,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
     <spec-section id="cache">
       <h1><code>Cache</code></h1>
 <spec-idl>
-[Constructor]
+[<a href="#cache-constructor">Constructor</a>]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
@@ -801,7 +801,76 @@ dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</df
 
 callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallback">CacheIterationCallback</dfn> = void (<a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>value</var>, (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>key</var>, <a href="#cache-storage-interface">Cache</a> <var>map</var>);
 </spec-idl>
+      <p>The <dfn id="cache-constructor"><code>Cache()</code></dfn> constructor, when invoked, must return a newly created <code><a href="#cache-interface">Cache</a></code> object. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
+
+      <spec-section id="cache-add">
+        <h1><code>add(...<var>requests</var>)</code></h1>
+
+        <p><dfn id="cache-add-mthod"><code>add(...<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+          <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+          <li>Return <var>promise</var>.</li>
+          <li>Run these steps asynchronously:
+            <ol>
+              <li>If there are no arguments, then:
+                <ol>
+                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Let <var>requestArray</var> be an array containing the elements corresponding to the variadic argument <var>requests</var>.</li>
+              <li>Let <var>responseArray</var> be an empty array.</li>
+              <li>For each <var>request</var> in <var>requestArray</var>:
+                <ol>
+                  <li>Let <var>r</var> be the associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
+                  <li>If this throws an exception, then:
+                    <ol>
+                      <li>Reject <var>promise</var> with the exception.</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
+                  <li>Invoke <a href="#fetch-algorithm">[[Fetch]]</a> with <var>r</var> and add the returned value to <var>responseArray</var>.</li>
+                </ol>
+              </li>
+              <li>If <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of</a> <var>responseArray</var> rejects with an exception, then:
+                <ol>
+                  <li>Reject <var>promise</var> with the exception.</li>
+                </ol>
+              </li>
+              <li>For each <var>p</var> in <var>responseArray</var>:
+                <ol>
+                  <li>Let <var>response</var> be the value which <var>p</var> resolved with.</li>
+                  <li>If the <var>status</var> attribute of <var>response</var> is not 200, then:
+                    <ol>
+                      <li>Reject <var>promise</var> with a <code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>.</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>For each <var>p</var> in <var>responseArray</var> with the index <var>index</var>:
+                <ol>
+                  <li>Let <var>request</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
+                  <li>If <var>request</var> matches <var>entry</var>.[[key]] of a Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, then:
+                    <ol>
+                      <li>Delete <var>entry</var>.</li>
+                    </ol>
+                  </li>
+                  <li>Set a newly-created Record {[[key]]: <var>request</var>, [[value]]: <var>response</var>} to <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>.</li>
+                </ol>
+              </li>
+              <li>Resolve <var>promise</var>.</li>
+            </ol>
+          </li>
+        </ol>
+        </spec-algorithm>
+
+        <p class="note"><strong>Note:</strong> The algorithm will be updated with additional conditions for <a href="#query-params-dictionary">QueryParams</a> processing.</p>
+      </spec-section>
     </spec-section>
+
     <spec-section id="cache-storage">
       <h1><code>CacheStorage</code></h1>
 
@@ -1109,7 +1178,9 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   <spec-algorithm>
   <p><dfn id="service-worker-registration-internal-interface">[[Registration]]</dfn> represents a <a href="#dfn-registration">registration</a>. A <a href="#service-worker-registration-internal-interface">[[Registration]]</a> has <var>scope</var>, a string that represents a <a href="#dfn-url-scope">URL scope</a>, <var>scriptURL</var>, a string that represents the URL of the script, <var>installingWorker</var>, a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing a <a href="#dfn-installing-worker">installing worker</a>, <var>waitingWorker</var>, a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing a <a href="#dfn-worker-in-waiting">worker in wating</a>, <var>activeWorker</var>, a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing an <a href="#dfn-active-worker">active worker</a>, and <var>updatePromise</var>.</p>
 
-  <p><dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of a <var>scope</var> and <a href="#service-worker-registration-internal-interface">[[Registration]]</a> pair.</p>
+  <p><dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a string that represents a <a href="#dfn-url-scope">URL scope</a> and [[value]] is a <a href="#service-worker-registration-internal-interface">[[Registration]]</a>.</p>
+
+  <p><dfn id="request-to-response-map-internal-interface">[[RequestToResponseMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
   </spec-algorithm>
 
   <spec-section id="registration-algorithm">
@@ -1176,7 +1247,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Else:
             <ol>
               <li>Let <var>registration</var> be a newly-created <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object.</li>
-              <li>Set a newly-created entry of <var>scope</var> and <var>registration</var> pair to <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
+              <li>Set a newly-created Record {[[key]]: <var>scope</var>, [[value]]: <var>registration</var>} to <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
               <li>Set <var>registration</var>.<var>scope</var> to <var>scope</var>.</li>
               <li>Set <var>registration</var>.<var>uninstalling</var> to false.</li>
             </ol>
@@ -1457,6 +1528,40 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </spec-algorithm>
   </spec-section>
 
+  <spec-section id="fetch-algorithm">
+    <h1>[[Fetch]]</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>request</var>, a <a href="http://fetch.spec.whatwg.org/#concept-request">request</a></dd>
+      <dt>Output</dt>
+        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
+    </dl>
+    <ol>
+      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Return <var>promise</var>.</li>
+      <li>Run these steps asynchronously:
+        <ol>
+          <li><a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> <var>request</var> and <a href="http://fetch.spec.whatwg.org/#process-response">process response</a> for <var>response</var> by running these substeps:
+            <ol>
+              <li>If <var>response</var>'s <a href="http://fetch.spec.whatwg.org/#concept-response-type">type</a> is error, then:
+                <ol>
+                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Resolve <var>promise</var> with new <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>.</li>
+              <li>To <a href="http://fetch.spec.whatwg.org/#process-response-body">process response body</a> for <var>response</var>, do nothing.</li>
+              <li>To <a href="http://fetch.spec.whatwg.org/#process-response-end-of-file">process response end-of-file</a> for <var>response</var>, do nothing.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
   <spec-section id="on-fetch-request-algorithm">
     <h1>[[HandleFetch]]</h1>
 
@@ -1597,15 +1702,15 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If registration.uninstalling is true, then:
+      <li>If <var>registration</var>.<var>uninstalling</var> is true, then:
         <ol>
-          <li>Delete <var>registration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var>.</li>
+          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>.<var>scope</var> matches <var>entry</var>.[[key]].</var>
           <li>Abort these steps.</li>
         </ol>
       </li>
       <li>If <var>registration.updatePromise</var> is null and <var>registration.installingWorker</var> is null and <var>registration.waitingWorker</var> is null and <var>registration.activeWorker</var> is null, then:
         <ol>
-          <li>Delete <var>registration.scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var>.</li>
+          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>.<var>scope</var> matches <var>entry</var>.[[key]].</var>
           <li>Abort these steps.</li>
         </ol>
       </li>
@@ -1672,7 +1777,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Resolve <var>promise</var>.</li>
           <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
             <ol>
-              <li>Delete the entry keyed by <var>scope</var> from <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var></li>
+              <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>scope</var> matches <var>entry</var>.[[key]].</var>
             </ol>
           </li>
         </ol>
@@ -1710,7 +1815,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the longest key in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>scope</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>scope</var>.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>matchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>.<var>uninstalling</var> is true, then:
         <ol>
@@ -1733,8 +1838,16 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>registration</var>, a <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object</dd>
     </dl>
     <ol>
-      <li>If there is no record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>, then return null.</li>
-      <li>Let <var>registration</var> be the record for <var>scope</var> in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
+      <li>Let <var>registration</var> be null.</li>
+      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>:
+        <ol>
+          <li>If <var>scope</var> matches <var>entry</var>.[[key]], then:
+            <ol>
+              <li>Set <var>registration</var> to <var>entry</var>.[[value]].</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
       <li>Return <var>registration</var>.</li>
     </ol>
     </spec-algorithm>
