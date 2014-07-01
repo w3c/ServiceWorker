@@ -819,12 +819,21 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               <li>Wait until <var>p</var> settles.</li>
               <li>If <var>p</var> rejects with an exception, then:
                 <ol>
-                  <li>Reject <var>p</var> with that exception.</li>
+                  <li>Reject <var>promise</var> with that exception.</li>
                 </ol>
               </li>
               <li>Else if <var>p</var> resolves with an array, <var>responseArray</var>, then:
                 <ol>
-                  <li>Resolve <var>promise</var> with the first element of <var>responseArray</var>.</li>
+                  <li>If <var>responseArray</var> is an empty array, then:
+                    <ol>
+                      <li>Reject <var>promise</var> with an "<code><a href="http://dom.spec.whatwg.org/#indexsizeerror">IndexSizeError</a></code>" exception.</li>
+                    </ol>
+                  </li>
+                  <li>Else:
+                    <ol>
+                      <li>Resolve <var>promise</var> with the first element of <var>responseArray</var>.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
             </ol>
@@ -844,6 +853,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
           <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
+              <li>Let <var>requestArray</var> be an empty array.</li>
               <li>Let <var>responseArray</var> be an empty array.</li>
               <li>If the optional argument <var>request</var> is omitted, then:
                 <ol>
@@ -882,20 +892,46 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
                       </li>
                       <li>If <var>cachedURL</var>.<var>href</var> matches <var>requestURL</var>.<var>href</var>, then:
                         <ol>
+                          <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
                           <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
                         </ol>
                       </li>
                     </ol>
                   </li>
-                  <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
+                  <li>Let <var>resultArray</var> be an empty array.</li>
+                  <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
+                    <ol>
+                      <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
+                      <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
+                        <ol>
+                          <li>Add <var>cachedResponse</var> to <var>resultArray</var>.</li>
+                        </ol>
+                      </li>
+                      <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
+                      <li>For each <var>f</var> in <var>varyHeaders</var>:
+                        <ol>
+                          <li>If <var>f</var> matches "*", then:
+                            <ol>
+                              <li>Continue to the next iteration of the loop.</li>
+                            </ol>
+                          </li>
+                          <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
+                            <ol>
+                              <li>Break the loop.</li>
+                            </ol>
+                          </li>
+                          <li>Add <var>cachedResponse</var> to <var>resultArray</var>.</li>
+                        </ol>
+                      </li>
+                    </ol>
+                  </li>
+                  <li>Resolve <var>promise</var> with <var>resultArray</var>.</li>
                 </ol>
               </li>
             </ol>
           </li>
         </ol>
         </spec-algorithm>
-
-        <p class="note"><strong>Note:</strong> The algorithm will be updated with additional conditions for response's "Vary" header and the <a href="#query-params-dictionary">QueryParams</a>.<var>ignoreVary</var> processing.</p>
       </spec-section>
 
       <spec-section id="cache-add">
@@ -940,7 +976,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
                   <li>Let <var>response</var> be the value which <var>p</var> resolved with.</li>
                   <li>If the <var>status</var> attribute of <var>response</var> is not 200, then:
                     <ol>
-                      <li>Reject <var>promise</var> with a <code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>.</li>
+                      <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
@@ -1298,19 +1334,19 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Let <var>scriptURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>If the <a href="http://url.spec.whatwg.org/#concept-url-scheme">scheme</a> of <var>scriptURL</var> is not "<code>https</code>", then: <small>// Browsers may ignore this rule for development purposes only.</small>
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scriptURL</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -1372,7 +1408,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <ol>
       <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
         <ol>
-          <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>.</li>
+          <li>Reject <var>registration</var>.<var>updatePromise</var> with an "<code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>" exception.</li>
           <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
         </ol>
       </li>
@@ -1398,14 +1434,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
           <li>Else if fetching the script fails due to the server returning a 4xx response or a 5xx response, or there is a DNS error, or the connection times out, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
               <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
           <li>Else if the server returned a redirect, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
               <li>Abort these steps.</li>
             </ol>
@@ -1545,7 +1581,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <ol>
           <li>For each document matching <var>registration</var>.<var>scope</var>:
             <ol>
-              <li>Set <var>registration</var> as the document's Service Worker <a href="#dfn-registration">registration</a>.</li>
+              <li>Set <var>registration</var> to the document's Service Worker <a href="#dfn-registration">registration</a>.</li>
             </ol>
           </li>
           <li>Run <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
@@ -1836,7 +1872,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
-              <li>Reject <var>promise</var> with a new <code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>.</li>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -1850,7 +1886,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Set <var>registration</var>.<var>uninstalling</var> to true.</li>
           <li>If <var>registration</var>.<var>updatePromise</var> is not null, then:
             <ol>
-              <li>Reject <var>registration</var>.<var>updatePromise</var> with a new <code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>.</li>
+              <li>Reject <var>registration</var>.<var>updatePromise</var> with an "<code><a href="http://dom.spec.whatwg.org/#aborterror">AbortError</a></code>" exception.</li>
               <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<var>updatePromise</var>.</li>
             </ol>
           </li>
