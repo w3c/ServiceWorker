@@ -129,6 +129,7 @@
       <li><a href="http://www.w3.org/TR/notifications/">Web Notifications</a></li>
       <li><a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a></li>
       <li><a href="http://url.spec.whatwg.org/">URL Living Standard</a></li>
+      <li><a href="http://tools.ietf.org/html/rfc2616">Hypertext Transfer Protocol -- HTTP/1.1</a></li>
     </ul>
   </spec-section>
 
@@ -445,12 +446,14 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-register">
     <h1><code>register(<var>scriptURL</var>, <var>options</var>)</code></h1>
 
-    <p>The <code><a href="#service-worker-container-register-method">register(<var>scriptURL</var>, <var>options</var>)</a></code> method creates or updates a <a href="#dfn-registration">registration</a> for some amount of <a href="#dfn-url-scope">URL scope</a>. If successful, a <a href="#dfn-registration">registration</a> ties the provided <var>url</var> to a <a href="#dfn-url-scope">URL scope</a>, which is subsequently used for <a href="#scope-match-algorithm">navigation matching</a>.</p>
+    <p>The <code><a href="#service-worker-container-register-method">register(<var>scriptURL</var>, <var>options</var>)</a></code> method creates or updates a <a href="#dfn-registration">registration</a> for some amount of <a href="#dfn-url-scope">URL scope</a>. If successful, a <a href="#dfn-registration">registration</a> ties the provided <var>scriptURL</var> to a <a href="#dfn-url-scope">URL scope</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
 
     <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#registration-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scriptURL</var> and <var>options</var>.<var>scope</var> as the argument.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-unregister">
     <h1><code>unregister(<var>scope</var>)</code></h1>
+
+    <p>The <code><a href="#service-worker-container-unregister-method">unregister(<var>scope</var>)</a></code> method unregisters the <a href="#dfn-registration">registration</a> for the given <a href="#dfn-url-scope">URL scope</a>. It is important to note that the currently <a href="#dfn-document-control">controlled</a> document's <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-container-unregister-method">unregister(<var>scope</var>)</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
     <p><dfn id="service-worker-container-unregister-method"><code>unregister(<var>scope</var>)</code></dfn> method must return the result of running the <a href="#unregistration-algorithm">[[Unregister]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</p>
   </spec-section>
@@ -656,6 +659,8 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     </spec-section>
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
+
+      <p>The <code><a href="#service-worker-global-scope-unregister-mthod">unregister()</a></code> method unregisters the <a href="#dfn-registration">registration</a> for its <a href="#dfn-url-scope">URL scope</a>. It is important to note that this <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-global-scope-unregister-mthod">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
       <p><dfn id="service-worker-global-scope-unregister-mthod"><code>unregister()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
