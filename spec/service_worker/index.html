@@ -1779,7 +1779,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Wait until no document is using <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>.</li>
+      <li>Wait until no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>.</li>
       <li>Invoke <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
     </ol>
     </spec-algorithm>
@@ -1901,6 +1901,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>r</var> be a new <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>request</var>.</li>
       <li>Let <var>response</var> be null.</li>
       <li>Let <var>registration</var> be null.</li>
+      <li>Let <var>document</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a> specified by the <a href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-settings-object-for-a-global-object">relevant settings object</a> for <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>.</li>
       <li>If <var>request</var> is triggered by a force-refresh (shift+refresh), then:
         <ol>
           <li>Return null.</li>
@@ -1913,7 +1914,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>Else,
         <ol>
-          <li>Set <var>registration</var> to the <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object associated with the <a href="#dfn-registration">registration</a> <a href="#dfn-document-use">used</a> by the document.</li>
+          <li>Set <var>registration</var> to the <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object <a href="#dfn-document-use">used</a> by <var>document</var>.</li>
         </ol>
       </li>
       <li>If <var>registration</var> is null, then:
@@ -1929,7 +1930,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>matchedWorker</var> be <var>registration</var>.<var>activeWorker</var>.</li>
       <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
         <ol>
-          <li>Let the <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a> specified by the <a href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-settings-object-for-a-global-object">relevant settings object</a> for <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a> <a href="#dfn-document-use">use</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
+          <li>Let <var>document</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
         </ol>
       </li>
       <li>If <var>matchedWorker</var>.<var>state</var> is "<code>activating</code>", then:
@@ -2008,7 +2009,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
     <dt>Input</dt>
-        <dd><var>document</var>, a document using the given <a href="#registration-internal-interface">[[Reistration]]</a> object as its <a href="#dfn-registration">registration</a></dd>
+        <dd><var>document</var>, a document <a href="#dfn-document-use">using</a> the given <a href="#registration-internal-interface">[[Reistration]]</a> object as its <a href="#dfn-registration">registration</a></dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -2019,7 +2020,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If any other document is using <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
+      <li>If any other document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
@@ -2097,11 +2098,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Resolve <var>promise</var>.</li>
-          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
+          <li>Wait until no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>.</li>
+          <li>If <var>registration</var>.<var>activeWorker</var> is not null, then:
             <ol>
-              <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>scope</var> matches <var>entry</var>.[[key]].</var>
+              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and "<code>redundant</code>" as the arguments.</li>
+              <li>Set <var>registration</var>.<var>activeWorker</var> to null.</li>
             </ol>
           </li>
+          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>scope</var> matches <var>entry</var>.[[key]].</li>
         </ol>
       </li>
     </ol>
