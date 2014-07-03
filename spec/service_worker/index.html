@@ -412,31 +412,26 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
       <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as its argument.</li>
+          <li>Let <var>registration</var> be null.</li>
+          <li>Let <var>document</var> be <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a>.</li>
+          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as its argument.</li>
           <li>If <var>registration</var> is null, then:
             <ol>
-              <li>Wait for the document to have a matching <a href="#dfn-registration">registration</a>.</li>
+              <li>Wait for <var>document</var> to have a <a href="#scope-match-algorithm">matching</a> <a href="#dfn-registration">registration</a>.</li>
+              <li>Set <var>registration</var> to the corresponding <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object.</li>
             </ol>
           </li>
-          <li>If the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, for the document has an <a href="#dfn-active-worker">active worker</a>, then:
+          <li>If <var>registration</var>.<var>activeWorker</var> in null, then:
             <ol>
-              <li>Resolve <var>promise</var> with the <code><a href="#service-worker-interface">ServiceWorker</a></code> object associated with the <a href="#dfn-active-worker">active worker</a>.</li>
-              <li>Abort these steps.</li>
+              <li>Wait until the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, acquires an <a href="#dfn-active-worker">active worker</a> through a new <a href="#dfn-activation-process">activation process</a>.</li>
+              <li>Resolve <var>promise</var> with <var>registration</var>.<var>activeWorker</var>.</li>
             </ol>
           </li>
-          <li>If the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, for the document has a <a href="#dfn-worker-in-waiting">worker in waiting</a>, then:
-            <ol>
-              <li>Resolve <var>promise</var> with the <code><a href="#service-worker-interface">ServiceWorker</a></code> object associated with the <a href="#dfn-worker-in-waiting">worker in waiting</a>.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Wait until the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, for the document acquires a <a href="#dfn-worker-in-waiting">worker in waiting</a> through a new <a href="#dfn-installation-process">installation process</a>.</li>
-          <li>Resolve <var>promise</var> with the <code><a href="#service-worker-interface">ServiceWorker</a></code> object associated with the <a href="#dfn-worker-in-waiting">worker in waiting</a>.</li>
         </ol>
       </li>
     </ol>
     </spec-algorithm>
-    <p class="note"><strong>Note:</strong> The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with a newly installed <a href="#dfn-worker-in-waiting">worker in waiting</a>. Hence, the <code><a href="#service-worker-state-attribute">state</a></code> of the acquired <code><a href="#service-worker-interface">ServiceWorker</a></code> object is either "<code>installed</code>", "<code>activating</code>" or "<code>activated</code>".</p>
+    <p class="note"><strong>Note:</strong> The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with an <a href="#dfn-active-worker">active worker</a>. Hence, the <code><a href="#service-worker-state-attribute">state</a></code> of the acquired <code><a href="#service-worker-interface">ServiceWorker</a></code> object is either "<code>activating</code>" or "<code>activated</code>".</p>
   </spec-section>
   <spec-section id="navigator-service-worker-getAll">
     <h1><code>getAll()</code></h1>
