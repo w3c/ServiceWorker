@@ -382,7 +382,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-installing">
     <h1><code>installing</code></h1>
 
-    <p><dfn id="service-worker-container-installing-attribute"><code>installing</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-installing-worker">installing worker</a> that is currently undergoing the <dfn id="dfn-installation-process">installation process</dfn> (from step 3 to step 11 of the <a href="#installation-algorithm">[[Install]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document may be <a href="#dfn-document-control">controlled</a> when the Service Worker becomes the <a href="#dfn-active-worker">active worker</a>. <code><a href="#service-worker-container-installing-attribute">navigator.serviceWorker.installing</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-installation-process">installation process</a>.</p>
+    <p><dfn id="service-worker-container-installing-attribute"><code>installing</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-installing-worker">installing worker</a> that is currently undergoing the <dfn id="dfn-installation-process">installation process</dfn> (from step 4 to step 10 of the <a href="#installation-algorithm">[[Install]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document may be <a href="#dfn-document-control">controlled</a> when the Service Worker becomes the <a href="#dfn-active-worker">active worker</a>. <code><a href="#service-worker-container-installing-attribute">navigator.serviceWorker.installing</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-installation-process">installation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-waiting">
@@ -394,13 +394,13 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-active">
     <h1><code>active</code></h1>
 
-    <p><dfn id="service-worker-container-active-attribute"><code>active</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that is currently undergoing or completed the <dfn id="dfn-activation-process">activation process</dfn> (from step 5 to step 12 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document is <a href="#dfn-document-control">controlled</a> (or to be <a href="#dfn-document-control">controlled</a>). <code><a href="#service-worker-container-active-attribute">navigator.serviceWorker.active</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-activation-process">activation process</a>.</p>
+    <p><dfn id="service-worker-container-active-attribute"><code>active</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that is currently undergoing or completed the <dfn id="dfn-activation-process">activation process</dfn> (from step 7 to step 11 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document is <a href="#dfn-document-control">controlled</a> (or to be <a href="#dfn-document-control">controlled</a>). <code><a href="#service-worker-container-active-attribute">navigator.serviceWorker.active</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-activation-process">activation process</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that currently handles resource requests for the document. <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 6-1 of <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm) or the request is a force refresh (shift+refresh).</p>
+    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that currently handles resource requests for the document. <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 13-1 of <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm) or the request is a force refresh (shift+refresh).</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
     <h1><code>ready</code></h1>
@@ -409,19 +409,18 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
           <li>Let <var>registration</var> be null.</li>
-          <li>Let <var>document</var> be <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a>.</li>
-          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as its argument.</li>
+          <li>Let <var>document</var> be <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#settings-object">settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a>.</li>
+          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#settings-object">settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as its argument.</li>
           <li>If <var>registration</var> is null, then:
             <ol>
               <li>Wait for <var>document</var> to have a <a href="#scope-match-algorithm">matching</a> <a href="#dfn-registration">registration</a>.</li>
               <li>Set <var>registration</var> to the corresponding <a href="#service-worker-registration-internal-interface">[[Registration]]</a> object.</li>
             </ol>
           </li>
-          <li>If <var>registration</var>.<var>activeWorker</var> in null, then:
+          <li>If <var>registration</var>.<var>activeWorker</var> is null, then:
             <ol>
               <li>Wait until the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, acquires an <a href="#dfn-active-worker">active worker</a> through a new <a href="#dfn-activation-process">activation process</a>.</li>
               <li>Resolve <var>promise</var> with <var>registration</var>.<var>activeWorker</var>.</li>
@@ -429,6 +428,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           </li>
         </ol>
       </li>
+      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
     <p class="note"><strong>Note:</strong> The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with an <a href="#dfn-active-worker">active worker</a>. Hence, the <code><a href="#service-worker-state-attribute">state</a></code> of the acquired <code><a href="#service-worker-interface">ServiceWorker</a></code> object is either "<code>activating</code>" or "<code>activated</code>".</p>
@@ -523,7 +523,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
         <tr>
           <td><dfn id="service-worker-container-updatefound-event"><code>updatefound</code></dfn></td>
           <td><code><a href="http://dom.spec.whatwg.org/#event">Event</a></code></td>
-          <td>The document's associated <a href="#dfn-registration">registration</a> enters the <a href="#dfn-installation-process">installation process</a> such that <code><a href="#service-worker-container-installing-attribute">navigator.serviceWorker.installing</a></code> becomes the new <a href="#dfn-installing-worker">installing worker</a> (See step 4 of the <a href="#installation-algorithm">[[Install]]</a> algorithm).</td>
+          <td>The document's associated <a href="#dfn-registration">registration</a> enters the <a href="#dfn-installation-process">installation process</a> such that <code><a href="#service-worker-container-installing-attribute">navigator.serviceWorker.installing</a></code> becomes the new <a href="#dfn-installing-worker">installing worker</a> (See step 5 of the <a href="#installation-algorithm">[[Install]]</a> algorithm).</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
@@ -812,7 +812,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-mthod">matchAll(<var>request</var>, <var>params</var>)</a></code> method with <var>request</var> and <var>params</var> as the arguments.</li>
@@ -838,6 +837,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               </li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
@@ -850,7 +850,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>requestArray</var> be an empty array.</li>
@@ -936,6 +935,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               </li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
@@ -948,7 +948,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>If there are no arguments, then:
@@ -1006,6 +1005,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               <li>Resolve <var>promise</var>.</li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
@@ -1018,7 +1018,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
@@ -1052,6 +1051,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               </li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
@@ -1064,7 +1064,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>requestArray</var> be an empty array.</li>
@@ -1150,6 +1149,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               <li>Resolve <var>promise</var> with <var>deleted</var>.</li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
@@ -1162,7 +1162,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Return <var>promise</var>.</li>
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>resultArray</var> be an empty array.</li>
@@ -1180,6 +1179,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               <li>Resolve <var>promise</var> with undefined.</li>
             </ol>
           </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
 
@@ -1242,7 +1242,6 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
       <spec-algorithm>
       <ol>
         <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Return <var>promise</var>.</li>
         <li>Run the following steps asynchronously:
           <ol>
             <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
@@ -1261,6 +1260,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
             <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.
           </ol>
         </li>
+        <li>Return <var>promise</var>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -1282,10 +1282,9 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
 </spec-idl>
 
     <p>Each event using <code><a href="#install-event-interface">InstallEvent</a></code> interface has the following associated flag that is initially unset:
-      <ul>
-        <li><dfn id="activate-immediate-flag">activate immediate flag</dfn></li>
-      </ul>
-    </p>
+    <ul>
+      <li><dfn id="activate-immediate-flag">activate immediate flag</dfn></li>
+    </ul></p>
 
     <spec-section id="replace-method">
       <h1><code>event.replace()</code></h1>
@@ -1293,6 +1292,7 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
       <p><code><a href="#install-event-replace-method">event.replace()</a></code> method interacts with <code><a href="#install-phase-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code> method. Successful installation can be delayed by <code><a href="#install-phase-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code>. Replacement only happens upon successful installation. That is, replacement of the <a href="#dfn-active-worker">active worker</a> (if any) by invoking <code><a href="#install-event-replace-method">event.replace()</a></code> method is not immediate, but it may occur as soon as the event's <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> completes its execution which is extended by <code><a href="#install-phase-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code>.</p>
 
       <p><dfn id="install-event-replace-method"><code>replace()</code></dfn> method must set the <a href="#activate-immediate-flag">activate immediate flag</a>.</p>
+
     </spec-section>
   </spec-section>
 
@@ -1348,9 +1348,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>If the <a href="#wait-to-respond-flag">wait to respond flag</a> is true, then:
+        <li>If the <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
           <ol>
             <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+            <li>Abort these steps.</li>
           </ol>
         </li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
@@ -1384,7 +1385,6 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-algorithm>
       <ol>
         <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Return <var>promise.</var></li>
         <li>Run the following steps asynchronously:
           <ol>
             <li>Let <var>request</var> be <var>event</var>'s <var>request</var>.</li>
@@ -1402,6 +1402,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </li>
           </ol>
         </li>
+        <li>Return <var>promise.</var></li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -1430,12 +1431,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <tr>
           <td><dfn id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
           <td><code><a href="#install-event-interface">InstallEvent</a></code></td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-registration">registration</a>'s installing Service Worker enters the <a href="#installing-process">installation process</a>. (See step 6 of the <a href="#installation-algorithm">[[Install]]</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-registration">registration</a>'s installing Service Worker enters the <a href="#installing-process">installation process</a>. (See step 6-1 of the <a href="#installation-algorithm">[[Install]]</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
           <td><code><a href="#install-phase-event-interface">InstallPhaseEvent</a></code></td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-registration">registration</a>'s activating Service Worker enters the <a href="#dfn-activation-process">activation process</a>. (See step 9 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-registration">registration</a>'s activating Service Worker enters the <a href="#dfn-activation-process">activation process</a>. (See step 9-1 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
@@ -1511,8 +1512,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
     <ol>
-      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Return <var>promise</var>.</li>
+      <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
       <li>Run the following steps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
@@ -1569,9 +1569,11 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Set <var>registration</var>.<var>scriptURL</var> to <var>scriptURL</var>.</li>
-          <li>Resolve <var>promise</var> with the result of running the <a href="#update-algorithm">[[Update]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
+          <li>Let <var>p</var> be the result of running the <a href="#update-algorithm">[[Update]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
+          <li>Resolve <var>promise</var> with <var>p</var>.</li>
         </ol>
       </li>
+      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1606,9 +1608,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>The user agent may abort any in-flight requests triggered by <var>registration</var>.<var>installingWorker</var>.</li>
         </ol>
       </li>
-      <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
       <li>Set <var>registration</var>.<var>updatePromise</var> to <var>promise</var>.</li>
-      <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
           <li>Perform a fetch of <var>registration</var>.<var>scriptURL</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
@@ -1633,7 +1634,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Let <var>fetchedScript</var> be the fetched script.</li>
-          <li>Let newestWorker be the result of running the <a href="#get-newest-worker-algorithm">[[GetNewestWorker]]</a> algorithm passing <var>registration</var> as the argument.</li>
+          <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">[[GetNewestWorker]]</a> algorithm passing <var>registration</var> as the argument.</li>
           <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>.<var>url</var> is equal to <var>registration</var>.<var>scriptURL</var> and <var>fetchedScript</var> is a byte-for-byte match with the script of <var>newestWorker</var>, then:
             <ol>
               <li>Resolve <var>promise</var> with <var>newestWorker</var>.</li>
@@ -1643,7 +1644,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
           <li>Else,
             <ol>
-              <li>Let <var>worker</var> be a newly-created <a href="#service-worker-interface">ServiceWorker</a> object, using <var>fetchedScript</var>.</li>
+              <li>Let <var>worker</var> be a newly-created <code><a href="#service-worker-interface">ServiceWorker</a></code> object, using <var>fetchedScript</var>.</li>
               <li>If <var>promise</var> has been rejected (e.g, another registration has aborted it), then:
                 <ol>
                   <li>Set <var>registration</var>.<var>updatePromise</var> to null.</li>
@@ -1664,6 +1665,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
+      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1718,32 +1720,36 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>activateImmediate</var> be false.</li>
       <li>Set <var>registration</var>.<var>installingWorker</var> to <var>worker</var>.</li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>installing</code>" as the arguments.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>updatefound</code> on <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> for all documents which match <var>registration</var>.<var>scope</var>.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code> object.</li>
-      <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>updatefound</code> on <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> for all documents which match <var>registration</var>.<var>scope</var>.</li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li>If any uncaught runtime script error occurs, then:
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
-              <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-          <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
-            <ol>
-              <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
-              <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
+              <li>If any uncaught runtime script error occurs, then:
                 <ol>
-                  <li>Set <var>installFalied</var> to true.</li>
+                  <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+                  <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>redundant</code>" as the arguments.</li>
+                  <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
-            </ol>
-          </li>
-          <li>If <var>event</var>'s <a href="#activate-immediate-flag">activate immediate flag</a> is set, then:
-            <ol>
-              <li>Set <var>activateImmediate</var> to true.</li>
+              <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+              <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
+                <ol>
+                  <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
+                  <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
+                    <ol>
+                      <li>Set <var>installFailed</var> to true.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>If <var>event</var>'s <a href="">activate immediate flag</a> is set, then:
+                <ol>
+                  <li>Set <var>activateImmediate</var> to true.</li>
+                </ol>
+              </li>
             </ol>
           </li>
         </ol>
@@ -1805,27 +1811,29 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>registration.activeWorker</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>registration</var>.<var>waitingWorker</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and "<code>activating</code>" as the arguments.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>controllerchange</code> on <var>navigator.serviceWorker</var> for all documents that have <a href="#dfn-document-use">used</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
-
-
-      <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>controllerchange</code> on <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> for all documents that have <a href="#dfn-document-use">used</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li>If any uncaught runtime script error occurs, then:
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
-              <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>activeWorker</var> to null.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-          <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
-            <ol>
-              <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
-              <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
+              <li>If any uncaught runtime script error occurs, then:
                 <ol>
-                  <li>Set <var>activateFalied</var> to true.</li>
+                  <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+                  <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>activeWorker</var> and "<code>redundant</code>" as the arguments.</li>
+                  <li>Set <var>registration</var>.<var>activeWorker</var> to null.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+              <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
+                <ol>
+                  <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
+                  <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
+                    <ol>
+                      <li>Set <var>activateFailed</var> to true</a>.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
             </ol>
@@ -1856,7 +1864,6 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Return <var>promise</var>.</li>
       <li>Run these steps asynchronously:
         <ol>
           <li><a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> <var>request</var> and <a href="http://fetch.spec.whatwg.org/#process-response">process response</a> for <var>response</var> by running these substeps:
@@ -1874,6 +1881,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
+      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -1938,30 +1946,34 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
-      <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
-      <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li>If any uncaught runtime script error occurs, then:
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
-              <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-          <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
-            <ol>
-              <li>Set <var>respondWithEntered</var> to true.</li>
-              <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
-              <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, then:
+              <li>If any uncaught runtime script error occurs, then:
                 <ol>
-                  <li>Set <var>handleFetchFalied</var> to true.</li>
+                  <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
+                  <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installingWorker</var> and "<code>redundant</code>" as the arguments.</li>
+                  <li>Set <var>registration</var>.<var>installingWorker</var> to null.</li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Else:
+              <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+              <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
                 <ol>
-                  <li>Set <var>response</var> to the value, which the argument passed into the <var>event</var>'s <code><a href="#fetch-event-respondwith-method">respondWith(<var>r</var>)</a></code> method resolved with.</li>
+                  <li>Set <var>respondWithEntered</var> to true.</li>
+                  <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
+                  <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, then:
+                    <ol>
+                      <li>Set <var>handleFetchFalied</var> to true.</li>
+                    </ol>
+                  </li>
+                  <li>Else:
+                    <ol>
+                      <li>Set <var>response</var> to the value, which the argument passed into the <var>event</var>'s <code><a href="#fetch-event-respondwith-method">respondWith(<var>r</var>)</a></code> method resolved with.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
             </ol>
@@ -2053,7 +2065,6 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Let <var>promise</var> be a newly-created <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Return <var>promise</var>.</li>
       <li>Run the following steps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
@@ -2103,6 +2114,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>scope</var> matches <var>entry</var>.[[key]].</li>
         </ol>
       </li>
+      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -2119,8 +2131,12 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Set <var>worker</var>.<var>state</var> to <var>state</var>.</li>
-      <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> at <var>worker</var>.</li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run these steps:
+        <ol>
+          <li>Set <var>worker</var>.<var>state</var> to <var>state</var>.</li>
+          <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> at <var>worker</var>.</li>
+        </ol>
+      </li>
     </ol>
     </spec-algorithm>
   </spec-section>
