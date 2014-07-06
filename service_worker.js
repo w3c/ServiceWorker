@@ -599,7 +599,6 @@ var BroadcastChannel = (function () {
     }
     return BroadcastChannel;
 })();
-;
 
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
