@@ -18,50 +18,31 @@ class _RegistrationOptionList implements RegistrationOptionList {
 }
 
 interface ServiceWorkerContainer extends EventTarget {
-  installing?: ServiceWorker; // worker undergoing the install process
-  waiting?: ServiceWorker; // installed worker, waiting to become active
-  active?: ServiceWorker; // the activating/activated worker, can be used as a controller
   controller?: ServiceWorker; // the worker handling resource requests for this page
 
   // This atribute returns a Promise that resolves when this document
   // has a controller
-  ready: Promise; // Promise<ServiceWorker>
+  ready: Promise; // Promise<ServiceWorkerRegistration>
 
-  // FIXME: what's the semantic?
-  //    https://github.com/slightlyoff/ServiceWorker/issues/170
-  getAll(): Promise; // Promise<Array<ServiceWorker>>
-
-  // Returns a Promise<ServiceWorker>
+  // Returns a Promise<ServiceWorkerRegistration>
   register(url: string, options?: _RegistrationOptionList): Promise;
-    // Resolves for a ServiceWorker instance once the url is parsed and
-    // started, at the moment you can deliver a message, but before oninstall.
-    //
-    // If a worker is in-waiting, and its url & scope matches both url & scope
-    //   - resolve the promise
-    //   - abort these steps
-    // If no worker is in-waiting, and the current active worker's
-    // url & scope match
-    //   - resolve the promise
-    //   - abort these steps
-    // Reject the promise if:
-    //    - the URL is not same-origin
-    //    - no scope is provided or the scope does not resolve/parse correctly
-    //    - fetching the event worker returns with an error
-    //    - installing the worker (the event the worker is sent) fails
-    //      with an unhandled exception
-    // TBD: possible error values upon rejection?
 
-  unregister(scope?: string): Promise; // Defaults to "*"
-    // Resolves with no value on success. Rejects if scope is mismatch.
+  // Returns a Promise<ServiceWorkerRegistration>
+  getRegistration(docURL:string = ""): Promise;
+    // Resolves with the ServiceWorkerRegistration that controls docURL
+    // Rejects with DOMError NotFoundError if docURL is not within scope of
+    // any ServiceWorkerRegistration
 
-  onupdatefound: (ev: Event) => any;
-    // Fires when .installing becomes a new worker
+  // Returns a Promise<Array<ServiceWorkerRegistration>>
+  getRegistrations(): Promise;
+    // Resolves with an array of all ServiceWorkerRegistrations for the origin.
+    // Resolves with an empty array if none exist.
 
   oncontrollerchange: (ev: Event) => any;
     // Fires when .controller changes
 
   onreloadpage: (ev: ReloadPageEvent) => any;
-    // FIXME: do we really need tihs?
+    // FIXME: do we really need this?
 
   onerror: (ev: ErrorEvent) => any;
     // Called for any error from the active or installing SW's
@@ -87,9 +68,24 @@ interface Navigator extends
   // MSNavigatorAbilities
 { }
 
+interface ServiceWorkerRegistration extends EventTarget {
+  installing?: ServiceWorker; // worker undergoing the install process
+  waiting?: ServiceWorker; // installed worker, waiting to become active
+  active?: ServiceWorker; // the activating/activated worker, can be used as a controller
+
+  scope: string;
+  scriptURL: string;
+
+  unregister(): Promise;
+    // Unregisters this serviceworker.
+    // Resolves with undefined.
+
+  onupdatefound: (ev: Event) => any;
+    // Fires when .installing becomes a new worker
+}
+
 interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
-  scope: string;
   url: string;
   state: string; // "installing" -> "installed" -> "activating" -> "activated" -> "redundant"
   onstatechange: (ev: Event) => any;
