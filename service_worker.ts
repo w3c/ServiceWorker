@@ -185,7 +185,7 @@ class ServiceWorkerClients {
 class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
-  caches: CacheStorage;
+  fetchStores: FetchStores;
 
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
@@ -494,7 +494,7 @@ class FetchEvent extends _Event {
 // This largely describes the current Application Cache API. It's only available
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
-class Cache {
+class FetchStore {
   // this is for spec purposes only, the browser will use something async and disk-based
   _items: _ES6Map<Request, AbstractResponse>;
 
@@ -504,7 +504,6 @@ class Cache {
   _query(request:any, params?) : AbstractResponse[] {
     params = params || {};
 
-    var thisCache = this;
     var ignoreSearch = Boolean(params.ignoreSearch);
     var ignoreMethod = Boolean(params.ignoreMethod);
     var ignoreVary = Boolean(params.ignoreVary);
@@ -529,7 +528,6 @@ class Cache {
       }
 
       if (prefixMatch) {
-        // FIXME(slightlyoff): handle globbing?
         cachedUrl.href = cachedUrl.href.slice(0, requestUrl.href.length);
       }
 
@@ -600,12 +598,12 @@ class Cache {
     var thisCache = this;
     requests = requests.map(_castToRequest);
 
-    var responses = requests.map(function(request) {
+    var responsePromises = requests.map(function(request) {
       return fetch(request);
     });
 
     // wait for all our requests to complete
-    return Promise.all(responses).then(function(responses) {
+    return Promise.all(responsePromises).then(function(responses) {
       // TODO: figure out what we consider success/failure
       responses.forEach(function(response) {
         if (response.status != 200) {
@@ -654,62 +652,86 @@ class Cache {
 
     return accepted().then(function() {
       return thisCache._query(request, params).reduce(function(previousResult, requestResponse) {
-        return previousResult || thisCache._items.delete(requestResponse[0]);
+        return thisCache._items.delete(requestResponse[0]) || previousResult;
       }, false);
     });
   }
 
-  each(callback: Function, thisArg?: Object) : Promise {
-    var thisCache = this;
-
-    // FIXME(slightlyoff): this version blocks on keys() and values() before
-    // beginning iteration. Instead it should be allowed to begin iteration as
-    // soon as the first item(s) are available. Further, developers should be
-    // able to extend the lifetime of an item's iteration by returning a
-    // Promise.
-    return Promise.all([
-      this.matchAll(),
-      // FIXME(slightlyoff)
-      // this.keys()
-    ]).then(function(records) {
-      return Promise.all(records.map(function(r, i) {
-        return callback.call(thisArg, records[0][i], records[1][i], thisCache);
-      }));
-    }).then(function() {
-      return undefined;
-    });
+  keys(): Promise {
+    return Promise.resolve(this._items.keys());
   }
 }
 
-class CacheStorage implements AsyncMap<any, any> {
-  constructor(iterable: Array<any>) { }
+class FetchStores {
+  // this is for spec purposes only, the browser will use something async and disk-based
+  _items: _ES6Map<String, FetchStore>;
 
-  // Convenience method to get Promise from caches. Returns the
-  // first url match from the fist cache (in insertion order, per ES6 Maps).
-  // The second optional cache name parameter invokes a search inside a
-  // specific Cache object.
+  constructor() { }
 
-  // If no url is specified, the response is rejected.
-  // If a named Cache is not found, the response is rejected.
-  // If no matching item is found in a named cache, the response is rjected.
-  // If no cacheName is specified and no matching item is found in any cache,
-  // the response is rejected.
-  match(url: String, cacheName?: String) : Promise;
-  // "any" to make the TS compiler happy
-  match(url: any, cacheName?: any) : Promise {
-    return new Promise(function(){});
+  match(request: any, params?: Object): Promise {
+    var storeName;
+
+    if (params) {
+      storeName = params.storeName;
+    }
+
+    function getMatchFrom(storeName) {
+      return this.get(storeName).then(function(store) {
+        if (!store) {
+          throw Error("Not found");
+        }
+        return store.match(request, params);
+      });
+    }
+
+    if (storeName) {
+      return getMatchFrom(storeName);
+    }
+
+    return this.keys().then(function(keys) {
+      return keys.reduce(function(chain, key) {
+        return chain.catch(function() {
+          return getMatchFrom(key);
+        });
+      }, Promise.reject()).catch(function() {
+        throw Error("No match found");
+      });
+    });
   }
 
-  get(key: any): Promise { return accepted(); }
-  has(key: any): Promise { return accepted(); }
-  set(key: any, val: any): Promise { return accepted(this); }
-  clear(): Promise { return accepted(); }
-  delete(key: any): Promise { return accepted(); }
-  forEach(callback: Function, thisArg?: Object): void {}
-  entries(): Promise { return accepted([]); }
-  keys(): Promise { return accepted([]); }
-  values(): Promise { return accepted([]); }
-  size(): Promise { return accepted(0); }
+  get(storeName: any): Promise {
+    storeName = storeName.toString();
+    return Promise.resolve(this._items.get(storeName));
+  }
+
+  has(storeName: any): Promise {
+    storeName = storeName.toString();
+    return Promise.resolve(this._items.has(storeName));
+  }
+
+  create(storeName: any): Promise {
+    storeName = storeName.toString();
+    var _items = this._items;
+
+    return this.has(storeName).then(function(storeExists) {
+      if (storeExists) {
+        throw Error("Store with that name already exists");
+      }
+      var fetchStore = new FetchStore();
+      _items.set(storeName, fetchStore);
+      return fetchStore;
+    });
+  }
+
+  delete(storeName: any): Promise {
+    storeName = storeName.toString();
+    this._items.delete(storeName);
+    return Promise.resolve();
+  }
+
+  keys(): Promise {
+    return Promise.resolve(this._items.keys());
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -948,19 +970,6 @@ class SharedWorker extends _EventTarget {
 class Client {
   id: number;
   postMessage: (message: any, targetOrigin: string, ports?: any) => void;
-}
-
-interface AsyncMap<K, V> {
-  // constructor(iterable?:any[]) {}
-  get<K>(key: K): Promise;
-  has<K>(key: K): Promise;
-  set<K>(key: K, val: V): Promise;
-  clear(): Promise;
-  delete(key: K): Promise;
-  forEach(callback: Function, thisArg?: Object): void;
-  entries(): Promise;
-  keys(): Promise;
-  values(): Promise;
 }
 
 var _useWorkerResponse = function() : Promise { return accepted(); };
