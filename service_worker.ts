@@ -580,22 +580,22 @@ class FetchStore {
   }
 
   matchAll(request?:any, params?) : Promise {
-    var thisCache = this;
+    var thisStore = this;
 
     return accepted().then(function() {
       if (request) {
-        return thisCache._query(request, params).map(function(requestResponse) {
+        return thisStore._query(request, params).map(function(requestResponse) {
           return requestResponse[1];
         });
       }
       else {
-        return thisCache._items.values();
+        return thisStore._items.values();
       }
     });
   }
 
   add(...requests:any[]) : Promise {
-    var thisCache = this;
+    var thisStore = this;
     requests = requests.map(_castToRequest);
 
     var responsePromises = requests.map(function(request) {
@@ -612,54 +612,110 @@ class FetchStore {
         }
       });
 
-      // these set operations must be sync, so the update is atomic
-      responses.forEach(function(response, i) {
-        thisCache._query(requests[i]).forEach(function(cachedRequest:Request) {
-          thisCache._items.delete(cachedRequest);
-        });
-        thisCache._items.set(requests[i], response);
-      });
-
-      return;
+      return thisStore.batch(responses.map(function(response, i) {
+        return {type: 'put', request: requests[i], response: response};
+      }));
     });
   }
 
-  put(request:any, response:AbstractResponse) : Promise {
-    var thisCache = this;
+  put(request:any, response?:AbstractResponse) : Promise {
+    var thisStore = this;
 
-    return accepted().then(function() {
-      request = _castToRequest(request);
-
-      if (request.method !== 'GET') {
-        throw new TypeError();
-      }
-
-      if (!(response instanceof AbstractResponse)) {
-        throw new TypeError();
-      }
-
-      // this must be atomic
-      thisCache._query(request).forEach(function(cachedRequest: Request) {
-        thisCache._items.delete(cachedRequest);
+    if (!response) {
+      return this.add([request]).then(function(results) {
+        return results[0];
       });
-      thisCache._items.set(request, response);
-    });
+    }
+    else {
+      return this.batch([
+        {type: 'put', request: request, response: response}
+      ]).then(function(results) {
+        return results[0];
+      });
+    }
   }
 
   // delete zero or more entries
-  delete(request:any, params?) : Promise {
-    var thisCache = this;
-
-    return accepted().then(function() {
-      return thisCache._query(request, params).reduce(function(previousResult, requestResponse) {
-        return thisCache._items.delete(requestResponse[0]) || previousResult;
-      }, false);
+  delete(request:any, matchParams?) : Promise {
+    return this.batch([
+      {type: 'delete', request: request, matchParams: matchParams}
+    ]).then(function(results) {
+      return results[0];
     });
   }
 
-  keys(): Promise {
-    return Promise.resolve(this._items.keys());
+  keys(request?:any, matchParams?): Promise {
+    var thisStore = this;
+
+    return accepted().then(function() {
+      if (request) {
+        return thisStore._query(request, matchParams).map(function(requestResponse) {
+          return requestResponse[0];
+        });
+      }
+      else {
+        return thisStore._items.keys();
+      }
+    });
   }
+
+  batch(operations:FetchStoreBatchOperation[]): Promise {
+    var thisStore = this;
+
+    return Promise.resolve().then(function() {
+      var itemsCopy:_ES6Map<Request, AbstractResponse> = thisStore._items;
+
+      // the rest must be atomic
+      try {
+        return operations.map(function handleOperation(operation) {
+          if (operation.type != 'delete' && operation.type != 'put') {
+            throw TypeError("Invalid operation type");
+          }
+          if (operation.type == "delete" && operation.response) {
+            throw TypeError("Cannot use response for delete operations");
+          }
+          if (operation.type == "delete" && operation.response) {
+            throw TypeError("Cannot use response for delete operations");
+          }
+
+          var request = _castToRequest(operation.request);
+          var result = thisStore._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
+            return thisStore._items.delete(requestResponse[0]) || previousResult;
+          }, false);
+
+          if (operation.type == 'put') {
+            if (!operation.response) {
+              throw TypeError("Put operation must have a response");
+            }
+            if (request.method !== 'GET') {
+              throw TypeError("Only GET requests are supported");
+            }
+            if (operation.matchParams) {
+              throw TypeError("Put operation cannot have match params");
+            }
+            if (!(response instanceof AbstractResponse)) {
+              throw TypeError("Invalid response");
+            }
+            thisStore._items.set(request, response);
+            result = response;
+          }
+
+          return response;
+        });
+      } catch(err) {
+        // reverse the transaction
+        thisStore._items = itemsCopy;
+        throw err;
+      }
+    });
+  }
+}
+
+interface FetchStoreBatchOperation {
+  type: String;
+  request: Request;
+  response?: AbstractResponse;
+  matchParams?: Object;
 }
 
 class FetchStores {
