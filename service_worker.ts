@@ -618,21 +618,14 @@ class FetchStore {
     });
   }
 
-  put(request:any, response?:AbstractResponse) : Promise {
+  put(request:any, response:AbstractResponse) : Promise {
     var thisStore = this;
 
-    if (!response) {
-      return this.add([request]).then(function(results) {
-        return results[0];
-      });
-    }
-    else {
-      return this.batch([
-        {type: 'put', request: request, response: response}
-      ]).then(function(results) {
-        return results[0];
-      });
-    }
+    return this.batch([
+      {type: 'put', request: request, response: response}
+    ]).then(function(results) {
+      return results[0];
+    });
   }
 
   // delete zero or more entries
