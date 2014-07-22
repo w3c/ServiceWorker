@@ -657,10 +657,11 @@ class Cache {
 
     return Promise.resolve().then(function() {
       var itemsCopy:_ES6Map<Request, AbstractResponse> = thisCache._items;
+      var addedRequests:Request[] = [];
 
       // the rest must be atomic
       try {
-        return operations.map(function handleOperation(operation) {
+        return operations.map(function handleOperation(operation, i) {
           if (operation.type != 'delete' && operation.type != 'put') {
             throw TypeError("Invalid operation type");
           }
@@ -673,6 +674,9 @@ class Cache {
 
           var request = _castToRequest(operation.request);
           var result = thisCache._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
+            if (addedRequests.indexOf(requestResponse[0]) !== -1) {
+              throw Error("Batch operation at index " + i + " overrode previous put operation");
+            }
             return thisCache._items.delete(requestResponse[0]) || previousResult;
           }, false);
 
@@ -689,6 +693,8 @@ class Cache {
             if (!(response instanceof AbstractResponse)) {
               throw TypeError("Invalid response");
             }
+
+            addedRequests.push(request);
             thisCache._items.set(request, response);
             result = response;
           }
