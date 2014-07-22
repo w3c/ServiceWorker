@@ -185,7 +185,7 @@ class ServiceWorkerClients {
 class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
-  fetchStores: FetchStores;
+  caches: CacheStorage;
 
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
@@ -494,7 +494,7 @@ class FetchEvent extends _Event {
 // This largely describes the current Application Cache API. It's only available
 // inside worker instances (not in regular documents), meaning that caching is a
 // feature of the event worker. This is likely to change!
-class FetchStore {
+class Cache {
   // this is for spec purposes only, the browser will use something async and disk-based
   _items: _ES6Map<Request, AbstractResponse>;
 
@@ -580,22 +580,22 @@ class FetchStore {
   }
 
   matchAll(request?:any, params?) : Promise {
-    var thisStore = this;
+    var thisCache = this;
 
     return accepted().then(function() {
       if (request) {
-        return thisStore._query(request, params).map(function(requestResponse) {
+        return thisCache._query(request, params).map(function(requestResponse) {
           return requestResponse[1];
         });
       }
       else {
-        return thisStore._items.values();
+        return thisCache._items.values();
       }
     });
   }
 
   add(...requests:any[]) : Promise {
-    var thisStore = this;
+    var thisCache = this;
     requests = requests.map(_castToRequest);
 
     var responsePromises = requests.map(function(request) {
@@ -612,14 +612,14 @@ class FetchStore {
         }
       });
 
-      return thisStore.batch(responses.map(function(response, i) {
+      return thisCache.batch(responses.map(function(response, i) {
         return {type: 'put', request: requests[i], response: response};
       }));
     });
   }
 
   put(request:any, response:AbstractResponse) : Promise {
-    var thisStore = this;
+    var thisCache = this;
 
     return this.batch([
       {type: 'put', request: request, response: response}
@@ -638,25 +638,25 @@ class FetchStore {
   }
 
   keys(request?:any, matchParams?): Promise {
-    var thisStore = this;
+    var thisCache = this;
 
     return accepted().then(function() {
       if (request) {
-        return thisStore._query(request, matchParams).map(function(requestResponse) {
+        return thisCache._query(request, matchParams).map(function(requestResponse) {
           return requestResponse[0];
         });
       }
       else {
-        return thisStore._items.keys();
+        return thisCache._items.keys();
       }
     });
   }
 
-  batch(operations:FetchStoreBatchOperation[]): Promise {
-    var thisStore = this;
+  batch(operations:CacheBatchOperation[]): Promise {
+    var thisCache = this;
 
     return Promise.resolve().then(function() {
-      var itemsCopy:_ES6Map<Request, AbstractResponse> = thisStore._items;
+      var itemsCopy:_ES6Map<Request, AbstractResponse> = thisCache._items;
 
       // the rest must be atomic
       try {
@@ -672,8 +672,8 @@ class FetchStore {
           }
 
           var request = _castToRequest(operation.request);
-          var result = thisStore._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
-            return thisStore._items.delete(requestResponse[0]) || previousResult;
+          var result = thisCache._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
+            return thisCache._items.delete(requestResponse[0]) || previousResult;
           }, false);
 
           if (operation.type == 'put') {
@@ -689,7 +689,7 @@ class FetchStore {
             if (!(response instanceof AbstractResponse)) {
               throw TypeError("Invalid response");
             }
-            thisStore._items.set(request, response);
+            thisCache._items.set(request, response);
             result = response;
           }
 
@@ -697,35 +697,35 @@ class FetchStore {
         });
       } catch(err) {
         // reverse the transaction
-        thisStore._items = itemsCopy;
+        thisCache._items = itemsCopy;
         throw err;
       }
     });
   }
 }
 
-interface FetchStoreBatchOperation {
+interface CacheBatchOperation {
   type: String;
   request: Request;
   response?: AbstractResponse;
   matchParams?: Object;
 }
 
-class FetchStores {
+class CacheStorage {
   // this is for spec purposes only, the browser will use something async and disk-based
-  _items: _ES6Map<String, FetchStore>;
+  _items: _ES6Map<String, Cache>;
 
   constructor() { }
 
   match(request: any, params?: Object): Promise {
-    var storeName;
+    var cacheName;
 
     if (params) {
-      storeName = params.storeName;
+      cacheName = params.cacheName;
     }
 
-    function getMatchFrom(storeName) {
-      return this.get(storeName).then(function(store) {
+    function getMatchFrom(cacheName) {
+      return this.get(cacheName).then(function(store) {
         if (!store) {
           throw Error("Not found");
         }
@@ -733,8 +733,8 @@ class FetchStores {
       });
     }
 
-    if (storeName) {
-      return getMatchFrom(storeName);
+    if (cacheName) {
+      return getMatchFrom(cacheName);
     }
 
     return this.keys().then(function(keys) {
@@ -748,33 +748,33 @@ class FetchStores {
     });
   }
 
-  get(storeName: any): Promise {
-    storeName = storeName.toString();
-    return Promise.resolve(this._items.get(storeName));
+  get(cacheName: any): Promise {
+    cacheName = cacheName.toString();
+    return Promise.resolve(this._items.get(cacheName));
   }
 
-  has(storeName: any): Promise {
-    storeName = storeName.toString();
-    return Promise.resolve(this._items.has(storeName));
+  has(cacheName: any): Promise {
+    cacheName = cacheName.toString();
+    return Promise.resolve(this._items.has(cacheName));
   }
 
-  create(storeName: any): Promise {
-    storeName = storeName.toString();
+  create(cacheName: any): Promise {
+    cacheName = cacheName.toString();
     var _items = this._items;
 
-    return this.has(storeName).then(function(storeExists) {
+    return this.has(cacheName).then(function(storeExists) {
       if (storeExists) {
         throw Error("Store with that name already exists");
       }
-      var fetchStore = new FetchStore();
-      _items.set(storeName, fetchStore);
-      return fetchStore;
+      var cache = new Cache();
+      _items.set(cacheName, cache);
+      return cache;
     });
   }
 
-  delete(storeName: any): Promise {
-    storeName = storeName.toString();
-    this._items.delete(storeName);
+  delete(cacheName: any): Promise {
+    cacheName = cacheName.toString();
+    this._items.delete(cacheName);
     return Promise.resolve();
   }
 
