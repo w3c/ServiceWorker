@@ -72,7 +72,7 @@ The first time `https://videos.example.com/index.html` is loaded, all the resour
 
 > Documents live out their whole lives using the ServiceWorker they start with.
 
-This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the doucment's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `serviceWorker.register()` and `serviceWorker.unregister()` only affect *subsequent* navigations.
+This means that if a document starts life _without_ a ServiceWorker it won't suddenly get a ServiceWorker later in life, even if one is installed for a matching bit of URL space during the document's lifetime. This means documents that are loaded with a ServiceWorker which might later call `navigator.serviceWorker.unregister("/*")` do not become controlled by that worker. Put another way, `serviceWorker.register()` and `serviceWorker.unregister()` only affect *subsequent* navigations.
 
 This is good for a couple of important reasons:
 
@@ -87,7 +87,7 @@ Once installed, ServiceWorkers can choose to handle resource requests. A navigat
 Here's an example of a ServiceWorker that only handles a single resource (`/services/inventory/data.json`) but which logs out requests for all resources it is consulted for:
 
 ```js
-// hosted at: /assets/v1/worker.js
+// hosted at /assets/v1/worker.js
 this.version = 1;
 
 var base = "https://videos.example.com";
@@ -144,7 +144,7 @@ Since loading documents and apps on the web boils down to an [HTTP request](http
 
 A few properties are made available on the `onfetch` event to help with this. Since the browser itself needs to understand the difference between these types of resource requests -- for example, to help it determine when to add something to the back/forward lists -- exposing it to a ServiceWorker is only natural.
 
-Let's say we want a ServiceWorker that only handles top-level document navigations; that is to say, doesn't handle any `<iframes>` or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
+Let's say we want a ServiceWorker that only handles top-level document navigations; that is to say, doesn't handle any `<iframe>`s or requests for sub-resources like scripts, images, stylesheets or any of the rest. Here's how the most minimal version would look:
 
 ```js
 // top-level-only-service-worker.js
@@ -607,7 +607,7 @@ Note that CORS plays an important role in the cross-origin story for many resour
 
 A few things to keep in mind regarding cross-origin resources that you may cache or request via `fetch()`:
 
-  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('https://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page wil see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
+  * You can mix origins, but it might redirect. Consider a request from `example.com/index.html` to `example.com/assets/v1/script.js`. A `fetch` event listener that calls `e.respondWith(caches.match('https://cdn.com/script.js'))` may upset some expectations. From the perspective of the page, this response will be treated as a redirect to whatever the original URL of the response body was. Scripts that interrogate the final state of the page will see the redirected URL as the `src`, not the original one. The reason for this is that it would otherwise be possible for a page to co-operate with a ServiceWorker to defeat cross-origin restrictions, leaking data that other origins were counting on the browser to protect.
   * CORS does what CORS does. The body of a cross-origin response served with CORS headers won't be readable from a `fetch` (this restriction might be lifted later), but when sent to a document, the CORS headers will be replayed and the document will be able to do anything CORS would have allowed with the content.
   * There's no harm in responding to a cross-origin request with a `new Response()` that you create out of thin air. Since the document in question is the thing that's at risk, and since the other APIs available to you won't allow you undue access to cross-origin response bodies, you can pretend you're any other origin -- so long as the only person you're fooling is yourself.
 
