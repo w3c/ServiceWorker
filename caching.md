@@ -1,6 +1,6 @@
 ## Caching
 
-The Cache API is the easiest mechanism to take an application offline, but it is by no means the only one. Other browser storage mechanisms (such as IndexedDB, the FileSystem API are fine candidates as well. (Local storage is out: no synchronous APIs) The Cache API is primarily an API sugared specifically for responding to `fetch` events in ServiceWorkers.
+The Cache API is the easiest mechanism to take an application offline, but it is by no means the only one. Other browser storage mechanisms (such as IndexedDB, the FileSystem API) are fine candidates as well. (Local storage is out: no synchronous APIs.) The Cache API is primarily an API sugared specifically for responding to `fetch` events in ServiceWorkers.
 
 Much like any other web storage technology, they are _not_ shared across domains, and they are completely isolated from the browser's HTTP cache.
 
@@ -132,7 +132,7 @@ A call to `.update()` re-checks the underlying resources against the versions in
 
 Items in the cache are actually keyed by request. When you create/fetch cache items using a string, that string is converted to a URL with the worker URL as a base, then that URL is converted to a basic GET request.
 
-`cache.match(request)` uses HTTP caching semantics to find the first relavent match to the request, although "freshness" headers such as `Cache-Control` are ignored.
+`cache.match(request)` uses HTTP caching semantics to find the first relevant match to the request, although "freshness" headers such as `Cache-Control` are ignored.
 
 By default, cache entries are unique to their url and method:
 
@@ -285,4 +285,4 @@ this.onfetch = function(event) {
 };
 ```
 
-Because the request going into the cache and network is the same, the browser will optimise by only making one request.
+Because the request going into the cache and network is the same, the browser will optimise by making only one request.
