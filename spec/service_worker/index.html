@@ -860,7 +860,8 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; each(<a href="#cache-iteration-callback-callback">CacheIterationCallback</a> <var>callback</var>, optional any <var>thisArg</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; batch(sequence&lt;<a href="#cache-batch-operation-dictionary">CacheBatchOperation</a>&gt; <var>operations</var>);
 };
 
 dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</dfn> {
@@ -870,7 +871,12 @@ dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</df
   boolean prefixMatch;
 };
 
-callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallback">CacheIterationCallback</dfn> = <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; (<a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>value</var>, (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>key</var>, <a href="#cache-storage-interface">Cache</a> <var>map</var>);
+dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation">CacheBatchOperation</dfn> {
+  DOMString type;
+  Request request;
+  Response response;
+  QueryParams matchParams;
+};
 </spec-idl>
       <p>The <dfn id="cache-constructor"><code>Cache()</code></dfn> constructor, when invoked, must return a newly created <code><a href="#cache-interface">Cache</a></code> object. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
 
@@ -895,7 +901,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
                 <ol>
                   <li>If <var>responseArray</var> is an empty array, then:
                     <ol>
-                      <li>Reject <var>promise</var> with an "<code><a href="http://dom.spec.whatwg.org/#indexsizeerror">IndexSizeError</a></code>" exception.</li>
+                      <li>Reject <var>promise</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
                     </ol>
                   </li>
                   <li>Else:
@@ -922,7 +928,6 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
           <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
           <li>Run these steps asynchronously:
             <ol>
-              <li>Let <var>requestArray</var> be an empty array.</li>
               <li>Let <var>responseArray</var> be an empty array.</li>
               <li>If the optional argument <var>request</var> is omitted, then:
                 <ol>
@@ -937,70 +942,13 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
               </li>
               <li>Else:
                 <ol>
-                  <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-                  <li>If this throws an exception, then:
+                  <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>params</var> as the arguments.</li>
+                  <li>For each <var>entry</var> of <var>entries</var>:
                     <ol>
-                      <li>Reject <var>promise</var> with the exception.</li>
-                      <li>Abort these steps.</li>
+                      <li>Add <var>entry</var>[1] to <var>responseArray</var>.</li>
                     </ol>
                   </li>
-                  <li>If <var>params</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
-                    <ol>
-                      <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                    <ol>
-                      <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]].<var>url</var>.</li>
-                      <li>Let <var>requestURL</var> be <var>request</var>.<var>url</var>.</li>
-                      <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
-                        <ol>
-                          <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
-                          <li>Set <var>requestURL</var>.<var>search</var> to the empty string.</li>
-                        </ol>
-                      </li>
-                      <li>If <var>params</var>.<var>prefixMatch</var> is true, then:
-                        <ol>
-                          <li>Set <var>cachedURL</var>.<var>href</var> to the substring of itself from the start, with the length of <var>requestURL</var>.<var>href</var>.</li>
-                        </ol>
-                      </li>
-                      <li>If <var>cachedURL</var>.<var>href</var> matches <var>requestURL</var>.<var>href</var>, then:
-                        <ol>
-                          <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
-                          <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
-                  <li>Let <var>resultArray</var> be an empty array.</li>
-                  <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
-                    <ol>
-                      <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-                      <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
-                        <ol>
-                          <li>Add <var>cachedResponse</var> to <var>resultArray</var>.</li>
-                        </ol>
-                      </li>
-                      <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
-                      <li>For each <var>f</var> in <var>varyHeaders</var>:
-                        <ol>
-                          <li>If <var>f</var> matches "*", then:
-                            <ol>
-                              <li>Continue to the next iteration of the loop.</li>
-                            </ol>
-                          </li>
-                          <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
-                            <ol>
-                              <li>Break the loop.</li>
-                            </ol>
-                          </li>
-                          <li>Add <var>cachedResponse</var> to <var>resultArray</var>.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
-                  <li>Resolve <var>promise</var> with <var>resultArray</var>.</li>
+                  <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
                 </ol>
               </li>
             </ol>
@@ -1078,6 +1026,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
           <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
+        <p class="fixme">The algorithm for <code>add(...<var>requests</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
       <spec-section id="cache-put">
@@ -1124,6 +1073,7 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
           <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
+        <p class="fixme">The algorithm for <code>put(<var>request</var>, <var>response</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
       <spec-section id="cache-delete">
@@ -1222,39 +1172,32 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
           <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
+        <p class="fixme">The algorithm for <code>delete(<var>request</var>, <var>matchParams</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
-      <spec-section id="cache-each">
-        <h1><code>each(<var>callback</var>, <var>thisArg</var>)</code></h1>
+      <spec-section id="cache-keys">
+        <h1><code>keys(<var>request</var>, <var>params</var>)</code></h1>
 
-        <p><dfn id="cache-each-mthod"><code>each(<var>callback</var>, <var>thisArg</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-keys-mthod"><code>keys(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
-          <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Run these steps asynchronously:
-            <ol>
-              <li>Let <var>resultArray</var> be an empty array.</li>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                <ol>
-                  <li>Invoke the [[Call]] method of <var>callback</var> with <var>thisArg</var> as the <a href="http://heycam.github.io/webidl/#dfn-callback-this-value">callback this value</a> and <var>entry</var>.[[value]], <var>entry</var>.[[key] and the <code><a href="#cache-interface">Cache</a></code> object itself as the arguments, and add the returned value to <var>resultArray</var>.</li>
-                </ol>
-              </li>
-              <li>If <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of</a> <var>resultArray</var> rejects with an exception, then:
-                <ol>
-                  <li>Reject <var>promise</var> with the exception.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Resolve <var>promise</var> with undefined.</li>
-            </ol>
-          </li>
-          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
-
-        <p class="note">The [[Call]] method in the algorithm is defined in "<a href="http://heycam.github.io/webidl/#es-user-objects">4.8. User objects implementing callback interfaces</a>".</p>
+        <p class="fixme">To be defined.</p>
       </spec-section>
+
+      <spec-section id="cache-batch">
+        <h1><code>batch(<var>operations</var>)</code></h1>
+
+        <p><dfn id="cache-batch-mthod"><code>batch(<var>operations</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+        </ol>
+        </spec-algorithm>
+      </spec-section>
+      <p class="fixme">To be defined.</p>
     </spec-section>
 
     <spec-section id="cache-storage">
@@ -1263,23 +1206,16 @@ callback <dfn id="cache-iteration-callback-callback" title="CacheIterationCallba
 <spec-idl>
 [Constructor(sequence&lt;any&gt; iterable)]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="#promise-interface">Promise</a>&lt;any&gt; match(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>, optional DOMString <var>cacheName</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>key</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; clear();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>key</var>);
-  void forEach(<a href="#cache-storate-iteration-callback-callback">CacheStorageIterationCallback</a> <var>callback</var>, optional any <var>thisArg</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;any&gt;&gt; entries();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; create(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#cache-interface">Cache</a>&gt;&gt; values();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;unsigned long&gt; size();
-};
+};</spec-idl>
+<!--FIXME(jungkees): set method is not entirely dropped yet. <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);-->
 
-callback <dfn id="cache-storate-iteration-callback-callback" title="CacheStorageIterationCallback">CacheStorageIterationCallback</dfn> = <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; (<a href="#cache-interface">Cache</a> <var>value</var>, DOMString <var>key</var>, <a href="#cache-storage-interface">CacheStorage</a> <var>map</var>);
-</spec-idl>
-
-      <p><span class="note"><a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods.</span></p>
+      <p class="note"><a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods. The methods, <code>clear</code>, <code>forEach</code>, <code>entries</code> and <code>values</code>, are intentionally excluded from the scope of the first version resorting to the ongoing discussion about the async iteration by TC39.</p>
 
     </spec-section>
   </spec-section>
@@ -2308,7 +2244,88 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Return <var>newestWorker</var>.</li>
     </ol>
     </spec-algorithm>
-</spec-section>
+  </spec-section>
+
+  <spec-section id="query-cache-algorithm">
+    <h1>[[QueryCache]]</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>request</var>, a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object</dd>
+        <dd><var>params</var>, a <code><a href="#query-params-dictionary">QueryParams</a></code> object, optional</dd>
+      <dt>Output</dt>
+        <dd><var>resultArray</var>, an array that has [<code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code>, <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>] pairs as its elements</dd>
+    </dl>
+    <ol>
+      <li>Let <var>requestArray</var> be an empty array.</li>
+      <li>Let <var>responseArray</var> be an empty array.</li>
+      <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
+      <li>If this throws an exception, then:
+        <ol>
+          <li>Rethrow that exception.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>params</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
+        <ol>
+          <li>Return <var>responseArray</var>.</li>
+        </ol>
+      </li>
+      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+        <ol>
+          <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]].<var>url</var>.</li>
+          <li>Let <var>requestURL</var> be <var>request</var>.<var>url</var>.</li>
+          <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
+            <ol>
+              <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
+              <li>Set <var>requestURL</var>.<var>search</var> to the empty string.</li>
+            </ol>
+          </li>
+          <li>If <var>params</var>.<var>prefixMatch</var> is true, then:
+            <ol>
+              <li>Set <var>cachedURL</var>.<var>href</var> to the substring of itself from the start, with the length of <var>requestURL</var>.<var>href</var>.</li>
+            </ol>
+          </li>
+          <li>If <var>cachedURL</var>.<var>href</var> matches <var>requestURL</var>.<var>href</var>, then:
+            <ol>
+              <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
+              <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Let <var>resultArray</var> be an empty array.</li>
+      <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
+        <ol>
+          <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
+          <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
+            <ol>
+              <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
+            </ol>
+          </li>
+          <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
+          <li>For each <var>f</var> in <var>varyHeaders</var>:
+            <ol>
+              <li>If <var>f</var> matches "*", then:
+                <ol>
+                  <li>Continue to the next iteration of the loop.</li>
+                </ol>
+              </li>
+              <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
+                <ol>
+                  <li>Break the loop.</li>
+                </ol>
+              </li>
+              <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Return <var>resultArray</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
 
 </spec-clause>
 
