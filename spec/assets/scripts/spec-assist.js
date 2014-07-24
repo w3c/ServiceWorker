@@ -29,7 +29,7 @@ TableOfContentsEnumerator.prototype.processListItem = function(item)
 {
     if (!(item instanceof HTMLLIElement))
         return;
-    
+
     var indexText = this.prefix.join('.') + " ";
     var a = item.querySelector('a');
     var href = a.getAttribute('href');
@@ -180,7 +180,7 @@ DefinitionsCrossLinker.prototype.createCrossLinks = function(dfn)
     dfn.crossLinkContent = '<div class="title"><a href="#' + id + '">#' + id + '</a></div><ol>' + links.join('') + '</ol>';
 }
 
-var assistants = [ new LastUpdatedDateFetcher(), new TableOfContentsEnumerator(), new DefinitionsCrossLinker() ];
+var assistants = [ new LastUpdatedDateFetcher() /*, new TableOfContentsEnumerator(), new DefinitionsCrossLinker() */];
 
 document.addEventListener('DOMContentLoaded', function() {
     assistants.forEach(function(assistant) {
