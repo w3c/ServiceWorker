@@ -150,7 +150,7 @@
     <br><br>
     If no <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code> <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> is registered, the Service Worker is considered to be successfully installed.
     <br><br>
-    If any <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code> handler throws an exception, or if any lifetime extension via <code><a href="#install-phase-event-waituntil-method">event.waitUntil()</a></code> fails (via promise rejection), installation fails and activation is not carried out.
+    If any <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code> handler <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, or if any lifetime extension via <code><a href="#install-phase-event-waituntil-method">event.waitUntil()</a></code> fails (via promise rejection), installation fails and activation is not carried out.
     <br><br>
     Assuming an <a href="#dfn-installing-worker">installing worker</a> completes the steps in the <a href="#dfn-installation-process">installation process</a> (i.e. successfully installed), it is now considered the <dfn id="dfn-worker-in-waiting">worker in waiting</dfn>. There may be only one <a href="#dfn-active-worker">active worker</a>, one <a href="#dfn-worker-in-waiting">worker in waiting</a> and one <a href="#dfn-installing-worker">installing worker</a> for a given <a href="#dfn-url-scope">URL scope</a>.
     </li>
@@ -979,7 +979,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <li>For each <var>request</var> in <var>requestArray</var>:
                 <ol>
                   <li>Let <var>r</var> be the associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-                  <li>If this throws an exception, then:
+                  <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
                     <ol>
                       <li>Reject <var>promise</var> with the exception.</li>
                       <li>Abort these steps.</li>
@@ -1040,7 +1040,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Run these steps asynchronously:
             <ol>
               <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-              <li>If this throws an exception, then:
+              <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
                 <ol>
                   <li>Reject <var>promise</var> with the exception.</li>
                   <li>Abort these steps.</li>
@@ -1089,7 +1089,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <li>Let <var>requestArray</var> be an empty array.</li>
               <li>Let <var>responseArray</var> be an empty array.</li>
               <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-              <li>If this throws an exception, then:
+              <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
                 <ol>
                   <li>Reject <var>promise</var> with the exception.</li>
                   <li>Abort these steps.</li>
@@ -1182,9 +1182,36 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
+          <li>Run these steps asynchronously:
+            <ol>
+              <li>Let <var>resultArray</var> be an empty array.</li>
+              <li>If the optional argument <var>request</var> is omitted, then:
+                <ol>
+                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+                    <ol>
+                      <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Else:
+                <ol>
+                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>params</var> as the arguments.</li>
+                  <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
+                    <ol>
+                      <li>Add <var>requestResponse</var>[0] to <var>resultArray</var>.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Resolve <var>promise</var> with <var>resultArray</var>.</li>
+            </ol>
+          </li>
+          <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">To be defined.</p>
+        <p class="fixme">This section is under review.</p>
       </spec-section>
 
       <spec-section id="cache-batch">
@@ -1194,10 +1221,87 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>p</var> be a <a href="http://goo.gl/3TobQS">promise</a> resolved with no value.</li>
+          <li>Let <var>q</var> be a <a href="http://goo.gl/3TobQS">promise</a> returned by running <var>p</var>'s <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.prototype.then">then</a> method.</li>
+          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following steps asynchronously:
+            <ol>
+              <li>Let <var>itemsCopy</var> be a new <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object that is a copy of its <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</li>
+              <li>Let <var>addedRequests</var> be an empty array.</li>
+              <li>Try running the following substeps atomically:
+                <ol>
+                  <li>Let <var>resultArray</var> be an empty array.</li>
+                  <li>For each <var>operation</var> in <var>operations</var> with the index <var>index</var>:
+                    <ol>
+                      <li>If <var>opeartion</var>.<var>type</var> matches neither "delete" nor "put", then:
+                        <ol>
+                          <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                        </ol>
+                      </li>
+                      <li>If <var>opeartion</var>.<var>type</var> matches "delete" and <var>opeartion</var>.<var>response</var> is not null, then:
+                        <ol>
+                          <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                        </ol>
+                      </li>
+                      <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>operation</var>.<var>request</var> as the argument.</li>
+                      <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>opeation</var>.<var>matchParams</var> as the arguments.</li>
+                      <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
+                        <ol>
+                          <li>If any of the values in <var>addedRequests</var> matches <var>requestResponse</var>[0], then:
+                            <ol>
+                              <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+                            </ol>
+                          </li>
+                          <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+                            <ol>
+                              <li>If <var>requestResponse</var>[0] matches <var>entry</var>.[[key]], then:
+                              <ol>
+                                <li>Delete <var>entry</var>.</li>
+                              </ol>
+                            </li>
+                            </ol>
+                          </li>
+                        </ol>
+                      </li>
+                      <li>If <var>opeartion</var>.<var>type</var> matches "put", then:
+                        <ol>
+                          <li>If <var>opeartion</var>.<var>response</var> is null, then:
+                            <ol>
+                              <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                            </ol>
+                          </li>
+                          <li>If <var>request</var>.<var>method</var> does not match "GET", then:
+                            <ol>
+                              <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                            </ol>
+                          </li>
+                          <li>If <var>operation</var>.<var>matchParams</var> is not null, then:
+                            <ol>
+                              <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                            </ol>
+                          </li>
+                          <li>Add <var>request</var> to <var>addedRequests</var>.</li>
+                          <li>Set a newly-created Record {[[key]]: <var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>.</li>
+                        </ol>
+                      </li>
+                      <li>Add <var>operation</var>.<var>response</var> to <var>resultArray</var>.</li>
+                    </ol>
+                  </li>
+                  <li>Resolve <var>q</var> with <var>resultArray</var>.</li>
+                </ol>
+              </li>
+              <li>And then, if an exception was <a href="http://dom.spec.whatwg.org/#concept-throw">thrown</a>, then:
+                <ol>
+                  <li>Set the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> to <var>itemsCopy</var>.</li>
+                  <li>Rethrow the exception</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+          <li>Return <var>q</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
-      <p class="fixme">To be defined.</p>
+      <p class="fixme">This section is under review.</p>
     </spec-section>
 
     <spec-section id="cache-storage">
@@ -1349,7 +1453,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-section id="respond-with-method">
       <h1><code>event.respondWith(r)</code></h1>
 
-      <p>When <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method is invoked, the argument, <var>r</var>, must resolve with a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. If the request is a top-level navigation and the return value is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> whose <code>type</code> attribute is "<code>opaque</code>" (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is thrown. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> body, not URLs.</p>
+      <p>When <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method is invoked, the argument, <var>r</var>, must resolve with a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is <a href="http://dom.spec.whatwg.org/#concept-throw">thrown</a>. If the request is a top-level navigation and the return value is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> whose <code>type</code> attribute is "<code>opaque</code>" (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is <a href="http://dom.spec.whatwg.org/#concept-throw">thrown</a>. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> body, not URLs.</p>
 
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
@@ -2289,7 +2393,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>requestArray</var> be an empty array.</li>
       <li>Let <var>responseArray</var> be an empty array.</li>
       <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-      <li>If this throws an exception, then:
+      <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
         <ol>
           <li>Rethrow that exception.</li>
           <li>Abort these steps.</li>
