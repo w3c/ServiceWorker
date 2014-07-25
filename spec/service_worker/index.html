@@ -2058,13 +2058,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>If <var>registration</var>.<a href="#upinstalling-internal-property">[[Uninstalling]]</a> is true, then:
         <ol>
-          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>.<var>scope</var> matches <var>entry</var>.[[key]].</var>
+          <li>Invoke <a href="#clear-registration-algorithm">[[ClearRegistration]]</a> algorithm passing <var>registration</var> as its argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
       <li>If <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> is null and <var>registration.installing</var> is null and <var>registration</var>.<var>waiting</var> is null and <var>registration.active</var> is null, then:
         <ol>
-          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>.<var>scope</var> matches <var>entry</var>.[[key]].</var>
+          <li>Invoke <a href="#clear-registration-algorithm">[[ClearRegistration]]</a> algorithm passing <var>registration</var> as its argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
@@ -2113,32 +2113,60 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a>.</li>
             </ol>
           </li>
-          <li>If <var>registration</var>.<var>installing</var> is not null, then:
-            <ol>
-              <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installing</var>.</li>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installing</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>installing</var> to null.</li>
-              <li>The user agent may abort in-flight requests triggered by <var>registration</var>.<var>installing</var>.</li>
-            </ol>
-          </li>
-          <li>If <var>registration</var>.<var>waiting</var> is not null, then:
-            <ol>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>waiting</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>waiting</var> to null.</li>
-            </ol>
-          </li>
           <li>Resolve <var>promise</var>.</li>
-          <li>Wait until no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>.</li>
-          <li>If <var>registration</var>.<var>active</var> is not null, then:
+          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
             <ol>
-              <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>active</var> and "<code>redundant</code>" as the arguments.</li>
-              <li>Set <var>registration</var>.<var>active</var> to null.</li>
+              <li>If <var>registration</var>.<a href="#upinstalling-internal-property">[[Uninstalling]]</a> is false, then:
+                <ol>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Invoke <a href="#clear-registration-algorithm">[[ClearRegistration]]</a> algorithm passing <var>registration</var> as its argument.</li>
             </ol>
           </li>
-          <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>scope</var> matches <var>entry</var>.[[key]].</li>
         </ol>
       </li>
       <li>Return <var>promise</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+  <spec-section id="clear-registration-algorithm">
+    <h1>[[ClearRegistration]]</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>registration</var>, a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>If <var>registration</var>.<var>installing</var> is not null, then:
+        <ol>
+          <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installing</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>installing</var> and "<code>redundant</code>" as the arguments.</li>
+          <li>Set <var>registration</var>.<var>installing</var> to null.</li>
+          <li>The user agent may abort in-flight requests triggered by <var>registration</var>.<var>installing</var>.</li>
+        </ol>
+      </li>
+      <li>If <var>registration</var>.<var>waiting</var> is not null, then:
+        <ol>
+          <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>waiting</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>waiting</var> and "<code>redundant</code>" as the arguments.</li>
+          <li>Set <var>registration</var>.<var>waiting</var> to null.</li>
+          <li>The user agent may abort in-flight requests triggered by <var>registration</var>.<var>waiting</var>.</li>
+        </ol>
+      </li>
+      <li>If <var>registration</var>.<var>active</var> is not null, then:
+        <ol>
+          <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>active</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>active</var> and "<code>redundant</code>" as the arguments.</li>
+          <li>Set <var>registration</var>.<var>active</var> to null.</li>
+          <li>The user agent may abort in-flight requests triggered by <var>registration</var>.<var>active</var>.</li>
+        </ol>
+      </li>
+      <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>.<var>scope</var> matches <var>entry</var>.[[key]].</li>
     </ol>
     </spec-algorithm>
   </spec-section>
