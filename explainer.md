@@ -100,12 +100,10 @@ this.addEventListener("fetch", function(e) {
   var url = e.request.url;
   console.log(url);
   if (url == inventory) {
-    e.respondWith(new Response({
-      statusCode: 200,
-      body: JSON.stringify({
-        videos: { /* ... */ }
-      })
-    }));
+    e.respondWith(new Response(
+      new Blob([JSON.stringify({ videos: { /* ... */ } })], { type: "application/json" }),
+      { status: 200 }
+    ));
   }
 });
 ```
