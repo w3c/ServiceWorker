@@ -101,9 +101,9 @@ this.addEventListener("fetch", function(e) {
   console.log(url);
   if (url == inventory) {
     e.respondWith(new Response(JSON.stringify({ videos: { /* ... */ } }), {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200
-      }));
+      headers: { 'Content-Type': 'application/json' },
+      status: 200
+    }));
   }
 });
 ```
