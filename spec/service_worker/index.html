@@ -95,6 +95,7 @@
       <li><a href="http://tools.ietf.org/html/rfc6454">The Web Origin Concept</a></li>
       <li><a href="http://url.spec.whatwg.org/">URL Living Standard</a></li>
       <li><a href="http://tools.ietf.org/html/rfc2616">Hypertext Transfer Protocol -- HTTP/1.1</a></li>
+      <li><a href="http://www.w3.org/TR/CSP2/">Content Security Policy Level 2</a></li>
       <li><a href="http://www.w3.org/TR/mixed-content/">Mixed Content</a></li>
     </ul>
   </spec-section>
@@ -138,7 +139,7 @@
   <ol>
     <li><em>Fetch</em>:
     <br>
-    The script URL provided by the author (via a call to <code><a href="#navigator-service-worker-register">navigator.serviceWorker.register(<var>scriptURL</var>, <var>options</var>)</a></code> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+    The script URL provided by the author (via a call to <code><a href="#navigator-service-worker-register">navigator.serviceWorker.register(<var>scriptURL</var>, <var>options</var>)</a></code> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a> or it is served with a <code><a href="http://www.w3.org/TR/CSP2/#content-security-policy-header-field">Content-Security-Policy</a></code> header that disallows use as a Service Worker, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
     If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Workers specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#update-algorithm">"Worker Script Caching"<!--TODO(jungkees): add worker script caching section--></a>.
@@ -1745,6 +1746,15 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to null.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Else if the server returned a <code>Content-Security-Policy</code> header including a <code><a href="http://www.w3.org/TR/CSP2/#directive-sandbox">sandbox</a></code> directive, then:
+            <p class="fixme">Once Service Workers use the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#run-a-worker">run a worker</a> algorithm to start the Service Worker execution process, this should probably move inside the <a href="#installation-algorithm">[[Install]]</a> algorithm and refer to the worker's <a href="http://www.w3.org/TR/html5/browsers.html#sandboxed-origin-browsing-context-flag">sandboxed origin browsing context flag</a> inside its <a href="#forced-sandboxing-flag-set">forced sandboxing flag set</a>.</p>
+            <ol>
+              <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
+              <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to null.</li>
+              <li>Invoke the <a href="#unregister-algorithm">[[Unregister]]</a> algorithm passing <var>registration</var>.<var>scope</var> as its argument.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
