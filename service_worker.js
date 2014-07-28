@@ -334,9 +334,8 @@ var FetchEvent = (function (_super) {
         this.stopImmediatePropagation();
 
         return new Promise(function (resolver) {
-            resolver.resolve(new Response({
-                status: 302,
-                headers: { "Location": url.toString() }
+            resolver.resolve(Response.redirect(url.toString(), {
+                status: 302
             }));
         });
     };

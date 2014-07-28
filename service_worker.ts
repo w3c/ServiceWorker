@@ -443,9 +443,8 @@ class FetchEvent extends _Event {
     this.stopImmediatePropagation();
 
     return new Promise(function(resolver){
-      resolver.resolve(new Response({
-        status: 302,
-        headers: { "Location": url.toString() }
+      resolver.resolve(Response.redirect(url.toString(), {
+        status: 302
       }));
     });
   }
