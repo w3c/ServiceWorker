@@ -965,68 +965,54 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
         <spec-algorithm>
         <ol>
-          <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Run these steps asynchronously:
+          <li>If there are no arguments, then:
             <ol>
-              <li>If there are no arguments, then:
-                <ol>
-                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Let <var>requestArray</var> be an array containing the elements corresponding to the variadic argument <var>requests</var>.</li>
-              <li>Let <var>responseArray</var> be an empty array.</li>
-              <li>For each <var>request</var> in <var>requestArray</var>:
-                <ol>
-                  <li>Let <var>r</var> be the associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-                  <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-                    <ol>
-                      <li>Reject <var>promise</var> with the exception.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                  <li>Invoke <a href="#fetch-algorithm">[[Fetch]]</a> with <var>r</var> and add the returned value to <var>responseArray</var>.</li>
-                </ol>
-              </li>
-              <li>If <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of</a> <var>responseArray</var> rejects with an exception, then:
-                <ol>
-                  <li>Reject <var>promise</var> with the exception.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>For each <var>p</var> in <var>responseArray</var>:
-                <ol>
-                  <li>Let <var>response</var> be the value which <var>p</var> resolved with.</li>
-                  <li>If the <var>status</var> attribute of <var>response</var> is not 200, then:
-                    <ol>
-                      <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>For each <var>p</var> in <var>responseArray</var> with the index <var>index</var>:
-                <ol>
-                  <li>Let <var>request</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                    <ol>
-                      <li>If <var>request</var> matches <var>entry</var>.[[key]], then:
-                      <ol>
-                        <li>Delete <var>entry</var>.</li>
-                      </ol>
-                    </li>
-                    </ol>
-                  </li>
-                  <li>Set a newly-created Record {[[key]]: <var>request</var>, [[value]]: <var>response</var>} to <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>.</li>
-                </ol>
-              </li>
-              <li>Resolve <var>promise</var>.</li>
+              <li>Return a <a href="http://goo.gl/3TobQS">promise</a> rejected with a <code>TypeError</code>.</li>
             </ol>
           </li>
-          <li>Return <var>promise</var>.</li>
+          <li>Let <var>requestArray</var> be an array containing the elements corresponding to the variadic argument <var>requests</var>.</li>
+          <li>Let <var>responsePromiseArray</var> be an empty array.</li>
+          <li>For each <var>request</var> in <var>requestArray</var>:
+            <ol>
+              <li>Run the algorithm specified in <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>request</var> and add the returned value to <var>responsePromiseArray</var>.</li>
+            </ol>
+          </li>
+          <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of <var>responsePromiseArray</var></a>.</li>
+          <li>Let <var>q</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>p</var> with <var>onFulfilled</var> and <var>onRejected</var></a>.</li>
+          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+            <ol>
+              <li>For each <var>response</var> in <var>responseArray</var>:
+                <ol>
+                  <li>If the <var>status</var> attribute of <var>response</var> is not 200, then:
+                    <ol>
+                      <li>Reject <var>q</var> with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Let <var>operations</var> be an empty array.</li>
+              <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
+                <ol>
+                  <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+                  <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
+                  <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].</li>
+                  <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
+                  <li>Add <var>o</var> to <var>operations</var>.</li>
+                </ol>
+              </li>
+              <li>Set <var>resultPromiseArray</var> to the result of running the algorithm specified in <code><a href="#cache-batch-method">batch(<var>operations</var>)</a></code> passing <var>operations</var> as the argument.</li>
+              <li>Resolve <var>q</var> with <var>resultPromiseArray</var>.</li>
+            </ol>
+          </li>
+          <li>Upon rejection of <var>p</var> with reason <var>r</var>, perform the following substeps, <var>onRejected</var>, asynchronously:
+            <ol>
+              <li>Reject <var>q</var> with <var>r</var>.</li>
+            </ol>
+          </li>
+          <li>Return <var>q</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for <code>add(...<var>requests</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
       <spec-section id="cache-put">
@@ -1036,44 +1022,22 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
         <spec-algorithm>
         <ol>
-          <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Run these steps asynchronously:
+          <li>Let <var>operations</var> be an empty array.</li>
+          <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+          <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
+          <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>request</var>.</li>
+          <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
+          <li>Add <var>o</var> to <var>operations</var>.</li>
+          <li>Set <var>resultPromiseArray</var> to the result of running the algorithm specified in <code><a href="#cache-batch-method">batch(<var>operations</var>)</a></code> passing <var>operations</var> as the argument.</li>
+          <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
+          <li>Upon fulfillment of <var>p</var> with <var>responseArray</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
             <ol>
-              <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-              <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-                <ol>
-                  <li>Reject <var>promise</var> with the exception.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>If <var>request</var>.<var>method</var> is not "GET", then:
-                <ol>
-                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>If <var>response</var> is not an instance of the <a href="http://fetch.spec.whatwg.org/#response">Response</a> interface, then:
-                <ol>
-                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                <ol>
-                  <li>If <var>request</var> matches <var>entry</var>.[[key]], then:
-                  <ol>
-                    <li>Delete <var>entry</var>.</li>
-                  </ol>
-                </li>
-                </ol>
-                <li>Set a newly-created Record {[[key]]: <var>request</var>, [[value]]: <var>response</var>} to <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>.</li>
-              </li>
+              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
             </ol>
           </li>
-          <li>Return <var>promise</var>.</li>
+          <li>Return <var>p</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for <code>put(<var>request</var>, <var>response</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
       <spec-section id="cache-delete">
@@ -1083,96 +1047,22 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
         <spec-algorithm>
         <ol>
-          <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-          <li>Run these steps asynchronously:
+          <li>Let <var>operations</var> be an empty array.</li>
+          <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+          <li>Set the <var>type</var> dictionary member of <var>o</var> to "delete".</li>
+          <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>request</var>.</li>
+          <li>Set the <var>matchParams</var> dictionary member of <var>o</var> to <var>params</var>.</li>
+          <li>Add <var>o</var> to <var>operations</var>.</li>
+          <li>Set <var>resultPromiseArray</var> to the result of running the algorithm specified in <code><a href="#cache-batch-method">batch(<var>operations</var>)</a></code> passing <var>operations</var> as the argument.</li>
+          <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
+          <li>Upon fulfillment of <var>p</var> with <var>responseArray</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
             <ol>
-              <li>Let <var>requestArray</var> be an empty array.</li>
-              <li>Let <var>responseArray</var> be an empty array.</li>
-              <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
-              <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-                <ol>
-                  <li>Reject <var>promise</var> with the exception.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>If <var>params</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
-                <ol>
-                  <li>Resolve <var>promise</var> with false.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                <ol>
-                  <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]].<var>url</var>.</li>
-                  <li>Let <var>requestURL</var> be <var>request</var>.<var>url</var>.</li>
-                  <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
-                    <ol>
-                      <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
-                      <li>Set <var>requestURL</var>.<var>search</var> to the empty string.</li>
-                    </ol>
-                  </li>
-                  <li>If <var>params</var>.<var>prefixMatch</var> is true, then:
-                    <ol>
-                      <li>Set <var>cachedURL</var>.<var>href</var> to the substring of itself from the start, with the length of <var>requestURL</var>.<var>href</var>.</li>
-                    </ol>
-                  </li>
-                  <li>If <var>cachedURL</var>.<var>href</var> matches <var>requestURL</var>.<var>href</var>, then:
-                    <ol>
-                      <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
-                      <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Let <var>resultArray</var> be an empty array.</li>
-              <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
-                <ol>
-                  <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-                  <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
-                    <ol>
-                      <li>Add <var>cachedResponse</var> to <var>resultArray</var>.</li>
-                    </ol>
-                  </li>
-                  <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
-                  <li>For each <var>f</var> in <var>varyHeaders</var>:
-                    <ol>
-                      <li>If <var>f</var> matches "*", then:
-                        <ol>
-                          <li>Continue to the next iteration of the loop.</li>
-                        </ol>
-                      </li>
-                      <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
-                        <ol>
-                          <li>Break the loop.</li>
-                        </ol>
-                      </li>
-                      <li>Add <var>cachedRequest</var> to <var>resultArray</var>.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Let <var>deleted</var> be false.</li>
-              <li>For each <var>r</var> of <var>resultArray</var>:
-                <ol>
-                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
-                    <ol>
-                      <li>If <var>r</var> matches <var>entry</var>.[[key]], then:
-                        <ol>
-                          <li>Set <var>deleted</var> to true.</li>
-                          <li>Delete <var>entry</var>.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Resolve <var>promise</var> with <var>deleted</var>.</li>
+              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
             </ol>
           </li>
-          <li>Return <var>promise</var>.</li>
+          <li>Return <var>p</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for <code>delete(<var>request</var>, <var>matchParams</var>)</code> method will be updated based off of the definition of <code>batch(<var>operations</var>)</code> method.</p>
       </spec-section>
 
       <spec-section id="cache-keys">
@@ -1211,19 +1101,18 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Return <var>promise</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">This section is under review.</p>
       </spec-section>
 
       <spec-section id="cache-batch">
         <h1><code>batch(<var>operations</var>)</code></h1>
 
-        <p><dfn id="cache-batch-mthod"><code>batch(<var>operations</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-batch-method"><code>batch(<var>operations</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
           <li>Let <var>p</var> be a <a href="http://goo.gl/3TobQS">promise</a> resolved with no value.</li>
-          <li>Let <var>q</var> be a <a href="http://goo.gl/3TobQS">promise</a> returned by running <var>p</var>'s <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise.prototype.then">then</a> method.</li>
-          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following steps asynchronously:
+          <li>Let <var>q</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
+          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following steps, <var>onFulfilled</var>, asynchronously:
             <ol>
               <li>Let <var>itemsCopy</var> be a new <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object that is a copy of its <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</li>
               <li>Let <var>addedRequests</var> be an empty array.</li>
@@ -1301,7 +1190,6 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
         </ol>
         </spec-algorithm>
       </spec-section>
-      <p class="fixme">This section is under review.</p>
     </spec-section>
 
     <spec-section id="cache-storage">
@@ -1973,40 +1861,6 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         </ol>
       </li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>active</var> and "<code>activated</code>" as the arguments.</li>
-    </ol>
-    </spec-algorithm>
-  </spec-section>
-
-  <spec-section id="fetch-algorithm">
-    <h1>[[Fetch]]</h1>
-
-    <spec-algorithm>
-    <dl>
-      <dt>Input</dt>
-        <dd><var>request</var>, a <a href="http://fetch.spec.whatwg.org/#concept-request">request</a></dd>
-      <dt>Output</dt>
-        <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
-    </dl>
-    <ol>
-      <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run these steps asynchronously:
-        <ol>
-          <li><a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> <var>request</var> and <a href="http://fetch.spec.whatwg.org/#process-response">process response</a> for <var>response</var> by running these substeps:
-            <ol>
-              <li>If <var>response</var>'s <a href="http://fetch.spec.whatwg.org/#concept-response-type">type</a> is error, then:
-                <ol>
-                  <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Resolve <var>promise</var> with new <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>.</li>
-              <li>To <a href="http://fetch.spec.whatwg.org/#process-response-body">process response body</a> for <var>response</var>, do nothing.</li>
-              <li>To <a href="http://fetch.spec.whatwg.org/#process-response-end-of-file">process response end-of-file</a> for <var>response</var>, do nothing.</li>
-            </ol>
-          </li>
-        </ol>
-      </li>
-      <li>Return <var>promise</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
