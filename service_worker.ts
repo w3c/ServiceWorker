@@ -28,7 +28,7 @@ interface ServiceWorkerContainer extends EventTarget {
   register(url: string, options?: _RegistrationOptionList): Promise;
 
   // Returns a Promise<ServiceWorkerRegistration>
-  getRegistration(docURL:string = ""): Promise;
+  getRegistration(docURL:string): Promise;
     // Resolves with the ServiceWorkerRegistration that controls docURL
     // Rejects with DOMError NotFoundError if docURL is not within scope of
     // any ServiceWorkerRegistration
@@ -370,6 +370,11 @@ class Response extends AbstractResponse {
   }
   url: string;
   toBlob(): Promise { return accepted(new Blob()); }
+
+  // http://fetch.spec.whatwg.org/#dom-response-redirect
+  static redirect(url, status) {
+    return new Response();
+  }
 }
 
 class CORSResponse extends Response {
@@ -651,7 +656,7 @@ class Cache {
     });
   }
 
-  batch(operations:CacheBatchOperation[]): Promise {
+  batch(operations:any[]): Promise {
     var thisCache = this;
 
     return Promise.resolve().then(function() {
@@ -689,16 +694,16 @@ class Cache {
             if (operation.matchParams) {
               throw TypeError("Put operation cannot have match params");
             }
-            if (!(response instanceof AbstractResponse)) {
+            if (!(operation.response instanceof AbstractResponse)) {
               throw TypeError("Invalid response");
             }
 
             addedRequests.push(request);
-            thisCache._items.set(request, response);
-            result = response;
+            thisCache._items.set(request, operation.response);
+            result = operation.response;
           }
 
-          return response;
+          return operation.response;
         });
       } catch(err) {
         // reverse the transaction
@@ -726,7 +731,7 @@ class CacheStorage {
     var cacheName;
 
     if (params) {
-      cacheName = params.cacheName;
+      cacheName = params["cacheName"];
     }
 
     function getMatchFrom(cacheName) {
@@ -988,6 +993,18 @@ class Promise {
   static all(...stuff:any[]) : Promise {
     return accepted();
   }
+
+  static resolve(val?:any) {
+    return new Promise(function(r) {
+      r.accept(val);
+    });
+  }
+
+  static reject(err?:any) {
+    return new Promise(function(r) {
+      r.reject(err);
+    });
+  }
 }
 
 function accepted(v: any = true) : Promise {
@@ -1010,7 +1027,7 @@ interface ConnectEventHandler { (e:_Event); }
 
 // http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#shared-workers-and-the-sharedworker-interface
 class SharedWorker extends _EventTarget {
-  // To make it clear where onconnect comes from
+  // To make it clear where onconnec31t comes from
   onconnect: ConnectEventHandler;
 
   constructor(url: string, name?: string) {

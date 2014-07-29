@@ -10,6 +10,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+
 // Semi-private to work around TS. Not for impl.
 var _RegistrationOptionList = (function () {
     function _RegistrationOptionList() {
@@ -17,6 +18,7 @@ var _RegistrationOptionList = (function () {
     }
     return _RegistrationOptionList;
 })();
+
 
 var ReloadPageEvent = (function (_super) {
     __extends(ReloadPageEvent, _super);
@@ -65,6 +67,7 @@ var InstallEvent = (function (_super) {
     };
     return InstallEvent;
 })(InstallPhaseEvent);
+
 
 var ServiceWorkerClients = (function () {
     function ServiceWorkerClients() {
@@ -187,9 +190,9 @@ var OpaqueResponse = (function (_super) {
         _super.apply(this, arguments);
     }
     Object.defineProperty(OpaqueResponse.prototype, "url", {
-        get: // This class represents the result of cross-origin fetched resources that are
+        // This class represents the result of cross-origin fetched resources that are
         // tainted, e.g. <img src="http://cross-origin.example/test.png">
-        function () {
+        get: function () {
             return "";
         },
         enumerable: true,
@@ -248,6 +251,11 @@ var Response = (function (_super) {
     Response.prototype.toBlob = function () {
         return accepted(new Blob());
     };
+
+    // http://fetch.spec.whatwg.org/#dom-response-redirect
+    Response.redirect = function (url, status) {
+        return new Response();
+    };
     return Response;
 })(AbstractResponse);
 
@@ -295,7 +303,7 @@ var FetchEvent = (function (_super) {
         //    you can do something async (like fetch contents, go to IDB, whatever)
         //    within whatever the network time out is and as long as you still have
         //    the FetchEvent instance, you can fulfill the request later.
-        this.client = null;
+        this.client = null; // to allow postMessage, window.topLevel, etc
     }
     // * If a Promise is provided, it must resolve with a Response, else a
     //   Network Error is thrown.
@@ -375,7 +383,6 @@ var Cache = (function () {
     Cache.prototype._query = function (request, params) {
         params = params || {};
 
-        var thisCache = this;
         var ignoreSearch = Boolean(params.ignoreSearch);
         var ignoreMethod = Boolean(params.ignoreMethod);
         var ignoreVary = Boolean(params.ignoreVary);
@@ -398,7 +405,6 @@ var Cache = (function () {
             }
 
             if (prefixMatch) {
-                // FIXME(slightlyoff): handle globbing?
                 cachedUrl.href = cachedUrl.href.slice(0, requestUrl.href.length);
             }
 
@@ -424,6 +430,8 @@ var Cache = (function () {
                     continue;
                 }
 
+                // TODO(slighltyoff): should this treat headers case insensitive?
+                // TODO(slighltyoff): should comparison be more lenient than this?
                 if (cachedRequests[i].headers.get(varyHeader) != request.headers.get(varyHeader)) {
                     return;
                 }
@@ -468,12 +476,12 @@ var Cache = (function () {
         var thisCache = this;
         requests = requests.map(_castToRequest);
 
-        var responses = requests.map(function (request) {
+        var responsePromises = requests.map(function (request) {
             return fetch(request);
         });
 
         // wait for all our requests to complete
-        return Promise.all(responses).then(function (responses) {
+        return Promise.all(responsePromises).then(function (responses) {
             // TODO: figure out what we consider success/failure
             responses.forEach(function (response) {
                 if (response.status != 200) {
@@ -481,109 +489,169 @@ var Cache = (function () {
                 }
             });
 
-            // these set operations must be sync, so the update is atomic
-            responses.forEach(function (response, i) {
-                thisCache._query(requests[i]).forEach(function (cachedRequest) {
-                    thisCache._items.delete(cachedRequest);
-                });
-                thisCache._items.set(requests[i], response);
-            });
-
-            return;
+            return thisCache.batch(responses.map(function (response, i) {
+                return { type: 'put', request: requests[i], response: response };
+            }));
         });
     };
 
     Cache.prototype.put = function (request, response) {
         var thisCache = this;
 
-        return accepted().then(function () {
-            request = _castToRequest(request);
-
-            if (request.method !== 'GET') {
-                throw new TypeError();
-            }
-
-            if (!(response instanceof AbstractResponse)) {
-                throw new TypeError();
-            }
-
-            // this must be atomic
-            thisCache._query(request).forEach(function (cachedRequest) {
-                thisCache._items.delete(cachedRequest);
-            });
-            thisCache._items.set(request, response);
+        return this.batch([
+            { type: 'put', request: request, response: response }
+        ]).then(function (results) {
+            return results[0];
         });
     };
 
     // delete zero or more entries
-    Cache.prototype.delete = function (request, params) {
-        var thisCache = this;
-
-        return accepted().then(function () {
-            return thisCache._query(request, params).reduce(function (previousResult, requestResponse) {
-                return previousResult || thisCache._items.delete(requestResponse[0]);
-            }, false);
+    Cache.prototype.delete = function (request, matchParams) {
+        return this.batch([
+            { type: 'delete', request: request, matchParams: matchParams }
+        ]).then(function (results) {
+            return results[0];
         });
     };
 
-    Cache.prototype.each = function (callback, thisArg) {
+    Cache.prototype.keys = function (request, matchParams) {
         var thisCache = this;
 
-        // FIXME(slightlyoff): this version blocks on keys() and values() before
-        // beginning iteration. Instead it should be allowed to begin iteration as
-        // soon as the first item(s) are available. Further, developers should be
-        // able to extend the lifetime of an item's iteration by returning a
-        // Promise.
-        return Promise.all([
-            this.matchAll()
-        ]).then(function (records) {
-            return Promise.all(records.map(function (r, i) {
-                return callback.call(thisArg, records[0][i], records[1][i], thisCache);
-            }));
-        }).then(function () {
-            return undefined;
+        return accepted().then(function () {
+            if (request) {
+                return thisCache._query(request, matchParams).map(function (requestResponse) {
+                    return requestResponse[0];
+                });
+            } else {
+                return thisCache._items.keys();
+            }
+        });
+    };
+
+    Cache.prototype.batch = function (operations) {
+        var thisCache = this;
+
+        return Promise.resolve().then(function () {
+            var itemsCopy = thisCache._items;
+            var addedRequests = [];
+
+            try  {
+                return operations.map(function handleOperation(operation, i) {
+                    if (operation.type != 'delete' && operation.type != 'put') {
+                        throw TypeError("Invalid operation type");
+                    }
+                    if (operation.type == "delete" && operation.response) {
+                        throw TypeError("Cannot use response for delete operations");
+                    }
+                    if (operation.type == "delete" && operation.response) {
+                        throw TypeError("Cannot use response for delete operations");
+                    }
+
+                    var request = _castToRequest(operation.request);
+                    var result = thisCache._query(request, operation.matchParams).reduce(function (previousResult, requestResponse) {
+                        if (addedRequests.indexOf(requestResponse[0]) !== -1) {
+                            throw Error("Batch operation at index " + i + " overrode previous put operation");
+                        }
+                        return thisCache._items.delete(requestResponse[0]) || previousResult;
+                    }, false);
+
+                    if (operation.type == 'put') {
+                        if (!operation.response) {
+                            throw TypeError("Put operation must have a response");
+                        }
+                        if (request.method !== 'GET') {
+                            throw TypeError("Only GET requests are supported");
+                        }
+                        if (operation.matchParams) {
+                            throw TypeError("Put operation cannot have match params");
+                        }
+                        if (!(operation.response instanceof AbstractResponse)) {
+                            throw TypeError("Invalid response");
+                        }
+
+                        addedRequests.push(request);
+                        thisCache._items.set(request, operation.response);
+                        result = operation.response;
+                    }
+
+                    return operation.response;
+                });
+            } catch (err) {
+                // reverse the transaction
+                thisCache._items = itemsCopy;
+                throw err;
+            }
         });
     };
     return Cache;
 })();
 
 var CacheStorage = (function () {
-    function CacheStorage(iterable) {
+    function CacheStorage() {
     }
-    // "any" to make the TS compiler happy
-    CacheStorage.prototype.match = function (url, cacheName) {
-        return new Promise(function () {
+    CacheStorage.prototype.match = function (request, params) {
+        var cacheName;
+
+        if (params) {
+            cacheName = params["cacheName"];
+        }
+
+        function getMatchFrom(cacheName) {
+            return this.get(cacheName).then(function (store) {
+                if (!store) {
+                    throw Error("Not found");
+                }
+                return store.match(request, params);
+            });
+        }
+
+        if (cacheName) {
+            return getMatchFrom(cacheName);
+        }
+
+        return this.keys().then(function (keys) {
+            return keys.reduce(function (chain, key) {
+                return chain.catch(function () {
+                    return getMatchFrom(key);
+                });
+            }, Promise.reject()).catch(function () {
+                throw Error("No match found");
+            });
         });
     };
 
-    CacheStorage.prototype.get = function (key) {
-        return accepted();
+    CacheStorage.prototype.get = function (cacheName) {
+        cacheName = cacheName.toString();
+        return Promise.resolve(this._items.get(cacheName));
     };
-    CacheStorage.prototype.has = function (key) {
-        return accepted();
+
+    CacheStorage.prototype.has = function (cacheName) {
+        cacheName = cacheName.toString();
+        return Promise.resolve(this._items.has(cacheName));
     };
-    CacheStorage.prototype.set = function (key, val) {
-        return accepted(this);
+
+    CacheStorage.prototype.create = function (cacheName) {
+        cacheName = cacheName.toString();
+        var _items = this._items;
+
+        return this.has(cacheName).then(function (storeExists) {
+            if (storeExists) {
+                throw Error("Store with that name already exists");
+            }
+            var cache = new Cache();
+            _items.set(cacheName, cache);
+            return cache;
+        });
     };
-    CacheStorage.prototype.clear = function () {
-        return accepted();
+
+    CacheStorage.prototype.delete = function (cacheName) {
+        cacheName = cacheName.toString();
+        this._items.delete(cacheName);
+        return Promise.resolve();
     };
-    CacheStorage.prototype.delete = function (key) {
-        return accepted();
-    };
-    CacheStorage.prototype.forEach = function (callback, thisArg) {
-    };
-    CacheStorage.prototype.entries = function () {
-        return accepted([]);
-    };
+
     CacheStorage.prototype.keys = function () {
-        return accepted([]);
-    };
-    CacheStorage.prototype.values = function () {
-        return accepted([]);
-    };
-    CacheStorage.prototype.size = function () {
-        return accepted(0);
+        return Promise.resolve(this._items.keys());
     };
     return CacheStorage;
 })();
@@ -598,6 +666,8 @@ var BroadcastChannel = (function () {
     }
     return BroadcastChannel;
 })();
+;
+
 
 var WorkerGlobalScope = (function (_super) {
     __extends(WorkerGlobalScope, _super);
@@ -709,6 +779,7 @@ var _ES6Map = (function () {
     return _ES6Map;
 })();
 
+
 // the TS compiler is unhappy *both* with re-defining DOM types and with direct
 // sublassing of most of them. This is sane (from a regular TS pespective), if
 // frustrating. As a result, we describe the built-in Event type with a prefixed
@@ -779,6 +850,18 @@ var Promise = (function () {
             stuff[_i] = arguments[_i + 0];
         }
         return accepted();
+    };
+
+    Promise.resolve = function (val) {
+        return new Promise(function (r) {
+            r.accept(val);
+        });
+    };
+
+    Promise.reject = function (err) {
+        return new Promise(function (r) {
+            r.reject(err);
+        });
     };
     return Promise;
 })();
