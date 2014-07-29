@@ -186,6 +186,7 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
 
   self: ServiceWorkerGlobalScope;
   caches: CacheStorage;
+  scriptCache: Cache;
 
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
