@@ -203,7 +203,7 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
     <h1><code>ServiceWorker</code></h1>
 
     <p></p>
-<spec-idl>[Constructor] // no-op constructor
+<spec-idl>[Constructor, Exposed=Window] // no-op constructor
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
   readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-url-attribute">scriptURL</a>;
   readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
@@ -292,7 +292,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-c
     <h1><code>ServiceWorkerRegistration</code></h1>
 
     <p></p>
-<spec-idl>[Constructor] // no-op constructor
+<spec-idl>[Constructor, Exposed=Window] // no-op constructor
 interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRegistration">ServiceWorkerRegistration</dfn> : <a href="http://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-installing-attribute">installing</a>;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
@@ -389,7 +389,8 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
   <spec-section id="service-worker-container">
     <h1><code>ServiceWorkerContainer</code></h1>
 
-<spec-idl>interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="http://goo.gl/x4hwQd">EventTarget</a> {
+<spec-idl>[Exposed=Window]
+interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="http://goo.gl/x4hwQd">EventTarget</a> {
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
   readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
@@ -658,10 +659,10 @@ this.addEventListener("fetch", function(e) {
   <spec-section id="service-worker-global-scope">
     <h1><code>ServiceWorkerGlobalScope</code></h1>
 
-<spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>]
+<spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>=(Worker,ServiceWorker), Exposed=ServiceWorker]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://goo.gl/xBhqNU">WorkerGlobalScope</a> {
-  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#service-worker-global-scope-caches-attribute">caches</a>;
   readonly attribute <a href="#cache-interface">Cache</a> <a href="#service-worker-global-scope-script-cache-attribute">scriptCache</a>;
+  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#service-worker-global-scope-caches-attribute">caches</a>;
 
   // A container for a list of window objects, identifiable by ID, that
   // correspond to windows (or workers) that are "controlled" by this SW
@@ -792,7 +793,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   <spec-section id="client">
     <h1><code>Client</code></h1>
 
-<spec-idl>[Constructor] // no-op constructor
+<spec-idl>[Constructor, Exposed=ServiceWorker] // no-op constructor
 interface <dfn id="client-interface" title="Client">Client</dfn> {
   readonly attribute unsigned long <a href="#client-id-attribute">id</a>;
   void <a href="http://goo.gl/Kze9t3">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
@@ -807,7 +808,8 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
   <spec-section id="service-worker-clients">
     <h1><code>ServiceWorkerClients</code></h1>
 
-<spec-idl>interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
+<spec-idl>[Exposed=ServiceWorker]
+interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#service-worker-clients-getserviced-method">getServiced</a>();
@@ -860,7 +862,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
     <spec-section id="cache">
       <h1><code>Cache</code></h1>
 <spec-idl>
-[<a href="#cache-constructor">Constructor</a>]
+[<a href="#cache-constructor">Constructor</a>, Exposed=ServiceWorker]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
@@ -1203,7 +1205,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <h1><code>CacheStorage</code></h1>
 
 <spec-idl>
-[Constructor(sequence&lt;any&gt; iterable)]
+[Constructor(sequence&lt;any&gt; iterable), Exposed=ServiceWorker]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
@@ -1223,7 +1225,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
     <h1><code>InstallPhaseEvent</code></h1>
 
 <spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
+[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
 <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#install-phase-event-waituntil-method">waitUntil</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
@@ -1275,7 +1277,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
     <h1><code>InstallEvent</code></h1>
 
 <spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>)]
+[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#install-phase-event-interface">InstallPhaseEvent</a> {
 readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
 void <a href="#install-event-replace-method">replace</a>();
@@ -1305,7 +1307,7 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
     <h1><code>FetchEvent</code></h1>
 
 <spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>)]
+[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
 readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
 readonly attribute <a href="#client-interface">Client</a> client; // The window issuing the request.
