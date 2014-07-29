@@ -690,7 +690,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 
     <p>The <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface represents the global execution context of a <a href="#dfn-service-worker">Service Worker</a>. <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a href="#navigator-service-worker-register">registered</a>, a Service Worker is started, kept alive and killed by their relationship to events, not documents. Any type of synchronous requests MUST NOT be initiated inside of a Service Worker.</p>
 
-    <spec-section id="service-worker-global-scope-caches">
+    <spec-section id="service-worker-global-scope-script-cache">
       <h1><code>scriptCache</code></h1>
 
       <p><dfn id="service-worker-global-scope-script-cache-attribute"><code>scriptCache</code></dfn> must return a <code><a href="#cache-interface">Cache</a></code> object that represents the storage for scripts that are cached as part of the Service Worker installation.</p>
@@ -698,7 +698,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-caches">
       <h1><code>caches</code></h1>
 
-      <p><dfn id="service-worker-global-scope-caches-attribute"><code>caches</code></dfn> attribute must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the cache objects keyed by the name of the caches. Caches are always enumerable via <code><a href="#service-worker-global-scope-caches-attribute">self.caches</a></code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
+      <p><dfn id="service-worker-global-scope-caches-attribute"><code>caches</code></dfn> attribute must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the <code><a href="#cache-interface">Cache</a></code> objects keyed by the name of the <code><a href="#cache-interface">Cache</a></code> objects. <code><a href="#cache-interface">Cache</a></code> objects are always enumerable via <code><a href="#service-worker-global-scope-caches-attribute">self.caches</a></code> in insertion order (per <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
@@ -734,9 +734,9 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-unregister">
       <h1><code>unregister()</code></h1>
 
-      <p>The <code><a href="#service-worker-global-scope-unregister-mthod">unregister()</a></code> method unregisters the <a href="#dfn-registration">registration</a> for its <a href="#dfn-url-scope">URL scope</a>. It is important to note that this <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-global-scope-unregister-mthod">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
+      <p>The <code><a href="#service-worker-global-scope-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-registration">registration</a> for its <a href="#dfn-url-scope">URL scope</a>. It is important to note that this <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-global-scope-unregister-method">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
-      <p><dfn id="service-worker-global-scope-unregister-mthod"><code>unregister()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <p><dfn id="service-worker-global-scope-unregister-method"><code>unregister()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <spec-algorithm>
       <ol>
@@ -862,7 +862,7 @@ interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients
     <spec-section id="cache">
       <h1><code>Cache</code></h1>
 <spec-idl>
-[<a href="#cache-constructor">Constructor</a>, Exposed=ServiceWorker]
+[<a href="#cache-constructor">Constructor</a>, Exposed=ServiceWorker] // no-op constructor
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
@@ -887,19 +887,19 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
   QueryParams matchParams;
 };
 </spec-idl>
-      <p>The <dfn id="cache-constructor"><code>Cache()</code></dfn> constructor, when invoked, must return a newly created <code><a href="#cache-interface">Cache</a></code> object. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
+      <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the Service Worker installation. This object provides a no-op constructor. Callers should note that only Cache objects created by <code>caches.create(<var>cacheName</var>)</code> will provide meaningful functionality. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
 
       <spec-section id="cache-match">
         <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
 
-        <p><dfn id="cache-match-mthod"><code>match(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-match-method"><code>match(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
           <li>Run these steps asynchronously:
             <ol>
-              <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-mthod">matchAll(<var>request</var>, <var>params</var>)</a></code> method with <var>request</var> and <var>params</var> as the arguments.</li>
+              <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-method">matchAll(<var>request</var>, <var>params</var>)</a></code> method with <var>request</var> and <var>params</var> as the arguments.</li>
               <li>Wait until <var>p</var> settles.</li>
               <li>If <var>p</var> rejects with an exception, then:
                 <ol>
@@ -930,7 +930,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <spec-section id="cache-matchall">
         <h1><code>matchAll(<var>request</var>, <var>params</var>)</code></h1>
 
-        <p><dfn id="cache-matchall-mthod"><code>matchAll(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -970,7 +970,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <spec-section id="cache-add">
         <h1><code>add(...<var>requests</var>)</code></h1>
 
-        <p><dfn id="cache-add-mthod"><code>add(...<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-add-method"><code>add(...<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1027,7 +1027,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <spec-section id="cache-put">
         <h1><code>put(<var>request</var>, <var>response</var>)</code></h1>
 
-        <p><dfn id="cache-put-mthod"><code>put(<var>request</var>, <var>response</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-put-method"><code>put(<var>request</var>, <var>response</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1052,7 +1052,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <spec-section id="cache-delete">
         <h1><code>delete(<var>request</var>, <var>params</var>)</code></h1>
 
-        <p><dfn id="cache-delete-mthod"><code>delete(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-delete-method"><code>delete(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1077,7 +1077,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <spec-section id="cache-keys">
         <h1><code>keys(<var>request</var>, <var>params</var>)</code></h1>
 
-        <p><dfn id="cache-keys-mthod"><code>keys(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-keys-method"><code>keys(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1141,7 +1141,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                         </ol>
                       </li>
                       <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>operation</var>.<var>request</var> as the argument.</li>
-                      <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>opeation</var>.<var>matchParams</var> as the arguments.</li>
+                      <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>operation</var>.<var>matchParams</var> as the arguments.</li>
                       <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                         <ol>
                           <li>If any of the values in <var>addedRequests</var> matches <var>requestResponse</var>[0], then:
@@ -1205,7 +1205,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <h1><code>CacheStorage</code></h1>
 
 <spec-idl>
-[Constructor(sequence&lt;any&gt; iterable), Exposed=ServiceWorker]
+[Constructor, Exposed=ServiceWorker] // no-op constructor
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
@@ -1218,6 +1218,107 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <p class="note"><a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://goo.gl/gNnDPO">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods. The methods, <code>clear</code>, <code>forEach</code>, <code>entries</code> and <code>values</code>, are intentionally excluded from the scope of the first version resorting to the ongoing discussion about the async iteration by TC39.</p>
 
+      <p>The <code><a href="#cache-storage-interface">CacheStorage</a></code> interface represents the storage for <code><a href="#cache-interface">Cache</a></code> objects. This object provides a no-op constructor. Callers should note that only <code><a href="#cache-storage-interface">CacheStorage</a></code> object created by the user agent (see the attributes <code><a href="#service-worker-global-scope-caches-attribute">caches</a></code> of <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface) will provide meaningful functionality. A <code><a href="#cache-storage-interface">CacheStorage</a></code> object has a <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a> object.</p>
+
+      <spec-section id="cache-storage-match">
+        <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
+
+        <p><dfn id="cache-storage-match-method"><code>match(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+        </ol>
+        </spec-algorithm>
+        <p class="fixme">The algorithm for this method will be added.</p>
+      </spec-section>
+
+      <spec-section id="cache-storage-get">
+        <h1><code>get(<var>cacheName</var>)</code></h1>
+
+        <p><dfn id="cache-storage-get-method"><code>get(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps asynchronously:
+            <ol>
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+                <ol>
+                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                    <ol>
+                      <li>Resolve <var>p</var> with <var>entry</var>.[[value]].</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Resolve <var>p</var> with undefined.</li>
+            </ol>
+          </li>
+        </ol>
+        </spec-algorithm>
+      </spec-section>
+
+      <spec-section id="cache-storage-has">
+        <h1><code>has(<var>cacheName</var>)</code></h1>
+
+        <p><dfn id="cache-storage-has-method"><code>has(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps asynchronously:
+            <ol>
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+                <ol>
+                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                    <ol>
+                      <li>Resolve <var>p</var> with true.</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Resolve <var>p</var> with false.</li>
+            </ol>
+          </li>
+        </ol>
+        </spec-algorithm>
+      </spec-section>
+
+      <spec-section id="cache-storage-create">
+        <h1><code>create(<var>cacheName</var>)</code></h1>
+
+        <p><dfn id="cache-storage-create-method"><code>create(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+        </ol>
+        </spec-algorithm>
+        <p class="fixme">The algorithm for this method will be added.</p>
+      </spec-section>
+
+      <spec-section id="cache-storage-delete">
+        <h1><code>delete(<var>cacheName</var>)</code></h1>
+
+        <p><dfn id="cache-storage-cacheName-method"><code>delete(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+        </ol>
+        </spec-algorithm>
+        <p class="fixme">The algorithm for this method will be added.</p>
+      </spec-section>
+
+      <spec-section id="cache-storage-keys">
+        <h1><code>keys()</code></h1>
+
+        <p><dfn id="cache-storage-keys-method"><code>keys()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+        </ol>
+        </spec-algorithm>
+        <p class="fixme">The algorithm for this method will be added.</p>
+      </spec-section>
     </spec-section>
   </spec-section>
 
@@ -1509,6 +1610,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   <p><dfn id="service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a string that represents a <a href="#dfn-url-scope">URL scope</a> and [[value]] is a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object.</p>
 
   <p><dfn id="request-to-response-map-internal-interface">[[RequestToResponseMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
+
+  <p><dfn id="name-to-cache-map-internal-interface">[[NameToCacheMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
   </spec-algorithm>
 
   <spec-section id="register-algorithm">
