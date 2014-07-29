@@ -351,7 +351,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
       <p>The <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-registration">registration</a> for the given <a href="#dfn-url-scope">URL scope</a>. It is important to note that the currently <a href="#dfn-document-control">controlled</a> document's <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
-      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, which represents its <a href="#dfn-url-scope">URL scope</a>, as the argument.</p>
+      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated <var>document</var> and <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, which represents its <a href="#dfn-url-scope">URL scope</a>, as the arguments.</p>
     </spec-section>
 
     <spec-section id="service-worker-event-handler">
@@ -458,7 +458,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p>The <code><a href="#service-worker-container-register-method">register(<var>scriptURL</var>, <var>options</var>)</a></code> method creates or updates a <a href="#dfn-registration">registration</a> for some amount of <a href="#dfn-url-scope">URL scope</a>. If successful, a <a href="#dfn-registration">registration</a> ties the provided <var>scriptURL</var> to a <a href="#dfn-url-scope">URL scope</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
 
-    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scriptURL</var> and <var>options</var>.<var>scope</var> as the argument.</p>
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated <var>document</var>, <var>scriptURL</var>, and <var>options</var>.<var>scope</var> as the arguments.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-getRegistration">
@@ -1517,6 +1517,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
+        <dd><var>document</var>, a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#the-document-object"><code>Document</code></a></dd>
         <dd><var>scriptURL</var>, a string that represents the URL of the script</dd>
         <dd><var>scope</var>, a string that represents a <a href="#dfn-path-expression">path expression</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
       <dt>Output</dt>
@@ -1535,13 +1536,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scriptURL</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scriptURL</var> does not match <var>document</var>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match <var>document</var>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
@@ -2050,6 +2051,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
+        <dd><var>document</var>, a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#the-document-object"><code>Document</code></a></dd>
         <dd><var>scope</var>, a string that represents a <a href="#dfn-path-expression">path expression</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
@@ -2060,7 +2062,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
-          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
+          <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scope</var> does not match <var>document</var>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
