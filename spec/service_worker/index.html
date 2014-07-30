@@ -427,7 +427,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>registration</var> be null.</li>
           <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the document's URL.</li>
@@ -469,7 +469,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>documentURL</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Set <var>documentURL</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>documentURL</var>.</li>
@@ -508,7 +508,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>array</var> be an empty array.</li>
           <li>Let <var>origin</var> be the <a href="http://tools.ietf.org/html/rfc6454#section-6.1">unicode serialization</a> of the document's <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a>.</li>
@@ -1121,7 +1121,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
         <ol>
           <li>Let <var>p</var> be a <a href="http://goo.gl/3TobQS">promise</a> resolved with no value.</li>
           <li>Let <var>q</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following steps, <var>onFulfilled</var>, asynchronously:
+          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
             <ol>
               <li>Let <var>itemsCopy</var> be a new <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object that is a copy of its <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</li>
               <li>Let <var>addedRequests</var> be an empty array.</li>
@@ -1227,9 +1227,57 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>cacheName</var> be null.</li>
+          <li>If the optional argument <var>params</var> is not omitted, then:
+            <ol>
+              <li>Set <var>cacheName</var> to <var>params</var>.<var>cacheName</var>.</li>
+            </ol>
+          </li>
+          <li>Let <var>p</var> be null.</li>
+          <li>If <var>cacheName</var> is not null, then:
+            <ol>
+              <li>Set <var>p</var> to transforming the result of running the algorithm specified in get(cacheName) method passing <var>cacheName</var> as the argument, with <var>onFulfilled</var>.</li>
+              <li>Upon fulfillment of <var>p</var> with value <var>cache</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+                <ol>
+                  <li>If <var>cache</var> is null, then:
+                    <ol>
+                      <li>Reject <var>p</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
+                    </ol>
+                  </li>
+                  <li>Else:
+                    <ol>
+                      <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>params</var> as the arguments (providing <var>cache</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code>.)</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+              <li>Return <var>p</var>.</li>
+            </ol>
+          </li>
+          <li>Else:
+            <ol>
+              <li>Set <var>p</var> to transforming the result of running the algorithm specified in keys() method, with <var>onFulfilled</var>.</li>
+              <li>Upon fulfillment of <var>p</var> with value <var>keys</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+                <ol>
+                  <li>For each <var>key</var> in <var>keys</var>:
+                    <ol>
+                      <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>params</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code>.)</li>
+                      <li>Upon fulfillment of <var>q</var> with value <var>matchedResponse</var>:
+                        <ol>
+                          <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
+                          <li>Abort these steps.</li>
+                        </ol>
+                      </li>
+                    </ol>
+                  </li>
+                  <li>Reject <var>p</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
+                </ol>
+              </li>
+              <li>Return <var>p</var>.</li>
+            </ol>
+          </li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for this method will be added.</p>
       </spec-section>
 
       <spec-section id="cache-storage-get">
@@ -1239,19 +1287,18 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
-          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps asynchronously:
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
             <ol>
               <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
                 <ol>
                   <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
                     <ol>
-                      <li>Resolve <var>p</var> with <var>entry</var>.[[value]].</li>
-                      <li>Abort these steps.</li>
+                      <li>Return <var>entry</var>.[[value]].</li>
                     </ol>
                   </li>
                 </ol>
               </li>
-              <li>Resolve <var>p</var> with undefined.</li>
+              <li>Return undefined.</li>
             </ol>
           </li>
         </ol>
@@ -1265,19 +1312,18 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
-          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps asynchronously:
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
             <ol>
               <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
                 <ol>
                   <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
                     <ol>
-                      <li>Resolve <var>p</var> with true.</li>
-                      <li>Abort these steps.</li>
+                      <li>Return true.</li>
                     </ol>
                   </li>
                 </ol>
               </li>
-              <li>Resolve <var>p</var> with false.</li>
+              <li>Return false.</li>
             </ol>
           </li>
         </ol>
@@ -1291,9 +1337,24 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
+          <li>Let <var>q</var> be transforming <var>p</var> with <var>onFulfilled</var>.</li>
+          <li>Upon fulfillment of <var>p</var> with value <var>cacheExists</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+            <ol>
+              <li>If <var>cacheExists</var> is true, then:
+                <ol>
+                  <li>Reject <var>q</var> with an "<code><a href="http://dom.spec.whatwg.org/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Let <var>cache</var> be a new <a href="#cache-interface">Cache</a> object.</li>
+              <li>Set a newly-created Record {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>.</li>
+              <li>Resolve <var>q</var> with <var>cache</var>.</li>
+            </ol>
+          </li>
+          <li>Return <var>q</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for this method will be added.</p>
       </spec-section>
 
       <spec-section id="cache-storage-delete">
@@ -1303,9 +1364,27 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
+          <li>Let <var>q</var> be transforming <var>p</var> with <var>onFulfilled</var>.</li>
+          <li>Upon fulfillment of <var>p</var> with value <var>cacheExists</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+            <ol>
+              <li>If <var>cacheExists</var> is true, then:
+                <ol>
+                  <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a> where <var>cacheName</var> matches entry.[[key]].</li>
+                  <li>Resolve <var>q</var> with true.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
+              <li>Else:
+                <ol>
+                  <li>Resolve <var>q</var> with flase.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+          <li>Return <var>q</var>.</li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for this method will be added.</p>
       </spec-section>
 
       <spec-section id="cache-storage-keys">
@@ -1315,9 +1394,19 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
+          <li>Let <var>resultArray</var> be an empty array.</li>
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+            <ol>
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+                <ol>
+                  <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
+                </ol>
+              </li>
+              <li>Return <var>resultArray</var>.</li>
+            </ol>
+          </li>
         </ol>
         </spec-algorithm>
-        <p class="fixme">The algorithm for this method will be added.</p>
       </spec-section>
     </spec-section>
   </spec-section>
@@ -1350,7 +1439,7 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
       <spec-algorithm>
       <ol>
         <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Run the following steps asynchronously:
+        <li>Run the following substeps asynchronously:
           <ol>
             <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
             <li>Wait until <var>f</var> settles.</li>
@@ -1493,7 +1582,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <spec-algorithm>
       <ol>
         <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Run the following steps asynchronously:
+        <li>Run the following substeps asynchronously:
           <ol>
             <li>Let <var>request</var> be <var>event</var>'s <var>request</var>.</li>
             <li>Set <var>request</var>'s <a href="http://goo.gl/gP7IWW">skip service worker flag</a>.</li>
@@ -1628,7 +1717,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
@@ -1725,7 +1814,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
       <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to <var>promise</var>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Perform a fetch of <var>registration</var>.<a href="#script-url-internal-property">[[ScriptURL]]</a>, forcing a network fetch if cached entry is greater than 1 day old.</li>
           <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
@@ -2075,7 +2164,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the previous step to have executed.</li>
       <li>If <var>respondWithEntered</var> is false, then:
         <ol>
-          <li>Return null and run the following steps asynchronously.</li>
+          <li>Return null and run the following substeps asynchronously.</li>
           <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
@@ -2091,7 +2180,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>Else:
         <ol>
-          <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following steps asynchronously.</li>
+          <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following substeps asynchronously.</li>
           <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">[[SoftUpdate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
@@ -2161,7 +2250,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     </dl>
     <ol>
       <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-      <li>Run the following steps asynchronously:
+      <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
           <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
@@ -2439,13 +2528,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 
   <p>Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the Service Worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.</p>
 
-  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, and Devdatta Akhawe.</p>
+  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, and Joshua Bell.</p>
 
   <p>Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.</p>
 
   <p>The authors would also like to thank Dimitri Glazkov for his scripts and formatting tools which have been essential in the production of this specification. The authors are also grateful for his considerable guidance.</p>
 
-  <p>Thanks also to Vivian Cromwell, Greg Simon, and Alex Komoroske for their considerable professional support.</p>
+  <p>Thanks also to Vivian Cromwell, Greg Simon, Alex Komoroske, and Wonsuk Lee for their considerable professional support.</p>
 </spec-clause>
 </body>
 </html>
