@@ -484,7 +484,7 @@ var Cache = (function () {
                 }
             });
 
-            return thisCache.batch(responses.map(function (response, i) {
+            return thisCache._batch(responses.map(function (response, i) {
                 return { type: 'put', request: requests[i], response: response };
             }));
         });
@@ -493,7 +493,7 @@ var Cache = (function () {
     Cache.prototype.put = function (request, response) {
         var thisCache = this;
 
-        return this.batch([
+        return this._batch([
             { type: 'put', request: request, response: response }
         ]).then(function (results) {
             return results[0];
@@ -502,7 +502,7 @@ var Cache = (function () {
 
     // delete zero or more entries
     Cache.prototype.delete = function (request, matchParams) {
-        return this.batch([
+        return this._batch([
             { type: 'delete', request: request, matchParams: matchParams }
         ]).then(function (results) {
             return results[0];
@@ -523,7 +523,7 @@ var Cache = (function () {
         });
     };
 
-    Cache.prototype.batch = function (operations) {
+    Cache.prototype._batch = function (operations) {
         var thisCache = this;
 
         return Promise.resolve().then(function () {

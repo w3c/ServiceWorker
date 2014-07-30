@@ -617,7 +617,7 @@ class Cache {
         }
       });
 
-      return thisCache.batch(responses.map(function(response, i) {
+      return thisCache._batch(responses.map(function(response, i) {
         return {type: 'put', request: requests[i], response: response};
       }));
     });
@@ -626,7 +626,7 @@ class Cache {
   put(request:any, response:AbstractResponse) : Promise {
     var thisCache = this;
 
-    return this.batch([
+    return this._batch([
       {type: 'put', request: request, response: response}
     ]).then(function(results) {
       return results[0];
@@ -635,7 +635,7 @@ class Cache {
 
   // delete zero or more entries
   delete(request:any, matchParams?) : Promise {
-    return this.batch([
+    return this._batch([
       {type: 'delete', request: request, matchParams: matchParams}
     ]).then(function(results) {
       return results[0];
@@ -657,7 +657,7 @@ class Cache {
     });
   }
 
-  batch(operations:any[]): Promise {
+  _batch(operations:any[]): Promise {
     var thisCache = this;
 
     return Promise.resolve().then(function() {
