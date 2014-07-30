@@ -599,7 +599,13 @@ class Cache {
     });
   }
 
-  add(...requests:any[]) : Promise {
+  add(request:any[]) : Promise {
+    return this.addAll([request]).then(function(responses) {
+      return responses[0];
+    });
+  }
+
+  addAll(requests:any[]) : Promise {
     var thisCache = this;
     requests = requests.map(_castToRequest);
 

@@ -866,7 +866,8 @@ interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)... <var>requests</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; addAll(sequence&lt;(<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)&gt; <var>requests</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
@@ -968,9 +969,34 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       </spec-section>
 
       <spec-section id="cache-add">
-        <h1><code>add(...<var>requests</var>)</code></h1>
+        <h1><code>add(<var>request</var>)</code></h1>
 
-        <p><dfn id="cache-add-method"><code>add(...<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-add-method"><code>add(<var>request</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+        <spec-algorithm>
+        <ol>
+          <li>If there are no arguments, or more than one argument, then:
+            <ol>
+              <li>Return a <a href="http://goo.gl/3TobQS">promise</a> rejected with a <code>TypeError</code>.</li>
+            </ol>
+          </li>
+          <li>Let <var>requests</var> be an array containing only <var>request</var>.</li>
+          <li>Set <var>responseArrayPromise</var> to the result of running the algorithm specified in <code><a href="#cache-addAll-method">addAll(<var>requests</var>)</a></code> passing <var>requests</var> as the argument.</li>
+          <li>Let <var>p</var> be transforming <var>responseArrayPromise</var> with <var>onFulfilled</var>.</li>
+          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
+            <ol>
+              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
+            </ol>
+          </li>
+          <li>Return <var>p</var>.</li>
+        </ol>
+        </spec-algorithm>
+      </spec-section>
+
+      <spec-section id="cache-addAll">
+        <h1><code>addAll(<var>requests</var>)</code></h1>
+
+        <p><dfn id="cache-addAll-method"><code>addAll(<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -979,9 +1005,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <li>Return a <a href="http://goo.gl/3TobQS">promise</a> rejected with a <code>TypeError</code>.</li>
             </ol>
           </li>
-          <li>Let <var>requestArray</var> be an array containing the elements corresponding to the variadic argument <var>requests</var>.</li>
           <li>Let <var>responsePromiseArray</var> be an empty array.</li>
-          <li>For each <var>request</var> in <var>requestArray</var>:
+          <li>For each <var>request</var> in <var>requests</var>:
             <ol>
               <li>Run the algorithm specified in <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>request</var> and add the returned value to <var>responsePromiseArray</var>.</li>
             </ol>
