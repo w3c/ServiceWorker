@@ -624,21 +624,21 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
 <spec-code class="prettyprint">// caching.js
 this.addEventListener("install", function(e) {
-  // Create a cache of resources.
   var shellResources = new Cache();
-
-  // Begins the process of fetching them.
-  // The coast is only clear when all the resources are ready.
-  e.waitUntil(shellResources.add(
-    "/app.html",
-    "/assets/v1/base.css",
-    "/assets/v1/app.js",
-    "/assets/v1/logo.png",
-    "/assets/v1/intro_video.webm",
-  ));
-
-  // Add Cache to the global so it can be used later during onfetch
-  caches.set("shell-v1", shellResources);
+  e.waitUntil(
+    // Create a cache of resources.
+    caches.create("shell-v1").then(function(cache) {
+      // Begins the process of fetching them.
+      // The coast is only clear when all the resources are ready.
+      return cache.addAll([
+        "/app.html",
+        "/assets/v1/base.css",
+        "/assets/v1/app.js",
+        "/assets/v1/logo.png",
+        "/assets/v1/intro_video.webm"
+      ])
+    })
+  );
 });
 
 this.addEventListener("fetch", function(e) {
