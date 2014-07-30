@@ -28,10 +28,10 @@ interface ServiceWorkerContainer extends EventTarget {
   register(url: string, options?: _RegistrationOptionList): Promise;
 
   // Returns a Promise<ServiceWorkerRegistration>
-  getRegistration(docURL:string): Promise;
-    // Resolves with the ServiceWorkerRegistration that controls docURL
-    // Rejects with DOMError NotFoundError if docURL is not within scope of
-    // any ServiceWorkerRegistration
+  getRegistration(docURL?:string): Promise;
+    // docURL defaults to location.href
+    // Resolves with the ServiceWorkerRegistration that controls docURL or undefined if none is found
+    // Rejects with DOMError SecurityError if docURL is cross origin
 
   // Returns a Promise<Array<ServiceWorkerRegistration>>
   getRegistrations(): Promise;
