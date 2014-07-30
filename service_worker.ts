@@ -609,14 +609,6 @@ class Cache {
 
     // wait for all our requests to complete
     return Promise.all(responsePromises).then(function(responses) {
-      // TODO: figure out what we consider success/failure
-      responses.forEach(function(response) {
-        if (response.status != 200) {
-          // throw new NetworkError();
-          throw new Error("Faux NetworkError");
-        }
-      });
-
       return thisCache._batch(responses.map(function(response, i) {
         return {type: 'put', request: requests[i], response: response};
       }));
