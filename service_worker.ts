@@ -665,9 +665,6 @@ class Cache {
           if (operation.type == "delete" && operation.response) {
             throw TypeError("Cannot use response for delete operations");
           }
-          if (operation.type == "delete" && operation.response) {
-            throw TypeError("Cannot use response for delete operations");
-          }
 
           var request = _castToRequest(operation.request);
           var result = thisCache._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
