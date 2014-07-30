@@ -123,9 +123,9 @@
 
   <p>Service Workers are <a href="#installation-algorithm">installed</a> by user agents after being <a href="#navigator-service-worker-register">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="http://goo.gl/58tlSE">origin</a>.</p>
 
-  <p><dfn id="dfn-registration">Registration</dfn> maps a <a href="#dfn-service-worker">Service Worker</a> script to <dfn id="dfn-url-scope">URL scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#dfn-path-expression">path expression</a>. User agents may enable many registrations at a single origin so long as the <a href="#dfn-path-expression">path expression</a> of the registration differs. <a href="#dfn-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#dfn-path-expression">path expression</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
+  <p><dfn id="dfn-registration">Registration</dfn> maps a <a href="#dfn-service-worker">Service Worker</a> script to <dfn id="dfn-url-scope">URL scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#dfn-path-prefix">path prefix</a>. User agents may enable many registrations at a single origin so long as the <a href="#dfn-path-prefix">path prefix</a> of the registration differs. <a href="#dfn-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#dfn-path-prefix">path prefix</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
 
-  <p>A <dfn id="dfn-path-expression">path expression</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative URL</a> which may, optionally, terminate with the character "<code>*</code>". Ending a <a href="#dfn-path-expression">path expression</a> with "<code>*</code>" enables <a href="#scope-match-algorithm">longest-prefix wildcard matching</a>.</p>
+  <p>A <dfn id="dfn-path-prefix">path prefix</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative URL</a>.</p>
 
   <p>A <a href="#dfn-registration">registration</a> may have an associated <dfn id="dfn-installing-worker" title="Installing Worker">installing worker</dfn> when the <a href="#dfn-registration">registration</a> has entered and is running the steps in the <a href="#dfn-installation-process">installation process</a>. A <a href="#dfn-registration">registration</a> may have an an associated <dfn id="dfn-active-worker" title="Active Worker">active worker</dfn> when the <a href="#dfn-registration">registration</a> has entered (or may have completed) the <a href="#dfn-activation-process">activation process</a>.</p>
 
@@ -186,7 +186,7 @@
 
   <p>Example: Bootstrapping with a ServiceWorker</p>
 
-<spec-code class="prettyprint">// scope defaults to "/*"
+<spec-code class="prettyprint">// scope defaults to "/"
 navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
   function(registration) {
     console.log("success!");
@@ -240,7 +240,7 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
       <p>For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-fetch-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
 <spec-code class="prettyprint">// Script on the page https://example.com/app.html
-navigator.serviceWorker.register("/service_worker.js", { scope: "/*" });</spec-code>
+navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-code>
 
       <p>The value of <code>navigator.serviceWorker.controller.scriptURL</code> will be "<code>https://example.com/service_worker.js</code>".</p>
     </spec-section>
@@ -343,7 +343,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
       </ol>
       </spec-algorithm>
 
-      <p>In the example in section 3.1.1, the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(function(registration) { console.log(registration.scope); })</code> for example, will be "<code>https://example.com/*</code>".</p>
+      <p>In the example in section 3.1.1, the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(function(registration) { console.log(registration.scope); })</code> for example, will be "<code>https://example.com/</code>".</p>
     </spec-section>
 
     <spec-section id="navigator-service-worker-unregister">
@@ -407,7 +407,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptionList">RegistrationOptionList</dfn> {
-  <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> scope = "/*";
+  <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> scope = "/";
 };
 
 [Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
@@ -741,7 +741,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <spec-algorithm>
       <ol>
         <li>Let <var>workerGlobalScope</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a>.</li>
-        <li>Let <var>scope</var> be a string representing the <a href="#dfn-path-expression">path expression</a> of <a href="#dfn-url-scope">URL scope</a> of the Service Worker associated with <var>workerGlobalScope</var>.</li>
+        <li>Let <var>scope</var> be a string representing the <a href="#dfn-path-prefix">path prefix</a> of <a href="#dfn-url-scope">URL scope</a> of the Service Worker associated with <var>workerGlobalScope</var>.</li>
         <li>Invoke <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</li>
       </ol>
       </spec-algorithm>
@@ -1726,7 +1726,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <dt>Input</dt>
         <dd><var>document</var>, a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#the-document-object"><code>Document</code></a></dd>
         <dd><var>scriptURL</var>, a string that represents the URL of the script</dd>
-        <dd><var>scope</var>, a string that represents a <a href="#dfn-path-expression">path expression</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a string that represents a <a href="#dfn-path-prefix">path prefix</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
@@ -2259,7 +2259,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <dl>
       <dt>Input</dt>
         <dd><var>document</var>, a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#the-document-object"><code>Document</code></a></dd>
-        <dd><var>scope</var>, a string that represents a <a href="#dfn-path-expression">path expression</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
+        <dd><var>scope</var>, a string that represents a <a href="#dfn-path-prefix">path prefix</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
@@ -2380,7 +2380,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>registration</var>, a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object</dd>
     </dl>
     <ol>
-      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> that glob-matches <var>scope</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> starting with the value of <var>scope</var>.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>matchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>.<a href="#upinstalling-internal-property">[[Uninstalling]]</a> is true, then:
         <ol>
