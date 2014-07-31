@@ -878,6 +878,7 @@ dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</df
   boolean ignoreMethod;
   boolean ignoreVary;
   boolean prefixMatch;
+  DOMString cacheName;
 };
 
 dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation">CacheBatchOperation</dfn> {
@@ -887,7 +888,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
   QueryParams matchParams;
 };
 </spec-idl>
-      <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the Service Worker installation. This object provides a no-op constructor. Callers should note that only Cache objects created by <code>caches.create(<var>cacheName</var>)</code> will provide meaningful functionality. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
+      <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the Service Worker installation. This object provides a no-op constructor. Callers should note that only <code><a href="#cache-interface">Cache</a></code> objects created by <code>caches.create(<var>cacheName</var>)</code> will provide meaningful functionality. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
 
       <spec-section id="cache-match">
         <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
@@ -981,7 +982,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           </li>
           <li>Let <var>requests</var> be an array containing only <var>request</var>.</li>
           <li>Set <var>responseArrayPromise</var> to the result of running the algorithm specified in <code><a href="#cache-addAll-method">addAll(<var>requests</var>)</a></code> passing <var>requests</var> as the argument.</li>
-          <li>Let <var>p</var> be transforming <var>responseArrayPromise</var> with <var>onFulfilled</var>.</li>
+          <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>responseArrayPromise</var> with <var>onFulfilled</var></a>.</li>
           <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
             <ol>
               <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
@@ -1019,7 +1020,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                 <ol>
                   <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
                   <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
-                  <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].</li>
+                  <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>requests</var>[<var>index</var>].</li>
                   <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
                   <li>Add <var>o</var> to <var>operations</var>.</li>
                 </ol>
@@ -1133,7 +1134,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 <spec-idl>
 [Constructor, Exposed=ServiceWorker] // no-op constructor
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; create(DOMString <var>cacheName</var>);
