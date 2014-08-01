@@ -123,7 +123,7 @@
 
   <p>Service Workers are <a href="#installation-algorithm">installed</a> by user agents after being <a href="#navigator-service-worker-register">registered</a> by authors from the context of a <a href="http://dom.spec.whatwg.org/#concept-document">document</a>. Service Workers execute in the registering document's <a href="http://goo.gl/58tlSE">origin</a>.</p>
 
-  <p><dfn id="dfn-registration">Registration</dfn> maps a <a href="#dfn-service-worker">Service Worker</a> script to <dfn id="dfn-url-scope">URL scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#dfn-path-prefix">path prefix</a>. User agents may enable many registrations at a single origin so long as the <a href="#dfn-path-prefix">path prefix</a> of the registration differs. <a href="#dfn-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#dfn-path-prefix">path prefix</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
+  <p>A <dfn id="dfn-registration">registration</dfn> maps a <a href="#dfn-service-worker">Service Worker</a> script to <dfn id="dfn-url-scope">URL scope</dfn>, a tuple of <a href="http://tools.ietf.org/html/rfc6454">origin</a> and <a href="#dfn-path-prefix">path prefix</a>. User agents may enable many registrations at a single origin so long as the <a href="#dfn-path-prefix">path prefix</a> of the registration differs. <a href="#dfn-registration">Registration</a> of an identical <a href="http://tools.ietf.org/html/rfc6454">origin</a>/<a href="#dfn-path-prefix">path prefix</a> when one already exists in the user agent causes the existing registration to be replaced.</p>
 
   <p>A <dfn id="dfn-path-prefix">path prefix</dfn> consists of a <a href="http://url.spec.whatwg.org/#concept-relative-url">relative URL</a>.</p>
 
@@ -131,7 +131,7 @@
 
   <p>A document is <dfn id="dfn-document-control">controlled</dfn> if an <a href="#dfn-active-worker">active worker</a> <a href="#scope-match-algorithm">matches</a> the document's URL upon <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>. Multiple documents may be concurrently <a href="#dfn-document-control">controlled</a> by a single <a href="#dfn-service-worker">Service Worker</a> instance. That is, <a href="#dfn-service-worker">Service Workers</a> have a one-to-many relationship with <a href="#dfn-document-control">controlled</a> documents. When a document is <a href="#dfn-document-control">controlled</a> by a <a href="#dfn-service-worker">Service Worker</a>, it is considered the document is <dfn id="dfn-document-use">using</dfn> the <a href="#dfn-service-worker">Service Worker</a>'s associated <a href="#dfn-registration">registration</a>.</p>
 
-  <p>The <dfn id="dfn-lifecycle-events">Lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="dfn-functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#dfn-lifecycle-events">lifecycle events</a> of the Service Worker.</p>
+  <p>The <dfn id="dfn-lifecycle-events">lifecycle events</dfn> of Service Workers are <code><a href="#install-event">install</a></code> and <code><a href="#activate-event">activate</a></code>. <dfn id="dfn-functional-events">Functional events</dfn> are <a href="http://dom.spec.whatwg.org/#interface-event">DOM Events</a> that are dispatched in the <a href="#service-worker-global-scope">Service Worker global context</a> which are not <a href="#dfn-lifecycle-events">lifecycle events</a> of the Service Worker.</p>
 
   <p>Registered Service Workers do not immediately begin to receive <a href="#dfn-functional-events">functional events</a> for documents. <a href="#register-algorithm">Registration</a> is the first step in installation, which proceeds through several phases:</p>
 
@@ -222,6 +222,8 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
 
     <p>The <code><a href="#service-worker-interface">ServiceWorker</a></code> interface represents the document-side view of a <a href="#dfn-service-worker">Service Worker</a>.</p>
 
+    <p>Each <code><a href="#service-worker-interface">ServiceWorker</a></code> object is associated with a <a href="#dfn-service-worker">Service Worker</a>. Multiple separate objects implementing the <code><a href="#service-worker-interface">ServiceWorker</a></code> interface across <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#document-environment">document environments</a> and <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#worker-environment">service worker environments</a> can all be associated with the same <a href="#dfn-service-worker">Service Worker</a> simultaneously.</p>
+
     <spec-section id="service-worker-url">
       <h1><code>scriptURL</code></h1>
 
@@ -233,7 +235,7 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
       <ol>
         <li>Let <var>scriptURL</var> be the URL of the script of the <a href="#dfn-service-worker">Service Worker</a> identifed by its <a href="#dfn-url-scope">URL scope</a>.</li>
         <li>Set <var>scriptURL</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> with <var>scriptURL</var>.</li>
-        <li>Return <var>scriptURL</var>.</li>
+        <li>Return <var>scriptURL</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object or <code><a href="##service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object must have a separate object for its <code><a href="#service-worker-interface">ServiceWorker</a></code>'s <code><a href="#service-worker-url-attribute">scriptURL</a></code> attribute.</li>
       </ol>
       </spec-algorithm>
 
@@ -250,7 +252,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
 
       <p>A <code><a href="#service-worker-interface">ServiceWorker</a></code> object can be in several states.</p>
 
-      <p>The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration:</p>
+      <p>The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the current state, which must be one of the following values defined in the <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object or <code><a href="##service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object must have a separate object for its <code><a href="#service-worker-interface">ServiceWorker</a></code>'s <code><a href="#service-worker-state-attribute">state</a></code> attribute.:</p>
 
       <dl>
         <dt>"<code>installing</code>"</dt>
@@ -262,14 +264,14 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
         <dt>"<code>activated</code>"</dt>
         <dd>The Service Worker represented by the <code><a href="#service-worker-interface">ServiceWorker</a></code> object has completed the steps in the <a href="#dfn-activation-process">activation process</a>. The Service Worker in this state is considered the <a href="#dfn-active-worker">active worker</a> ready to <a href="#dfn-document-control">control</a> the documents in matching scope upon subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/history.html#navigate">navigation</a>.</dd>
         <dt>"<code>redundant</code>"</dt>
-        <dd>A newly created Service Worker <a href="#dfn-registration">registration</a> is replacing the current <a href="#dfn-registration">registration</a> of the Service Worker.</dd>
+        <dd>A newly created <a href="#dfn-registration">registration</a> is replacing the current <a href="#dfn-registration">registration</a>.</dd>
       </dl>
     </spec-section>
 
     <spec-section id="service-worker-event-handler">
       <h1>Event handler</h1>
 
-      <p>The following is the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> (and its corresponding <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handler-event-type">event handler event type</a>) that must be supported, as <a href="http://www.whatwg.org/specs/web-apps/current-work/#event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code><a href="#service-worker-interface">ServiceWorker</a></code> interface:</p>
+      <p>The following is the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> (and its corresponding <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handler-event-type">event handler event type</a>) that must be supported, as <a href="http://www.whatwg.org/specs/web-apps/current-work/#event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code><a href="#service-worker-interface">ServiceWorker</a></code> interface. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object or <code><a href="##service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object must have a separate object for its <code><a href="#service-worker-interface">ServiceWorker</a></code>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a>:</p>
 
       <table>
         <thead>
@@ -306,26 +308,28 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-registration-onupdatefound-attribute">onupdatefound</a>;
 };</spec-idl>
 
-    <p>The <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface represents a <a href="#dfn-registration">registration</a> of a <a href="#dfn-service-worker">Service Worker</a>. A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> has <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, a string that represents a <a href="#dfn-url-scope">URL scope</a>, <code><a href="#service-worker-registration-installing-attribute">installing</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing an <a href="#dfn-installing-worker">installing worker</a>, <code><a href="#service-worker-registration-waiting-attribute">waiting</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing a <a href="#dfn-worker-in-waiting">worker in wating</a> and <code><a href="#service-worker-registration-active-attribute">active</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing an <a href="#dfn-active-worker">active worker</a>.</p>
+    <p>The <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface represents a <a href="#dfn-registration">registration</a>. A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> has <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, a string that represents a <a href="#dfn-url-scope">URL scope</a>, <code><a href="#service-worker-registration-installing-attribute">installing</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing an <a href="#dfn-installing-worker">installing worker</a>, <code><a href="#service-worker-registration-waiting-attribute">waiting</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing a <a href="#dfn-worker-in-waiting">worker in wating</a> and <code><a href="#service-worker-registration-active-attribute">active</a></code>, a <a href="#service-worker-interface">ServiceWorker</a> object representing an <a href="#dfn-active-worker">active worker</a>.</p>
 
     <p>A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> has internal properties <dfn id="script-url-internal-property">[[ScriptURL]]</dfn>, a string that represents the URL of the script for which the registration process (<a href="#register-algorithm">[[Register]]</a> algorithm) started, <dfn id="update-promise-internal-property">[[UpdatePromise]]</dfn>, a <a href="http://goo.gl/3TobQS">promise</a> that resolves with a <a href="#service-worker-registration-interface">ServiceWorkerRegistration</a> object, and <dfn id="upinstalling-internal-property">[[Uninstalling]]</dfn>, a boolean value that indicates whether a <a href="#dfn-registration">registration</a> is currently undergoing the unregistration process. (<a href="#unregister-algorithm">[[Unregister]]</a> algorithm.)</p>
+
+    <p>Each <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object is associated with a <a href="#dfn-registration">registration</a>. Multiple separate objects implementing the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface across <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#document-environment">document environments</a> can all be associated with the same <a href="#dfn-registration">registration</a> simultaneously.</p>
 
     <spec-section id="navigator-service-worker-installing">
       <h1><code>installing</code></h1>
 
-      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-installing-worker">installing worker</a> that is currently undergoing the <dfn id="dfn-installation-process">installation process</dfn> (from step 3 to step 12 of the <a href="#installation-algorithm">[[Install]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document may be <a href="#dfn-document-control">controlled</a> when the Service Worker becomes the <a href="#dfn-active-worker">active worker</a>. <code><a href="#service-worker-registration-installing-attribute">navigator.serviceWorker.installing</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-installation-process">installation process</a>.</p>
+      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-installing-worker">installing worker</a> that is currently undergoing the <dfn id="dfn-installation-process">installation process</dfn> (from step 3 to step 12 of the <a href="#installation-algorithm">[[Install]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document may be <a href="#dfn-document-control">controlled</a> when the Service Worker becomes the <a href="#dfn-active-worker">active worker</a>. <code><a href="#service-worker-registration-installing-attribute">navigator.serviceWorker.installing</a></code> returns <code>null</code> if no <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-installation-process">installation process</a>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code>'s <code><a href="#service-worker-registration-installing-attribute">installing</a></code> attribute.</p>
     </spec-section>
 
     <spec-section id="navigator-service-worker-waiting">
       <h1><code>waiting</code></h1>
 
-      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the waiting Service Worker that is considered the <a href="#dfn-worker-in-waiting">worker in waiting</a> for the document. <code><a href="#service-worker-registration-waiting-attribute">navigator.serviceWorker.waiting</a></code> returns <code>null</code> if there is no <a href="#dfn-worker-in-waiting">worker in waiting</a> for the document.</p>
+      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the waiting Service Worker that is considered the <a href="#dfn-worker-in-waiting">worker in waiting</a> for the document. <code><a href="#service-worker-registration-waiting-attribute">navigator.serviceWorker.waiting</a></code> returns <code>null</code> if there is no <a href="#dfn-worker-in-waiting">worker in waiting</a> for the document. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code>'s <code><a href="#service-worker-registration-waiting-attribute">waiting</a></code> attribute.</p>
     </spec-section>
 
     <spec-section id="navigator-service-worker-active">
       <h1><code>active</code></h1>
 
-      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that is currently undergoing or completed the <dfn id="dfn-activation-process">activation process</dfn> (from step 5 to step 12 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document is <a href="#dfn-document-control">controlled</a> (or to be <a href="#dfn-document-control">controlled</a>). <code><a href="#service-worker-registration-active-attribute">navigator.serviceWorker.active</a></code> returns <code>null</code> if no Service Worker <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-activation-process">activation process</a>.</p>
+      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that is currently undergoing or completed the <dfn id="dfn-activation-process">activation process</dfn> (from step 5 to step 12 of the <a href="#activation-algorithm">[[Activate]]</a> algorithm) for the given <a href="#dfn-url-scope">URL scope</a> in which the document is <a href="#dfn-document-control">controlled</a> (or to be <a href="#dfn-document-control">controlled</a>). <code><a href="#service-worker-registration-active-attribute">navigator.serviceWorker.active</a></code> returns <code>null</code> if no <a href="#service-worker-registration-internal-interface">registration</a> is in the <a href="#dfn-activation-process">activation process</a>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code>'s <code><a href="#service-worker-registration-active-attribute">active</a></code> attribute.</p>
     </spec-section>
 
     <spec-section id="service-worker-registration-scope">
@@ -339,7 +343,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
       <ol>
         <li>Let <var>scope</var> be the URL representing the <a href="#dfn-url-scope">URL scope</a> of the associated <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object.</li>
         <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> with <var>scope</var>.</li>
-        <li>Return <var>scope</var>.</li>
+        <li>Return <var>scope</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code>'s <code><a href="#service-worker-registration-scope-attribute">scope</a></code> attribute.</li>
       </ol>
       </spec-algorithm>
 
@@ -357,7 +361,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="service-worker-event-handler">
       <h1>Event handler</h1>
 
-      <p>The following is the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> (and its corresponding <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handler-event-type">event handler event type</a>) that must be supported, as <a href="http://www.whatwg.org/specs/web-apps/current-work/#event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code><a href="#service-worker-interface">ServiceWorker</a></code> interface:</p>
+      <p>The following is the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> (and its corresponding <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handler-event-type">event handler event type</a>) that must be supported, as <a href="http://www.whatwg.org/specs/web-apps/current-work/#event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a>:</p>
 
       <table>
         <thead>
@@ -418,7 +422,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that currently handles resource requests for the document. <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 13-1 of <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm) or the request is a force refresh (shift+refresh).</p>
+    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object representing the <a href="#dfn-active-worker">active worker</a> that currently handles resource requests for the document. <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the current document was not <a href="#on-fetch-request-algorithm">created under a Service Worker</a> (See step 13-1 of <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm) or the request is a force refresh (shift+refresh). Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-controller-attribute">controller</a></code> attribute.</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
     <h1><code>ready</code></h1>
@@ -446,7 +450,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           </li>
         </ol>
       </li>
-      <li>Return <var>promise</var>.</li>
+      <li>Return <var>promise</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object which its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-controller-attribute">ready</a></code> attribute resolves with.</li>
     </ol>
     </spec-algorithm>
     <p class="note">The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with an <a href="#dfn-active-worker">active worker</a>. Hence, the <code><a href="#service-worker-state-attribute">state</a></code> of the acquired <code><a href="#service-worker-interface">ServiceWorker</a></code> object is either "<code>activating</code>" or "<code>activated</code>".</p>
@@ -458,7 +462,13 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
 
     <p>The <code><a href="#service-worker-container-register-method">register(<var>scriptURL</var>, <var>options</var>)</a></code> method creates or updates a <a href="#dfn-registration">registration</a> for some amount of <a href="#dfn-url-scope">URL scope</a>. If successful, a <a href="#dfn-registration">registration</a> ties the provided <var>scriptURL</var> to a <a href="#dfn-url-scope">URL scope</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
 
-    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated <var>document</var>, <var>scriptURL</var>, and <var>options</var>.<var>scope</var> as the arguments.</p>
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated <var>document</var>, <var>scriptURL</var>, and <var>options</var>.<var>scope</var> as the arguments.</li>
+      <li>Return <var>p</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object which the result of running its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-register-method">register</a></code> method resolves with.</li>
+    </ol>
+    </spec-algorithm>
   </spec-section>
 
   <spec-section id="navigator-service-worker-getRegistration">
@@ -492,7 +502,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           </li>
         </ol>
       </li>
-      <li>Return <var>promise</var>.</li>
+      <li>Return <var>promise</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object which the result of running its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-getregistration-method">getRegistration(<var>documentURL</var>)</a></code> method resolves with.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -524,7 +534,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           <li>Resolve <var>promise</var> with <var>array</var>.</li>
         </ol>
       </li>
-      <li>Return <var>promise</var>.</li>
+      <li>Return <var>promise</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the array of <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> objects which the result of running its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-getregistrations-method">getRegistrations()</a></code> method resolves with.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -708,7 +718,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-scope">
       <h1><code>scope</code></h1>
 
-      <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#dfn-url-scope">URL scope</a> of the associated Service Worker <a href="#dfn-registration">registration</a>. The <dfn id="service-worker-global-scope-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#dfn-url-scope">URL scope</a> of the associated Service Worker <a href="#dfn-registration">registration</a>.</p>
+      <p>The <code>scope</code> attribute of a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object reflects the <a href="#dfn-url-scope">URL scope</a> of the associated <a href="#dfn-registration">registration</a>. The <dfn id="service-worker-global-scope-scope-attribute"><code>scope</code></dfn> attribute must return the <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialization</a> of the URL representing the <a href="#dfn-url-scope">URL scope</a> of the associated <a href="#dfn-registration">registration</a>.</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-fetch">
       <h1><code>fetch(<var>input</var>, <var>init</var>)</code></h1>
@@ -889,6 +899,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 };
 </spec-idl>
       <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the Service Worker installation. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
+
+      <p>Each <code><a href="#cache-interface">Cache</a></code> object is associated with a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>. Multiple separate objects implementing the <code><a href="#cache-interface">Cache</a></code> interface across <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#worker-environment">service worker environments</a> can all be associated with the same <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> simultaneously.</p>
 
       <spec-section id="cache-match">
         <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
@@ -1214,7 +1226,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <spec-algorithm>
         <ol>
-          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps. Each <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object must have a separate object for the <code><a href="#cache-interface">Cache</a></code> object which the result of running its <code><a href="#cache-storage-interface">CacheStorage</a></code>'s <code><a href="#cache-storage-get-method">get(<var>cacheName</var>)</a></code> method resolves with:
             <ol>
               <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
                 <ol>
@@ -1855,10 +1867,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to null.</li>
         </ol>
       </li>
-      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>updatefound</code> on <var>registration</var>.</li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>updatefound</code> at all the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> objects, associated with the <a href="#dfn-registration">registration</a> represented by <var>registration</var>, for all the <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing contexts</a>' <a href="http://dom.spec.whatwg.org/#document">Document</a> objects.</li>
       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface on the associated <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface at the associated <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code> object.</li>
           <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, then:
@@ -1914,14 +1926,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <ol>
           <li>For each document matching <var>registration</var>.<var>scope</var>:
             <ol>
-              <li>Set <var>registration</var> to the document's Service Worker <a href="#dfn-registration">registration</a>.</li>
+              <li>Set <var>registration</var> to the document's <a href="#dfn-registration">registration</a>.</li>
             </ol>
           </li>
           <li>Run <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>Wait until no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>.</li>
+      <li>Wait until no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-registration">registration</a>.</li>
       <li>Invoke <a href="#activation-algorithm">[[Activate]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
     </ol>
     </spec-algorithm>
@@ -1952,10 +1964,10 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>registration</var>.<var>active</var> to <var>activatingWorker</var>.</li>
       <li>Set <var>registration</var>.<var>waiting</var> to null.</li>
       <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>active</var> and "<code>activating</code>" as the arguments.</li>
-      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>controllerchange</code> on <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> for all documents that have <a href="#dfn-document-use">used</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
+      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="http://goo.gl/bCI1X0">fire a simple event named</a> <code>controllerchange</code> at <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> for all documents that have <a href="#dfn-document-use">used</a> <var>registration</var> as its <a href="#dfn-registration">registration</a>.</li>
       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>activate</code> using <a href="#install-phase-event-interface">InstallPhaseEvent</a> interface at the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
           <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, then:
@@ -2041,7 +2053,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>matchedWorker</var> be <var>registration</var>.<var>active</var>.</li>
       <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
         <ol>
-          <li>Let <var>document</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its Service Worker <a href="#dfn-registration">registration</a>.</li>
+          <li>Let <var>document</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its <a href="#dfn-registration">registration</a>.</li>
         </ol>
       </li>
       <li>If <var>matchedWorker</var>.<var>state</var> is "<code>activating</code>", then:
@@ -2056,7 +2068,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, on the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, at the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
           <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, then:
@@ -2132,13 +2144,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Let <var>registration</var> be the Service Worker <a href="#dfn-registration">registration</a> <a href="#dfn-document-use">used</a> by <var>document</var>.</li>
+      <li>Let <var>registration</var> be the <a href="#dfn-registration">registration</a> <a href="#dfn-document-use">used</a> by <var>document</var>.</li>
       <li>If <var>registration</var> is null, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If any other document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
+      <li>If any other document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-registration">registration</a>, then:
         <ol>
           <li>Abort these steps.</li>
         </ol>
@@ -2202,7 +2214,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Resolve <var>promise</var>.</li>
-          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their Service Worker <a href="#dfn-registration">registration</a>, then:
+          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-registration">registration</a>, then:
             <ol>
               <li>If <var>registration</var>.<a href="#upinstalling-internal-property">[[Uninstalling]]</a> is false, then:
                 <ol>
@@ -2271,10 +2283,15 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd>None</dd>
     </dl>
     <ol>
-      <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run these steps:
+      <li>Let <var>serviceWorkers</var> be an array containing all the <code><a href="#service-worker-interface">ServiceWorker</a></code> objects, associated with the <a href="#dfn-service-worker">Service Worker</a> represented by <var>worker</var>, for all the <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing contexts</a>' <a href="http://dom.spec.whatwg.org/#document">Document</a> objects and the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object represented by <var>worker</var>.</li>
+      <li>For each <var>serviceWorker</var> in <var>serviceWorkers</var>:
         <ol>
-          <li>Set <var>worker</var>.<var>state</var> to <var>state</var>.</li>
-          <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> at <var>worker</var>.</li>
+          <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run these steps:
+            <ol>
+              <li>Set <var>serviceWorker</var>.<var>state</var> to <var>state</var>.</li>
+              <li><a href="http://goo.gl/bCI1X0">Fire a simple event named</a> <code>statechange</code> at <var>serviceWorker</var>.</li>
+            </ol>
+          </li>
         </ol>
       </li>
     </ol>
