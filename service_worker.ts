@@ -139,7 +139,7 @@ interface OfflineEventHandler { (e:_Event); }
 class ServiceWorkerClients {
   // A list of window objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  getServiced(): Promise { // Promise for Array<Client>
+  getServiced(): Promise { // Promise for Array<ServiceWorkerClient>
     return new Promise(function() {
 
     });
@@ -231,7 +231,7 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // garbage collected before the ServiceWorkerGlobalScope object.
   // All messages received by that port must immediately be retargeted at the
   // ServiceWorkerGlobalScope object.
-  // The ev.source of these MessageEvents are instances of Client
+  // The ev.source of these MessageEvents are instances of ServiceWorkerClient
   onmessage: (ev: MessageEvent) => any;
 
   // FIXME(slightlyoff): Need to add flags for:
@@ -388,7 +388,7 @@ class FetchEvent extends _Event {
   request: Request;
 
   // The window issuing the request.
-  client: Client;
+  client: ServiceWorkerClient;
 
   // Can be one of:
   //   "connect",
@@ -1034,7 +1034,7 @@ class SharedWorker extends _EventTarget {
 ////////////////////////////////////////////////////////////////////////////////
 // Not part of any public standard but used above:
 ////////////////////////////////////////////////////////////////////////////////
-class Client {
+class ServiceWorkerClient {
   id: number;
   postMessage: (message: any, targetOrigin: string, ports?: any) => void;
 }

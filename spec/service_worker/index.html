@@ -691,7 +691,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onbeforeevicted-attribute">onbeforeevicted</a>;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onevicted-attribute">onevicted</a>;
 
-  // The event.source of these MessageEvents are instances of Client
+  // The event.source of these MessageEvents are instances of ServiceWorkerClient
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onmessage-attribute">onmessage</a>;
 
   // close() method inherited from WorkerGlobalScope is not exposed.
@@ -797,22 +797,22 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
         </tbody>
       </table>
 
-      <p class="note">For <a href="#service-worker-global-scope-onmessage-attribute">onmessage <a href="http://goo.gl/rBfiz0">event handler</a>,<code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> objects act as if they had an implicit <code><a href="http://goo.gl/tHBrI6">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the worker is created, but it is not exposed. This object must never be garbage collected before the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. All messages received by that port must immediately be retargeted at the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. That is, an event named <code>message</code> using the <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code> interface is dispatched on <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#dom-messageevent-source">event.source</a></code> of these <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code>s are instances of <code><a href="#client-interface">Client</a></code>.</p>
+      <p class="note">For <a href="#service-worker-global-scope-onmessage-attribute">onmessage <a href="http://goo.gl/rBfiz0">event handler</a>,<code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> objects act as if they had an implicit <code><a href="http://goo.gl/tHBrI6">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the worker is created, but it is not exposed. This object must never be garbage collected before the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. All messages received by that port must immediately be retargeted at the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. That is, an event named <code>message</code> using the <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code> interface is dispatched on <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#dom-messageevent-source">event.source</a></code> of these <code><a href="http://goo.gl/S5e0b6">MessageEvent</a></code>s are instances of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>.</p>
     </spec-section>
   </spec-section>
-  <spec-section id="client">
-    <h1><code>Client</code></h1>
+  <spec-section id="service-worker-client">
+    <h1><code>ServiceWorkerClient</code></h1>
 
 <spec-idl>[Exposed=ServiceWorker]
-interface <dfn id="client-interface" title="Client">Client</dfn> {
-  readonly attribute unsigned long <a href="#client-id-attribute">id</a>;
+interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">ServiceWorkerClient</dfn> {
+  readonly attribute unsigned long <a href="#service-worker-client-id-attribute">id</a>;
   void <a href="http://goo.gl/Kze9t3">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
 };
 </spec-idl>
 
-    <p>The <code><a href="#client-interface">Client</a></code> interface represents the window or the worker (defined as client) that is <a href="#dfn-document-control">controlled</a> by the <a href="#dfn-service-worker">Service Worker</a>.</p>
+    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> interface represents the window or the worker (defined as client) that is <a href="#dfn-document-control">controlled</a> by the <a href="#dfn-service-worker">Service Worker</a>.</p>
 
-    <p>The <dfn id="client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#client-interface">Client</a></code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#client-interface">Client</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
+    <p>The <dfn id="service-worker-client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
 
   </spec-section>
   <spec-section id="service-worker-clients">
@@ -822,15 +822,15 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // A list of client objects, identifiable by ID, that correspond to windows
   // (or workers) that are "controlled" by this SW
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#service-worker-clients-getserviced-method">getServiced</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getserviced-method">getServiced</a>();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();
 };
 </spec-idl>
 
-    <p>The <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects.</p>
+    <p>The <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> interface represents a container for a list of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> objects.</p>
     <spec-section id="get-serviced-method">
       <h1><code>getServiced()</code></h1>
-      <p>The <dfn id="service-worker-clients-getserviced-method"><code>getServiced()</code></dfn> method must return a <a href="http://goo.gl/3TobQS">promise</a> that will resolve with a list of <code><a href="#client-interface">Client</a></code> objects that are <a href="#dfn-document-control">controlled</a> by this Service Worker.</p>
+      <p>The <dfn id="service-worker-clients-getserviced-method"><code>getServiced()</code></dfn> method must return a <a href="http://goo.gl/3TobQS">promise</a> that will resolve with a list of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> objects that are <a href="#dfn-document-control">controlled</a> by this Service Worker.</p>
     </spec-section>
     <spec-section id="reloadall-method">
       <h1><code>reloadAll()</code></h1>
@@ -1441,7 +1441,7 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
 [Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
 readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
-readonly attribute <a href="#client-interface">Client</a> client; // The window issuing the request.
+readonly attribute <a href="#service-worker-client-interface">ServiceWorkerClient</a> client; // The window issuing the request.
 readonly attribute <a href="#context-enum">Context</a> context;
 readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
@@ -1452,7 +1452,7 @@ void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://g
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
 <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
-<a href="#client-interface">Client</a> client;
+<a href="#service-worker-client-interface">ServiceWorkerClient</a> client;
 <a href="#context-enum">Context</a> context;
 boolean isReload;
 };
@@ -2074,7 +2074,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/#queue-a-task">Queue a task</a> to run the following substeps:
         <ol>
-          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#client-interface">Client</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, at the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
+          <li><a href="http://goo.gl/xsVftM">Fire an event</a> named <code>fetch</code>, using <a href="#fetch-event-interface">FetchEvent</a> interface, with <var>request</var> attribute initialized to <var>r</var>, <var>client</var> attribute initialized to <a href="http://goo.gl/2Rv6NZ">client</a> of the <var>request</var>, in the form of <a href="#service-worker-client-interface">ServiceWorkerClient</a> object, <var>context</var> attribute initialized to <a href="http://goo.gl/ivocT8">context</a> of the <var>request</var> in string, and <var>isReload</var> initialized to <code>true</code> if event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise, at the associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object.</li>
           <li>For each <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="http://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, then:
