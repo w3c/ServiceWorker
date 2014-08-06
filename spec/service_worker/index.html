@@ -302,7 +302,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
   readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
 
   // event
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-registration-onupdatefound-attribute">onupdatefound</a>;
@@ -355,7 +355,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
       <p>The <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-registration">registration</a> for the given <a href="#dfn-url-scope">URL scope</a>. It is important to note that the currently <a href="#dfn-document-control">controlled</a> document's <a href="#dfn-registration">registration</a> is effective until all the documents (including itself) using this <a href="#dfn-registration">registration</a> unload. That is, <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
-      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated <var>document</var> and <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, which represents its <a href="#dfn-url-scope">URL scope</a>, as the arguments.</p>
+      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated document <var>document</var> and <code><a href="#service-worker-registration-scope-attribute">scope</a></code>, which represents its <a href="#dfn-url-scope">URL scope</a>, as the arguments.</p>
     </spec-section>
 
     <spec-section id="service-worker-event-handler">
@@ -683,7 +683,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // Promise&lt;Response&gt; fetch(RequestInfo input, optional RequestInit init);
 
   void <a href="#service-worker-global-scope-update-method">update</a>();
-  void <a href="#service-worker-global-scope-unregister-method">unregister</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-global-scope-unregister-method">unregister</a>();
 
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
@@ -752,7 +752,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <ol>
         <li>Let <var>workerGlobalScope</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#global-object">global object</a>.</li>
         <li>Let <var>scope</var> be a string representing the <a href="#dfn-path-prefix">path prefix</a> of <a href="#dfn-url-scope">URL scope</a> of the Service Worker associated with <var>workerGlobalScope</var>.</li>
-        <li>Invoke <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>scope</var> as the argument.</li>
+        <li>Return the result of running <a href="#unregister-algorithm">[[Unregister]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the associated document <var>document</var> and <var>scope</var> as the argument.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -878,9 +878,9 @@ interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; addAll(sequence&lt;(<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)&gt; <var>requests</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
 };
 
 dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</dfn> {
@@ -1095,7 +1095,16 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
           <li>Upon fulfillment of <var>p</var> with <var>responseArray</var>, perform the following substeps, <var>onFulfilled</var>, asynchronously:
             <ol>
-              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
+              <li>If <var>resultPromiseArray</var> is not null, then:
+                <ol>
+                  <li>Resolve <var>p</var> with true.</li>
+                </ol>
+              </li>
+              <li>Else:
+                <ol>
+                  <li>Resolve <var>p</var> with false.</li>
+                </ol>
+              </li>
             </ol>
           </li>
           <li>Return <var>p</var>.</li>
@@ -1148,11 +1157,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 <spec-idl>
 [Exposed=ServiceWorker]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; create(DOMString <var>cacheName</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; delete(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; create(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
 };</spec-idl>
 <!--FIXME(jungkees): set method is not entirely dropped yet. <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);-->
@@ -1358,7 +1367,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">InstallPhaseEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#install-phase-event-waituntil-method">waitUntil</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
+void <a href="#install-phase-event-waituntil-method">waitUntil</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };
 </spec-idl>
 
@@ -1379,26 +1388,20 @@ interface <dfn id="install-phase-event-interface" title="InstallPhaseEvent">Inst
       <p><dfn id="install-phase-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
-        <li>Run the following substeps asynchronously:
+        <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
+        <li>Wait until <var>f</var> settles.</li>
+        <li>If <var>f</var> rejects with an exception, then:
           <ol>
-            <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
-            <li>Wait until <var>f</var> settles.</li>
-            <li>If <var>f</var> rejects with an exception, then:
-              <ol>
-                <li>Reject <var>promise</var> with that exception.</li>
-                <li>Set the <a href="#wait-until-reject-flag">wait-until reject flag</a>.</li>
-              </ol>
-            </li>
-            <li>Else if <var>f</var> resolves with a value, then:
-              <ol>
-                <li>Resolve <var>promise</var> with that value.</li>
-              </ol>
-            </li>
-            <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.
+            <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> that exception.</li>
+            <li>Set the <a href="#wait-until-reject-flag">wait-until reject flag</a>.</li>
           </ol>
         </li>
-        <li>Return <var>promise</var>.</li>
+        <li>Else if <var>f</var> resolves with a value, then:
+          <ol>
+            <li>Do nothing.</li>
+          </ol>
+        </li>
+        <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -1446,8 +1449,8 @@ readonly attribute <a href="#context-enum">Context</a> context;
 readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
 void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
-<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
-<a href="#promise-interface">Promise</a>&lt;any&gt; <a href="#fetch-event-default-method">default</a>();
+<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
+<a href="#promise-interface">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
@@ -2212,7 +2215,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">[[GetRegistration]]</a> algorithm passing <var>scope</var> as the argument.</li>
           <li>If <var>registration</var> is null, then:
             <ol>
-              <li>Resolve <var>promise</var>.</li>
+              <li>Resolve <var>promise</var> with false.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
@@ -2223,7 +2226,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               <li>The user agent may abort in-flight requests, parsing or worker execution relating to <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a>.</li>
             </ol>
           </li>
-          <li>Resolve <var>promise</var>.</li>
+          <li>Resolve <var>promise</var> with true.</li>
           <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-registration">registration</a>, then:
             <ol>
               <li>If <var>registration</var>.<a href="#upinstalling-internal-property">[[Uninstalling]]</a> is false, then:

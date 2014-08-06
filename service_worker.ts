@@ -77,8 +77,8 @@ interface ServiceWorkerRegistration extends EventTarget {
   scriptURL: string;
 
   unregister(): Promise;
-    // Unregisters this serviceworker.
-    // Resolves with undefined.
+    // Unregisters this registration.
+    // Resolves with boolean value.
 
   onupdatefound: (ev: Event) => any;
     // Fires when .installing becomes a new worker
@@ -108,8 +108,7 @@ class InstallPhaseEvent extends _Event {
   // Delay treating the installing worker until the passed Promise resolves
   // successfully. This is primarily used to ensure that an ServiceWorker is not
   // active until all of the "core" Caches it depends on are populated.
-  // TODO: what does the returned promise do differently to the one passed in?
-  waitUntil(f: Promise): Promise { return accepted(); }
+  waitUntil(f: Promise): void {}
 }
 
 class InstallEvent extends InstallPhaseEvent {
@@ -256,7 +255,9 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // hours.
   update: () => void;
 
-  unregister: () => void;
+  unregister: () => Promise;
+    // Unregisters this Service Worker's registration.
+    // Resolves with boolean value.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -636,7 +637,11 @@ class Cache {
     return this._batch([
       {type: 'delete', request: request, matchParams: matchParams}
     ]).then(function(results) {
-      return results[0];
+      if (results) {
+        return true;
+      } else {
+        return false;
+      }
     });
   }
 
@@ -780,8 +785,11 @@ class CacheStorage {
 
   delete(cacheName: any): Promise {
     cacheName = cacheName.toString();
-    this._items.delete(cacheName);
-    return Promise.resolve();
+    if (this._items.delete(cacheName)) {
+      return Promise.resolve(true);
+    } else {
+      return Promise.resolve(false);
+    }
   }
 
   keys(): Promise {

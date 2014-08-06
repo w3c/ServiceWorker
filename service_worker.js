@@ -41,9 +41,7 @@ var InstallPhaseEvent = (function (_super) {
     // Delay treating the installing worker until the passed Promise resolves
     // successfully. This is primarily used to ensure that an ServiceWorker is not
     // active until all of the "core" Caches it depends on are populated.
-    // TODO: what does the returned promise do differently to the one passed in?
     InstallPhaseEvent.prototype.waitUntil = function (f) {
-        return accepted();
     };
     return InstallPhaseEvent;
 })(_Event);
@@ -463,11 +461,13 @@ var Cache = (function () {
         });
     };
 
-    Cache.prototype.add = function () {
-        var requests = [];
-        for (var _i = 0; _i < (arguments.length - 0); _i++) {
-            requests[_i] = arguments[_i + 0];
-        }
+    Cache.prototype.add = function (request) {
+        return this.addAll([request]).then(function (responses) {
+            return responses[0];
+        });
+    };
+
+    Cache.prototype.addAll = function (requests) {
         var thisCache = this;
         requests = requests.map(_castToRequest);
 
@@ -498,7 +498,11 @@ var Cache = (function () {
         return this._batch([
             { type: 'delete', request: request, matchParams: matchParams }
         ]).then(function (results) {
-            return results[0];
+            if (results) {
+                return true;
+            } else {
+                return false;
+            }
         });
     };
 
@@ -527,9 +531,6 @@ var Cache = (function () {
                 return operations.map(function handleOperation(operation, i) {
                     if (operation.type != 'delete' && operation.type != 'put') {
                         throw TypeError("Invalid operation type");
-                    }
-                    if (operation.type == "delete" && operation.response) {
-                        throw TypeError("Cannot use response for delete operations");
                     }
                     if (operation.type == "delete" && operation.response) {
                         throw TypeError("Cannot use response for delete operations");
@@ -634,8 +635,11 @@ var CacheStorage = (function () {
 
     CacheStorage.prototype.delete = function (cacheName) {
         cacheName = cacheName.toString();
-        this._items.delete(cacheName);
-        return Promise.resolve();
+        if (this._items.delete(cacheName)) {
+            return Promise.resolve(true);
+        } else {
+            return Promise.resolve(false);
+        }
     };
 
     CacheStorage.prototype.keys = function () {
