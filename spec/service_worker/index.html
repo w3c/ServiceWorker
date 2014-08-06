@@ -902,6 +902,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
       <p>Each <code><a href="#cache-interface">Cache</a></code> object is associated with a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>. Multiple separate objects implementing the <code><a href="#cache-interface">Cache</a></code> interface across <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#worker-environment">service worker environments</a> can all be associated with the same <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> simultaneously.</p>
 
+      <p class="fixme"><strong>Caveat: </strong>Implementors should note that the interface defined in this section is subject to change according to the <a href="https://github.com/slightlyoff/ServiceWorker/issues">ongoing discussion</a>. </p>
+
       <spec-section id="cache-match">
         <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
 
@@ -1472,6 +1474,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <p>Each event using <code><a href="#fetch-event-interface">FetchEvent</a></code> interface has the following associated flag that is initially unset:
       <ul>
         <li><dfn id="wait-to-respond-flag">wait to respond flag</dfn></li>
+        <li><dfn id="respond-with-entered-flag">respond-with entered flag</dfn></li>
         <li><dfn id="respond-with-error-flag">respond-with error flag</dfn></li>
       </ul>
     </p>
@@ -1484,12 +1487,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>If the <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
+        <li>If the <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, then:
           <ol>
             <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
+        <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
         <li>Wait until <var>r</var> settles.</li>
         <li>If <var>r</var> rejected with an exception, then:
@@ -2082,9 +2086,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                 </ol>
               </li>
               <li>Let <var>event</var> be the event for which this <a href="http://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-              <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
+              <li>If <var>event</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, then:
                 <ol>
                   <li>Set <var>respondWithEntered</var> to true.</li>
+                </ol>
+              </li>
+              <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
+                <ol>
                   <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
                   <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, then:
                     <ol>
