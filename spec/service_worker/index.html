@@ -138,7 +138,7 @@
   <ol>
     <li><em>Fetch</em>:
     <br>
-    The script URL provided by the author (via a call to <code><a href="#navigator-service-worker-register">navigator.serviceWorker.register(<var>scriptURL</var>, <var>options</var>)</a></code> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a>. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
+    The script URL provided by the author (via a call to <code><a href="#navigator-service-worker-register">navigator.serviceWorker.register(<var>scriptURL</var>, <var>options</var>)</a></code> from a document) is fetched without <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html#sec13.2.2">heuristic caching</a> and with an extra <code><a href="#ch-context">CH-Context: serviceworker</a></code> header. If the return status code of the fetch is not <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2">2xx</a>, installation aborts.</li>
     <li><em>Startup</em>:
     <br>
     If fetching the worker script is successful, it is <a href="http://www.w3.org/TR/workers/#processing-model">executed</a> in a <code><a href="#service-worker-global-scope">ServiceWorkerGlobalScope</a></code>. These scripts may call <code><a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">importScripts</a></code> resulting in further fetches. Imported scripts are fetched, <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-5.1.4">parsed</a> and <a href="https://people.mozilla.org/~jorendorff/es5.1-final.html#sec-10.4.1">executed</a> in turn, per the ECMA-262 and <a href="http://www.w3.org/TR/workers/#importing-scripts-and-libraries">Web Workers specifications</a>. All resources downloaded as part of the very first startup of a Service Worker are cached along with the worker script as described in <a href="#update-algorithm">"Worker Script Caching"<!--TODO(jungkees): add worker script caching section--></a>.
@@ -1793,7 +1793,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to <var>promise</var>.</li>
       <li>Run the following substeps asynchronously:
         <ol>
-          <li>Perform a fetch of <var>registration</var>.<a href="#script-url-internal-property">[[ScriptURL]]</a>, forcing a network fetch if cached entry is greater than 1 day old.</li>
+          <li><a href="http://fetch.spec.whatwg.org/#concept-fetch">Perform a fetch</a> using a request whose url is <var>registration</var>.<a href="#script-url-internal-property">[[ScriptURL]]</a>, whose <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is <code>serviceworker</code>, whose <a href="http://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> is set, and whose <a href="http://fetch.spec.whatwg.org/#concept-request-header-list">header list</a> consists of the header with name <code>CH-Context</code> and value <code>serviceworker</code>, forcing a network fetch if cached entry is greater than 1 day old.
+          <p class="issue">Issue: Use whatever hook Fetch provides to skip the cache in <a href="http://fetch.spec.whatwg.org/#http-network-or-cache-fetch">HTTP network or cache fetch</a>.</p></li>
           <li>If <var>promise</var> has been rejected (eg, another registration has aborted it), then:
             <ol>
               <li>Set <var>registration</var>.<a href="#update-promise-internal-property">[[UpdatePromise]]</a> to null.</li>
