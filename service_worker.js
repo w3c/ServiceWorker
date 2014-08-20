@@ -67,47 +67,18 @@ var InstallEvent = (function (_super) {
 var ServiceWorkerClients = (function () {
     function ServiceWorkerClients() {
     }
-    // A list of window objects, identifiable by ID, that correspond to windows
-    // (or workers) that are "controlled" by this SW
-    ServiceWorkerClients.prototype.getServiced = function () {
-        return new Promise(function () {
-        });
-    };
-
-    // Assists in restarting all windows
-    //
-    // Return a new Promise
-    // For each attached window:
-    //   Fire onreloadpage against navigator.serviceWorker
-    //   If onreloadpage has default prevented:
-    //     Unfreeze any frozen windows
-    //     reject returned promise
-    //     abort these steps
-    //   If waitUntil called on onreloadpage event:
-    //     frozen windows may wish to indicate which window they're blocked on
-    //     yeild until promise passed into waitUntil resolves
-    //     if waitUntil promise is accepted:
-    //       freeze window (ui may wish to grey it out)
-    //     else:
-    //       Unfreeze any frozen windows
-    //       reject returned promise
-    //       abort these steps
-    //   Else:
-    //     freeze window (ui may wish to grey it out)
-    // Unload all windows
-    // If any window fails to unload, eg via onbeforeunload:
-    //   Unfreeze any frozen windows
-    //   reject returned promise
-    //   abort these steps
-    // Close all connections between the old worker and windows
-    // Activate the new worker
-    // Reload all windows asynchronously
-    // Resolve promise
-    ServiceWorkerClients.prototype.reloadAll = function () {
+    ServiceWorkerClients.prototype.getAll = function (options) {
         return new Promise(function () {
         });
     };
     return ServiceWorkerClients;
+})();
+
+var ServiceWorkerClient = (function () {
+    function ServiceWorkerClient(url) {
+        // attempt to open a new tab/window to url
+    }
+    return ServiceWorkerClient;
 })();
 
 // The scope in which worker code is executed
@@ -885,12 +856,6 @@ var SharedWorker = (function (_super) {
 ////////////////////////////////////////////////////////////////////////////////
 // Not part of any public standard but used above:
 ////////////////////////////////////////////////////////////////////////////////
-var Client = (function () {
-    function Client() {
-    }
-    return Client;
-})();
-
 var _useWorkerResponse = function () {
     return accepted();
 };

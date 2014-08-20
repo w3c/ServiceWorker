@@ -136,48 +136,51 @@ interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
 class ServiceWorkerClients {
-  // A list of window objects, identifiable by ID, that correspond to windows
-  // (or workers) that are "controlled" by this SW
-  getServiced(): Promise { // Promise for Array<ServiceWorkerClient>
+  getAll(options?: ServiceWorkerClientQueryParams): Promise { // Promise for Array<ServiceWorkerClient>
     return new Promise(function() {
 
     });
   }
+}
 
-  // Assists in restarting all windows
-  //
-  // Return a new Promise
-  // For each attached window:
-  //   Fire onreloadpage against navigator.serviceWorker
-  //   If onreloadpage has default prevented:
-  //     Unfreeze any frozen windows
-  //     reject returned promise
-  //     abort these steps
-  //   If waitUntil called on onreloadpage event:
-  //     frozen windows may wish to indicate which window they're blocked on
-  //     yeild until promise passed into waitUntil resolves
-  //     if waitUntil promise is accepted:
-  //       freeze window (ui may wish to grey it out)
-  //     else:
-  //       Unfreeze any frozen windows
-  //       reject returned promise
-  //       abort these steps
-  //   Else:
-  //     freeze window (ui may wish to grey it out)
-  // Unload all windows
-  // If any window fails to unload, eg via onbeforeunload:
-  //   Unfreeze any frozen windows
-  //   reject returned promise
-  //   abort these steps
-  // Close all connections between the old worker and windows
-  // Activate the new worker
-  // Reload all windows asynchronously
-  // Resolve promise
-  reloadAll(): Promise {
-    return new Promise(function() {
+interface ServiceWorkerClientQueryParams {
+  includeUncontrolled: boolean;
+}
 
-    });
+class ServiceWorkerClient {
+  constructor(url: string) {
+    // attempt to open a new tab/window to url
   }
+
+  // fulfills with no value if window/tab opens and can receive messages
+  // rejects if the above fails (with error)
+  // read-only
+  ready: Promise;
+
+  // http://www.w3.org/TR/page-visibility/#dom-document-hidden
+  // this value does not change after object creation, it's a snapshot
+  // read-only
+  hidden: boolean;
+
+  // http://www.whatwg.org/specs/web-apps/current-work/multipage/interaction.html#dom-document-hasfocus
+  // this value does not change after object creation, it's a snapshot
+  // read-only
+  focused: boolean;
+
+  // this value does not change after object creation, it's a snapshot
+  // read-only
+  url: string;
+
+  // http://fetch.spec.whatwg.org/#concept-request-context-frame-type
+  // so we can tell the difference between page, iframe & worker
+  // read-only
+  frameType: string;
+
+  postMessage: (message: any, targetOrigin: string, ports?: any) => void;
+
+  // rejects if client is gone, not yet ready, or cannot be focused for some other reason
+  // fulfills when client gains focus, or is already focused
+  focus: () => Promise;
 }
 
 // The scope in which worker code is executed
@@ -1042,10 +1045,6 @@ class SharedWorker extends _EventTarget {
 ////////////////////////////////////////////////////////////////////////////////
 // Not part of any public standard but used above:
 ////////////////////////////////////////////////////////////////////////////////
-class ServiceWorkerClient {
-  id: number;
-  postMessage: (message: any, targetOrigin: string, ports?: any) => void;
-}
 
 var _useWorkerResponse = function() : Promise { return accepted(); };
 var _defaultToBrowserHTTP = function(url?) : Promise { return accepted(); };
