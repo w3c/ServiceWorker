@@ -138,7 +138,7 @@ interface OfflineEventHandler { (e:_Event); }
 class ServiceWorkerClients {
   getAll(options?: ServiceWorkerClientQueryParams): Promise { // Promise for Array<ServiceWorkerClient>
     return new Promise(function() {
-
+      // the objects returned will be new instances every time
     });
   }
 }
