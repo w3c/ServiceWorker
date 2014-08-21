@@ -403,8 +403,8 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getall-method">getRegistration</a>(optional <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>documentURL</var> = "");
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getall-method">getRegistrations</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>documentURL</var> = "");
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
 
 
   // events
@@ -808,44 +808,86 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   <spec-section id="service-worker-client">
     <h1><code>ServiceWorkerClient</code></h1>
 
-<spec-idl>[Exposed=ServiceWorker]
+<spec-idl>[Constructor(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>), Exposed=ServiceWorker]
 interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">ServiceWorkerClient</dfn> {
-  readonly attribute unsigned long <a href="#service-worker-client-id-attribute">id</a>;
+  readonly attribute <a href="http://goo.gl/3TobQS">Promise</a> ready;
+  readonly attribute boolean hidden;
+  readonly attribute boolean focused;
+  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> url;
+  readonly attribute <a href="http://fetch.spec.whatwg.org/#concept-request-context-frame-type">ContextFrameType</a> frameType;
   void <a href="http://goo.gl/Kze9t3">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a> focus();
 };
 </spec-idl>
+  <!--FIXME(jungkees): remove it if we drop this attribute - readonly attribute unsigned long <a href="#service-worker-client-id-attribute">id</a>;-->
 
-    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> interface represents the window or the worker (defined as client) that is <a href="#dfn-document-control">controlled</a> by the <a href="#dfn-service-worker">Service Worker</a>.</p>
+    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> interface represents a window on the origin that the associated <a href="#dfn-service-worker">Service Worker</a> runs on.</p>
 
-    <p>The <dfn id="service-worker-client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p>
-
+    <!--FIXME(jungkees): remove it if we drop this attribute - p>The <dfn id="service-worker-client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p-->
+    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>.</p>
   </spec-section>
   <spec-section id="service-worker-clients">
     <h1><code>ServiceWorkerClients</code></h1>
 
 <spec-idl>[Exposed=ServiceWorker]
 interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
-  // A list of client objects, identifiable by ID, that correspond to windows
-  // (or workers) that are "controlled" by this SW
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getserviced-method">getServiced</a>();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();
+  // The objects returned will be new instances every time
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-params-dictionary">ServiceWorkerClientQueryParams</a> <var>options</var>);
+};
+
+dictionary <dfn id="serviceworker-client-query-params-dictionary" title="ServiceWorkerClientQueryParams">ServiceWorkerClientQueryParams</dfn> {
+  boolean includeUncontrolled;
 };
 </spec-idl>
+  <!--FIXME(jungkees): remove it if we drop this method - a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();-->
 
     <p>The <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> interface represents a container for a list of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> objects.</p>
-    <spec-section id="get-serviced-method">
-      <h1><code>getServiced()</code></h1>
-      <p>The <dfn id="service-worker-clients-getserviced-method"><code>getServiced()</code></dfn> method must return a <a href="http://goo.gl/3TobQS">promise</a> that will resolve with a list of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> objects that are <a href="#dfn-document-control">controlled</a> by this Service Worker.</p>
+    <spec-section id="get-all-method">
+      <h1><code>getAll(<var>options</var>)</code></h1>
+      <p>The <dfn id="service-worker-clients-getall-method"><code>getAll(<var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
+        <li>Run these steps asynchronously:
+          <ol>
+            <li>Let <var>clients</var> be an empty array.</li>
+            <li>If the optional argument <var>options</var> is present and <var>options</var>.<var>includeUncontrolled</var> is true, then:
+              <ol>
+                <li>For each <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> of the document objects whose <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a> is the <a href="http://www.whatwg.org/specs/web-apps/current-work/#same-origin">same</a> as the associated <a href="#dfn-service-worker">Service Worker</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a>:
+                  <p class="fixme">Shared Workers are in the scope and will be added.</p>
+                  <ol>
+                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent this <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> to <var>clients</var>.</li>
+                  </ol>
+                  <li>Resolve <var>promise</var> with <var>clients</var>.</li>
+                </li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>For each <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> of the document objects which are <a href="http://localhost/spec/service_worker/#dfn-document-control">controlled</a> by the associated <a href="#dfn-service-worker">Service Worker</a>:
+                  <p class="fixme">Shared Workers are in the scope and will be added.</p>
+                  <ol>
+                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent this <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> to <var>clients</var>.</li>
+                  </ol>
+                </li>
+                <li>Resolve <var>promise</var> with <var>clients</var>.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+      <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>.</p>
     </spec-section>
-    <spec-section id="reloadall-method">
+    <!--FIXME(jungkees): remove it if we drop this method - spec-section id="reloadall-method">
       <h1><code>reloadAll()</code></h1>
 
       <p><dfn id="service-worker-clients-reloadall-method"><code>reloadAll()</code></dfn> method provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#dfn-url-scope">URL scope</a>. An event named <code><a href="#service-worker-container-reloadpage-event">reloadpage</a></code> is dispatched on the <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <code><a href="#install-phase-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code>), or cancel the collective reload by calling <code><a href="http://goo.gl/2zH6ie">event.preventDefault()</a></code>.</p>
 
       <p class="fixme">The algorithm will be updated in a more formal language.</p>
-
-      <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
-    </spec-section>
+    </spec-section-->
+    <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
   </spec-section>
 
   <spec-section id="request-objects">
