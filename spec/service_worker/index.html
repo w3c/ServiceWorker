@@ -821,10 +821,10 @@ interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">
 </spec-idl>
   <!--FIXME(jungkees): remove it if we drop this attribute - readonly attribute unsigned long <a href="#service-worker-client-id-attribute">id</a>;-->
 
-    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> interface represents a window on the origin that the associated <a href="#dfn-service-worker">Service Worker</a> runs on.</p>
+    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> interface represents a <a href="#dfn-service-worker-client">service worker client</a>. A <dfn id="dfn-service-worker-client">service worker client</dfn> is either a <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> that presents a <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object or a Shared Worker represented by a <code><a href="http://www.whatwg.org/specs/web-apps/current-work/#sharedworkerglobalscope">SharedWorkerGlobalScope</a></code> object. A <a href="#dfn-service-worker-client">service worker client</a> independently <a href="##scope-match-algorithm">selects</a> and <a href="#dfn-document-use">uses</a> a <a href="#dfn-registration">registration</a> for its own loading and its subresources.</p>
 
     <!--FIXME(jungkees): remove it if we drop this attribute - p>The <dfn id="service-worker-client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> identifies the specific client object from the list of client objects serviced by the Service Worker. The <code><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/web-messaging.html#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p-->
-    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>.</p>
+    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>, <a href="https://github.com/slightlyoff/ServiceWorker/issues/423">SW #423</a>.</p>
   </spec-section>
   <spec-section id="service-worker-clients">
     <h1><code>ServiceWorkerClients</code></h1>
@@ -853,10 +853,9 @@ dictionary <dfn id="serviceworker-client-query-params-dictionary" title="Service
             <li>Let <var>clients</var> be an empty array.</li>
             <li>If the optional argument <var>options</var> is present and <var>options</var>.<var>includeUncontrolled</var> is true, then:
               <ol>
-                <li>For each <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> of the document objects whose <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a> is the <a href="http://www.whatwg.org/specs/web-apps/current-work/#same-origin">same</a> as the associated <a href="#dfn-service-worker">Service Worker</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a>:
-                  <p class="fixme">Shared Workers are in the scope and will be added.</p>
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a> is the <a href="http://www.whatwg.org/specs/web-apps/current-work/#same-origin">same</a> as the associated <a href="#dfn-service-worker">Service Worker</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin-2">origin</a>:
                   <ol>
-                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent this <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> to <var>clients</var>.</li>
+                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent <var>client</var> to <var>clients</var>.</li>
                   </ol>
                   <li>Resolve <var>promise</var> with <var>clients</var>.</li>
                 </li>
@@ -864,10 +863,9 @@ dictionary <dfn id="serviceworker-client-query-params-dictionary" title="Service
             </li>
             <li>Else:
               <ol>
-                <li>For each <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> of the document objects which are <a href="http://localhost/spec/service_worker/#dfn-document-control">controlled</a> by the associated <a href="#dfn-service-worker">Service Worker</a>:
-                  <p class="fixme">Shared Workers are in the scope and will be added.</p>
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> which are <a href="http://localhost/spec/service_worker/#dfn-document-control">controlled</a> by the associated <a href="#dfn-service-worker">Service Worker</a>:
                   <ol>
-                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent this <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> to <var>clients</var>.</li>
+                    <li>Add a new <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent <var>client</var> to <var>clients</var>.</li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>clients</var>.</li>
