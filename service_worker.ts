@@ -190,8 +190,8 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   caches: CacheStorage;
   scriptCache: Cache;
 
-  // A container for a list of window objects, identifiable by ID, that
-  // correspond to windows (or workers) that are "controlled" by this SW
+  // A container for a list of ServiceWorkerClient objects that correspond to
+  // browsing contexts (or shared workers) that are on the origin of this SW
   clients: ServiceWorkerClients;
 
   // The registration pattern that matched this SW instance. E.g., if the

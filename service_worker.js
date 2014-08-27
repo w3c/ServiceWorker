@@ -69,6 +69,7 @@ var ServiceWorkerClients = (function () {
     }
     ServiceWorkerClients.prototype.getAll = function (options) {
         return new Promise(function () {
+            // the objects returned will be new instances every time
         });
     };
     return ServiceWorkerClients;
