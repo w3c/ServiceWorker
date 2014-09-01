@@ -2449,6 +2449,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <ol>
       <li>Let <var>requestArray</var> be an empty array.</li>
       <li>Let <var>responseArray</var> be an empty array.</li>
+      <li>Let <var>resultArray</var> be an empty array.</li>
       <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as the argument.</li>
       <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
         <ol>
@@ -2458,13 +2459,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>If <var>params</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
         <ol>
-          <li>Return <var>responseArray</var>.</li>
+          <li>Return <var>resultArray</var>.</li>
         </ol>
       </li>
       <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
         <ol>
           <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]].<var>url</var>.</li>
           <li>Let <var>requestURL</var> be <var>request</var>.<var>url</var>.</li>
+          <p class="note"><var>cachedURL</var> and <var>requestURL</var> are <a href="http://url.spec.whatwg.org/#url">URL</a> objects used for convenience of <a href="http://url.spec.whatwg.org/#concept-url">URL</a> manipulation.</p>
           <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
             <ol>
               <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
@@ -2484,13 +2486,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
         </ol>
       </li>
-      <li>Let <var>resultArray</var> be an empty array.</li>
       <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
         <ol>
           <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
           <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
             <ol>
               <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
+              <li>Continue to the next iteration of the loop.</li>
             </ol>
           </li>
           <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
