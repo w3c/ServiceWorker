@@ -2496,6 +2496,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
             </ol>
           </li>
           <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
+          <li>Let <var>matchFailed</var> be false.</li>
           <li>For each <var>f</var> in <var>varyHeaders</var>:
             <ol>
               <li>If <var>f</var> matches "*", then:
@@ -2505,9 +2506,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               </li>
               <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
                 <ol>
+                  <li>Set <var>matchFailed</var> to true.</li>
                   <li>Break the loop.</li>
                 </ol>
               </li>
+            </ol>
+          </li>
+          <li>If <var>matchFailed</var> is false, then:
+            <ol>
               <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
             </ol>
           </li>
