@@ -1684,6 +1684,8 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
   <p><dfn id="request-to-response-map-internal-interface">[[RequestToResponseMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
 
   <p><dfn id="name-to-cache-map-internal-interface">[[NameToCacheMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
+
+  <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> represents a priority queue used to schedule the set of multiple registration requests in FIFO order in time. The queue should satisfy the general properties of min heap. The queue contains <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamps</a> as its elements. The queue is intially empty.</p>
   </spec-algorithm>
 
   <spec-section id="register-algorithm">
@@ -1870,10 +1872,24 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>Let <var>installFailed</var> be false.</li>
       <li>Let <var>activateImmediate</var> be false.</li>
       <li>Let <var>promise </var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
+      <li><a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Generating_a_Timestamp">Generate a timestamp</a> and let <var>timeStamp</var> be the result value.</li>
+      <li>Insert <var>timeStamp</var> to <a href="#registration-queue-adt">[[RegistrationQueue]]</a>.</li>
+      <p class="note">The algorithm introduces the <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamp</a> with <a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Assumptions">the assumptions</a> and <a href="#registration-queue-adt">[[RegistrationQueue]]</a> to serialize the set of multiple registration requests in <a href="http://en.wikipedia.org/wiki/FIFO">FIFO</a> order in time. Implementors may use other concurrency control methods to satisfy this requirement.</p>
       <li>Run the following substeps asynchronously:
         <ol>
           <li>Run the following substeps atomically:
             <ol>
+              <li><em>CheckProirity</em>: if the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
+                <ol>
+                  <li>Pop the top element from <a href="#registration-queue-adt">[[RegistrationQueue]]</a>.</li>
+                </ol>
+              </li>
+              <li>Else:
+                <ol>
+                  <li>Wait until <a href="#registration-queue-adt">[[RegistrationQueue]]</a> has a new entry.</li>
+                  <li>Jump to the step labeled <em>CheckProirity</em>.</li>
+                </ol>
+              </li>
               <li>If <var>registration</var>.<var>installing</var> is not null, then:
                 <ol>
                   <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installing</var>.</li>
@@ -1919,11 +1935,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                   </li>
                 </ol>
               </li>
-            </ol>
-          </li>
-          <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the step 4.1.6 to have executed.</li>
-          <li>Run the following substeps atomically:
-            <ol>
+              <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the previous step to have executed.</li>
               <li>If <var>registration</var>.<var>installing</var> is null, then:
                 <ol>
                   <li>Abort these steps.</li>
@@ -2022,11 +2034,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
               </li>
             </ol>
           </li>
-        </ol>
-      </li>
-      <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the step 1.9 to have executed.</li>
-      <li>Run the following substeps atomically:
-        <ol>
+          <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the previous step to have executed.</li>
           <li>If <var>activateFailed</var> is true, then:
             <ol>
               <li>Run the <a href="#update-state-algorithm">[[UpdateState]]</a> algorithm passing <var>registration</var>.<var>active</var> and "<code>redundant</code>" as the arguments.</li>
