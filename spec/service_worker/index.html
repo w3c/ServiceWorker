@@ -1877,19 +1877,19 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p class="note">The algorithm introduces the <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamp</a> with <a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Assumptions">the assumptions</a> and <a href="#registration-queue-adt">[[RegistrationQueue]]</a> to serialize the set of multiple registration requests in <a href="http://en.wikipedia.org/wiki/FIFO">FIFO</a> order in time. Implementors may use other concurrency control methods to satisfy this requirement.</p>
       <li>Run the following substeps asynchronously:
         <ol>
+          <li><em>CheckProirity</em>: if the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
+            <ol>
+              <li>Pop the top element from <a href="#registration-queue-adt">[[RegistrationQueue]]</a>.</li>
+            </ol>
+          </li>
+          <li>Else:
+            <ol>
+              <li>Wait until <a href="#registration-queue-adt">[[RegistrationQueue]]</a> has a new entry.</li>
+              <li>Jump to the step labeled <em>CheckProirity</em>.</li>
+            </ol>
+          </li>
           <li>Run the following substeps atomically:
             <ol>
-              <li><em>CheckProirity</em>: if the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
-                <ol>
-                  <li>Pop the top element from <a href="#registration-queue-adt">[[RegistrationQueue]]</a>.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Wait until <a href="#registration-queue-adt">[[RegistrationQueue]]</a> has a new entry.</li>
-                  <li>Jump to the step labeled <em>CheckProirity</em>.</li>
-                </ol>
-              </li>
               <li>If <var>registration</var>.<var>installing</var> is not null, then:
                 <ol>
                   <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>registration</var>.<var>installing</var>.</li>
