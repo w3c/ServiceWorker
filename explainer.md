@@ -41,12 +41,13 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
 <html>
   <head>
     <script>
-      // scope defaults to "/*"
-      navigator.serviceWorker.register("/assets/v1/worker.js").then(
-        function(serviceWorker) {
+      // scope defaults to "/"
+      navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
+        function(registration) {
           console.log("success!");
-          serviceWorker.postMessage("Howdy from your installing page.");
-          // To use the serviceWorker immediately, you might call window.location.reload()
+          if (registration.installing) {
+            registration.installing.postMessage("Howdy from your installing page.");
+          }
         },
         function(why) {
           console.error("Installing the worker failed!:", why);
