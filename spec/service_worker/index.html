@@ -436,27 +436,31 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
       <li>Run the following substeps asynchronously:
         <ol>
           <li>Let <var>registration</var> be null.</li>
-          <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the document's URL.</li>
-          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>documentURL</var> as its argument.</li>
-          <li>If <var>registration</var> is null, then:
+          <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the <a href="#context-object">context object</a>'s associated <a href="#concept-document">document</a>'s URL.</li>
+          <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">[[MatchScope]]</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>documentURL</var> as its argument is not null, then:
             <ol>
-              <li>Wait for the document to have a <a href="#scope-match-algorithm">matching</a> <a href="#dfn-registration">registration</a>.</li>
-              <li>Set <var>registration</var> to the corresponding <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object.</li>
+              <li>Set <var>registration</var> to the result value.</li>
+            </ol>
+          </li>
+          <li>Else:
+            <ol>
+              <li>Wait until <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> has a new entry.</li>
+              <li>Jump to the step labeled <em>CheckRegistration</em>.</li>
             </ol>
           </li>
           <li>If <var>registration</var>.<var>active</var> is null, then:
             <ol>
-              <li>Wait until the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, acquires an <a href="#dfn-active-worker">active worker</a> through a new <a href="#dfn-activation-process">activation process</a>.</li>
-              <li>Resolve <var>promise</var> with <var>registration</var>.</li>
+              <li>Wait until the <a href="#dfn-registration">registration</a>, represented by <var>registration</var>, acquires an <a href="#dfn-active-worker">active worker</a> through the <a href="#dfn-activation-process">activation process</a>.</li>
+              <p class="note">Implementors should consider this condition is met when the corresponding registration request gets to the step 1.7 of <a href="#activation-algorithm">[[Activate]]</a> algorithm.</p>
             </ol>
           </li>
+          <li>Resolve <var>promise</var> with <var>registration</var>.</li>
         </ol>
       </li>
       <li>Return <var>promise</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object which its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-controller-attribute">ready</a></code> attribute resolves with.</li>
     </ol>
     </spec-algorithm>
-    <p class="note">The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with an <a href="#dfn-active-worker">active worker</a>. Hence, the <code><a href="#service-worker-state-attribute">state</a></code> of the acquired <code><a href="#service-worker-interface">ServiceWorker</a></code> object is either "<code>activating</code>" or "<code>activated</code>".</p>
-    <p class="fixme">The algorithm for <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute will be refined.</p>
+    <p class="note">The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://goo.gl/3TobQS">promise</a> will never reject. Instead, it waits until the <a href="http://goo.gl/3TobQS">promise</a> resolves with a <a href="#dfn-registration">registration</a> that has an <a href="#dfn-active-worker">active worker</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-register">
@@ -1683,7 +1687,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
 
   <p><dfn id="name-to-cache-map-internal-interface">[[NameToCacheMap]]</dfn> represents an internal map structure that stores the entries of the Record {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
 
-  <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> represents a priority queue used to schedule the set of multiple registration requests. The queue should satisfy the general properties of min heap. The queue contains <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamps</a> as its elements. The queue is intially empty.</p>
+  <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> represents a priority queue used to schedule the set of multiple registration requests. The queue should satisfy the general properties of min heap. The queue contains <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamps</a> as its elements. The queue is initially empty.</p>
   </spec-algorithm>
 
   <spec-section id="register-algorithm">
@@ -1875,7 +1879,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p class="note">The algorithm introduces a <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamp</a> with <a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Assumptions">the assumptions</a> and a priority queue, <a href="#registration-queue-adt">[[RegistrationQueue]]</a>, to serialize the set of multiple registration requests. Implementors may use other concurrency control methods to satisfy this requirement.</p>
       <li>Run the following substeps asynchronously:
         <ol>
-          <li><em>CheckProirity</em>: if the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
+          <li><em>CheckPriority</em>: If the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
             <ol>
               <li>Pop the top element from <a href="#registration-queue-adt">[[RegistrationQueue]]</a>.</li>
             </ol>
