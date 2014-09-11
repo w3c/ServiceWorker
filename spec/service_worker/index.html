@@ -2472,9 +2472,20 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
         <ol>
-          <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]].<var>url</var>.</li>
-          <li>Let <var>requestURL</var> be <var>request</var>.<var>url</var>.</li>
-          <p class="note"><var>cachedURL</var> and <var>requestURL</var> are <a href="http://url.spec.whatwg.org/#url">URL</a> objects used for convenience of <a href="http://url.spec.whatwg.org/#concept-url">URL</a> manipulation.</p>
+          <li>Let <var>cachedURL</var> be the result of invoking the initial value of <a href="http://url.spec.whatwg.org/#dom-url">URL</a> as constructor with <var>entry</var>.[[key]].<var>url</var> as its argument.</li>
+          <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
+            <ol>
+              <li>Rethrow that exception.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>requestURL</var> be the result of invoking the initial value of <a href="http://url.spec.whatwg.org/#dom-url">URL</a> as constructor with <var>request</var>.<var>url</var> as its argument.</li>
+          <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
+            <ol>
+              <li>Rethrow that exception.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
           <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
             <ol>
               <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
