@@ -33,17 +33,17 @@ var ReloadPageEvent = (function (_super) {
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
-var InstallPhaseEvent = (function (_super) {
-    __extends(InstallPhaseEvent, _super);
-    function InstallPhaseEvent() {
+var ExtendableEvent = (function (_super) {
+    __extends(ExtendableEvent, _super);
+    function ExtendableEvent() {
         _super.apply(this, arguments);
     }
     // Delay treating the installing worker until the passed Promise resolves
     // successfully. This is primarily used to ensure that an ServiceWorker is not
     // active until all of the "core" Caches it depends on are populated.
-    InstallPhaseEvent.prototype.waitUntil = function (f) {
+    ExtendableEvent.prototype.waitUntil = function (f) {
     };
-    return InstallPhaseEvent;
+    return ExtendableEvent;
 })(_Event);
 
 var InstallEvent = (function (_super) {
@@ -62,7 +62,7 @@ var InstallEvent = (function (_super) {
     InstallEvent.prototype.replace = function () {
     };
     return InstallEvent;
-})(InstallPhaseEvent);
+})(ExtendableEvent);
 
 var ServiceWorkerClients = (function () {
     function ServiceWorkerClients() {

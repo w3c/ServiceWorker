@@ -104,14 +104,14 @@ class ReloadPageEvent extends _Event {
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
-class InstallPhaseEvent extends _Event {
+class ExtendableEvent extends _Event {
   // Delay treating the installing worker until the passed Promise resolves
   // successfully. This is primarily used to ensure that an ServiceWorker is not
   // active until all of the "core" Caches it depends on are populated.
   waitUntil(f: Promise): void {}
 }
 
-class InstallEvent extends InstallPhaseEvent {
+class InstallEvent extends ExtendableEvent {
   activeWorker: ServiceWorker = null;
 
   // Ensures that the worker is used in place of existing workers for
@@ -125,7 +125,7 @@ class InstallEvent extends InstallPhaseEvent {
 }
 
 interface InstallEventHandler { (e:InstallEvent); }
-interface ActivateEventHandler { (e:InstallPhaseEvent); }
+interface ActivateEventHandler { (e:ExtendableEvent); }
 interface FetchEventHandler { (e:FetchEvent); }
 
 // FIXME: need custom event types!
