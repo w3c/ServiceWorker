@@ -1522,7 +1522,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-section id="respond-with-method">
       <h1><code>event.respondWith(r)</code></h1>
 
-      <p>When <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method is invoked, the argument, <var>r</var>, must resolve with a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>, else a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is <a href="http://dom.spec.whatwg.org/#concept-throw">thrown</a>. If the request is a top-level navigation and the return value is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> whose <code>type</code> attribute is "<code>opaque</code>" (i.e., an opaque response body), a <a href="http://w3c.github.io/dom/#networkerror">NetworkError</a> is <a href="http://dom.spec.whatwg.org/#concept-throw">thrown</a>. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> body, not URLs.</p>
+      <p>When <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method is invoked, the argument, <var>r</var>, must resolve with a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>, else a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>. If the request is a top-level navigation and the return value is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> whose <code>type</code> attribute is "<code>opaque</code>" (i.e., an opaque response body), a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>. The final URL of all successful (non network-error) responses is the <a href="#request-objects">requested</a> URL. Renderer-side security checks about tainting for cross-origin content are tied to the transparency (or opacity) of the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> body, not URLs.</p>
 
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
@@ -1539,20 +1539,28 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <li>If <var>r</var> rejected with an exception, then:
           <ol>
             <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
-            <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> that exception.</li>
           </ol>
         </li>
-        <li>If <var>r</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface whose <code>type</code> attribute is "<code>opaque</code>", and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+        <li>If <var>r</var> resolved with undefined, then:
           <ol>
-            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>
-            <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
+            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
           </ol>
         </li>
-        <li>If <var>r</var> resolves to <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+        <li>If <var>r</var> resolved with <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
           <ol>
-            <li>Do nothing.</li>
+            <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>" and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+              <ol>
+                <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Do nothing.</li>
+              </ol>
+            </li>
           </ol>
         </li>
+        <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm. (See the step 14.2.4.2.1 and 17.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm. (See the step 14.2.4.3.1 and 18.1.)</p>
         <li>Unset the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
       </ol>
       </spec-algorithm>
