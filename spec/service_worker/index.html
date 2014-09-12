@@ -1536,29 +1536,29 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
         <li>Wait until <var>r</var> settles.</li>
-        <li>If <var>r</var> rejected with an exception, then:
+        <li>If <var>r</var> rejected, then:
           <ol>
             <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
           </ol>
         </li>
-        <li>If <var>r</var> resolved with undefined, then:
+        <li>If <var>r</var> resolved with <var>response</var>, then:
           <ol>
-            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
-          </ol>
-        </li>
-        <li>If <var>r</var> resolved with <var>response</var>, an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
-          <ol>
-            <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>" and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+            <li>If <var>response</var> is an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
               <ol>
-                <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+                <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>" and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+                  <ol>
+                    <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+                  </ol>
+                </li>
               </ol>
             </li>
             <li>Else:
               <ol>
-                <li>Do nothing.</li>
+                <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
               </ol>
             </li>
           </ol>
+        </li>
         </li>
         <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm. (See the step 14.2.4.2.1 and 17.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">[[HandleFetch]]</a> algorithm. (See the step 14.2.4.3.1 and 18.1.)</p>
         <li>Unset the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
