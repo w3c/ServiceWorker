@@ -1578,7 +1578,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
         <li>Run the following substeps asynchronously:
           <ol>
-            <li>Let <var>request</var> be <var>event</var>'s <var>request</var>.</li>
+            <li>Let <var>request</var> be <var>event</var>.<var>request</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>.</li>
             <li>Set <var>request</var>'s <a href="http://goo.gl/gP7IWW">skip service worker flag</a>.</li>
             <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
             <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
@@ -2481,32 +2481,22 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       </li>
       <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
         <ol>
-          <li>Let <var>cachedURL</var> be the result of invoking the initial value of <a href="http://url.spec.whatwg.org/#dom-url">URL</a> as constructor with <var>entry</var>.[[key]].<var>url</var> as its argument.</li>
-          <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-            <ol>
-              <li>Rethrow that exception.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Let <var>requestURL</var> be the result of invoking the initial value of <a href="http://url.spec.whatwg.org/#dom-url">URL</a> as constructor with <var>request</var>.<var>url</var> as its argument.</li>
-          <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-            <ol>
-              <li>Rethrow that exception.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
+          <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]]'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
+          <li>Let <var>requestURL</var> be <var>request</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
           <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
             <ol>
-              <li>Set <var>cachedURL</var>.<var>search</var> to the empty string.</li>
-              <li>Set <var>requestURL</var>.<var>search</var> to the empty string.</li>
+              <li>Set <var>cachedURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+              <li>Set <var>requestURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
             </ol>
           </li>
+          <li>Let <var>serializedCachedURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>cachedURL</var>.</li>
+          <li>Let <var>serializedRequestURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
           <li>If <var>params</var>.<var>prefixMatch</var> is true, then:
             <ol>
-              <li>Set <var>cachedURL</var>.<var>href</var> to the substring of itself from the start, with the length of <var>requestURL</var>.<var>href</var>.</li>
+              <li>Set <var>serializedCachedURL</var> to the substring of itself from the start, with the length of <var>serializedRequestURL</var>.</li>
             </ol>
           </li>
-          <li>If <var>cachedURL</var>.<var>href</var> matches <var>requestURL</var>.<var>href</var>, then:
+          <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
             <ol>
               <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
               <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
