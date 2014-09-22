@@ -616,7 +616,7 @@ class Cache {
     var responsePromises = requests.map(function(request) {
       var requestURL = new _URL(request.url);
       if ((requestURL.protocol !== 'http:') &&
-          (requestURL.protocol !== 'https'))
+          (requestURL.protocol !== 'https:'))
         return Promise.reject(new Error("Faux NetworkError")); // "NetworkError" exception
       return fetch(request);
     });

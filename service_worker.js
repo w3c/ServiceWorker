@@ -445,7 +445,7 @@ var Cache = (function () {
 
         var responsePromises = requests.map(function (request) {
             var requestURL = new _URL(request.url);
-            if ((requestURL.protocol !== 'http:') && (requestURL.protocol !== 'https'))
+            if ((requestURL.protocol !== 'http:') && (requestURL.protocol !== 'https:'))
                 return Promise.reject(new Error("Faux NetworkError"));
             return fetch(request);
         });
