@@ -1061,7 +1061,14 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Let <var>responsePromiseArray</var> be an empty array.</li>
           <li>For each <var>request</var> in <var>requests</var>:
             <ol>
-              <li>Run the algorithm specified in <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>request</var> and add the returned value to <var>responsePromiseArray</var>.</li>
+              <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="http://goo.gl/3TobQS">promise</a> rejected with that exception.</li>
+              <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="http://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", then:
+                <ol>
+                  <li>Add a <a href="http://goo.gl/3TobQS">promise</a> rejected with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception to <var>responsePromiseArray</var>.</li>
+                  <li>Continue to the next iteration of the loop.</li>
+                </ol>
+              </li>
+              <li>Run the algorithm specified in <code><a href="http://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>r</var> and add the returned value to <var>responsePromiseArray</var>.</li>
             </ol>
           </li>
           <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of <var>responsePromiseArray</var></a>.</li>
@@ -2601,7 +2608,13 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
                         </ol>
                       </li>
-                      <li>If <var>request</var>.<var>method</var> does not match "GET", then:
+                      <li>Let <var>r</var> be <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a>.</li>
+                      <li>If <var>r</var>'s <a href="">url</a>'s <a href="">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", then:
+                        <ol>
+                          <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
+                        </ol>
+                      </li>
+                      <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> is not `<code>GET</code>`, then:
                         <ol>
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
                         </ol>

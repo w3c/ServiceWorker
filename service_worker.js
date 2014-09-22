@@ -444,6 +444,9 @@ var Cache = (function () {
         requests = requests.map(_castToRequest);
 
         var responsePromises = requests.map(function (request) {
+            var requestURL = new _URL(request.url);
+            if ((requestURL.protocol !== 'http:') && (requestURL.protocol !== 'https'))
+                return Promise.reject(new Error("Faux NetworkError"));
             return fetch(request);
         });
 
@@ -519,6 +522,10 @@ var Cache = (function () {
                     if (operation.type == 'put') {
                         if (!operation.response) {
                             throw TypeError("Put operation must have a response");
+                        }
+                        var requestURL = new _URL(request.url);
+                        if ((requestURL.protocol !== 'http:') && (requestURL.protocol !== 'https:')) {
+                            throw TypeError("Only http and https schemes are supported");
                         }
                         if (request.method !== 'GET') {
                             throw TypeError("Only GET requests are supported");
@@ -699,6 +706,13 @@ var _URL = (function () {
         configurable: true
     });
     Object.defineProperty(_URL.prototype, "href", {
+        get: function () {
+            return "";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(_URL.prototype, "protocol", {
         get: function () {
             return "";
         },
