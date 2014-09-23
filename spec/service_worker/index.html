@@ -1004,7 +1004,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <li>Let <var>responseArray</var> be an empty array.</li>
               <li>If the optional argument <var>request</var> is omitted, then:
                 <ol>
-                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
                     <ol>
                       <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
                     </ol>
@@ -1171,7 +1171,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <li>Let <var>resultArray</var> be an empty array.</li>
               <li>If the optional argument <var>request</var> is omitted, then:
                 <ol>
-                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
                     <ol>
                       <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
                     </ol>
@@ -1285,7 +1285,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         <ol>
           <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps. Each <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object must have a separate object for the <code><a href="#cache-interface">Cache</a></code> object which the result of running its <code><a href="#cache-storage-interface">CacheStorage</a></code>'s <code><a href="#cache-storage-get-method">get(<var>cacheName</var>)</a></code> method resolves with:
             <ol>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
                 <ol>
                   <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
                     <ol>
@@ -1310,7 +1310,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         <ol>
           <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
             <ol>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
                 <ol>
                   <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
                     <ol>
@@ -1388,12 +1388,14 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
         <p><dfn id="cache-storage-keys-method"><code>keys()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
+        <p class="note">The promise returned from this method resolves with the sequence of keys, cache names in DOMString, in insertion order.</p>
+
         <spec-algorithm>
         <ol>
           <li>Let <var>resultArray</var> be an empty array.</li>
           <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
             <ol>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>:
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
                 <ol>
                   <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
                 </ol>
@@ -2487,7 +2489,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Return <var>resultArray</var>.</li>
         </ol>
       </li>
-      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
         <ol>
           <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]]'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
           <li>Let <var>requestURL</var> be <var>request</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
@@ -2591,7 +2593,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
                         </ol>
                       </li>
-                      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>:
+                      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
                         <ol>
                           <li>If <var>requestResponse</var>[0] matches <var>entry</var>.[[key]], then:
                           <ol>
