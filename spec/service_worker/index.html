@@ -473,7 +473,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
     <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
     <spec-algorithm>
     <ol>
-      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://dom.spec.whatwg.org/#concept-document">document</a> <var>document</var>, <var>scriptURL</var>, and <var>options</var>.<var>scope</var> as the arguments.</li>
+      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">[[Register]]</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://dom.spec.whatwg.org/#concept-document">document</a> <var>document</var>, <var>scriptURL</var>, <var>options</var>.<var>scope</var>, and <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a> as the arguments.</li>
       <li>Return <var>p</var>. Each <a href="http://www.whatwg.org/specs/web-apps/current-work/#document">Document</a> object must have a separate object for the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object which the result of running its <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code>'s <code><a href="#service-worker-container-register-method">register</a></code> method resolves with.</li>
     </ol>
     </spec-algorithm>
@@ -1715,13 +1715,14 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <dd><var>document</var>, a <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/dom.html#the-document-object"><code>Document</code></a></dd>
         <dd><var>scriptURL</var>, a string that represents the URL of the script</dd>
         <dd><var>scope</var>, a string that represents a <a href="#dfn-path-prefix">path prefix</a> or a <a href="#dfn-url-scope">URL scope</a></dd>
+        <dd><var>base</var>, a <a href="https://url.spec.whatwg.org/#concept-base-url">base URL</a>, optional</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="http://goo.gl/3TobQS">promise</a></dd>
     </dl>
     <ol>
-      <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
+      <li>Let <var>scope</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <var>base</var>.</li>
       <li>Set <var>scope</var> to the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
-      <li>Let <var>scriptURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="http://www.whatwg.org/specs/web-apps/current-work/#api-base-url">API base URL</a>.</li>
+      <li>Let <var>scriptURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <var>base</var>.</li>
       <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/mixedcontent/#is-origin-authenticated">Is origin authenticated origin</a> with the <a href="http://www.whatwg.org/specs/web-apps/current-work/#origin">origin</a> of <var>scriptURL</var> as the argument is unauthenticated, then:
         <ol>
           <li>Return a <a href="http://goo.gl/3TobQS">promise</a> rejected with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
