@@ -572,9 +572,9 @@ FIXME(slightlyoff): cover messaging:
 
 Understanding fetches, caches, installation and upgrades are most of what you'll need to successfully use ServiceWorkers to enrich your apps. The performance implications might already be dawning on you, and they can be absolutely profound. And that's before you get to being able to architect for offline-first and provide a seamless experience based around synchronization (not 404 vs. working).
 
-One of the first advanced concerns that major apps hit is "how do I host things from a CDN?" By definition, these are servers in other places, often on other domains, that your content references. Can ServiceWorkers be hosted on CDNs?
+One of the first advanced concerns that major apps hit is "how do I host things from another origin (e.g., a CDN that doesn't serve the origin itself)?"
 
-No, sorry. But they can include resources (via `importScripts()`) that are.
+Service Worker scripts cannot be hosted off-origin, but can include resources (via `importScripts()`) that are.
 
 The reasons for this restriction is that ServiceWorkers create the opportunity for a bad actor to turn a bad day into a bad eternity. Imagine an XSS vulnerability anywhere on a site. An attacker that can run a bit of JS can now request a new ServiceWorker be installed. If that ServiceWorker is registered from  different origin (say, `evil.com`), the ServiceWorker itself can prevent updates to content which might dislodge it. Worse, the original application wouldn't be able to help the users who have been stranded.
 
