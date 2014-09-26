@@ -9,11 +9,11 @@
 // Document APIs
 ////////////////////////////////////////////////////////////////////////////////
 
-interface RegistrationOptionList {
+interface RegistrationOptions {
   scope: string;
 }
 // Semi-private to work around TS. Not for impl.
-class _RegistrationOptionList implements RegistrationOptionList {
+class _RegistrationOptions implements RegistrationOptions {
   scope = "/*";
 }
 
@@ -25,7 +25,7 @@ interface ServiceWorkerContainer extends EventTarget {
   ready: Promise; // Promise<ServiceWorkerRegistration>
 
   // Returns a Promise<ServiceWorkerRegistration>
-  register(url: string, options?: _RegistrationOptionList): Promise;
+  register(url: string, options?: _RegistrationOptions): Promise;
 
   // Returns a Promise<ServiceWorkerRegistration>
   getRegistration(docURL?:string): Promise;
@@ -136,14 +136,14 @@ interface OnlineEventHandler { (e:_Event); }
 interface OfflineEventHandler { (e:_Event); }
 
 class ServiceWorkerClients {
-  getAll(options?: ServiceWorkerClientQueryParams): Promise { // Promise for Array<ServiceWorkerClient>
+  getAll(options?: ServiceWorkerClientQueryOptions): Promise { // Promise for Array<ServiceWorkerClient>
     return new Promise(function() {
       // the objects returned will be new instances every time
     });
   }
 }
 
-interface ServiceWorkerClientQueryParams {
+interface ServiceWorkerClientQueryOptions {
   includeUncontrolled: boolean;
 }
 
@@ -510,13 +510,20 @@ class Cache {
   constructor() { }
 
   // also for spec purposes only
-  _query(request:any, params?) : AbstractResponse[] {
-    params = params || {};
+  _query(request: any, options?: CacheQueryOptions) : AbstractResponse[] {
+    var ignoreSearch, ignoreMethod, ignoreVary, prefixMatch;
 
-    var ignoreSearch = Boolean(params.ignoreSearch);
-    var ignoreMethod = Boolean(params.ignoreMethod);
-    var ignoreVary = Boolean(params.ignoreVary);
-    var prefixMatch = Boolean(params.prefixMatch);
+    if (options) {
+      ignoreSearch = options.ignoreSearch;
+      ignoreMethod = options.ignoreMethod;
+      ignoreVary = options.ignoreVary;
+      prefixMatch = options.prefixMatch;
+    } else {
+      ignoreSearch = false;
+      ignoreMethod = false;
+      ignoreVary = false;
+      prefixMatch = false;
+    }
 
     request = _castToRequest(request);
 
@@ -577,9 +584,9 @@ class Cache {
     return results;
   }
 
-  match(request:any, params?) : Promise {
+  match(request:any, options?) : Promise {
     // the UA may do something more optimal than this:
-    return this.matchAll(request, params).then(function(responses) {
+    return this.matchAll(request, options).then(function(responses) {
       if (responses[0]) {
         return responses[0];
       }
@@ -588,12 +595,12 @@ class Cache {
     });
   }
 
-  matchAll(request?:any, params?) : Promise {
+  matchAll(request?:any, options?) : Promise {
     var thisCache = this;
 
     return accepted().then(function() {
       if (request) {
-        return thisCache._query(request, params).map(function(requestResponse) {
+        return thisCache._query(request, options).map(function(requestResponse) {
           return requestResponse[1];
         });
       }
@@ -640,9 +647,9 @@ class Cache {
   }
 
   // delete zero or more entries
-  delete(request:any, matchParams?) : Promise {
+  delete(request: any, options?: CacheQueryOptions) : Promise {
     return this._batch([
-      {type: 'delete', request: request, matchParams: matchParams}
+      {type: 'delete', request: request, options: options}
     ]).then(function(results) {
       if (results) {
         return true;
@@ -652,12 +659,12 @@ class Cache {
     });
   }
 
-  keys(request?:any, matchParams?): Promise {
+  keys(request?:any, options?: CacheQueryOptions): Promise {
     var thisCache = this;
 
     return accepted().then(function() {
       if (request) {
-        return thisCache._query(request, matchParams).map(function(requestResponse) {
+        return thisCache._query(request, options).map(function(requestResponse) {
           return requestResponse[0];
         });
       }
@@ -685,7 +692,7 @@ class Cache {
           }
 
           var request = _castToRequest(operation.request);
-          var result = thisCache._query(request, operation.matchParams).reduce(function(previousResult, requestResponse) {
+          var result = thisCache._query(request, operation.options).reduce(function(previousResult, requestResponse) {
             if (addedRequests.indexOf(requestResponse[0]) !== -1) {
               throw Error("Batch operation at index " + i + " overrode previous put operation");
             }
@@ -704,8 +711,8 @@ class Cache {
             if (request.method !== 'GET') {
               throw TypeError("Only GET requests are supported");
             }
-            if (operation.matchParams) {
-              throw TypeError("Put operation cannot have match params");
+            if (operation.options) {
+              throw TypeError("Put operation cannot have match options");
             }
             if (!(operation.response instanceof AbstractResponse)) {
               throw TypeError("Invalid response");
@@ -727,11 +734,19 @@ class Cache {
   }
 }
 
+interface CacheQueryOptions {
+  ignoreSearch: boolean;
+  ignoreMethod: boolean;
+  ignoreVary: boolean;
+  prefixMatch: boolean;
+  cacheName: string;
+}
+
 interface CacheBatchOperation {
   type: String;
   request: Request;
   response?: AbstractResponse;
-  matchParams?: Object;
+  options?: CacheQueryOptions;
 }
 
 class CacheStorage {
@@ -740,11 +755,11 @@ class CacheStorage {
 
   constructor() { }
 
-  match(request: any, params?: Object): Promise {
+  match(request: any, options?: CacheQueryOptions): Promise {
     var cacheName;
 
-    if (params) {
-      cacheName = params["cacheName"];
+    if (options) {
+      cacheName = options["cacheName"];
     }
 
     function getMatchFrom(cacheName) {
@@ -752,7 +767,7 @@ class CacheStorage {
         if (!store) {
           throw Error("Not found");
         }
-        return store.match(request, params);
+        return store.match(request, options);
       });
     }
 

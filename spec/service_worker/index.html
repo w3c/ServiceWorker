@@ -402,7 +402,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
   readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptionList</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>documentURL</var> = "");
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
@@ -414,7 +414,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onerror-attribute">onerror</a>;
 };
 
-dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptionList">RegistrationOptionList</dfn> {
+dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptions">RegistrationOptions</dfn> {
   <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> scope = "/";
 };
 
@@ -836,11 +836,11 @@ interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">
 <spec-idl>[Exposed=ServiceWorker]
 interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // The objects returned will be new instances every time
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-params-dictionary">ServiceWorkerClientQueryParams</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ServiceWorkerClientQueryOptions</a> <var>options</var>);
 };
 
-dictionary <dfn id="serviceworker-client-query-params-dictionary" title="ServiceWorkerClientQueryParams">ServiceWorkerClientQueryParams</dfn> {
-  boolean includeUncontrolled;
+dictionary <dfn id="serviceworker-client-query-options-dictionary" title="ServiceWorkerClientQueryOptions">ServiceWorkerClientQueryOptions</dfn> {
+  boolean includeUncontrolled = false;
 };
 </spec-idl>
   <!--FIXME(jungkees): remove it if we drop this method - a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();-->
@@ -923,20 +923,20 @@ dictionary <dfn id="serviceworker-client-query-params-dictionary" title="Service
 <spec-idl>
 [Exposed=ServiceWorker]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; addAll(sequence&lt;(<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)&gt; <var>requests</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
 };
 
-dictionary <dfn id="query-params-dictionary" title="QueryParams">QueryParams</dfn> {
-  boolean ignoreSearch;
-  boolean ignoreMethod;
-  boolean ignoreVary;
-  boolean prefixMatch;
+dictionary <dfn id="cache-query-options-dictionary" title="CacheQueryOptions">CacheQueryOptions</dfn> {
+  boolean ignoreSearch = false;
+  boolean ignoreMethod = false;
+  boolean ignoreVary = false;
+  boolean prefixMatch = false;
   DOMString cacheName;
 };
 
@@ -944,7 +944,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
   DOMString type;
   Request request;
   Response response;
-  QueryParams matchParams;
+  CacheQueryOptions options;
 };
 </spec-idl>
       <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the Service Worker installation. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</p>
@@ -954,16 +954,16 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       <p class="fixme"><strong>Caveat: </strong>Implementors should note that the interface defined in this section is subject to change according to the <a href="https://github.com/slightlyoff/ServiceWorker/issues">ongoing discussion</a>. </p>
 
       <spec-section id="cache-match">
-        <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
+        <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
 
-        <p><dfn id="cache-match-method"><code>match(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
           <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
           <li>Run these steps asynchronously:
             <ol>
-              <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-method">matchAll(<var>request</var>, <var>params</var>)</a></code> method with <var>request</var> and <var>params</var> as the arguments.</li>
+              <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-method">matchAll(<var>request</var>, <var>options</var>)</a></code> method with <var>request</var> and <var>options</var> as the arguments.</li>
               <li>Wait until <var>p</var> settles.</li>
               <li>If <var>p</var> rejects with an exception, then:
                 <ol>
@@ -992,9 +992,9 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       </spec-section>
 
       <spec-section id="cache-matchall">
-        <h1><code>matchAll(<var>request</var>, <var>params</var>)</code></h1>
+        <h1><code>matchAll(<var>request</var>, <var>options</var>)</code></h1>
 
-        <p><dfn id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1015,7 +1015,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               </li>
               <li>Else:
                 <ol>
-                  <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>params</var> as the arguments.</li>
+                  <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>options</var> as the arguments.</li>
                   <li>For each <var>entry</var> of <var>entries</var>:
                     <ol>
                       <li>Add <var>entry</var>[1] to <var>responseArray</var>.</li>
@@ -1125,9 +1125,9 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       </spec-section>
 
       <spec-section id="cache-delete">
-        <h1><code>delete(<var>request</var>, <var>params</var>)</code></h1>
+        <h1><code>delete(<var>request</var>, <var>options</var>)</code></h1>
 
-        <p><dfn id="cache-delete-method"><code>delete(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-delete-method"><code>delete(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1135,7 +1135,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
           <li>Set the <var>type</var> dictionary member of <var>o</var> to "delete".</li>
           <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>request</var>.</li>
-          <li>Set the <var>matchParams</var> dictionary member of <var>o</var> to <var>params</var>.</li>
+          <li>Set the <var>options</var> dictionary member of <var>o</var> to <var>options</var>.</li>
           <li>Add <var>o</var> to <var>operations</var>.</li>
           <li>Set <var>resultPromiseArray</var> to the result of running <a href="#batch-cache-operations-algorithm">[[BatchCacheOperations]]</a> passing <var>operations</var> as the argument.</li>
           <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
@@ -1159,9 +1159,9 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
       </spec-section>
 
       <spec-section id="cache-keys">
-        <h1><code>keys(<var>request</var>, <var>params</var>)</code></h1>
+        <h1><code>keys(<var>request</var>, <var>options</var>)</code></h1>
 
-        <p><dfn id="cache-keys-method"><code>keys(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-keys-method"><code>keys(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
@@ -1180,7 +1180,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               </li>
               <li>Else:
                 <ol>
-                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>params</var> as the arguments.</li>
+                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
                       <li>Add <var>requestResponse</var>[0] to <var>resultArray</var>.</li>
@@ -1203,7 +1203,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 <spec-idl>
 [Exposed=ServiceWorker]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#query-params-dictionary">QueryParams</a> <var>params</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; create(DOMString <var>cacheName</var>);
@@ -1217,16 +1217,16 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
       <p>The <code><a href="#cache-storage-interface">CacheStorage</a></code> interface represents the storage for <code><a href="#cache-interface">Cache</a></code> objects. A <code><a href="#cache-storage-interface">CacheStorage</a></code> object has a <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a> object.</p>
 
       <spec-section id="cache-storage-match">
-        <h1><code>match(<var>request</var>, <var>params</var>)</code></h1>
+        <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
 
-        <p><dfn id="cache-storage-match-method"><code>match(<var>request</var>, <var>params</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-storage-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
           <li>Let <var>cacheName</var> be null.</li>
-          <li>If the optional argument <var>params</var> is not omitted, then:
+          <li>If the optional argument <var>options</var> is not omitted, then:
             <ol>
-              <li>Set <var>cacheName</var> to <var>params</var>.<var>cacheName</var>.</li>
+              <li>Set <var>cacheName</var> to <var>options</var>.<var>cacheName</var>.</li>
             </ol>
           </li>
           <li>Let <var>p</var> be null.</li>
@@ -1242,7 +1242,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
                   </li>
                   <li>Else:
                     <ol>
-                      <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>params</var> as the arguments (providing <var>cache</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code>.)</li>
+                      <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>cache</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
                     </ol>
                   </li>
                 </ol>
@@ -1257,7 +1257,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
                 <ol>
                   <li>For each <var>key</var> in <var>keys</var>:
                     <ol>
-                      <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>params</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>params</var>)</a></code>.)</li>
+                      <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
                       <li>Upon fulfillment of <var>q</var> with value <var>matchedResponse</var>:
                         <ol>
                           <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
@@ -2469,7 +2469,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <dl>
       <dt>Input</dt>
         <dd><var>request</var>, a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object</dd>
-        <dd><var>params</var>, a <code><a href="#query-params-dictionary">QueryParams</a></code> object, optional</dd>
+        <dd><var>options</var>, a <code><a href="#cache-query-options-dictionary">CacheQueryOptions</a></code> object, optional</dd>
       <dt>Output</dt>
         <dd><var>resultArray</var>, an array that has [<code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code>, <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>] pairs as its elements</dd>
     </dl>
@@ -2484,7 +2484,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>params</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
+      <li>If <var>options</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
         <ol>
           <li>Return <var>resultArray</var>.</li>
         </ol>
@@ -2493,7 +2493,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         <ol>
           <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]]'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
           <li>Let <var>requestURL</var> be <var>request</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
-          <li>If <var>params</var>.<var>ignoreSearch</var> is true, then:
+          <li>If <var>options</var>.<var>ignoreSearch</var> is true, then:
             <ol>
               <li>Set <var>cachedURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
               <li>Set <var>requestURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
@@ -2501,7 +2501,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
           </li>
           <li>Let <var>serializedCachedURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>cachedURL</var>.</li>
           <li>Let <var>serializedRequestURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
-          <li>If <var>params</var>.<var>prefixMatch</var> is true, then:
+          <li>If <var>options</var>.<var>prefixMatch</var> is true, then:
             <ol>
               <li>Set <var>serializedCachedURL</var> to the substring of itself from the start, with the length of <var>serializedRequestURL</var>.</li>
             </ol>
@@ -2517,7 +2517,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
         <ol>
           <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-          <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>params</var>.<var>ignoreVary</var> is true, then:
+          <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>options</var>.<var>ignoreVary</var> is true, then:
             <ol>
               <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
               <li>Continue to the next iteration of the loop.</li>
@@ -2558,7 +2558,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>operations</var>, an array of  <code><a href="cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary objects</dd>
+        <dd><var>operations</var>, an array of  <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary objects</dd>
       <dt>Output</dt>
         <dd><var>q</var>, a <a href="http://goo.gl/3TobQS">promise</a> resolves with an array of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> objects.</dd>
     </dl>
@@ -2585,7 +2585,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                     </ol>
                   </li>
                   <li>Let <var>request</var> be the result of invoking the initial value of <a href="http://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>operation</var>.<var>request</var> as the argument.</li>
-                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>operation</var>.<var>matchParams</var> as the arguments.</li>
+                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">[[QueryCache]]</a> algorithm passing <var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
                       <li>If any of the values in <var>addedRequests</var> matches <var>requestResponse</var>[0], then:
@@ -2622,7 +2622,7 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
                         </ol>
                       </li>
-                      <li>If <var>operation</var>.<var>matchParams</var> is not null, then:
+                      <li>If <var>operation</var>.<var>options</var> is not null, then:
                         <ol>
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
                         </ol>

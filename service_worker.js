@@ -11,11 +11,11 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 // Semi-private to work around TS. Not for impl.
-var _RegistrationOptionList = (function () {
-    function _RegistrationOptionList() {
+var _RegistrationOptions = (function () {
+    function _RegistrationOptions() {
         this.scope = "/*";
     }
-    return _RegistrationOptionList;
+    return _RegistrationOptions;
 })();
 
 var ReloadPageEvent = (function (_super) {
@@ -347,13 +347,20 @@ var Cache = (function () {
     function Cache() {
     }
     // also for spec purposes only
-    Cache.prototype._query = function (request, params) {
-        params = params || {};
+    Cache.prototype._query = function (request, options) {
+        var ignoreSearch, ignoreMethod, ignoreVary, prefixMatch;
 
-        var ignoreSearch = Boolean(params.ignoreSearch);
-        var ignoreMethod = Boolean(params.ignoreMethod);
-        var ignoreVary = Boolean(params.ignoreVary);
-        var prefixMatch = Boolean(params.prefixMatch);
+        if (options) {
+            ignoreSearch = options.ignoreSearch;
+            ignoreMethod = options.ignoreMethod;
+            ignoreVary = options.ignoreVary;
+            prefixMatch = options.prefixMatch;
+        } else {
+            ignoreSearch = false;
+            ignoreMethod = false;
+            ignoreVary = false;
+            prefixMatch = false;
+        }
 
         request = _castToRequest(request);
 
@@ -408,9 +415,9 @@ var Cache = (function () {
         return results;
     };
 
-    Cache.prototype.match = function (request, params) {
+    Cache.prototype.match = function (request, options) {
         // the UA may do something more optimal than this:
-        return this.matchAll(request, params).then(function (responses) {
+        return this.matchAll(request, options).then(function (responses) {
             if (responses[0]) {
                 return responses[0];
             }
@@ -419,12 +426,12 @@ var Cache = (function () {
         });
     };
 
-    Cache.prototype.matchAll = function (request, params) {
+    Cache.prototype.matchAll = function (request, options) {
         var thisCache = this;
 
         return accepted().then(function () {
             if (request) {
-                return thisCache._query(request, params).map(function (requestResponse) {
+                return thisCache._query(request, options).map(function (requestResponse) {
                     return requestResponse[1];
                 });
             } else {
@@ -469,9 +476,9 @@ var Cache = (function () {
     };
 
     // delete zero or more entries
-    Cache.prototype.delete = function (request, matchParams) {
+    Cache.prototype.delete = function (request, options) {
         return this._batch([
-            { type: 'delete', request: request, matchParams: matchParams }
+            { type: 'delete', request: request, options: options }
         ]).then(function (results) {
             if (results) {
                 return true;
@@ -481,12 +488,12 @@ var Cache = (function () {
         });
     };
 
-    Cache.prototype.keys = function (request, matchParams) {
+    Cache.prototype.keys = function (request, options) {
         var thisCache = this;
 
         return accepted().then(function () {
             if (request) {
-                return thisCache._query(request, matchParams).map(function (requestResponse) {
+                return thisCache._query(request, options).map(function (requestResponse) {
                     return requestResponse[0];
                 });
             } else {
@@ -512,7 +519,7 @@ var Cache = (function () {
                     }
 
                     var request = _castToRequest(operation.request);
-                    var result = thisCache._query(request, operation.matchParams).reduce(function (previousResult, requestResponse) {
+                    var result = thisCache._query(request, operation.options).reduce(function (previousResult, requestResponse) {
                         if (addedRequests.indexOf(requestResponse[0]) !== -1) {
                             throw Error("Batch operation at index " + i + " overrode previous put operation");
                         }
@@ -530,8 +537,8 @@ var Cache = (function () {
                         if (request.method !== 'GET') {
                             throw TypeError("Only GET requests are supported");
                         }
-                        if (operation.matchParams) {
-                            throw TypeError("Put operation cannot have match params");
+                        if (operation.options) {
+                            throw TypeError("Put operation cannot have match options");
                         }
                         if (!(operation.response instanceof AbstractResponse)) {
                             throw TypeError("Invalid response");
@@ -557,11 +564,11 @@ var Cache = (function () {
 var CacheStorage = (function () {
     function CacheStorage() {
     }
-    CacheStorage.prototype.match = function (request, params) {
+    CacheStorage.prototype.match = function (request, options) {
         var cacheName;
 
-        if (params) {
-            cacheName = params["cacheName"];
+        if (options) {
+            cacheName = options["cacheName"];
         }
 
         function getMatchFrom(cacheName) {
@@ -569,7 +576,7 @@ var CacheStorage = (function () {
                 if (!store) {
                     throw Error("Not found");
                 }
-                return store.match(request, params);
+                return store.match(request, options);
             });
         }
 
