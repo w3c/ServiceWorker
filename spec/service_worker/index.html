@@ -1378,18 +1378,22 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
       <spec-algorithm>
       <ol>
         <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
-        <li>Wait until <var>f</var> settles.</li>
-        <li>If <var>f</var> rejected, then:
+        <li>Run the following substeps asynchronously:
           <ol>
-            <li>Set the <a href="#wait-until-reject-flag">wait-until reject flag</a>.</li>
+            <li>Wait until <var>f</var> settles.</li>
+            <li>If <var>f</var> rejected, then:
+              <ol>
+                <li>Set the <a href="#wait-until-reject-flag">wait-until reject flag</a>.</li>
+              </ol>
+            </li>
+            <li>Else if <var>f</var> resolved with a value, then:
+              <ol>
+                <li>Do nothing.</li>
+              </ol>
+            </li>
+            <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
           </ol>
         </li>
-        <li>Else if <var>f</var> resolved with a value, then:
-          <ol>
-            <li>Do nothing.</li>
-          </ol>
-        </li>
-        <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -1486,33 +1490,37 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
         </li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
-        <li>Wait until <var>r</var> settles.</li>
-        <li>If <var>r</var> rejected, then:
+        <li>Run the following substeps asynchronously:
           <ol>
-            <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
-          </ol>
-        </li>
-        <li>If <var>r</var> resolved with <var>response</var>, then:
-          <ol>
-            <li>If <var>response</var> is an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+            <li>Wait until <var>r</var> settles.</li>
+            <li>If <var>r</var> rejected, then:
               <ol>
-                <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>" and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+                <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
+              </ol>
+            </li>
+            <li>If <var>r</var> resolved with <var>response</var>, then:
+              <ol>
+                <li>If <var>response</var> is an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+                  <ol>
+                    <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>" and the <code><a href="#context-enum">context</a></code> attribute is "<code>navigate</code>", then:
+                      <ol>
+                        <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+                      </ol>
+                    </li>
+                  </ol>
+                </li>
+                <li>Else:
                   <ol>
                     <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
                   </ol>
                 </li>
               </ol>
             </li>
-            <li>Else:
-              <ol>
-                <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
-              </ol>
             </li>
+            <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 14.2.4.2.1 and 17.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 14.2.4.3.1 and 18.1.)</p>
+            <li>Unset the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
           </ol>
         </li>
-        </li>
-        <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 14.2.4.2.1 and 17.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 14.2.4.3.1 and 18.1.)</p>
-        <li>Unset the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
