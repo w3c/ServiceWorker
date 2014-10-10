@@ -1350,9 +1350,13 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
     <h1><code>ExtendableEvent</code></h1>
 
 <spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
+[Constructor(DOMString <var>type</var>, optional <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="extendable-event-interface" title="ExtendableEvent">ExtendableEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
   void <a href="#extendable-event-waituntil-method">waitUntil</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
+};
+
+dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit">ExtendableEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
+  // Defined for the forward compatibility across the derived events
 };
 </spec-idl>
 
@@ -1397,12 +1401,12 @@ interface <dfn id="extendable-event-interface" title="ExtendableEvent">Extendabl
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
-readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
-void <a href="#install-event-replace-method">replace</a>();
+  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
+  void <a href="#install-event-replace-method">replace</a>();
 };
 
 dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">InstallEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
-<a href="#service-worker-interface">ServiceWorker</a> activeWorker;
+  <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
 };
 </spec-idl>
 
@@ -1427,34 +1431,34 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
 <spec-idl>
 [Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
-readonly attribute <a href="#service-worker-client-interface">ServiceWorkerClient</a> client; // The window issuing the request.
-readonly attribute <a href="#context-enum">Context</a> context;
-readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
+  readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
+  readonly attribute <a href="#service-worker-client-interface">ServiceWorkerClient</a> client; // The window issuing the request.
+  readonly attribute <a href="#context-enum">Context</a> context;
+  readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
-void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
-<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
-<a href="#promise-interface">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
+  void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
+  <a href="#promise-interface">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="http://goo.gl/AbWMT8">EventInit</a> {
-<a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
-<a href="#service-worker-client-interface">ServiceWorkerClient</a> client;
-<a href="#context-enum">Context</a> context;
-boolean isReload;
+  <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
+  <a href="#service-worker-client-interface">ServiceWorkerClient</a> client;
+  <a href="#context-enum">Context</a> context;
+  boolean isReload;
 };
 
 enum <dfn id="context-enum" title="Context">Context</dfn> {
-"connect",
-"font",
-"img",
-"object",
-"script",
-"style",
-"worker",
-"popup",
-"child",
-"navigate"
+  "connect",
+  "font",
+  "img",
+  "object",
+  "script",
+  "style",
+  "worker",
+  "popup",
+  "child",
+  "navigate"
 };
 </spec-idl>
 
