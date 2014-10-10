@@ -1655,7 +1655,7 @@ interface FunctionalEvent : ExtendableEvent {
 
   <spec-section id="extension-to-service-worker-global-scope">
     <h1>Define <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">Event Handler</a></h1>
-    <p>Specifications may define an event handler attribute for the corresponding functional event using <a href="http://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface:</p>
+    <p>Specifications may define an event handler attribute for the corresponding <a href="#dfn-functional-events">functional event</a> using <a href="http://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface:</p>
 
     <spec-idl>partial interface ServiceWorkerGlobalScope {
   attribute EventHandler on<em>functionalevent</em>;
@@ -1664,9 +1664,11 @@ interface FunctionalEvent : ExtendableEvent {
 
   <spec-section id="extension-to-service-worker-global-scope">
     <h1>Request <a href="#dfn-functional-events">Functional Event</a> Dispatch</h1>
-    <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> as its argument.</p>
+    <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
 
-    <p>Specifications may define <dfn id="dfn-fire-functional-event-to-service-worker">fire functional event to a service worker steps</dfn> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>global object</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its functional events. This algorithm is called on a task run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is queued by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
+    <p>Specifications may define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>global object</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
+
+    <p class="note">See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a href="https://notifications.spec.whatwg.org">Notifications API</a>.</p>
   </spec-section>
 </spec-clause>
 
@@ -2181,11 +2183,12 @@ interface FunctionalEvent : ExtendableEvent {
     <dl>
     <dt>Input</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
+        <dd><var>callbackSteps</var>, an algorithm</dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
     <ol>
-      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm with <var>registration</var>.</li>
+      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm with <var>registration</var> and <var>callbackSteps</var>.</li>
     </ol>
     </spec-algorithm>
     <p class="fixme">Event loop and task queuing model for this algorithm will be specified.</p>
@@ -2198,6 +2201,7 @@ interface FunctionalEvent : ExtendableEvent {
     <dl>
     <dt>Input</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
+        <dd><var>callbackSteps</var>, an algorithm</dd>
     <dt>Output</dt>
         <dd>None</dd>
     </dl>
@@ -2206,7 +2210,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li><a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-algorithm-conventions">Assert</a>: <var>registration</var>'s active worker is not null.</li>
       <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
       <li><a href="https://html.spec.whatwg.org/multipage/workers.html#run-a-worker">Run a worker</a> for a script with <var>activeWorker</var>'s <a href="#dfn-script-url">script url</a> and <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#script-settings-object">script settings object</a>.</li>
-      <li>Invoke <a href="#dfn-fire-functional-event-to-service-worker">fire functional event to a service worker steps</a>, defined by the caller of the algorithm which <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued this task</a>, with <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> as its argument.</li>
+      <li>Invoke <var>callbackSteps</var>, defined by the caller of the algorithm which <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued this task</a>, with <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#script-settings-object">script settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> as its argument.</li>
       <li>Return.</li>
     </ol>
     </spec-algorithm>
