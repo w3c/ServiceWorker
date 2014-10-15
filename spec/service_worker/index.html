@@ -156,6 +156,8 @@
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-focused-flag">focused flag</dfn>. Initially set to false.</p>
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-client-url">client url</dfn>, which is one of the <a href="https://html.spec.whatwg.org/#url">URL</a> of itself when it is an <a href="https://html.spec.whatwg.org/#active-document">active document</a> of a <a href="https://html.spec.whatwg.org/#browsing-context">browsing context</a> and <a href="https://html.spec.whatwg.org/#script-settings-object">script settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a> when it is a shared worker.</p>
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-frame-type">frame type</dfn>, which is one of the values of <a href="https://fetch.spec.whatwg.org/#concept-request-context-frame-type">context frame type</a>.</p>
+
+    <!--p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-controller">controller</dfn> (an <a href="#dfn-active-worker">active worker</a>) which currently <a href="#dfn-control">controls</a> it. It is initially set to null.</p-->
   </spec-section>
 </spec-clause>
 
@@ -1988,9 +1990,17 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
           <li>If <var>activateImmediate</var> is true, then:
             <ol>
-              <li>For each document matching <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+              <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-client-url">client url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
                 <ol>
-                  <li>Set <var>registration</var> to the document's <a href="#dfn-service-worker-registration">service worker registration</a>.</li>
+                  <li>Let <var>existingWorker</var> be the <a href="#dfn-active-worker">active worker</a> that <a href="#dfn-control">controls</a> <var>client</var>.</li>
+                  <li>If <var>existingWorker</var> is not null, then:
+                    <ol>
+                      <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
+                      </li>
+                      <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>exitingWorker</var>.</li>
+                      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
               <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
