@@ -1700,6 +1700,8 @@ interface FunctionalEvent : ExtendableEvent {
   <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> is  an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent registration requests. The queue is initially empty.</p>
 
   <p><dfn id="installation-queue-adt">[[InstallationQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The queue is initially empty.</p>
+
+  <p><dfn id="installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The queue is initially empty.</p>
   </spec-algorithm>
 
   <spec-section id="register-algorithm">
@@ -1782,7 +1784,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>p</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
       <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to <var>p</var>.</li>
       <li><a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Generating_a_Timestamp">Generate a timestamp</a> and let <var>timeStamp</var> be the result value.</li>
-      <li>Insert <var>timeStamp</var> to <a href="#registration-queue-adt">[[RegistrationQueue]]</a> and <a href="#installation-queue-adt">[[InstallationQueue]]</a>.</li>
+      <li>Insert <var>timeStamp</var> to <a href="#registration-queue-adt">[[RegistrationQueue]]</a>, <a href="#installation-queue-adt">[[InstallationQueue]]</a>, and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
           <li><em>CheckPriority</em>: If the value of the top element of <a href="#registration-queue-adt">[[RegistrationQueue]]</a> matches <var>timeStamp</var>, then:
@@ -1969,7 +1971,23 @@ interface FunctionalEvent : ExtendableEvent {
               </li>
             </ol>
           </li>
-          <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the previous step to have executed.</li>
+        </ol>
+      </li>
+      <li><em>CheckResultHandlePriority</em>: If the value of the top element of <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a> matches <var>timeStamp</var>, then:
+        <ol>
+          <li>Pop the top element from <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
+        </ol>
+      </li>
+      <li>Else:
+        <ol>
+          <li>Wait until the top element of <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a> is popped.</li>
+          <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
+          <li>Jump to the step labeled <em>CheckResultHandlePriority</em>.</li>
+        </ol>
+      </li>
+      <li>Run the following substeps atomically:
+        <ol>
+          <li>Wait for the <a href="http://www.whatwg.org/specs/web-apps/current-work/#concept-task">task</a> queued by the step 5.8 to have executed.</li>
           <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is null, then:
             <ol>
               <li>Abort these steps.</li>
