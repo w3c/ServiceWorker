@@ -1810,7 +1810,9 @@ interface FunctionalEvent : ExtendableEvent {
                 </ol>
               </li>
               <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this throws an exception, reject <var>p</var> with it and set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
+              <li>Set <var>r</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
+              <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
+              <li>Set <var>r</var>'s <a href="http://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
               <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <var>r</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
               <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>, then:
                 <ol>
