@@ -610,7 +610,7 @@ class Cache {
     });
   }
 
-  add(request:any[]) : Promise {
+  add(request:any) : Promise {
     return this.addAll([request]).then(function(responses) {
       return responses[0];
     });
