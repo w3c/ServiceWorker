@@ -42,7 +42,7 @@ ServiceWorkers are installed by web pages. A user must visit a page or app for t
   <head>
     <script>
       // scope defaults to "/"
-      navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
+      navigator.serviceWorker.register("/assets/v1/worker.js").then(
         function(registration) {
           console.log("success!");
           if (registration.installing) {
