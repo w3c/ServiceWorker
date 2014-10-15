@@ -311,22 +311,21 @@ Using `Cache`s is perhaps simpler than talking about them, so here's some tiny e
 // caching.js
 this.version = 1;
 
-var base = "https://videos.example.com";
 this.addEventListener("install", function(e) {
-  // Create a cache of resources. Begins the process of fetching them.
-  // URLs are relative to the ServiceWorker
-  var shellResources = new Cache(
-    base + "/assets/v1/base.css",
-    base + "/assets/v1/app.js",
-    base + "/assets/v1/logo.png",
-    base + "/assets/v1/intro_video.webm",
-  );
+  // Create a cache of resources. Begins the process of fetching them
 
   // The coast is only clear when all the resources are ready.
-  e.waitUntil(shellResources.ready());
-
-  // Add Cache to the global so it can be used later during onfetch
-  caches.set("shell-v1", shellResources);
+  e.waitUntil(
+    caches.open('shell-v1').then(function(cache) {
+      // URLs are relative to the ServiceWorker
+      return cache.addAll([
+        "/assets/v1/base.css",
+        "/assets/v1/app.js",
+        "/assets/v1/logo.png",
+        "/assets/v1/intro_video.webm",
+      ]);
+    })
+  );
 });
 ```
 
@@ -343,20 +342,20 @@ Most of the ServiceWorker interfaces that can take `Response` instances are desi
 this.version = 1;
 
 this.addEventListener("install", function(e) {
-  // Create a cache of resources. Begins the process of fetching them.
-  var shellResources = new Cache(
-    "/app.html",
-    "/assets/v1/base.css",
-    "/assets/v1/app.js",
-    "/assets/v1/logo.png",
-    "/assets/v1/intro_video.webm",
-  );
+  // Create a cache of resources. Begins the process of fetching them
 
   // The coast is only clear when all the resources are ready.
-  e.waitUntil(shellResources.ready());
-
-  // Add Cache to the global so it can be used later during onfetch
-  caches.set("shell-v1", shellResources);
+  e.waitUntil(
+    caches.open('shell-v1').then(function(cache) {
+      // URLs are relative to the ServiceWorker
+      return cache.addAll([
+        "/assets/v1/base.css",
+        "/assets/v1/app.js",
+        "/assets/v1/logo.png",
+        "/assets/v1/intro_video.webm",
+      ]);
+    })
+  );
 });
 
 this.addEventListener("fetch", function(e) {
@@ -494,40 +493,20 @@ To replace an existing ServiceWorker, use the `.replace()` method of the `oninst
 let's clarify with an example: here we'll also compare the versions to ensure that they aren't so far apart that stepping in would break things; leaving the old ServiceWorker in place if the version skew is too great and taking over if it's a difference our new version is confident it can handle. Consider v1.3 vs. v1.0:
 
 ```js
-// caching.js
-this.version = 1.3;
-
-var assetBase = "/assets/v" + parseInt(this.version) + "/";
-var shellCacheName = "shell-v" + parseInt(this.version);
+var shellCacheName = "shell-v1.3";
 var contentCacheName = "content";
 
 this.addEventListener("install", function(e) {
-  // Create a cache of resources. Begins the process of fetching them.
-  var shellResources = new Cache(
-    assetBase + "/base.css",
-    assetBase + "/app.js",
-    assetBase + "/logo.png",
-    assetBase + "/intro_video.webm",
+  e.waitUntil(
+    caches.open(shellCacheName).then(function(cache) {
+      return cache.addAll([
+        "/base.css",
+        "/app.js",
+        "/logo.png",
+        "/intro_video.webm",
+      ])
+    })
   );
-
-  // Add Cache to the global so it can be used later during onfetch
-  caches.set(shellCacheName, shellResources);
-
-  // Prepare an additional cache that we can add items to later
-  caches.has(contentCacheName).catch(function() {
-    caches.set(contentCacheName, new Cache());
-  });
-
-  // The coast is only clear when all the resources are ready.
-  e.waitUntil(shellResources.ready());
-
-  // If and only if we're less than one major version ahead, cut-in and start
-  // serving resources.
-  if (parseInt(e.previousVersion) == parseInt(this.version)) {
-    // Note: replacement won't happen until the Promise passed to
-    // e.waitUntil resolves
-    e.replace();
-  }
 });
 
 // ...onfetch, etc...

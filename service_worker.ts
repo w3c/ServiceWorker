@@ -786,28 +786,26 @@ class CacheStorage {
     });
   }
 
-  get(cacheName: any): Promise {
-    cacheName = cacheName.toString();
-    return Promise.resolve(this._items.get(cacheName));
-  }
-
   has(cacheName: any): Promise {
     cacheName = cacheName.toString();
     return Promise.resolve(this._items.has(cacheName));
   }
 
-  create(cacheName: any): Promise {
+  open(cacheName: any): Promise {
     cacheName = cacheName.toString();
-    var _items = this._items;
 
-    return this.has(cacheName).then(function(storeExists) {
-      if (storeExists) {
-        throw Error("Store with that name already exists");
-      }
-      var cache = new Cache();
-      _items.set(cacheName, cache);
-      return cache;
-    });
+    if (cacheName == "") {
+      throw TypeError("Cache name cannot be an empty string");
+    }
+
+    var cache = this._items.get(cacheName);
+
+    if (!cache) {
+      cache = new Cache();
+      this._items.set(cacheName, cache);
+    }
+
+    return Promise.resolve(cache);
   }
 
   delete(cacheName: any): Promise {

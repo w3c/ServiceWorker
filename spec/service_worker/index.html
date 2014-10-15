@@ -1141,9 +1141,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 [Exposed=ServiceWorker]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; get(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; create(DOMString <var>cacheName</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; open(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
 };</spec-idl>
@@ -1166,25 +1165,23 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
               <li>Set <var>cacheName</var> to <var>options</var>.<var>cacheName</var>.</li>
             </ol>
           </li>
-          <li>Let <var>p</var> be null.</li>
           <li>If <var>cacheName</var> is not null, then:
             <ol>
-              <li>Set <var>p</var> to <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-get-method">get(<var>cacheName</var>)</a></code> method passing <var>cacheName</var> as the argument, with <var>onFulfilled</var>.</li>
-              <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>cache</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+              <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
                 <ol>
-                  <li>If <var>cache</var> is null, then:
+                  <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
                     <ol>
-                      <li>Reject <var>p</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
+                      <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                        <ol>
+                          <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>entry</var>.[[value]] as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
+                          <li>Abort these steps.</li>
+                        </ol>
+                      </li>
                     </ol>
                   </li>
-                  <li>Else:
-                    <ol>
-                      <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>cache</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
-                    </ol>
-                  </li>
+                  <li>Reject <var>p</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
                 </ol>
               </li>
-              <li>Return <var>p</var>.</li>
             </ol>
           </li>
           <li>Else:
@@ -1207,31 +1204,6 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
                 </ol>
               </li>
               <li>Return <var>p</var>.</li>
-            </ol>
-          </li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-storage-get">
-        <h1><code>get(<var>cacheName</var>)</code></h1>
-
-        <p><dfn id="cache-storage-get-method"><code>get(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
-            <ol>
-              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
-                <ol>
-                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
-                    <ol>
-                      <li>Return <var>entry</var>.[[value]].</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Return undefined.</li>
             </ol>
           </li>
         </ol>
@@ -1263,29 +1235,30 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </spec-algorithm>
       </spec-section>
 
-      <spec-section id="cache-storage-create">
-        <h1><code>create(<var>cacheName</var>)</code></h1>
+      <spec-section id="cache-storage-open">
+        <h1><code>open(<var>cacheName</var>)</code></h1>
 
-        <p><dfn id="cache-storage-create-method"><code>create(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+        <p><dfn id="cache-storage-open-method"><code>open(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
         <spec-algorithm>
         <ol>
-          <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#Fixme">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
-          <li>Let <var>q</var> be transforming <var>p</var> with <var>onFulfilled</var>.</li>
-          <li>Upon fulfillment of <var>p</var> with value <var>cacheExists</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Return a <a href="http://goo.gl/3TobQS">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
             <ol>
-              <li>If <var>cacheExists</var> is true, then:
+              <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>, in key insertion order:
                 <ol>
-                  <li>Reject <var>q</var> with an "<code><a href="http://dom.spec.whatwg.org/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
-                  <li>Abort these steps.</li>
+                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                    <ol>
+                      <li>Return <var>entry</var>.[[value]].</li>
+                      <li>Abort these steps.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
               <li>Let <var>cache</var> be a new <a href="#cache-interface">Cache</a> object.</li>
               <li>Set a newly-created Record {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#name-to-cache-map-internal-interface">[[NameToCacheMap]]</a>.</li>
-              <li>Resolve <var>q</var> with <var>cache</var>.</li>
+              <li>Return <var>cache</var>.</li>
             </ol>
           </li>
-          <li>Return <var>q</var>.</li>
         </ol>
         </spec-algorithm>
       </spec-section>
