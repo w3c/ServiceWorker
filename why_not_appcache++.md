@@ -1,6 +1,8 @@
+**This is a legacy document and covers some of our early justifications**
+
 <h2>Why Not AppCache++?</h2>
 
-You've read the [Explainer](explainer.md) and the [Advanced Explainer](advanced_topics.md) and you're still wondering "why the heck do we need the Navigation Controller?"
+You've read the [Explainer](explainer.md) and you're still wondering "why the heck do we need the Navigation Controller?"
 
 You've arrived at the right document -- not least of all because the other two aren't set up as explanations of the why, but more as expositions of the how.
 
