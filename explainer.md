@@ -29,9 +29,9 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/my-app/sw.js', {
     scope: '/my-app/'
   }).then(function(reg) {
-    console.log('◕‿◕', reg);
+    console.log('Yey!', reg);
   }).catch(function() {
-    console.log('ಠ_ಠ', err);
+    console.log('Boo!', err);
   });
 }
 ```
