@@ -443,6 +443,8 @@ var Cache = (function () {
     Cache.prototype.add = function (request) {
         return this.addAll([request]).then(function (responses) {
             return responses[0];
+        }).then(function (response) {
+            return undefined;
         });
     };
 
@@ -461,7 +463,9 @@ var Cache = (function () {
         return Promise.all(responsePromises).then(function (responses) {
             return thisCache._batch(responses.map(function (response, i) {
                 return { type: 'put', request: requests[i], response: response };
-            }));
+            })).then(function (responses) {
+                return undefined;
+            });
         });
     };
 
@@ -471,7 +475,7 @@ var Cache = (function () {
         return this._batch([
             { type: 'put', request: request, response: response }
         ]).then(function (results) {
-            return results[0];
+            return undefined;
         });
     };
 

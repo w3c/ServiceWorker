@@ -96,6 +96,7 @@
       <li><a href="http://url.spec.whatwg.org/">URL Living Standard</a></li>
       <li><a href="http://tools.ietf.org/html/rfc2616">Hypertext Transfer Protocol -- HTTP/1.1</a></li>
       <li><a href="http://www.w3.org/TR/mixed-content/">Mixed Content</a></li>
+      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a></li>
     </ul>
   </spec-section>
 
@@ -992,10 +993,10 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
         <ol>
           <li>Let <var>requests</var> be an array containing only <var>request</var>.</li>
           <li>Set <var>responseArrayPromise</var> to the result of running the algorithm specified in <code><a href="#cache-addAll-method">addAll(<var>requests</var>)</a></code> passing <var>requests</var> as the argument.</li>
-          <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>responseArrayPromise</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>responseArrayPromise</var> with <var>onFulfilled</var></a>.</li>
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
             <ol>
-              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
+              <li>Resolve <var>p</var> with undefined.</li>
             </ol>
           </li>
           <li>Return <var>p</var>.</li>
@@ -1024,8 +1025,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
             </ol>
           </li>
           <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of <var>responsePromiseArray</var></a>.</li>
-          <li>Let <var>q</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>p</var> with <var>onFulfilled</var> and <var>onRejected</var></a>.</li>
-          <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var> and <var>onRejected</var></a>.</li>
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
             <ol>
               <li>Let <var>operations</var> be an empty array.</li>
               <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
@@ -1037,11 +1038,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                   <li>Add <var>o</var> to <var>operations</var>.</li>
                 </ol>
               </li>
-              <li>Set <var>resultPromiseArray</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> algorithm passing <var>operations</var> as the argument.</li>
-              <li>Resolve <var>q</var> with <var>resultPromiseArray</var>.</li>
+              <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> algorithm passing <var>operations</var> as the argument.</li>
+              <li>Resolve <var>q</var> with undefined.</li>
             </ol>
           </li>
-          <li>Upon rejection of <var>p</var> with reason <var>r</var>, perform the following substeps, <var>onRejected</var>, in parallel:
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection of <var>p</var> with reason <var>r</var></a>, perform the following substeps, <var>onRejected</var>, in parallel:
             <ol>
               <li>Reject <var>q</var> with <var>r</var>.</li>
             </ol>
@@ -1064,11 +1065,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>request</var>.</li>
           <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
           <li>Add <var>o</var> to <var>operations</var>.</li>
-          <li>Set <var>resultPromiseArray</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
-          <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
-          <li>Upon fulfillment of <var>p</var> with <var>responseArray</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
+          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
             <ol>
-              <li>Resolve <var>p</var> with <var>responseArray</var>[0].</li>
+              <li>Resolve <var>p</var> with undefined.</li>
             </ol>
           </li>
           <li>Return <var>p</var>.</li>
@@ -1089,11 +1090,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>request</var>.</li>
           <li>Set the <var>options</var> dictionary member of <var>o</var> to <var>options</var>.</li>
           <li>Add <var>o</var> to <var>operations</var>.</li>
-          <li>Set <var>resultPromiseArray</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
-          <li>Let <var>p</var> be transforming <var>resultPromiseArray</var> with <var>onFulfilled</var>.</li>
-          <li>Upon fulfillment of <var>p</var> with <var>responseArray</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
+          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
             <ol>
-              <li>If <var>resultPromiseArray</var> is not null, then:
+              <li>If <var>responseArray</var> is not null, then:
                 <ol>
                   <li>Resolve <var>p</var> with true.</li>
                 </ol>
@@ -1201,13 +1202,13 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
           </li>
           <li>Else:
             <ol>
-              <li>Set <var>p</var> to <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with <var>onFulfilled</var>.</li>
-              <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>keys</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+              <li>Set <var>p</var> to <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with <var>onFulfilled</var>.</li>
+              <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>keys</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
                 <ol>
                   <li>For each <var>key</var> in <var>keys</var>:
                     <ol>
                       <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
-                      <li>Upon fulfillment of <var>q</var> with value <var>matchedResponse</var>:
+                      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>q</var> with value <var>matchedResponse</var></a>:
                         <ol>
                           <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
                           <li>Abort these steps.</li>
@@ -1286,8 +1287,8 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         <spec-algorithm>
         <ol>
           <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#Fixme">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
-          <li>Let <var>q</var> be transforming <var>p</var> with <var>onFulfilled</var>.</li>
-          <li>Upon fulfillment of <var>p</var> with value <var>cacheExists</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
+          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>cacheExists</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
             <ol>
               <li>If <var>cacheExists</var> is true, then:
                 <ol>
@@ -2638,8 +2639,8 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Let <var>p</var> be a <a href="http://goo.gl/3TobQS">promise</a> resolved with no value.</li>
-      <li>Let <var>q</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#manipulating-promises">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
-      <li><a href="https://github.com/w3ctag/promises-guide#reacting-to-promises">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+      <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
+      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
         <ol>
           <li>Let <var>itemsCopy</var> be a new <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object that is a copy of its <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</li>
           <li>Let <var>addedRequests</var> be an empty array.</li>
