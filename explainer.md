@@ -80,7 +80,7 @@ You can pass a promise to `event.waitUntil` to extend the installation process. 
 
 Well, not quite. A document will pick a ServiceWorker to be its controller when it navigates, so the document you called `.register` from isn't being controlled, because there wasn't a ServiceWorker there when it first loaded.
 
-If you refresh the document, it'll be under the ServiceWorker's control. You can check `navigator.serviceWorker.controller` to see which ServiceWorker is in control, or `null` if there isn't one.
+If you refresh the document, it'll be under the ServiceWorker's control. You can check `navigator.serviceWorker.controller` to see which ServiceWorker is in control, or `null` if there isn't one. Note: when you're updating from one ServiceWorker to another, things work a little differently, we'll get onto that in the "Updating" section.
 
 If you shift+reload a document it'll always load without a controller, which is handy for testing quick CSS & JS changes.
 
@@ -210,6 +210,14 @@ self.addEventListener('fetch', function(event) {
 Matching within the cache is similar to the browser cache. Method, URL and vary headers are taken into account, but freshness headers are ignored. Things are only removed from caches when you remove them.
 
 You can add individual items to the cache with `cache.put(request, response)`, including ones you've created yourself. You can also control matching, [discounting things](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
+
+## Other ServiceWorker related specifications
+
+Since ServiceWorkers can spin up in time for events, they've opened up the possibility for other features that happen occasionally in the background, even when the page isn't open. Such as:
+
+* [Push](http://w3c.github.io/push-api/)
+* [Background sync](https://github.com/slightlyoff/BackgroundSync)
+* [Geofencing](https://github.com/slightlyoff/Geofencing)
 
 ## Conclusions
 
