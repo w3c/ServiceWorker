@@ -387,7 +387,7 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
   void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
 };</spec-idl>
 
-  <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object has an <span id="service-worker-container-associated-document">associated</span> <a href="https://html.spec.whatwg.org/#document">Document</a> object of the same <a href="https://html.spec.whatwg.org/#window">Window</a> object as the <a href="https://html.spec.whatwg.org/#navigator">Navigator</a> object from which it is gotten.</p>
+  <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code>'s associated <a href="https://html.spec.whatwg.org/#window">Window</a> is the associated <a href="https://html.spec.whatwg.org/#window">Window</a> of the <a href="https://html.spec.whatwg.org/#navigator">Navigator</a> object that the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> is retrieved from. A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code>'s <span id="service-worker-container-associated-document">associated</span> <a href="https://html.spec.whatwg.org/#document">Document</a> is <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">the newest Document object</a> of its associated <a href="https://html.spec.whatwg.org/#window">Window</a>.</p>
 
   <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object has an associated <dfn id="dfn-ready-promise">ready promise</dfn> (a <a href="http://goo.gl/3TobQS">promise</a>). It is initially set to null.</p>
 
@@ -413,10 +413,10 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           <li>Return the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a>.</li>
         </ol>
       </li>
+      <li>Let <var>registration</var> be null.</li>
+      <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#service-worker-container-associated-document">associated</a> <a href="https://dom.spec.whatwg.org/#concept-document">document</a>'s URL.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li>Let <var>registration</var> be null.</li>
-          <li>Let <var>documentURL</var> be the result of running the <a href="http://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#service-worker-container-associated-document">associated</a> <a href="https://dom.spec.whatwg.org/#concept-document">document</a>'s URL.</li>
           <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>documentURL</var> as its argument is not null, then:
             <ol>
               <li>Set <var>registration</var> to the result value.</li>
