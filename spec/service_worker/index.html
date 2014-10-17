@@ -1521,12 +1521,18 @@ enum <dfn id="context-enum" title="Context">Context</dfn> {
       <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
+        <li>If <a href="https://dom.spec.whatwg.org/#concept-event">event</a>'s <a href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is unset, then:
+          <ol>
+            <li>Return a <a href="http://goo.gl/3TobQS">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+          </ol>
+        </li>
         <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
         <li>Run the following substeps in parallel:
           <ol>
-            <li>Let <var>request</var> be <var>event</var>.<var>request</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>.</li>
-            <li>Set <var>request</var>'s <a href="http://goo.gl/gP7IWW">skip service worker flag</a>.</li>
-            <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch algorithm</a> with <var>request</var> as its argument.</li>
+            <li>Let <var>r</var> be the value that the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute's getter returns.</li>
+            <li>Let <var>request</var> be <var>r</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>.</li>
+            <li>Set <var>request</var>'s <a href="http://goo.gl/gP7IWW">skip service worker flag</a> and <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
+            <li>Let <var>response</var> be the result of running <a href="http://goo.gl/fGMifs">fetch</a> with <var>request</var> as its argument.</li>
             <li>If <var>response</var> is a <a href="http://goo.gl/jprjjc">network error</a>, then:
               <ol>
                 <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
