@@ -153,7 +153,7 @@
   <spec-section id="service-worker-client-concept">
     <h1>Service Worker Client</h1>
     <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is either a <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">document</a> in a <a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a> or a <a href="https://html.spec.whatwg.org/#sharedworkerglobalscope">shared worker</a>, which is <a href="#dfn-control">controlled</a> by an <a href="#dfn-active-worker">active worker</a>. A <a href="#dfn-service-worker-client">service worker client</a> independently <a href="#scope-match-algorithm">selects</a> and <a href="#dfn-document-use">uses</a> a <a href="#dfn-service-worker">service worker</a> for its own loading and its subresources. Unless specified otherwise, a <a href="#dfn-service-worker-client">service worker client</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">document</a>.</p>
-    <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-client-service-worker-registration">service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>) it <a href="#dfn-use">uses</a>. Initially set to false.</p>
+    <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-client-service-worker-registration">service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>) it <a href="#dfn-use">uses</a>.</p>
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-hidden-flag">hidden flag</dfn>. Initially set to false.</p>
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-focused-flag">focused flag</dfn>. Initially set to false.</p>
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-client-url">client url</dfn>, which is one of the <a href="https://html.spec.whatwg.org/#url">URL</a> of itself when it is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">document</a> of a <a href="https://html.spec.whatwg.org/#browsing-context">browsing context</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a> when it is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">shared worker</a>.</p>
@@ -322,7 +322,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="navigator-service-worker-unregister">
       <h1><code>unregister()</code></h1>
 
-      <p class="note">The <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-service-worker-registration">service worker registration</a>. It is important to note that the currently <a href="#dfn-document-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>'s <a href="#dfn-service-worker-registration">service worker registration</a> is effective until all the <a href="#dfn-service-worker-client">service worker client</a> (including itself) using this <a href="#dfn-service-worker-registration">service worker registration</a> unload. That is, <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
+      <p class="note">The <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-service-worker-registration">service worker registration</a>. It is important to note that the currently <a href="#dfn-document-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>'s <a href="#dfn-service-worker-registration">service worker registration</a> is effective until all the <a href="#dfn-service-worker-client">service worker clients</a> (including itself) using this <a href="#dfn-service-worker-registration">service worker registration</a> unload. That is, <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method only affects subsequent <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigations</a>.</p>
 
       <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">Unregister</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>document</var>, the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://dom.spec.whatwg.org/#concept-document">document</a>, and <var>scope</var>, the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration">service worker registration</a>, as the arguments.</p>
     </spec-section>
@@ -1430,7 +1430,7 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
   readonly attribute <a href="#context-enum">Context</a> context;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
-  void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
+  void <a href="#fetch-event-respondwith-method">respondWith</a>((<a href="http://fetch.spec.whatwg.org/#response">Response</a> or <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;) <var>r</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
   <a href="#promise-interface">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
 };
@@ -2134,8 +2134,20 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>r</var> be a new <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>request</var>.</li>
       <li>Let <var>response</var> be null.</li>
       <li>Let <var>registration</var> be null.</li>
-      <li>Let <var>document</var> be the <a href="http://www.whatwg.org/specs/web-apps/current-work/#responsible-document">responsible document</a> specified by the <a href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-settings-object-for-a-global-object">relevant settings object</a> for <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>.</li>
-      <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
+      <li>Let <var>client</var> be null.</li>
+      <li>Assert: <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is either a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object or a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">ShareWorkerGlobalScope</a> object.</li>
+      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, then:
+        <ol>
+          <li>Set <var>client</var> to the associated document of <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+        </ol>
+      </li>
+      <li>Else if <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">ShareWorkerGlobalScope</a> object, then:
+        <ol>
+          <li>Set <var>client</var> to the shared worker represented by <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+        </ol>
+      </li>
+      <li>Assert: <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is not <em>serviceworker</em>.</li>
+      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>embed</em>, <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, <em>object</em>, and <em>sharedworker</em>, then:
         <ol>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#navigate">navigation</a> triggering <var>request</var> was initiated with a <kdb>shift</kdb>+reload or equivalent, then:
             <ol>
@@ -2147,7 +2159,11 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
       <li>Else:
         <ol>
-          <li>Set <var>registration</var> to the <a href="#dfn-service-worker-registration">service worker registration</a> <a href="#dfn-document-use">used</a> by <var>document</var>.</li>
+          <li>If <var>client</var> is a <a href="#dfn-service-worker-client">service worker client</a>, then:
+            <ol>
+              <li>Set <var>registration</var> to <var>client</var>'s <a href="#dfn-service-worker-registration">service worker registration</a>.</li>
+            </ol>
+          </li>
         </ol>
       </li>
       <li>If <var>registration</var> is null, then:
@@ -2161,9 +2177,9 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
       </li>
       <li>Let <var>matchedWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-      <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
+      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>embed</em>, <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, <em>object</em>, and <em>sharedworker</em>, then:
         <ol>
-          <li>Let <var>document</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its <a href="#dfn-service-worker-registration">service worker registration</a>.</li>
+          <li>Let <var>client</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its <a href="#dfn-service-worker-registration">service worker registration</a>.</li>
         </ol>
       </li>
       <li>If <var>matchedWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, then:
@@ -2218,7 +2234,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>If <var>respondWithEntered</var> is false, then:
         <ol>
           <li>Return null and run the following substeps in parallel.</li>
-          <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
+          <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is <em>navigate</em>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
@@ -2234,7 +2250,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Else:
         <ol>
           <li>Return a <a href="http://goo.gl/7F83ei">response</a> represented by <var>response</var> and run the following substeps in parallel.</li>
-          <li>If <var>request</var>'s <var><a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a></var> is <em>navigate</em>, then:
+          <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is <em>navigate</em>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
@@ -2433,7 +2449,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
         </ol>
       </li>
-      <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <var><a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a></var> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> matches <var>entry</var>.[[key]].</li>
+      <li>Delete a Record {[[key]], [[value]]} <var>entry</var> of its <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> matches <var>entry</var>.[[key]].</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -2600,7 +2616,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
         <ol>
           <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-          <li>If the result of running <var>cachedResponse</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>options</var>.<var>ignoreVary</var> is true, then:
+          <li>If the result of running <var>cachedResponse</var>.<a href="http://fetch.spec.whatwg.org/#dom-response-headers">headers</a> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>options</var>.<var>ignoreVary</var> is true, then:
             <ol>
               <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
               <li>Continue to the next iteration of the loop.</li>
@@ -2615,7 +2631,7 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>Continue to the next iteration of the loop.</li>
                 </ol>
               </li>
-              <li>If the result of running <var>cachedRequest</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<var><a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a></var> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
+              <li>If the result of running <var>cachedRequest</var>.<a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<a href="http://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="http://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
                 <ol>
                   <li>Set <var>matchFailed</var> to true.</li>
                   <li>Break the loop.</li>
