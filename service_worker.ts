@@ -798,10 +798,6 @@ class CacheStorage {
   open(cacheName: any): Promise {
     cacheName = cacheName.toString();
 
-    if (cacheName == "") {
-      throw TypeError("Cache name cannot be an empty string");
-    }
-
     var cache = this._items.get(cacheName);
 
     if (!cache) {
