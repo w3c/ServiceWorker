@@ -1693,11 +1693,11 @@ interface FunctionalEvent : ExtendableEvent {
 
   <p>An <dfn id="dfn-algorithm-task-queue">algorithm thread queue</dfn> is a thread safe queue used to synchronize the set of concurrent entries of algorithm steps. The queue contains <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamps</a> (with <a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Assumptions">the assumptions</a>), gained by algorithms, as its elements. The queue should satisfy the general properties of FIFO queue.</p>
 
-  <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> is  an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent registration requests. The queue is initially empty.</p>
+  <p><dfn id="registration-queue-adt">[[RegistrationQueue]]</dfn> is  an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent registration requests. The user agent must maintain a separate queue for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. The queue is initially empty.</p>
 
-  <p><dfn id="installation-queue-adt">[[InstallationQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The queue is initially empty.</p>
+  <p><dfn id="installation-queue-adt">[[InstallationQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The user agent must maintain a separate queue for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. The queue is initially empty.</p>
 
-  <p><dfn id="installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The queue is initially empty.</p>
+  <p><dfn id="installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The user agent must maintain a separate queue for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. The queue is initially empty.</p>
   </spec-algorithm>
 
   <spec-section id="register-algorithm">
@@ -1805,7 +1805,14 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
                 </ol>
               </li>
-              <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this throws an exception, reject <var>p</var> with it and set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+              <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this throws an exception, then:
+                <ol>
+                  <li>Reject <var>p</var> with the exception.</li>
+                  <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+                  <li>Pop the top element from <a href="#installation-queue-adt">[[InstallationQueue]]</a> and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
+                  <li>Abort these steps.</li>
+                </ol>
+              </li>
               <li>Set <var>r</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
               <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
               <li>Set <var>r</var>'s <a href="http://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
@@ -1816,6 +1823,7 @@ interface FunctionalEvent : ExtendableEvent {
                     <ol>
                       <li>Reject <var>p</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
                       <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+                      <li>Pop the top element from <a href="#installation-queue-adt">[[InstallationQueue]]</a> and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
@@ -1823,6 +1831,7 @@ interface FunctionalEvent : ExtendableEvent {
                     <ol>
                       <li>Reject <var>p</var> with a "<code><a href="http://dom.spec.whatwg.org/#networkerror">NetworkError</a></code>" exception.</li>
                       <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+                      <li>Pop the top element from <a href="#installation-queue-adt">[[InstallationQueue]]</a> and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
@@ -1832,6 +1841,7 @@ interface FunctionalEvent : ExtendableEvent {
                 <ol>
                   <li>Reject <var>p</var> with a "<code><a href="http://dom.spec.whatwg.org/#securityerror">SecurityError</a></code>" exception.</li>
                   <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+                  <li>Pop the top element from <a href="#installation-queue-adt">[[InstallationQueue]]</a> and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
@@ -1849,6 +1859,7 @@ interface FunctionalEvent : ExtendableEvent {
                     <ol>
                       <li>Reject <var>p</var> with the error.</li>
                       <li>Set <var>registration</var>'s <a href="#dfn-registration-promise">registration promise</a> to null.</li>
+                      <li>Pop the top element from <a href="#installation-queue-adt">[[InstallationQueue]]</a> and <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
@@ -1949,6 +1960,7 @@ interface FunctionalEvent : ExtendableEvent {
                       <li><a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/workers.html#runtime-script-errors-0">runtime script errors handling</a>.</li>
                       <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
                       <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+                      <li>Pop the top element from <a href="#installation-result-handle-queue-adt">[[InstallationResultHandleQueue]]</a>.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
