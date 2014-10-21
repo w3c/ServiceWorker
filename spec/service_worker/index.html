@@ -2159,7 +2159,12 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
       </li>
       <li>Assert: <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is not <em>serviceworker</em>.</li>
-      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>embed</em>, <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, <em>object</em>, and <em>sharedworker</em>, then:
+      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is either <em>embed</em> or <em>object</em>, then:
+        <ol>
+          <li>Return null.</li>
+        </ol>
+      </li>
+      <li>Else if <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, then:
         <ol>
           <li>If the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#navigate">navigation</a> triggering <var>request</var> was initiated with a <kdb>shift</kdb>+reload or equivalent, then:
             <ol>
@@ -2189,7 +2194,8 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
       </li>
       <li>Let <var>matchedWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>embed</em>, <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, <em>object</em>, and <em>sharedworker</em>, then:
+      <li>Assert: <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is not <em>serviceworker</em>, <em>embed</em>, or <em>object</em>.</li>
+      <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, then:
         <ol>
           <li>Let <var>client</var> <a href="#dfn-document-use">use</a> <var>registration</var> as its <a href="#dfn-service-worker-registration">service worker registration</a>.</li>
         </ol>
