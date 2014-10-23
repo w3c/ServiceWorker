@@ -1751,8 +1751,12 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
               <li>If <var>newestWorker</var> is not null, <var>scriptURL</var> is equal to <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, and <var>scriptURL</var> is equal to <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>, then:
                 <ol>
-                  <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, unset it.</li>
-                  <li>Return a <a href="http://goo.gl/3TobQS">promise</a> resolved with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object that represents <var>registration</var>.</li>
+                  <li>If <var>newestWorker</var> is an <a href="#dfn-active-worker">active worker</a>, then:
+                    <ol>
+                      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, unset it.</li>
+                      <li>Return a <a href="http://goo.gl/3TobQS">promise</a> resolved with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object that represents <var>registration</var>.</li>
+                    </ol>
+                  </li>
                 </ol>
               </li>
             </ol>
@@ -1872,18 +1876,11 @@ interface FunctionalEvent : ExtendableEvent {
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
-                    <ol>
-                      <li>Wait until a Record {[[key]], [[value]]} <var>entry</var> of its <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> matches <var>entry</var>.[[key]] is deleted.</li>
-                      <li>Set a newly-created Record {[[key]]: <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, [[value]]: <var>registration</var>} to <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
-                      <li>Unset <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
-                    </ol>
-                  </li>
-                  <li>Invoke <a href="#installation-algorithm">Install</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>, <var>worker</var>, and <var>timeStamp</var> as its arguments.</li>
                 </ol>
               </li>
             </ol>
           </li>
+          <li>Invoke <a href="#installation-algorithm">Install</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>, <var>worker</var>, and <var>timeStamp</var> as its arguments.</li>
         </ol>
       </li>
       <li>Return <var>p</var>.</li>
@@ -2039,6 +2036,13 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
           <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
           <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
+          <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set before <var>timeStamp</var>, then:
+            <ol>
+              <li>Wait until a Record {[[key]], [[value]]} <var>entry</var> of its <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> matches <var>entry</var>.[[key]] is deleted.</li>
+              <li>Set a newly-created Record {[[key]]: <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, [[value]]: <var>registration</var>} to <a href="#service-worker-registration-map-internal-interface">[[ScopeToRegistrationMap]]</a>.</li>
+              <li>Unset <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
+            </ol>
+          </li>
           <li>If <var>activateImmediate</var> is true, then:
             <ol>
               <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-client-url">client url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
@@ -2398,27 +2402,23 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Run the following substeps atomically:
+          <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>scope</var> as the argument.</li>
+          <li>If <var>registration</var> is null, then:
             <ol>
-              <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>scope</var> as the argument.</li>
-              <li>If <var>registration</var> is null, then:
+              <li>Resolve <var>promise</var> with false.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Set <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
+          <li>Resolve <var>promise</var> with true.</li>
+          <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-service-worker-registration">service worker registration</a>, then:
+            <ol>
+              <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is unset, then:
                 <ol>
-                  <li>Resolve <var>promise</var> with false.</li>
                   <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Set <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
-              <li>Resolve <var>promise</var> with true.</li>
-              <li>If no document is <a href="#dfn-document-use">using</a> <var>registration</var> as their <a href="#dfn-service-worker-registration">service worker registration</a>, then:
-                <ol>
-                  <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is unset, then:
-                    <ol>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                  <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                </ol>
-              </li>
+              <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
             </ol>
           </li>
         </ol>
