@@ -186,7 +186,7 @@ navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
     <p></p>
 <spec-idl>[Exposed=(Window,ServiceWorker)]
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="http://goo.gl/mkHcfY">Worker</a> {
-  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-url-attribute">scriptURL</a>;
+  readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-url-attribute">scriptURL</a>;
   readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
 
   // event
@@ -283,7 +283,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-active-attribute">active</a>;
 
-  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
+  readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
 
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
 
@@ -368,9 +368,9 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
   readonly attribute <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
 
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>documentURL</var> = "");
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>documentURL</var> = "");
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
 
 
@@ -381,7 +381,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptions">RegistrationOptions</dfn> {
-  <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> scope = "/";
+  <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> scope = "/";
 };
 
 [Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
@@ -664,7 +664,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   // A container for a list of ServiceWorkerClient objects that correspond to
   // browsing contexts (or shared workers) that are on the origin of this SW
   readonly attribute <a href="#service-worker-clients-interface">ServiceWorkerClients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <a href="#service-worker-global-scope-caches-attribute">scope</a>;
+  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-global-scope-caches-attribute">scope</a>;
 
   void <a href="#service-worker-global-scope-update-method">update</a>();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-global-scope-unregister-method">unregister</a>();
@@ -781,12 +781,12 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   <spec-section id="service-worker-client">
     <h1><code>ServiceWorkerClient</code></h1>
 
-<spec-idl>[Constructor(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>), Exposed=ServiceWorker]
+<spec-idl>[Constructor(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>), Exposed=ServiceWorker]
 interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">ServiceWorkerClient</dfn> {
   readonly attribute <a href="http://goo.gl/3TobQS">Promise</a> ready;
   readonly attribute boolean hidden;
   readonly attribute boolean focused;
-  readonly attribute <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> url;
+  readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> url;
   readonly attribute <a href="http://fetch.spec.whatwg.org/#concept-request-context-frame-type">ContextFrameType</a> frameType;
   void <a href="http://goo.gl/Kze9t3">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/common-dom-interfaces.html#transferable">Transferable</a>&gt; <var>transfer</var>);
   <a href="http://goo.gl/3TobQS">Promise</a> focus();
@@ -877,13 +877,13 @@ dictionary <dfn id="serviceworker-client-query-options-dictionary" title="Servic
 <spec-idl>
 [Exposed=ServiceWorker]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; addAll(sequence&lt;(<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>)&gt; <var>requests</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; add((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; addAll(sequence&lt;(<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>)&gt; <var>requests</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; put((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional (<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
 };
 
 dictionary <dfn id="cache-query-options-dictionary" title="CacheQueryOptions">CacheQueryOptions</dfn> {
@@ -1014,7 +1014,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
           <li>For each <var>request</var> in <var>requests</var>:
             <ol>
               <li>Let <var>r</var> be null.</li>
-              <li>If <var>request</var> is a <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>, then:
+              <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
                 <ol>
                   <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="http://goo.gl/3TobQS">promise</a> rejected with that exception.</li>
                 </ol>
@@ -1165,7 +1165,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 <spec-idl>
 [Exposed=ServiceWorker]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match((<a href="http://fetch.spec.whatwg.org/#request">Request</a> or <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>) <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; open(DOMString <var>cacheName</var>);
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; delete(DOMString <var>cacheName</var>);
@@ -1439,7 +1439,7 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
   void <a href="#fetch-event-respondwith-method">respondWith</a>((<a href="http://fetch.spec.whatwg.org/#response">Response</a> or <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;) <var>r</var>);
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://encoding.spec.whatwg.org/#scalarvaluestring">ScalarValueString</a> <var>url</var>);
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; forwardTo(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
   <a href="#promise-interface">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
