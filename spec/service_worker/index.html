@@ -374,18 +374,13 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 
   // events
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-oncontrollerchange-attribute">oncontrollerchange</a>;
-  attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onreloadpage-attribute">onreloadpage</a>;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-container-onerror-attribute">onerror</a>;
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptions">RegistrationOptions</dfn> {
   <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> scope = "/";
 };
-
-[Constructor(DOMString <var>type</var>, optional <a href="http://goo.gl/AbWMT8">EventInit</a> <var>eventInitDict</var>)]
-interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPageEvent</dfn> : <a href="http://goo.gl/UVs0Yt">Event</a> {
-  void waitUntil(<a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <var>f</var>);
-};</spec-idl>
+</spec-idl>
 
   <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code>'s associated <a href="https://html.spec.whatwg.org/#window">Window</a> is the associated <a href="https://html.spec.whatwg.org/#window">Window</a> of the <a href="https://html.spec.whatwg.org/#navigator">Navigator</a> object that the <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> is retrieved from. A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code>'s <span id="service-worker-container-associated-document">associated</span> <a href="https://html.spec.whatwg.org/#document">Document</a> is <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">the newest Document object</a> of its associated <a href="https://html.spec.whatwg.org/#window">Window</a>.</p>
 
@@ -543,10 +538,6 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
             <td><code><a href="#service-worker-container-controllerchange-event">controllerchange</a></code></td>
           </tr>
           <tr>
-            <td><dfn id="service-worker-container-onreloadpage-attribute"><code>onreloadpage</code></dfn></td>
-            <td><code><a href="#service-worker-container-reloadpage-event">reloadpage</a></code></td>
-          </tr>
-          <tr>
             <td><dfn id="service-worker-container-onerror-attribute"><code>onerror</code></dfn></td>
             <td><code><a href="#service-worker-container-error-event">error</a></code></td>
           </tr>
@@ -597,11 +588,6 @@ interface <dfn id="reload-page-event-interface" title="ReloadPageEvent">ReloadPa
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td><code><a href="http://dom.spec.whatwg.org/#event">Event</a></code></td>
           <td>The <a href="#service-worker-container-associated-document">document</a>'s associated <a href="#dfn-client-service-worker-registration">service worker registration</a> acquires a new <a href="#dfn-active-worker">active worker</a>. (See step 1.8 of the <a href="#activation-algorithm">Activate</a> algorithm. When the <a href="#activation-algorithm">activation</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> is triggered by <a href="#install-event-replace-method">replace</a>() method call within the <a href="http://www.whatwg.org/specs/web-apps/current-work/multipage/webappapis.html#event-handlers">event handler</a> of the <a href="#service-worker-global-scope-install-event">install event</a>, <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> immediately reflects the <a href="#dfn-active-worker">active worker</a> as the <a href="#dfn-service-worker">service worker</a> that <a href="#dfn-document-control">controls</a> the document.)</td>
-        </tr>
-        <tr>
-          <td><dfn id="service-worker-container-reloadpage-event"><code>reloadpage</code></dfn></td>
-          <td><code><a href="#reload-page-event-interface">ReloadPageEvent</a></code></td>
-          <td>The page reload is triggered by the <code><a href="#service-worker-clients-reloadall-method">self.clients.reloadAll()</a></code> method call from the <a href="#dfn-active-worker">active worker</a>, represented by its associated <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, for the document.</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-error-event"><code>error</code></dfn></td>
@@ -849,14 +835,6 @@ dictionary <dfn id="serviceworker-client-query-options-dictionary" title="Servic
       </spec-algorithm>
       <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>.</p>
     </spec-section>
-    <!--FIXME(jungkees): remove it if we drop this method - spec-section id="reloadall-method">
-      <h1><code>reloadAll()</code></h1>
-
-      <p><dfn id="service-worker-clients-reloadall-method"><code>reloadAll()</code></dfn> method provides a mechanism for the worker to request synchronized re-fetch of all documents whose URLs match the registration's <a href="#dfn-url-scope">URL scope</a>. An event named <code><a href="#service-worker-container-reloadpage-event">reloadpage</a></code> is dispatched on the <code><a href="#navigator-service-worker-attribute">navigator.serviceWorker</a></code> object of each document. The in-document handlers may allow the event to continue, request an extension (via <code><a href="#extendable-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code>), or cancel the collective reload by calling <code><a href="http://goo.gl/2zH6ie">event.preventDefault()</a></code>.</p>
-
-      <p class="fixme">The algorithm will be updated in a more formal language.</p>
-    </spec-section-->
-    <!-- If the group-reload is canceled, // FIXME(slightlyoff) -->
   </spec-section>
 
   <spec-section id="cache-objects">
