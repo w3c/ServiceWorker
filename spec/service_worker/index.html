@@ -2658,7 +2658,6 @@ interface FunctionalEvent : ExtendableEvent {
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
         <ol>
           <li>Let <var>itemsCopy</var> be a new <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object that is a copy of its <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="http://localhost/spec/service_worker/#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a> object.</li>
-          <li>Let <var>addedRequests</var> be an empty array.</li>
           <li>Try running the following substeps atomically:
             <ol>
               <li>Let <var>resultArray</var> be an empty array.</li>
@@ -2677,7 +2676,7 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
-                      <li>If any of the values in <var>addedRequests</var> matches <var>requestResponse</var>[0], then:
+                      <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>requestResponse</var>[0] as the argument is not an empty array, then:
                         <ol>
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
                         </ol>
@@ -2716,7 +2715,6 @@ interface FunctionalEvent : ExtendableEvent {
                           <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> a TypeError.</li>
                         </ol>
                       </li>
-                      <li>Add <var>operation</var>.<var>request</var> to <var>addedRequests</var>.</li>
                       <li>Set a newly-created Record {[[key]]: <var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>.</li>
                     </ol>
                   </li>
