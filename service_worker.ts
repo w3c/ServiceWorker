@@ -587,11 +587,7 @@ class Cache {
   match(request:any, options?) : Promise {
     // the UA may do something more optimal than this:
     return this.matchAll(request, options).then(function(responses) {
-      if (responses[0]) {
-        return responses[0];
-      }
-      // throw new NotFoundError();
-      throw new Error("Faux NotFoundError");
+      return responses[0];
     });
   }
 

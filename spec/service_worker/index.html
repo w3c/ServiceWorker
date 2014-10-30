@@ -629,8 +629,8 @@ this.addEventListener("fetch", function(e) {
   // All operations on caches are async, including matching URLs, so we use
   // promises heavily. e.respondWith() even takes promises to enable this:
   e.respondWith(
-    caches.match(e.request).catch(function() {
-      return e.default();
+    caches.match(e.request).then(function(response) {
+      return response || e.default();
     }).catch(function() {
       return caches.match("/fallback.html");
     })
@@ -902,7 +902,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                 <ol>
                   <li>If <var>responseArray</var> is an empty array, then:
                     <ol>
-                      <li>Reject <var>promise</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
+                      <li>Resolve <var>promise</var> with undefined.</li>
                     </ol>
                   </li>
                   <li>Else:
@@ -1190,13 +1190,23 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
                       <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
                       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>q</var> with value <var>matchedResponse</var></a>:
                         <ol>
-                          <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
+                          <li>If <var>matchedResponse</var> is not undefined, then:
+                            <ol>
+                              <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
+                              <li>Abort these steps.</li>
+                            </ol>
+                          </li>
+                        </ol>
+                      </li>
+                      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection of <var>q</var> with value <var>err</var></a>:
+                        <ol>
+                          <li>Reject <var>p</var> with <var>err</var>.</li>
                           <li>Abort these steps.</li>
                         </ol>
                       </li>
                     </ol>
                   </li>
-                  <li>Reject <var>p</var> with an "<code><a href="http://dom.spec.whatwg.org/#notfounderror">NotFoundError</a></code>" exception.</li>
+                  <li>Resolve <var>p</var> with undefined.</li>
                 </ol>
               </li>
               <li>Return <var>p</var>.</li>
