@@ -762,27 +762,33 @@ class CacheStorage {
       cacheName = options["cacheName"];
     }
 
-    function getMatchFrom(cacheName) {
-      return this.get(cacheName).then(function(store) {
-        if (!store) {
-          throw Error("Not found");
-        }
-        return store.match(request, options);
+    var matchFromCache = function matchFromCache(cacheName) {
+      return this.open(cacheName).then(function(cache) {
+        return cache.match(request, options);
       });
-    }
+    }.bind(this);
+
 
     if (cacheName) {
-      return getMatchFrom(cacheName);
+      return this.has(cacheName).then(function(hasCache) {
+        if (!hasCache) {
+          throw new Error("Not found");
+        }
+
+        return matchFromCache(cacheName);
+      }.bind(this));
     }
 
-    return this.keys().then(function(keys) {
-      return keys.reduce(function(chain, key) {
-        return chain.catch(function() {
-          return getMatchFrom(key);
+    return this.keys().then(function(cacheNames) {
+      var match;
+
+      return cacheNames.reduce(function(chain, cacheName) {
+        return chain.then(function() {
+          return match || matchFromCache(cacheName).then(function(response) {
+            match = response;
+          });
         });
-      }, Promise.reject()).catch(function() {
-        throw Error("No match found");
-      });
+      }.bind(this), Promise.resolve());
     });
   }
 
