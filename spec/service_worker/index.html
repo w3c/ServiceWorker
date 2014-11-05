@@ -2647,6 +2647,7 @@ interface FunctionalEvent : ExtendableEvent {
       <dt>Input</dt>
         <dd><var>request</var>, a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object</dd>
         <dd><var>options</var>, a <code><a href="#cache-query-options-dictionary">CacheQueryOptions</a></code> object, optional</dd>
+        <dd><var>targetStorage</var>, an array that has [<code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code>, <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>] pairs as its elements, optional</dd>
       <dt>Output</dt>
         <dd><var>resultArray</var>, an array that has [<code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code>, <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>] pairs as its elements</dd>
     </dl>
@@ -2654,38 +2655,67 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>requestArray</var> be an empty array.</li>
       <li>Let <var>responseArray</var> be an empty array.</li>
       <li>Let <var>resultArray</var> be an empty array.</li>
-      <li>If this <a href="http://dom.spec.whatwg.org/#concept-throw">throws</a> an exception, then:
-        <ol>
-          <li>Rethrow that exception.</li>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
       <li>If <var>options</var>.<var>ignoreMethod</var> is false and <var>request</var>.<var>method</var> is neither "GET" nor "HEAD", then:
         <ol>
           <li>Return <var>resultArray</var>.</li>
         </ol>
       </li>
-      <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
+      <li>Let <var>cachedURL</var> and <var>requestURL</var> be null.</li>
+      <li>Let <var>serializedCachedURL</var> and <var>serializedRequestURL</var> be null.</li>
+      <li>If the optional argument <var>targetStorage</var> is omitted, then:
         <ol>
-          <li>Let <var>cachedURL</var> be <var>entry</var>.[[key]]'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
-          <li>Let <var>requestURL</var> be <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
-          <li>If <var>options</var>.<var>ignoreSearch</var> is true, then:
+          <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
             <ol>
-              <li>Set <var>cachedURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
-              <li>Set <var>requestURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+              <li>Set <var>cachedURL</var> to <var>entry</var>.[[key]]'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
+              <li>Set <var>requestURL</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
+              <li>If <var>options</var>.<var>ignoreSearch</var> is true, then:
+                <ol>
+                  <li>Set <var>cachedURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+                  <li>Set <var>requestURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+                </ol>
+              </li>
+              <li>Set <var>serializedCachedURL</var> to <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>cachedURL</var>.</li>
+              <li>Set <var>serializedRequestURL</var> to <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
+              <li>If <var>options</var>.<var>prefixMatch</var> is true, then:
+                <ol>
+                  <li>Set <var>serializedCachedURL</var> to the substring of itself from the start, with the length of <var>serializedRequestURL</var>.</li>
+                </ol>
+              </li>
+              <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
+                <ol>
+                  <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
+                  <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+                </ol>
+              </li>
             </ol>
           </li>
-          <li>Let <var>serializedCachedURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>cachedURL</var>.</li>
-          <li>Let <var>serializedRequestURL</var> be <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
-          <li>If <var>options</var>.<var>prefixMatch</var> is true, then:
+        </ol>
+      </li>
+      <li>Else:
+        <ol>
+          <li>For each <var>record</var> in <var>targetStorage</var>:
             <ol>
-              <li>Set <var>serializedCachedURL</var> to the substring of itself from the start, with the length of <var>serializedRequestURL</var>.</li>
-            </ol>
-          </li>
-          <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
-            <ol>
-              <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
-              <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+              <li>Set <var>cachedURL</var> to <var>record</var>[0]'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
+              <li>Set <var>requestURL</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
+              <li>If <var>options</var>.<var>ignoreSearch</var> is true, then:
+                <ol>
+                  <li>Set <var>cachedURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+                  <li>Set <var>requestURL</var>'s <a href="http://url.spec.whatwg.org/#concept-url-query">query</a> to the empty string.</li>
+                </ol>
+              </li>
+              <li>Set <var>serializedCachedURL</var> to <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>cachedURL</var>.</li>
+              <li>Set <var>serializedRequestURL</var> to <a href="http://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
+              <li>If <var>options</var>.<var>prefixMatch</var> is true, then:
+                <ol>
+                  <li>Set <var>serializedCachedURL</var> to the substring of itself from the start, with the length of <var>serializedRequestURL</var>.</li>
+                </ol>
+              </li>
+              <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
+                <ol>
+                  <li>Add <var>record</var>[0] to <var>requestArray</var>.</li>
+                  <li>Add <var>record</var>[1] to <var>responseArray</var>.</li>
+                </ol>
+              </li>
             </ol>
           </li>
         </ol>
@@ -2763,18 +2793,14 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
-                      <li>For each <var>addedRecord</var> in <var>addedRecords</var>:
+                      <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>requestResponse</var>[0], <var>operation</var>.<var>options</var>, and <var>addedRecords</var> as the arguments is not an empty array, then:
                         <ol>
-                          <li>If a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>requestResponse</var>[0] is equal to a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>addedRecord</var>[0], and a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>requestResponse</var>[1] is equal to a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>addedRecord</var>[1], then:
-                            <ol>
-                              <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
-                            </ol>
-                          </li>
+                          <li><a href="http://dom.spec.whatwg.org/#concept-throw">Throw</a> an "<code><a href="http://dom.spec.whatwg.org/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
                         </ol>
                       </li>
                       <li>For each Record {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map-internal-interface">[[RequestToResponseMap]]</a>, in key insertion order:
                         <ol>
-                          <li>If a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>requestResponse</var>[0] is equal to a <a href="https://html.spec.whatwg.org/#structured-clone">structured clone</a> of <var>entry</var>.[[key]], then:
+                          <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>requestResponse</var>[0] and <var>operation</var>.<var>options</var> is equal to the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>entry</var>.[[key]] and <var>operation</var>.<var>options</var>, then:
                           <ol>
                             <li>Delete <var>entry</var>.</li>
                           </ol>
