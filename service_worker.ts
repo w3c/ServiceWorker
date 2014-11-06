@@ -113,15 +113,6 @@ class ExtendableEvent extends _Event {
 
 class InstallEvent extends ExtendableEvent {
   activeWorker: ServiceWorker = null;
-
-  // Ensures that the worker is used in place of existing workers for
-  // the currently controlled set of window instances.
-  // NOTE(TOSPEC): this interacts with waitUntil in the following way:
-  //   - replacement only happens upon successful installation
-  //   - successful installation can be delayed by waitUntil, perhaps
-  //     by subsequent event handlers.
-  //   - therefore, replace doesn't happen immediately.
-  replace(): void {}
 }
 
 interface InstallEventHandler { (e:InstallEvent); }
@@ -496,9 +487,6 @@ class FetchEvent extends _Event {
 // Design notes:
 //  - Caches are atomic: they are not complete until all of their resources are
 //    fetched
-//  - Updates are also atomic: the old contents are visible until all new
-//    contents are fetched/installed.
-//  - Caches should have version numbers and "update" should set/replace it
 
 // This largely describes the current Application Cache API. It's only available
 // inside worker instances (not in regular documents), meaning that caching is a
