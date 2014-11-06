@@ -653,6 +653,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 
   void <a href="#service-worker-global-scope-update-method">update</a>();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-global-scope-unregister-method">unregister</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;undefined&gt; <a href="#service-worker-global-scope-skipwaiting-method">skipWaiting</a>();
 
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
@@ -716,6 +717,32 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <ol>
         <li>Let <var>scope</var> be the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</li>
         <li>Return the result of running <a href="#unregister-algorithm">Unregister</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>document</var>, the <a href="http://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://dom.spec.whatwg.org/#concept-document">document</a>, and <var>scope</var> as the argument.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="service-worker-global-scope-skipwaiting">
+      <h1><code>skipWaiting()</code></h1>
+
+      <p class="note">The <code><a href="#service-worker-global-scope-skipwaiting-method">skipWaiting()</a></code> method allows this <a href="#dfn-service-worker">service worker</a> to progress from the <a href="#dfn-containing-service-worker-registration">registration</a>'s <a href="#dfn-waiting-worker">waiting</a> position to <a href="#dfn-active-worker">active</a> even while <a href="#service-worker-client-concept">clients</a> are <a href="#dfn-use">using</a> the <a href="#dfn-containing-service-worker-registration">registration</a>.</p>
+
+      <p><dfn id="service-worker-global-scope-skipwaiting-method"><code>skipWaiting()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>promise</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.</li>
+        <li>Run the following substeps in parallel:
+          <ol>
+            <li>Set <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a></li>
+            <li>If <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a> is <em>installed</em>, then:
+              <ol>
+                <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">registration</a> as the argument.</li>
+              </ol>
+            </li>
+            <li>Resolve <var>promise</var> with undefined.</li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
