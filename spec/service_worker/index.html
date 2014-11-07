@@ -653,7 +653,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 
   void <a href="#service-worker-global-scope-update-method">update</a>();
   <a href="http://goo.gl/3TobQS">Promise</a>&lt;boolean&gt; <a href="#service-worker-global-scope-unregister-method">unregister</a>();
-  <a href="http://goo.gl/3TobQS">Promise</a>&lt;undefined&gt; <a href="#service-worker-global-scope-skipwaiting-method">skipWaiting</a>();
+  <a href="http://goo.gl/3TobQS">Promise</a>&lt;any&gt; <a href="#service-worker-global-scope-skipwaiting-method">skipWaiting</a>();
 
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
   attribute <a href="http://goo.gl/3nnYrx">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
@@ -2097,6 +2097,19 @@ interface FunctionalEvent : ExtendableEvent {
           </li>
           <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set, then:
             <ol>
+              <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-client-url">client url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+                <ol>
+                  <li>Let <var>exitingWorker</var> be the <a href="#dfn-active-worker">active worker</a> that <a href="#dfn-control">controls</a> <var>client</var>.</li>
+                  <li>If <var>exitingWorker</var> is not null, then:
+                    <ol>
+                      <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
+                      </li>
+                      <li><a href="http://goo.gl/fkJaja">Terminate</a> <var>exitingWorker</var>.</li>
+                      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
               <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
               <li>Abort these steps.</li>
             </ol>
@@ -2861,7 +2874,7 @@ interface FunctionalEvent : ExtendableEvent {
 
   <p>Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the service worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.</p>
 
-  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, and Gavin Peters.</p>
+  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, and Ben Kelly.</p>
 
   <p>Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.</p>
 
