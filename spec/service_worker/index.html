@@ -2334,7 +2334,12 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
       <li>If <var>handleFetchFailed</var> is true, then:
         <ol>
-          <li>Return a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>.</li>
+          <li>Return a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> and run the following substeps in parallel.</li>
+          <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, then:
+            <ol>
+              <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
+            </ol>
+          </li>
         </ol>
       </li>
       <li>Else:
