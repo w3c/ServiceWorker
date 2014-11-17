@@ -1420,38 +1420,23 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 
     <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and the <code><a href="#install-event-interface">InstallEvent</a></code> interface, which inherits from the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, for <code><a href="#service-worker-global-scope-install-event">install</a></code> event. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
-    <p>Each event using <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface or a derived interface has the following associated flags that are all initially unset:
-      <ul>
-        <li><dfn id="extend-lifetime-flag">extend lifetime flag</dfn></li>
-        <li><dfn id="wait-until-reject-flag">wait-until reject flag</dfn></li>
-      </ul>
-    </p>
+    <p>An <code><a href="#extendable-event-interface" title="ExtendableEvent">ExtendableEvent</a></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promises</a>). It is initially set to null.</p>
 
     <spec-section id="wait-until-method">
       <h1><code>event.waitUntil(f)</code></h1>
 
-      <p><a href="#extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></a> method, extends the lifetime of the event. When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated. When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> will define their own behaviours, allowing the <a href="#extend-lifetime-flag">extend lifetime flag</a> to suggest operation length, and the <a href="#wait-until-reject-flag">wait-until reject flag</a> to suggest operation failure.</p>
+      <p><a href="#extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></a> method, extends the lifetime of the event. When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated. When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> will define their own behaviours, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
 
       <p><dfn id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>Set the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
-        <li>Run the following substeps in parallel:
+        <li>If the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-execution-contexts">active function</a> is not the callback of the <a href="https://dom.spec.whatwg.org/#concept-event-listener">event handler</a> whose type is the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="https://dom.spec.whatwg.org/#dom-event-type">type</a> value, then:
           <ol>
-            <li>Wait until <var>f</var> settles.</li>
-            <li>If <var>f</var> rejected, then:
-              <ol>
-                <li>Set the <a href="#wait-until-reject-flag">wait-until reject flag</a>.</li>
-              </ol>
-            </li>
-            <li>Else if <var>f</var> resolved with a value, then:
-              <ol>
-                <li>Do nothing.</li>
-              </ol>
-            </li>
-            <li>Unset the <a href="#extend-lifetime-flag">extend lifetime flag</a>.</li>
+            <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+            <li>Abort these steps.</li>
           </ol>
         </li>
+        <li>Add <var>f</var> to <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -2020,6 +2005,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Let <var>installingWorker</var> be <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
               <li><a href="https://html.spec.whatwg.org/multipage/workers.html#run-a-worker">Run a worker</a>, if not running, for a script with <var>installingWorker</var>'s <a href="#dfn-script-url">script url</a> and <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>.</li>
               <li><a href="https://dom.spec.whatwg.org/#concept-event-fire">Fire an event</a> named <code>install</code> using <a href="#install-event-interface">InstallEvent</a> interface at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+              <li>Let <var>event</var> be null.</li>
               <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
                 <ol>
                   <li>If any uncaught runtime script error occurs, then:
@@ -2036,17 +2022,19 @@ interface FunctionalEvent : ExtendableEvent {
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>Let <var>event</var> be the event for which this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-                  <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
-                    <ol>
-                      <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
-                      <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
-                        <ol>
-                          <li>Set <var>installFailed</var> to true.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
+                  <li>Set <var>event</var> to the event for which this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+                </ol>
+              </li>
+              <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of</a> <var>event</var>'s <a href="http://localhost/spec/service_worker/#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
+              <li>Wait until <var>p</var> settles.</li>
+              <li>If <var>p</var> rejected, then:
+                <ol>
+                  <li>Set <var>installFailed</var> to true.</li>
+                </ol>
+              </li>
+              <li>Else if <var>p</var> resolved with a value, then:
+                <ol>
+                  <li>Do nothing.</li>
                 </ol>
               </li>
             </ol>
@@ -2167,6 +2155,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
               <li><a href="https://html.spec.whatwg.org/multipage/workers.html#run-a-worker">Run a worker</a>, if not running, for a script with <var>activeWorker</var>'s <a href="#dfn-script-url">script url</a> and <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>.</li>
               <li><a href="https://dom.spec.whatwg.org/#concept-event-fire">Fire an event</a> named <code>activate</code> using <a href="#extendable-event-interface">ExtendableEvent</a> interface at <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+              <li>Let <var>event</var> be null.</li>
               <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
                 <ol>
                   <li>If any uncaught runtime script error occurs, then:
@@ -2177,17 +2166,19 @@ interface FunctionalEvent : ExtendableEvent {
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>Let <var>event</var> be the event for which this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
-                  <li>If <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is set, then:
-                    <ol>
-                      <li>Wait until <var>event</var>'s <a href="#extend-lifetime-flag">extend lifetime flag</a> is unset.</li>
-                      <li>If <var>event</var>'s <a href="#wait-until-reject-flag">wait-until reject flag</a> is set, then:
-                        <ol>
-                          <li>Set <var>activateFailed</var> to true</a>.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
+                  <li>Set <var>event</var> to the event for which this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> was invoked.</li>
+                </ol>
+              </li>
+              <li>Let <var>p</var> be <a href="https://github.com/domenic/promises-unwrapping/blob/master/docs/writing-specifications-with-promises.md#aggregating-promises">waiting for all of</a> <var>event</var>'s <a href="http://localhost/spec/service_worker/#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
+              <li>Wait until <var>p</var> settles.</li>
+              <li>If <var>p</var> rejected, then:
+                <ol>
+                  <li>Set <var>activateFailed</var> to true.</li>
+                </ol>
+              </li>
+              <li>Else if <var>p</var> resolved with a value, then:
+                <ol>
+                  <li>Do nothing.</li>
                 </ol>
               </li>
             </ol>
