@@ -1510,12 +1510,19 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       <p><dfn id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
+        <li>If the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-execution-contexts">active function</a> is not the callback of the <a href="https://dom.spec.whatwg.org/#concept-event-listener">event handler</a> whose type is <a href="#service-worker-global-scope-fetch-event">fetch</a>, then:
+          <ol>
+            <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
         <li>If the <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, then:
           <ol>
             <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
+        <li>Set the <a href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
         <li>Run the following substeps in parallel:
@@ -1542,7 +1549,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
                   <ol>
                     <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
                   </ol>
-                  <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 25.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 26.1.)</p>
+                  <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 26.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 27.1.)</p>
                 </li>
               </ol>
             </li>
@@ -2215,6 +2222,7 @@ interface FunctionalEvent : ExtendableEvent {
     <ol>
       <li>Let <var>handleFetchFailed</var> be false.</li>
       <li>Let <var>respondWithEntered</var> be false.</li>
+      <li>Let <var>eventCanceled</var> be false.</li>
       <li>Let <var>r</var> be a new <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>request</var>.</li>
       <li>Let <var>headersObject</var> be <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a> attribute value.</li>
       <li>Set <var>headersObject</var>'s <a href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a> to <em>immutable</em>.</li>
@@ -2318,6 +2326,11 @@ interface FunctionalEvent : ExtendableEvent {
                   </li>
                 </ol>
               </li>
+              <li>If <var>event</var>'s <a href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is set, then:
+                <ol>
+                  <li>Set <var>eventCanceled</var> to true.</li>
+                </ol>
+              </li>
             </ol>
           </li>
         </ol>
@@ -2325,7 +2338,16 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Wait for the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> queued by the previous step to have executed.</li>
       <li>If <var>respondWithEntered</var> is false, then:
         <ol>
-          <li>Return null and run the following substeps in parallel.</li>
+          <li>If <var>eventCanceled</var> is true, then:
+            <ol>
+              <li>Return a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> and run the following substeps in parallel.</li>
+            </ol>
+          </li>
+          <li>Else:
+            <ol>
+              <li>Return null and run the following substeps in parallel.</li>
+            </ol>
+          </li>
           <li>If <var>request</var>'s <a href="http://fetch.spec.whatwg.org/#concept-request-context">context</a> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
