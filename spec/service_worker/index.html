@@ -1546,10 +1546,13 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
               <ol>
                 <li>If <var>response</var> is an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
                   <ol>
-                    <li>Let <var>request</var> be the value that the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute's getter returns</li>
-                    <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>", and <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <code><a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a></code> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, then:
+                    <li>Let <var>request</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute value.</li>
+                    <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>", and <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <code><a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a></code> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
+                    </li>
+                    <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
                       <ol>
-                        <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+                        <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
+                        <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
                       </ol>
                     </li>
                   </ol>
@@ -1586,7 +1589,18 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
         <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
         <li>Run the following substeps in parallel:
           <ol>
-            <li>Let <var>r</var> be the value that the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute's getter returns.</li>
+            <li>Let <var>r</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute value.</li>
+            <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
+              <ol>
+                <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, then:
+                  <ol>
+                    <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
+                    <li>Abort these steps.</li>
+                  </ol>
+                </li>
+                <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
+              </ol>
+            </li>
             <li>Let <var>request</var> be <var>r</var>'s associated <a href="http://fetch.spec.whatwg.org/#concept-request">request</a>.</li>
             <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
             <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> with <var>request</var> as its argument.</li>
