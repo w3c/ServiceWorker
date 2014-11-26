@@ -1534,17 +1534,28 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
         <li>Set the <a href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
+        <li>Let <var>responsePromise</var> be null.</li>
+        <li>If <var>r</var> is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object, then:
+          <ol>
+            <li>Set <var>responsePromise</var> to a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolved with <var>r</var>.</li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>Set <var>responsePromise</var> to <var>r</var>.</li>
+          </ol>
+        </li>
         <li>Run the following substeps in parallel:
           <ol>
-            <li>Wait until <var>r</var> settles.</li>
-            <li>If <var>r</var> rejected, then:
+            <li>Wait until <var>responsePromise</var> settles.</li>
+            <li>If <var>responsePromise</var> rejected, then:
               <ol>
                 <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
               </ol>
             </li>
-            <li>If <var>r</var> resolved with <var>response</var>, then:
+            <li>If <var>responsePromise</var> resolved with <var>response</var>, then:
               <ol>
-                <li>If <var>response</var> is an instance of <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> interface, then:
+                <li>If <var>response</var> is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object, then:
                   <ol>
                     <li>Let <var>request</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute value.</li>
                     <li>If <var>response</var>.<var>type</var> is "<code>opaque</code>", and <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <code><a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a></code> is one of <em>frame</em>, <em>hyperlink</em>, <em>iframe</em>, <em>location</em>, and <em>sharedworker</em>, set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
@@ -1559,7 +1570,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
                 </li>
                 <li>Else:
                   <ol>
-                    <li>Set the <a href="#respond-with-error-flag">respond-with error flag.</a>
+                    <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
                   </ol>
                   <p class="note">If the <a href="#respond-with-error-flag">respond-with error flag</a> is set, a <a href="http://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 26.1.) Otherwise, the value <var>response</var> is returned to <a href="http://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> through <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm. (See the step 27.1.)</p>
                 </li>
@@ -2350,7 +2361,14 @@ interface FunctionalEvent : ExtendableEvent {
                   </li>
                   <li>Else:
                     <ol>
-                      <li>Set <var>response</var> to the value, which the argument passed into the <var>event</var>'s <code><a href="#fetch-event-respondwith-method">respondWith(<var>r</var>)</a></code> method resolved with.</li>
+                      <li>If the argument passed into the <var>event</var>'s <code><a href="#fetch-event-respondwith-method">respondWith(<var>r</var>)</a></code> method <var>arg</var> is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> object, then:
+                        <ol><li>Set <var>response</var> to <var>arg</var>.</ol>
+                      </li>
+                      <li>Else:
+                        <ol>
+                          <li>Set <var>response</var> to the value which <var>arg</var> resolved with.</li>
+                        </ol>
+                      </li>
                     </ol>
                   </li>
                 </ol>
