@@ -2855,21 +2855,21 @@ interface FunctionalEvent : ExtendableEvent {
                       <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> a TypeError.</li>
                     </ol>
                   </li>
+                  <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var>, <var>operation</var>.<var>options</var>, and <var>addedRecords</var> as the arguments is not an empty array, then:
+                    <ol>
+                      <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+                    </ol>
+                  </li>
                   <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
-                      <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>requestResponse</var>[0], <var>operation</var>.<var>options</var>, and <var>addedRecords</var> as the arguments is not an empty array, then:
-                        <ol>
-                          <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
-                        </ol>
-                      </li>
                       <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map">[[RequestToResponseMap]]</a>, in key insertion order:
                         <ol>
-                          <li>If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>requestResponse</var>[0] and <var>operation</var>.<var>options</var> is equal to the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>entry</var>.[[key]] and <var>operation</var>.<var>options</var>, then:
-                          <ol>
-                            <li>Delete <var>entry</var>.</li>
-                          </ol>
-                        </li>
+                          <li>If <var>requestResponse</var>[0] equals <var>entry</var>.[[key]] and <var>requestResponse</var>[1] equals <var>entry</var>.[[value]], then:
+                            <ol>
+                              <li>Delete <var>entry</var>.</li>
+                            </ol>
+                          </li>
                         </ol>
                       </li>
                     </ol>
