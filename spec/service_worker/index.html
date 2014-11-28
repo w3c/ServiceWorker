@@ -96,6 +96,7 @@
       <li><a href="http://tools.ietf.org/html/rfc2616">Hypertext Transfer Protocol -- HTTP/1.1</a></li>
       <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">Requirements for Powerful Features</a></li>
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a></li>
+      <li><a href="http://www.w3.org/TR/page-visibility/">Page Visibility (Second Edition)</a></li>
     </ul>
   </spec-section>
 
@@ -314,7 +315,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="service-worker-registration-scope">
       <h1><code>scope</code></h1>
 
-      <p>The <dfn id="service-worker-registration-scope-attribute"><code>scope</code></dfn> attribute must return <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-scope-url">scope url</a>.</p>
+      <p>The <dfn id="service-worker-registration-scope-attribute"><code>scope</code></dfn> attribute must return <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-scope-url">scope url</a>.</p>
 
       <p>In the example in section 3.1.1, the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(function(registration) { console.log(registration.scope); })</code> for example, will be "<code>https://example.com/</code>".</p>
     </spec-section>
@@ -372,7 +373,7 @@ partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#w
   readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
 };</spec-idl>
 
-    <p>The <dfn id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute must return a <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object for the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#navigator">Navigator</a> object or the <a href="https://html.spec.whatwg.org/multipage/workers.html#workernavigator">WorkerNavigator</a> object.</p>
+    <p>The <dfn id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute must return the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object for the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>.</p>
   </spec-section>
 
   <spec-section id="service-worker-container">
@@ -385,7 +386,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
 
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>documentURL</var> = "");
+  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>clientURL</var> = "");
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
 
 
@@ -443,7 +444,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
           </li>
           <li>If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, then:
             <ol>
-              <li>Wait until <var>registration</var> acquires an <a href="#dfn-active-worker">active worker</a>.</li>
+              <li>Wait until <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> changes.</li>
             </ol>
             <p class="note">Implementers should consider this condition is met when the corresponding registration request gets to the step 1.8 of <a href="#activation-algorithm">Activate</a> algorithm.</p>
           </li>
@@ -464,31 +465,31 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
     <spec-algorithm>
     <ol>
-      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>options</var>.<var>scope</var>, and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a> as the arguments.</li>
+      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>options</var>.<var>scope</var>, and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a> as the arguments.</li>
       <li>Return <var>p</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
 
   <spec-section id="navigator-service-worker-getRegistration">
-    <h1><code>getRegistration(<var>documentURL</var>)</code></h1>
+    <h1><code>getRegistration(<var>clientURL</var>)</code></h1>
 
-    <p><dfn id="service-worker-container-getregistration-method"><code>getRegistration(<var>documentURL</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+    <p><dfn id="service-worker-container-getregistration-method"><code>getRegistration(<var>clientURL</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-      <li>Let <var>documentURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>documentURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>Set <var>documentURL</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>documentURL</var>.</li>
+      <li>Let <var>clientURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>clientURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>Set <var>clientURL</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>clientURL</var>.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>documentURL</var> does not match the document's <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+          <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> does not match the document's <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its equivalent, with <var>documentURL</var> as its argument.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its equivalent, with <var>clientURL</var> as its argument.</li>
           <li>If <var>registration</var> is not null, then:
             <ol>
               <li>Resolve <var>promise</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents <var>registration</var>.</li>
@@ -600,7 +601,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
         <tr>
           <td><dfn id="service-worker-container-updatefound-event"><code>updatefound</code></dfn></td>
           <td><code><a href="https://dom.spec.whatwg.org/#event">Event</a></code></td>
-          <td>A <a href="#dfn-service-worker-registration">service worker registration</a> acquires a new <a href="#dfn-installing-worker">installing worker</a> (See step 4.6 of the <a href="#installation-algorithm">Install</a> algorithm).</td>
+          <td>The <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes (See step 4.6 of the <a href="#installation-algorithm">Install</a> algorithm).</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
@@ -784,7 +785,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 <spec-idl>[Constructor(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>), Exposed=ServiceWorker]
 interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">ServiceWorkerClient</dfn> {
   readonly attribute <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; ready;
-  readonly attribute boolean hidden;
+  readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a>;
   readonly attribute boolean focused;
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> url;
   readonly attribute <a href="http://fetch.spec.whatwg.org/#concept-request-context-frame-type">ContextFrameType</a> frameType;
@@ -1644,12 +1645,12 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
         <tr>
           <td><dfn id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
           <td><code><a href="#install-event-interface">InstallEvent</a></code></td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-service-worker-registration">service worker registration</a> acquires a new <a href="#dfn-installing-worker">installing worker</a>. (See step 4.7.3 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 4.7.3 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
           <td><code><a href="#extendable-event-interface">ExtendableEvent</a></code></td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] A <a href="#dfn-service-worker-registration">service worker registration</a> acquires a new <a href="#dfn-active-worker">active worker</a>. (See step 1.10.3 of the <a href="#activation-algorithm">Activate</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-active-worker">active worker</a> changes. (See step 1.10.3 of the <a href="#activation-algorithm">Activate</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
