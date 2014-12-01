@@ -18,18 +18,6 @@ var _RegistrationOptions = (function () {
     return _RegistrationOptions;
 })();
 
-var ReloadPageEvent = (function (_super) {
-    __extends(ReloadPageEvent, _super);
-    function ReloadPageEvent() {
-        _super.apply(this, arguments);
-    }
-    // Delay the page unload to serialise state to storage or get user's
-    // permission to reload.
-    ReloadPageEvent.prototype.waitUntil = function (f) {
-    };
-    return ReloadPageEvent;
-})(_Event);
-
 ///////////////////////////////////////////////////////////////////////////////
 // The Service Worker
 ///////////////////////////////////////////////////////////////////////////////
@@ -229,19 +217,6 @@ var FetchEvent = (function (_super) {
     __extends(FetchEvent, _super);
     function FetchEvent() {
         _super.call(this, "fetch", { cancelable: true, bubbles: false });
-        // Can be one of:
-        //   "connect",
-        //   "font",
-        //   "img",
-        //   "object",
-        //   "script",
-        //   "style",
-        //   "worker",
-        //   "popup",
-        //   "child",
-        //   "navigate"
-        // TODO: this should go on the request object
-        this.context = "connect";
         // Has the user provided intent for the page to be reloaded fresher than
         // their current view? Eg: pressing the refresh button
         // Clicking a link & hitting back shouldn't be considered a reload.

@@ -41,16 +41,13 @@ interface ServiceWorkerContainer extends EventTarget {
   oncontrollerchange: (ev: Event) => any;
     // Fires when .controller changes
 
-  onreloadpage: (ev: ReloadPageEvent) => any;
-    // FIXME: do we really need this?
-
   onerror: (ev: ErrorEvent) => any;
     // Called for any error from the active or installing SW's
     // FIXME: allow differentiation between active and installing SW's
     //        here, perhaps via .worker?
 }
 
-// extensions to window.navigator
+// extensions to window.navigator and self.navigator
 interface NavigatorServiceWorker {
   // null if page has no activated worker
   serviceWorker: ServiceWorkerContainer;
@@ -73,8 +70,19 @@ interface ServiceWorkerRegistration extends EventTarget {
   waiting?: ServiceWorker; // installed worker, waiting to become active
   active?: ServiceWorker; // the activating/activated worker, can be used as a controller
 
+  // The registration pattern that matched this SW instance. E.g., if the
+  // following registrations are made:
+  //    navigator.serviceWorker.register("serviceworker.js", "/foo/");
+  //    navigator.serviceWorker.register("serviceworker.js", "/bar/");
+  // And the user navigates to http://example.com/foo/index.html,
+  //    self.scope == "/foo/"
+  // SW's can use this to disambiguate which context they were started from.
   scope: string;
-  scriptURL: string;
+
+  // Ping the server for an updated version of this registration, without
+  // consulting caches. Conceptually the same operation that SW's do max once
+  // every 24 hours.
+  update: () => void;
 
   unregister(): Promise;
     // Unregisters this registration.
@@ -86,19 +94,13 @@ interface ServiceWorkerRegistration extends EventTarget {
 
 interface ServiceWorker extends Worker, AbstractWorker {
   // Provides onerror, postMessage, etc.
-  url: string;
+  scriptURL: string;
   state: string; // "installing" -> "installed" -> "activating" -> "activated" -> "redundant"
   onstatechange: (ev: Event) => any;
 }
 
 declare var ServiceWorker: {
   prototype: ServiceWorker;
-}
-
-class ReloadPageEvent extends _Event {
-  // Delay the page unload to serialise state to storage or get user's
-  // permission to reload.
-  waitUntil(f: Promise): void {}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,10 +150,10 @@ class ServiceWorkerClient {
   // read-only
   ready: Promise;
 
-  // http://www.w3.org/TR/page-visibility/#dom-document-hidden
+  // http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate
   // this value does not change after object creation, it's a snapshot
   // read-only
-  hidden: boolean;
+  visibilityState: string; // { "hidden", "visible", "prerender", "unloaded" }
 
   // http://www.whatwg.org/specs/web-apps/current-work/multipage/interaction.html#dom-document-hasfocus
   // this value does not change after object creation, it's a snapshot
@@ -184,15 +186,9 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
   // A container for a list of ServiceWorkerClient objects that correspond to
   // browsing contexts (or shared workers) that are on the origin of this SW
   clients: ServiceWorkerClients;
+  registration: ServiceWorkerRegistration;
 
-  // The registration pattern that matched this SW instance. E.g., if the
-  // following registrations are made:
-  //    navigator.serviceWorker.register("serviceworker.js", "/foo/");
-  //    navigator.serviceWorker.register("serviceworker.js", "/bar/");
-  // And the user navigates to http://example.com/foo/index.html,
-  //    self.scope == "/foo/"
-  // SW's can use this to disambiguate which context they were started from.
-  scope: string;
+  skipWaiting: () => Promise;
 
   //
   // Events
@@ -243,15 +239,6 @@ class ServiceWorkerGlobalScope extends WorkerGlobalScope {
       r.resolve(_defaultToBrowserHTTP(request));
     });
   }
-
-  // Ping the server for an updated version of this script, without consulting
-  // caches. Conceptually the same operation that SW's do max once every 24
-  // hours.
-  update: () => void;
-
-  unregister: () => Promise;
-    // Unregisters this Service Worker's registration.
-    // Resolves with boolean value.
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -384,20 +371,6 @@ class FetchEvent extends _Event {
 
   // The window issuing the request.
   client: ServiceWorkerClient;
-
-  // Can be one of:
-  //   "connect",
-  //   "font",
-  //   "img",
-  //   "object",
-  //   "script",
-  //   "style",
-  //   "worker",
-  //   "popup",
-  //   "child",
-  //   "navigate"
-  // TODO: this should go on the request object
-  context: string = "connect";
 
   // Has the user provided intent for the page to be reloaded fresher than
   // their current view? Eg: pressing the refresh button
@@ -837,7 +810,10 @@ interface WorkerLocation {
     hash: string;
 }
 
-interface WorkerNavigator extends NavigatorID, NavigatorOnLine {
+interface WorkerNavigator extends
+  NavigatorServiceWorker,
+  NavigatorID,
+  NavigatorOnLine {
   // TODO(slightlyoff): ensure these are rolled into the HTML spec's WorkerNavigator!
   // Extensions. See: https://github.com/slightlyoff/ServiceWorker/issues/122
   doNotTrack: string;
