@@ -430,7 +430,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>Let <var>clientURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>clientURL</var> as its argument is not null, then:
+          <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>clientURL</var> as its argument is not null, then:
             <ol>
               <li>Set <var>registration</var> to the result value.</li>
             </ol>
@@ -488,7 +488,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its equivalent, with <var>clientURL</var> as its argument.</li>
+          <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its equivalent, with <var>clientURL</var> as its argument.</li>
           <li>If <var>registration</var> is not null, then:
             <ol>
               <li>Resolve <var>promise</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents <var>registration</var>.</li>
@@ -2288,7 +2288,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Return null.</li>
             </ol>
           </li>
-          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Scope</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>r</var>.<var>url</var> as the argument.</li>
+          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>r</var>'s <var>url</var> attribute value as the argument.</li>
           <li>If <var>registration</var> is null or <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, return null.</li>
           <li>Set <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
         </ol>
@@ -2626,18 +2626,18 @@ interface FunctionalEvent : ExtendableEvent {
   </spec-section>
 
   <spec-section id="scope-match-algorithm">
-    <h1>Match Scope</h1>
+    <h1>Match Service Worker Registration</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a <a href="#dfn-scope-url">scope url</a></dd>
+        <dd><var>clientURL</var>, a <a href="https://url.spec.whatwg.org/#concept-url">URL</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
     </dl>
     <ol>
       <li>Run the following steps atomically.</li>
-      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#scope-to-registration-map">[[ScopeToRegistrationMap]]</a> starting with the value of <var>scope</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#scope-to-registration-map">[[ScopeToRegistrationMap]]</a> starting with the value of <var>clientURL</var>.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>matchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
         <ol>
