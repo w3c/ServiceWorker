@@ -159,7 +159,7 @@
 </spec-clause>
 
 <spec-clause id="document-context">
-  <h1>Document Context</h1>
+  <h1>Client Context</h1>
 
   <p>Example: Bootstrapping with a ServiceWorker</p>
 
@@ -641,7 +641,7 @@ this.addEventListener("install", function(e) {
 });
 
 this.addEventListener("fetch", function(e) {
-  // No "fetch" events are dispatched to the ServiceWorker until it
+  // No "fetch" events are dispatched to the service worker until it
   // successfully installs and activates.
 
   // All operations on caches are async, including matching URLs, so we use
@@ -661,7 +661,6 @@ this.addEventListener("fetch", function(e) {
 <spec-idl>[<a href="http://heycam.github.io/webidl/#Global">Global</a>=(Worker,ServiceWorker), Exposed=ServiceWorker]
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a> {
   readonly attribute <a href="#cache-interface">Cache</a> <a href="#service-worker-global-scope-script-cache-attribute">scriptCache</a>;
-  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#service-worker-global-scope-caches-attribute">caches</a>;
 
   // A container for a list of ServiceWorkerClient objects that correspond to
   // browsing contexts (or shared workers) that are on the origin of this SW
@@ -692,11 +691,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
       <h1><code>scriptCache</code></h1>
 
       <p><dfn id="service-worker-global-scope-script-cache-attribute"><code>scriptCache</code></dfn> must return a <code><a href="#cache-interface">Cache</a></code> object that represents the storage for scripts that are cached as part of the <a href="#dfn-service-worker">service worker</a> installation.</p>
-    </spec-section>
-    <spec-section id="service-worker-global-scope-caches">
-      <h1><code>caches</code></h1>
-
-      <p><dfn id="service-worker-global-scope-caches-attribute"><code>caches</code></dfn> attribute must return the <code><a href="#cache-storage-interface">CacheStorage</a></code> object that is the global asynchronous map object for the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context containing the <code><a href="#cache-interface">Cache</a></code> objects keyed by the name of the <code><a href="#cache-interface">Cache</a></code> objects. <code><a href="#cache-interface">Cache</a></code> objects are always enumerable via <code><a href="#service-worker-global-scope-caches-attribute">self.caches</a></code> in insertion order (per <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a>.)</p>
     </spec-section>
     <spec-section id="service-worker-global-scope-clients">
       <h1><code>clients</code></h1>
@@ -853,574 +847,10 @@ dictionary <dfn id="serviceworker-client-query-options-dictionary" title="Servic
     </spec-section>
   </spec-section>
 
-  <spec-section id="cache-objects">
-    <h1>Caches</h1>
-
-    <p>To allow authors to fully manage their content caches for offline use, the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> execution context provides the caching methods largely conforming to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> with additional convenience methods. An <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> can have multiple, named <code><a href="#cache-interface">Cache</a></code> objects, whose contents are entirely under the control of scripts. Caches are not shared across <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
-
-    <spec-section id="cache-lifetimes">
-      <h1>Understanding Cache Lifetimes</h1>
-
-      <p>The <code><a href="#cache-interface">Cache</a></code> instances are not part of the browser's HTTP cache. The <code><a href="#cache-interface">Cache</a></code> objects are exactly what authors have to manage themselves. The <code><a href="#cache-interface">Cache</a></code> objects do not get updated unless authors explicitly request them to be. The <code><a href="#cache-interface">Cache</a></code> objects do not expire unless authors delete the entries. The <code><a href="#cache-interface">Cache</a></code> objects do not disappear just because the <a href="#dfn-service-worker">service worker</a> script is updated. That is, caches are not updated automatically. Updates must be manually managed. This implies that authors should version their caches by name and make sure to use the caches only from the version of the ServiceWorker that can safely operate on.</p>
-    </spec-section>
-
-    <spec-section id="cache">
-      <h1><code>Cache</code></h1>
-<spec-idl>
-[Exposed=ServiceWorker]
-interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; add(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; addAll(sequence&lt;<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a>&gt; <var>requests</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; put(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; delete(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-};
-
-dictionary <dfn id="cache-query-options-dictionary" title="CacheQueryOptions">CacheQueryOptions</dfn> {
-  boolean ignoreSearch = false;
-  boolean ignoreMethod = false;
-  boolean ignoreVary = false;
-  boolean prefixMatch = false;
-  DOMString cacheName;
-};
-
-dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation">CacheBatchOperation</dfn> {
-  DOMString type;
-  Request request;
-  Response response;
-  CacheQueryOptions options;
-};
-</spec-idl>
-      <p>The <code><a href="#cache-interface">Cache</a></code> interface represents the storage for the pairs of a <a href="http://fetch.spec.whatwg.org/#request">Request</a> object and a <a href="http://fetch.spec.whatwg.org/#request">Response</a> object that are cached as part of the <a href="#dfn-service-worker">service worker</a> installation. A <code><a href="#cache-interface">Cache</a></code> object has a <a href="#request-to-response-map">[[RequestToResponseMap]]</a> object.</p>
-
-      <p>Each <code><a href="#cache-interface">Cache</a></code> object is associated with a <a href="#request-to-response-map">[[RequestToResponseMap]]</a>. Multiple separate objects implementing the <code><a href="#cache-interface">Cache</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">service worker environments</a> can all be associated with the same <a href="#request-to-response-map">[[RequestToResponseMap]]</a> simultaneously.</p>
-
-      <spec-section id="cache-match">
-        <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
-
-        <p><dfn id="cache-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-          <li>Run these steps in parallel:
-            <ol>
-              <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-method">matchAll(<var>request</var>, <var>options</var>)</a></code> method with <var>request</var> and <var>options</var> as the arguments.</li>
-              <li>Wait until <var>p</var> settles.</li>
-              <li>If <var>p</var> rejects with an exception, then:
-                <ol>
-                  <li>Reject <var>promise</var> with that exception.</li>
-                </ol>
-              </li>
-              <li>Else if <var>p</var> resolves with an array, <var>responseArray</var>, then:
-                <ol>
-                  <li>If <var>responseArray</var> is an empty array, then:
-                    <ol>
-                      <li>Resolve <var>promise</var> with undefined.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>Resolve <var>promise</var> with the first element of <var>responseArray</var>.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Return <var>promise</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-matchall">
-        <h1><code>matchAll(<var>request</var>, <var>options</var>)</code></h1>
-
-        <p><dfn id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-          <li>Run these steps in parallel:
-            <ol>
-              <li>Let <var>responseArray</var> be an empty array.</li>
-              <li>If the optional argument <var>request</var> is omitted, then:
-                <ol>
-                  <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map">[[RequestToResponseMap]]</a>, in key insertion order:
-                    <ol>
-                      <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
-                    </ol>
-                  </li>
-                  <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Let <var>r</var> be null.</li>
-                  <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-                    <ol>
-                      <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-                    </ol>
-                  </li>
-                  <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
-                  <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
-                  <li>For each <var>entry</var> of <var>entries</var>:
-                    <ol>
-                      <li>Add <var>entry</var>[1] to <var>responseArray</var>.</li>
-                    </ol>
-                  </li>
-                  <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Return <var>promise</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-add">
-        <h1><code>add(<var>request</var>)</code></h1>
-
-        <p><dfn id="cache-add-method"><code>add(<var>request</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>requests</var> be an array containing only <var>request</var>.</li>
-          <li>Set <var>responseArrayPromise</var> to the result of running the algorithm specified in <code><a href="#cache-addAll-method">addAll(<var>requests</var>)</a></code> passing <var>requests</var> as the argument.</li>
-          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>responseArrayPromise</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-            <ol>
-              <li>Resolve <var>p</var> with undefined.</li>
-            </ol>
-          </li>
-          <li>Return <var>p</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-addAll">
-        <h1><code>addAll(<var>requests</var>)</code></h1>
-
-        <p><dfn id="cache-addAll-method"><code>addAll(<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>responsePromiseArray</var> be an empty array.</li>
-          <li>Let <var>requestArray</var> be an empty array.</li>
-          <li>For each <var>request</var> in <var>requests</var>:
-            <ol>
-              <li>Let <var>r</var> be null.</li>
-              <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-                <ol>
-                  <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-                    <ol>
-                      <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-                      <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-                    </ol>
-                  </li>
-                  <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-                </ol>
-              </li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
-              <li>Add a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> to <var>requestArray</var>.</li>
-              <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", then:
-                <ol>
-                  <li>Add a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception to <var>responsePromiseArray</var>.</li>
-                  <li>Continue to the next iteration of the loop.</li>
-                </ol>
-              </li>
-              <li>Run the algorithm specified in <code><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>r</var> and add the returned value to <var>responsePromiseArray</var>.</li>
-            </ol>
-          </li>
-          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of <var>responsePromiseArray</var></a>.</li>
-          <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var>.</li>
-          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-            <ol>
-              <li>Let <var>operations</var> be an empty array.</li>
-              <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
-                <ol>
-                  <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-                  <ol>
-                    <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, reject <var>q</var> with a <code>TypeError</code>.</li>
-                    <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-                  </ol>
-                </li>
-                  <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
-                  <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
-                  <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].</li>
-                  <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
-                  <li>Add <var>o</var> to <var>operations</var>.</li>
-                </ol>
-              </li>
-              <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> algorithm passing <var>operations</var> as the argument.</li>
-              <li>Resolve <var>q</var> with undefined.</li>
-            </ol>
-          </li>
-          <li>Return <var>q</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-put">
-        <h1><code>put(<var>request</var>, <var>response</var>)</code></h1>
-
-        <p><dfn id="cache-put-method"><code>put(<var>request</var>, <var>response</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>r</var> be null.</li>
-          <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-            <ol>
-              <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-            </ol>
-          </li>
-          <li>Else:
-            <ol>
-              <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-                <ol>
-                  <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-                  <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-                </ol>
-              </li>
-              <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-            </ol>
-          </li>
-          <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
-          <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-            <ol>
-              <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-              <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-            </ol>
-          </li>
-          <li>Let <var>operations</var> be an empty array.</li>
-          <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
-          <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
-          <li>Set the <var>request</var> dictionary member of <var>o</var> to a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var>.</li>
-          <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
-          <li>Add <var>o</var> to <var>operations</var>.</li>
-          <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
-          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-            <ol>
-              <li>Resolve <var>p</var> with undefined.</li>
-            </ol>
-          </li>
-          <li>Return <var>p</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-delete">
-        <h1><code>delete(<var>request</var>, <var>options</var>)</code></h1>
-
-        <p><dfn id="cache-delete-method"><code>delete(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>r</var> be null.</li>
-          <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-            <ol>
-              <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-            </ol>
-          </li>
-          <li>Else:
-            <ol>
-              <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-            </ol>
-          </li>
-          <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
-          <li>Let <var>operations</var> be an empty array.</li>
-          <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
-          <li>Set the <var>type</var> dictionary member of <var>o</var> to "delete".</li>
-          <li>Set the <var>request</var> dictionary member of <var>o</var> to a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var>.</li>
-          <li>Set the <var>options</var> dictionary member of <var>o</var> to <var>options</var>.</li>
-          <li>Add <var>o</var> to <var>operations</var>.</li>
-          <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
-          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-            <ol>
-              <li>If <var>responseArray</var> is not null, then:
-                <ol>
-                  <li>Resolve <var>p</var> with true.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Resolve <var>p</var> with false.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Return <var>p</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-keys">
-        <h1><code>keys(<var>request</var>, <var>options</var>)</code></h1>
-
-        <p><dfn id="cache-keys-method"><code>keys(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-          <li>Run these steps in parallel:
-            <ol>
-              <li>Let <var>resultArray</var> be an empty array.</li>
-              <li>If the optional argument <var>request</var> is omitted, then:
-                <ol>
-                  <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map">[[RequestToResponseMap]]</a>, in key insertion order:
-                    <ol>
-                      <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Let <var>r</var> be null.</li>
-                  <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-                    <ol>
-                      <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-                    </ol>
-                  </li>
-                  <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
-                  <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
-                  <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
-                    <ol>
-                      <li>Add <var>requestResponse</var>[0] to <var>resultArray</var>.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Resolve <var>promise</var> with <var>resultArray</var>.</li>
-            </ol>
-          </li>
-          <li>Return <var>promise</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-    </spec-section>
-
-    <spec-section id="cache-storage">
-      <h1><code>CacheStorage</code></h1>
-
-<spec-idl>
-[Exposed=ServiceWorker]
-interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; open(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; delete(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
-};</spec-idl>
-<!--FIXME(jungkees): set method is not entirely dropped yet. <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);-->
-
-      <p class="note"><a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods. The methods, <code>clear</code>, <code>forEach</code>, <code>entries</code> and <code>values</code>, are intentionally excluded from the scope of the first version resorting to the ongoing discussion about the async iteration by TC39.</p>
-
-      <p>The <code><a href="#cache-storage-interface">CacheStorage</a></code> interface represents the storage for <code><a href="#cache-interface">Cache</a></code> objects. A <code><a href="#cache-storage-interface">CacheStorage</a></code> object has a <a href="#name-to-cache-map">[[NameToCacheMap]]</a> object.</p>
-
-      <spec-section id="cache-storage-match">
-        <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
-
-        <p><dfn id="cache-storage-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>cacheName</var> be null.</li>
-          <li>If the optional argument <var>options</var> is not omitted, then:
-            <ol>
-              <li>Set <var>cacheName</var> to <var>options</var>.<var>cacheName</var>.</li>
-            </ol>
-          </li>
-          <li>If <var>cacheName</var> is not null, then:
-            <ol>
-              <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
-                <ol>
-                  <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map">[[NameToCacheMap]]</a>, in key insertion order:
-                    <ol>
-                      <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
-                        <ol>
-                          <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>entry</var>.[[value]] as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
-                          <li>Abort these steps.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
-                  <li>Reject <var>p</var> with an "<code><a href="http://heycam.github.io/webidl/#notfounderror">NotFoundError</a></code>" exception.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Else:
-            <ol>
-              <li>Set <var>p</var> to <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with <var>onFulfilled</var>.</li>
-              <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>keys</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-                <ol>
-                  <li>For each <var>key</var> in <var>keys</var>:
-                    <ol>
-                      <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
-                      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>q</var> with value <var>matchedResponse</var></a>:
-                        <ol>
-                          <li>If <var>matchedResponse</var> is not undefined, then:
-                            <ol>
-                              <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
-                              <li>Abort these steps.</li>
-                            </ol>
-                          </li>
-                        </ol>
-                      </li>
-                      <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection of <var>q</var> with value <var>err</var></a>:
-                        <ol>
-                          <li>Reject <var>p</var> with <var>err</var>.</li>
-                          <li>Abort these steps.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
-                  <li>Resolve <var>p</var> with undefined.</li>
-                </ol>
-              </li>
-              <li>Return <var>p</var>.</li>
-            </ol>
-          </li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-storage-has">
-        <h1><code>has(<var>cacheName</var>)</code></h1>
-
-        <p><dfn id="cache-storage-has-method"><code>has(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
-            <ol>
-              <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map">[[NameToCacheMap]]</a>, in key insertion order:
-                <ol>
-                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
-                    <ol>
-                      <li>Return true.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Return false.</li>
-            </ol>
-          </li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-storage-open">
-        <h1><code>open(<var>cacheName</var>)</code></h1>
-
-        <p><dfn id="cache-storage-open-method"><code>open(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
-            <ol>
-              <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map">[[NameToCacheMap]]</a>, in key insertion order:
-                <ol>
-                  <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
-                    <ol>
-                      <li>Return a new <code><a href="#cache-interface">Cache</a></code> object which is a copy of <var>entry</var>.[[value]].</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Let <var>cache</var> be a new <code><a href="#cache-interface">Cache</a></code> object.</li>
-              <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#name-to-cache-map">[[NameToCacheMap]]</a>.</li>
-              <li>Return <var>cache</var>.</li>
-            </ol>
-          </li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-storage-delete">
-        <h1><code>delete(<var>cacheName</var>)</code></h1>
-
-        <p><dfn id="cache-storage-cacheName-method"><code>delete(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-storage-has-method">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
-          <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
-          <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>cacheExists</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
-            <ol>
-              <li>If <var>cacheExists</var> is true, then:
-                <ol>
-                  <li>Delete a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map">[[NameToCacheMap]]</a> where <var>cacheName</var> matches entry.[[key]].</li>
-                  <li>Resolve <var>q</var> with true.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Resolve <var>q</var> with flase.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Return <var>q</var>.</li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-
-      <spec-section id="cache-storage-keys">
-        <h1><code>keys()</code></h1>
-
-        <p><dfn id="cache-storage-keys-method"><code>keys()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-        <p class="note">The promise returned from this method resolves with the sequence of keys, cache names in DOMString, in insertion order.</p>
-
-        <spec-algorithm>
-        <ol>
-          <li>Let <var>resultArray</var> be an empty array.</li>
-          <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
-            <ol>
-              <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#name-to-cache-map">[[NameToCacheMap]]</a>, in key insertion order:
-                <ol>
-                  <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
-                </ol>
-              </li>
-              <li>Return <var>resultArray</var>.</li>
-            </ol>
-          </li>
-        </ol>
-        </spec-algorithm>
-      </spec-section>
-    </spec-section>
-  </spec-section>
-
   <spec-section id="extendable-event">
     <h1><code>ExtendableEvent</code></h1>
 
-<spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
+<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="extendable-event-interface" title="ExtendableEvent">ExtendableEvent</dfn> : <a href="https://dom.spec.whatwg.org/#event">Event</a> {
   void <a href="#extendable-event-waituntil-method">waitUntil</a>(<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;any&gt; <var>f</var>);
 };
@@ -1457,8 +887,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
   <spec-section id="install-event-section">
     <h1><code>InstallEvent</code></h1>
 
-<spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
+<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
   readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
 };
@@ -1472,8 +901,7 @@ dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">Inst
   <spec-section id="fetch-event-section">
     <h1><code>FetchEvent</code></h1>
 
-<spec-idl>
-[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
+<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="https://dom.spec.whatwg.org/#event">Event</a> {
   readonly attribute <a href="http://fetch.spec.whatwg.org/#request">Request</a> request;
   readonly attribute <a href="#service-worker-client-interface">ServiceWorkerClient</a> client;
@@ -1663,6 +1091,593 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
   </spec-section>
 </spec-clause>
 
+<spec-clause id="cache-objects">
+  <h1>Caches</h1>
+  <p>To allow authors to fully manage their content caches for offline use, the <a href="">Window</a> and the <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> provides the caching methods largely conforming to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> with additional convenience methods. An <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> can have multiple, named <code><a href="#cache-interface">Cache</a></code> objects, whose contents are entirely under the control of scripts. Caches are not shared across <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
+
+  <spec-section id="cache-constructs">
+    <h1>Constructs</h1>
+
+    <p>A <dfn id="dfn-request-to-response-map">request to response map</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
+
+    <p>A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
+
+    <p>Each <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> has an associated <a href="#dfn-name-to-cache-map">name to cache map</a>.</p>
+  </spec-section>
+
+  <spec-section id="cache-lifetimes">
+    <h1>Understanding Cache Lifetimes</h1>
+
+    <p>The <code><a href="#cache-interface">Cache</a></code> instances are not part of the browser's HTTP cache. The <code><a href="#cache-interface">Cache</a></code> objects are exactly what authors have to manage themselves. The <code><a href="#cache-interface">Cache</a></code> objects do not get updated unless authors explicitly request them to be. The <code><a href="#cache-interface">Cache</a></code> objects do not expire unless authors delete the entries. The <code><a href="#cache-interface">Cache</a></code> objects do not disappear just because the <a href="#dfn-service-worker">service worker</a> script is updated. That is, caches are not updated automatically. Updates must be manually managed. This implies that authors should version their caches by name and make sure to use the caches only from the version of the <a href="#dfn-service-worker">service worker</a> that can safely operate on.</p>
+  </spec-section>
+
+  <spec-section id="self-caches">
+    <h1><code>self.caches</code></h1>
+<spec-idl>partial interface <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> {
+readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
+};
+
+partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> {
+readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
+};
+</spec-idl>
+    <spec-section id="global-caches">
+    <h1><code>caches</code></h1>
+
+      <p><dfn id="global-caches-attribute"><code>caches</code></dfn> attribute must return a <code><a href="#cache-storage-interface">CacheStorage</a></code> object that represents the <a href="#dfn-name-to-cache-map">name to cache map</a> of the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>.</p>
+    </spec-section>
+  </spec-section>
+
+  <spec-section id="cache">
+    <h1><code>Cache</code></h1>
+<spec-idl>[Exposed=(Window,Worker)]
+interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; matchAll(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; add(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; addAll(sequence&lt;<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a>&gt; <var>requests</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; put(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, <a href="http://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; delete(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="http://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; keys(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+};
+
+dictionary <dfn id="cache-query-options-dictionary" title="CacheQueryOptions">CacheQueryOptions</dfn> {
+boolean ignoreSearch = false;
+boolean ignoreMethod = false;
+boolean ignoreVary = false;
+boolean prefixMatch = false;
+DOMString cacheName;
+};
+
+dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation">CacheBatchOperation</dfn> {
+DOMString type;
+Request request;
+Response response;
+CacheQueryOptions options;
+};
+</spec-idl>
+    <p>A <code><a href="#cache-interface">Cache</a></code> object represents a <a href="#dfn-request-to-response-map">request to response map</a>. Multiple separate objects implementing the <code><a href="#cache-interface">Cache</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#document-environment">document environments</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">worker environments</a> can all be associated with the same <a href="#dfn-request-to-response-map">request to response map</a> simultaneously.</p>
+
+    <p><code><a href="#cache-interface">Cache</a></code> objects are always enumerable via <code><a href="#service-worker-global-scope-caches-attribute">self.caches</a></code> in insertion order (per <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a>.)</p>
+
+    <spec-section id="cache-match">
+      <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
+
+      <p><dfn id="cache-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run these steps in parallel:
+          <ol>
+            <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-matchall-method">matchAll(<var>request</var>, <var>options</var>)</a></code> method with <var>request</var> and <var>options</var> as the arguments.</li>
+            <li>Wait until <var>p</var> settles.</li>
+            <li>If <var>p</var> rejects with an exception, then:
+              <ol>
+                <li>Reject <var>promise</var> with that exception.</li>
+              </ol>
+            </li>
+            <li>Else if <var>p</var> resolves with an array, <var>responseArray</var>, then:
+              <ol>
+                <li>If <var>responseArray</var> is an empty array, then:
+                  <ol>
+                    <li>Resolve <var>promise</var> with undefined.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>Resolve <var>promise</var> with the first element of <var>responseArray</var>.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-matchall">
+      <h1><code>matchAll(<var>request</var>, <var>options</var>)</code></h1>
+
+      <p><dfn id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run these steps in parallel:
+          <ol>
+            <li>Let <var>responseArray</var> be an empty array.</li>
+            <li>If the optional argument <var>request</var> is omitted, then:
+              <ol>
+                <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
+                  <ol>
+                    <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+                  </ol>
+                </li>
+                <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Let <var>r</var> be null.</li>
+                <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
+                  <ol>
+                    <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
+                  </ol>
+                </li>
+                <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
+                <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
+                <li>For each <var>entry</var> of <var>entries</var>:
+                  <ol>
+                    <li>Add <var>entry</var>[1] to <var>responseArray</var>.</li>
+                  </ol>
+                </li>
+                <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-add">
+      <h1><code>add(<var>request</var>)</code></h1>
+
+      <p><dfn id="cache-add-method"><code>add(<var>request</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>requests</var> be an array containing only <var>request</var>.</li>
+        <li>Set <var>responseArrayPromise</var> to the result of running the algorithm specified in <code><a href="#cache-addAll-method">addAll(<var>requests</var>)</a></code> passing <var>requests</var> as the argument.</li>
+        <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>responseArrayPromise</var> with <var>onFulfilled</var></a>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <ol>
+            <li>Resolve <var>p</var> with undefined.</li>
+          </ol>
+        </li>
+        <li>Return <var>p</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-addAll">
+      <h1><code>addAll(<var>requests</var>)</code></h1>
+
+      <p><dfn id="cache-addAll-method"><code>addAll(<var>requests</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>responsePromiseArray</var> be an empty array.</li>
+        <li>Let <var>requestArray</var> be an empty array.</li>
+        <li>For each <var>request</var> in <var>requests</var>:
+          <ol>
+            <li>Let <var>r</var> be null.</li>
+            <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
+              <ol>
+                <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
+                  <ol>
+                    <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+                    <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
+                  </ol>
+                </li>
+                <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
+              </ol>
+            </li>
+            <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
+            <li>Add a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> to <var>requestArray</var>.</li>
+            <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", then:
+              <ol>
+                <li>Add a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception to <var>responsePromiseArray</var>.</li>
+                <li>Continue to the next iteration of the loop.</li>
+              </ol>
+            </li>
+            <li>Run the algorithm specified in <code><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">fetch(<var>input</var>, <var>init</var>)</a></code> with <var>r</var> and add the returned value to <var>responsePromiseArray</var>.</li>
+          </ol>
+        </li>
+        <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of <var>responsePromiseArray</var></a>.</li>
+        <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <ol>
+            <li>Let <var>operations</var> be an empty array.</li>
+            <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
+              <ol>
+                <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
+                <ol>
+                  <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, reject <var>q</var> with a <code>TypeError</code>.</li>
+                  <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
+                </ol>
+              </li>
+                <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+                <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
+                <li>Set the <var>request</var> dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].</li>
+                <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
+                <li>Add <var>o</var> to <var>operations</var>.</li>
+              </ol>
+            </li>
+            <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> algorithm passing <var>operations</var> as the argument.</li>
+            <li>Resolve <var>q</var> with undefined.</li>
+          </ol>
+        </li>
+        <li>Return <var>q</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-put">
+      <h1><code>put(<var>request</var>, <var>response</var>)</code></h1>
+
+      <p><dfn id="cache-put-method"><code>put(<var>request</var>, <var>response</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>r</var> be null.</li>
+        <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
+          <ol>
+            <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
+              <ol>
+                <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+                <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
+              </ol>
+            </li>
+            <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
+          </ol>
+        </li>
+        <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
+        <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
+          <ol>
+            <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+            <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
+          </ol>
+        </li>
+        <li>Let <var>operations</var> be an empty array.</li>
+        <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+        <li>Set the <var>type</var> dictionary member of <var>o</var> to "put".</li>
+        <li>Set the <var>request</var> dictionary member of <var>o</var> to a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var>.</li>
+        <li>Set the <var>response</var> dictionary member of <var>o</var> to <var>response</var>.</li>
+        <li>Add <var>o</var> to <var>operations</var>.</li>
+        <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
+        <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <ol>
+            <li>Resolve <var>p</var> with undefined.</li>
+          </ol>
+        </li>
+        <li>Return <var>p</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-delete">
+      <h1><code>delete(<var>request</var>, <var>options</var>)</code></h1>
+
+      <p><dfn id="cache-delete-method"><code>delete(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>r</var> be null.</li>
+        <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
+          <ol>
+            <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
+          </ol>
+        </li>
+        <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
+        <li>Let <var>operations</var> be an empty array.</li>
+        <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
+        <li>Set the <var>type</var> dictionary member of <var>o</var> to "delete".</li>
+        <li>Set the <var>request</var> dictionary member of <var>o</var> to a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var>.</li>
+        <li>Set the <var>options</var> dictionary member of <var>o</var> to <var>options</var>.</li>
+        <li>Add <var>o</var> to <var>operations</var>.</li>
+        <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
+        <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>resultPromise</var> with <var>onFulfilled</var></a>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <ol>
+            <li>If <var>responseArray</var> is not null, then:
+              <ol>
+                <li>Resolve <var>p</var> with true.</li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Resolve <var>p</var> with false.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>p</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-keys">
+      <h1><code>keys(<var>request</var>, <var>options</var>)</code></h1>
+
+      <p><dfn id="cache-keys-method"><code>keys(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run these steps in parallel:
+          <ol>
+            <li>Let <var>resultArray</var> be an empty array.</li>
+            <li>If the optional argument <var>request</var> is omitted, then:
+              <ol>
+                <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
+                  <ol>
+                    <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Let <var>r</var> be null.</li>
+                <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
+                  <ol>
+                    <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
+                  </ol>
+                </li>
+                <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
+                <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
+                <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
+                  <ol>
+                    <li>Add <var>requestResponse</var>[0] to <var>resultArray</var>.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>Resolve <var>promise</var> with <var>resultArray</var>.</li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+  </spec-section>
+
+  <spec-section id="cache-storage">
+    <h1><code>CacheStorage</code></h1>
+
+<spec-idl>[Exposed=(Window,Worker)]
+interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="http://fetch.spec.whatwg.org/#response">Response</a>&gt; match(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; has(DOMString <var>cacheName</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; open(DOMString <var>cacheName</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; delete(DOMString <var>cacheName</var>);
+<a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; keys();
+};</spec-idl>
+<!--FIXME(jungkees): set method is not entirely dropped yet. <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);-->
+
+    <p class="note"><a href="#cache-storage-interface">CacheStorage</a> interface is designed to largely conform to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods. The methods, <code>clear</code>, <code>forEach</code>, <code>entries</code> and <code>values</code>, are intentionally excluded from the scope of the first version resorting to the ongoing discussion about the async iteration by TC39.</p>
+
+    <p>A <code><a href="#cache-storage-interface">CacheStorage</a></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a>. Multiple separate objects implementing the <code><a href="#cache-storage-interface">CacheStorage</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#document-environment">document environments</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">worker environments</a> can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
+
+    <spec-section id="cache-storage-match">
+      <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
+
+      <p><dfn id="cache-storage-match-method"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>cacheName</var> be null.</li>
+        <li>If the optional argument <var>options</var> is not omitted, then:
+          <ol>
+            <li>Set <var>cacheName</var> to <var>options</var>.<var>cacheName</var>.</li>
+          </ol>
+        </li>
+        <li>If <var>cacheName</var> is not null, then:
+          <ol>
+            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+              <ol>
+                <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
+                  <ol>
+                    <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                      <ol>
+                        <li>Resolve <var>p</var> with the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>entry</var>.[[value]] as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
+                        <li>Abort these steps.</li>
+                      </ol>
+                    </li>
+                  </ol>
+                </li>
+                <li>Reject <var>p</var> with an "<code><a href="http://heycam.github.io/webidl/#notfounderror">NotFoundError</a></code>" exception.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>Set <var>p</var> to <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with <var>onFulfilled</var>.</li>
+            <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>keys</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+              <ol>
+                <li>For each <var>key</var> in <var>keys</var>:
+                  <ol>
+                    <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
+                    <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>q</var> with value <var>matchedResponse</var></a>:
+                      <ol>
+                        <li>If <var>matchedResponse</var> is not undefined, then:
+                          <ol>
+                            <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
+                            <li>Abort these steps.</li>
+                          </ol>
+                        </li>
+                      </ol>
+                    </li>
+                    <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection of <var>q</var> with value <var>err</var></a>:
+                      <ol>
+                        <li>Reject <var>p</var> with <var>err</var>.</li>
+                        <li>Abort these steps.</li>
+                      </ol>
+                    </li>
+                  </ol>
+                </li>
+                <li>Resolve <var>p</var> with undefined.</li>
+              </ol>
+            </li>
+            <li>Return <var>p</var>.</li>
+          </ol>
+        </li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-storage-has">
+      <h1><code>has(<var>cacheName</var>)</code></h1>
+
+      <p><dfn id="cache-storage-has-method"><code>has(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+          <ol>
+            <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
+              <ol>
+                <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                  <ol>
+                    <li>Return true.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>Return false.</li>
+          </ol>
+        </li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-storage-open">
+      <h1><code>open(<var>cacheName</var>)</code></h1>
+
+      <p><dfn id="cache-storage-open-method"><code>open(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+          <ol>
+            <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
+              <ol>
+                <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
+                  <ol>
+                    <li>Return a new <code><a href="#cache-interface">Cache</a></code> object which is a copy of <var>entry</var>.[[value]].</li>
+                    <li>Abort these steps.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>Let <var>cache</var> be a new <code><a href="#cache-interface">Cache</a></code> object.</li>
+            <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#dfn-name-to-cache-map">name to cache map</a>.</li>
+            <li>Return <var>cache</var>.</li>
+          </ol>
+        </li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-storage-delete">
+      <h1><code>delete(<var>cacheName</var>)</code></h1>
+
+      <p><dfn id="cache-storage-cacheName-method"><code>delete(<var>cacheName</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-storage-has-method">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
+        <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>cacheExists</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+          <ol>
+            <li>If <var>cacheExists</var> is true, then:
+              <ol>
+                <li>Delete a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a> where <var>cacheName</var> matches entry.[[key]].</li>
+                <li>Resolve <var>q</var> with true.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Resolve <var>q</var> with flase.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>q</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="cache-storage-keys">
+      <h1><code>keys()</code></h1>
+
+      <p><dfn id="cache-storage-keys-method"><code>keys()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <p class="note">The promise returned from this method resolves with the sequence of keys, cache names in DOMString, in insertion order.</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>resultArray</var> be an empty array.</li>
+        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+          <ol>
+            <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
+              <ol>
+                <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
+              </ol>
+            </li>
+            <li>Return <var>resultArray</var>.</li>
+          </ol>
+        </li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+  </spec-section>
+</spec-clause>
+
 <spec-clause id="security-considerations">
   <h1>Security Considerations</h1>
 
@@ -1753,11 +1768,7 @@ interface FunctionalEvent : ExtendableEvent {
 
   <p>The double square bracket notation (<strong>[[</strong><em>name of method</em> or <em>name of property</em><strong>]]</strong>) is used throughout the specification to indicate user agent's internal data structures.</p>
   <spec-algorithm>
-  <p><dfn id="scope-to-registration-map">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that stores the entries of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a string that represents a <a href="#dfn-scope-url">scope url</a> and [[value]] is a <a href="#dfn-service-worker-registration">service worker registration</a>.</p>
-
-  <p><dfn id="request-to-response-map">[[RequestToResponseMap]]</dfn> represents an internal map structure that stores the entries of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
-
-  <p><dfn id="name-to-cache-map">[[NameToCacheMap]]</dfn> represents an internal map structure that stores the entries of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
+  <p><dfn id="scope-to-registration-map">[[ScopeToRegistrationMap]]</dfn> represents an internal map structure that is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a string that represents a <a href="#dfn-scope-url">scope url</a> and [[value]] is a <a href="#dfn-service-worker-registration">service worker registration</a>.</p>
 
   <p>An <dfn id="dfn-algorithm-task-queue">algorithm thread queue</dfn> is a thread safe queue used to synchronize the set of concurrent entries of algorithm steps. The queue contains <a href="http://en.wikipedia.org/wiki/Timestamping_(computing)">timestamps</a> (with <a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Assumptions">the assumptions</a>), gained by algorithms, as its elements. The queue should satisfy the general properties of FIFO queue.</p>
 
@@ -2734,7 +2745,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>serializedCachedURL</var> and <var>serializedRequestURL</var> be null.</li>
       <li>If the optional argument <var>targetStorage</var> is omitted, then:
         <ol>
-          <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map">[[RequestToResponseMap]]</a>, in key insertion order:
+          <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
             <ol>
               <li>Set <var>cachedURL</var> to <var>entry</var>.[[key]]'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
               <li>Set <var>requestURL</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
@@ -2843,7 +2854,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var></a>.</li>
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>v</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
         <ol>
-          <li>Let <var>itemsCopy</var> be a new <a href="#request-to-response-map">[[RequestToResponseMap]]</a> object that is a copy of its <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#request-to-response-map">[[RequestToResponseMap]]</a> object.</li>
+          <li>Let <var>itemsCopy</var> be a new <a href="#dfn-request-to-response-map">request to response map</a> that is a copy of its <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-request-to-response-map">request to response map</a>.</li>
           <li>Let <var>addedRecords</var> be an empty array.</li>
           <li>Try running the following substeps atomically:
             <ol>
@@ -2868,7 +2879,7 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
-                      <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#request-to-response-map">[[RequestToResponseMap]]</a>, in key insertion order:
+                      <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
                         <ol>
                           <li>If <var>requestResponse</var>[0] equals <var>entry</var>.[[key]] and <var>requestResponse</var>[1] equals <var>entry</var>.[[value]], then:
                             <ol>
@@ -2902,7 +2913,7 @@ interface FunctionalEvent : ExtendableEvent {
                           <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> a TypeError.</li>
                         </ol>
                       </li>
-                      <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#request-to-response-map">[[RequestToResponseMap]]</a>.</li>
+                      <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.</li>
                       <li>Add an array [<var>operation</var>.<var>request</var>, <var>operation</var>.<var>response</var>] to <var>addedRecords</var>.</li>
                     </ol>
                   </li>
@@ -2914,7 +2925,7 @@ interface FunctionalEvent : ExtendableEvent {
           </li>
           <li>And then, if an exception was <a href="http://heycam.github.io/webidl/#dfn-throw">thrown</a>, then:
             <ol>
-              <li>Set the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#request-to-response-map">[[RequestToResponseMap]]</a> to <var>itemsCopy</var>.</li>
+              <li>Set the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-request-to-response-map">request to response map</a> to <var>itemsCopy</var>.</li>
               <li>Reject <var>q</var> with the exception</li>
             </ol>
           </li>
