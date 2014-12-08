@@ -30,7 +30,7 @@ if ('serviceWorker' in navigator) {
     scope: '/my-app/'
   }).then(function(reg) {
     console.log('Yey!', reg);
-  }).catch(function() {
+  }).catch(function(err) {
     console.log('Boo!', err);
   });
 }
