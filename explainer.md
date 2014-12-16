@@ -13,7 +13,7 @@ Unlike a SharedWorker, it:
 * can run without any page at all
 * can terminate when it isn't in use, and run again when needed
 * has a defined upgrade model
-* HTTPS only (more on that in a bit)
+* is HTTPS only (more on that in a bit)
 
 We can use ServiceWorker:
 
