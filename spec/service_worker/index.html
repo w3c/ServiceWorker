@@ -775,23 +775,36 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   <spec-section id="service-worker-client">
     <h1><code>ServiceWorkerClient</code></h1>
 
-<spec-idl>[Constructor(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>), Exposed=ServiceWorker]
-interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">ServiceWorkerClient</dfn> {
-  readonly attribute <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; ready;
+<spec-idl>typedef (<a href="#basic-client-interface">BasicClient</a> or <a href="#window-client-interface">WindowClient</a>) <dfn id="service-worker-client-typedef">ServiceWorkerClient</dfn>;
+
+[Exposed=ServiceWorker]
+interface <dfn id="basic-client-interface" title="BasicClient">BasicClient</dfn> {
+  readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> url;
+  readonly attribute <a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>? registration;
+  void <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-window-postmessage">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="https://html.spec.whatwg.org/multipage/infrastructure.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+};
+
+[Exposed=ServiceWorker]
+interface <dfn id="window-client-interface" title="WindowClient">WindowClient</dfn> : <a href="#basic-client-interface">BasicClient</a> {
   readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a>;
   readonly attribute boolean focused;
-  readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> url;
-  readonly attribute <a href="http://fetch.spec.whatwg.org/#concept-request-context-frame-type">ContextFrameType</a> frameType;
-  void <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-window-postmessage">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="https://html.spec.whatwg.org/multipage/infrastructure.html#transferable">Transferable</a>&gt; <var>transfer</var>);
+  readonly attribute <a href="#context-frame-type-enum">ContextFrameType</a> frameType;
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; focus();
+};
+
+enum <dfn id="context-frame-type-enum" title="ContextFrameType">ContextFrameType</dfn> {
+  "top-level",
+  "nested",
+  "auxiliary",
+  "none"
 };
 </spec-idl>
   <!--FIXME(jungkees): remove it if we drop this attribute - readonly attribute unsigned long <a href="#service-worker-client-id-attribute">id</a>;-->
 
-    <p>The <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object has an associated <dfn id="dfn-service-worker-client-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
+    <p>A <code><a href="#service-worker-client-typedef">ServiceWorkerClient</a></code> object has an associated <dfn id="dfn-service-worker-client-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
 
     <!--FIXME(jungkees): remove it if we drop this attribute - p>The <dfn id="service-worker-client-id-attribute"><code>id</code></dfn> attribute of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> identifies the specific client object from the list of client objects serviced by the service worker. The <code><a href="https://html.spec.whatwg.org/multipage/comms.html#web-messaging#dom-window-postmessage">postMessage(<var>message</var>, <var>transfer</var>)</a></code> method of a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code>, when called, causes a <code><a href="http://goo.gl/4SLWiH">MessageEvent</a></code> to be dispatched at the client object.</p-->
-    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>, <a href="https://github.com/slightlyoff/ServiceWorker/issues/423">SW #423</a>.</p>
+    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/588">SW #588</a>.</p>
   </spec-section>
   <spec-section id="service-worker-clients">
     <h1><code>ServiceWorkerClients</code></h1>
@@ -799,16 +812,25 @@ interface <dfn id="service-worker-client-interface" title="ServiceWorkerClient">
 <spec-idl>[Exposed=ServiceWorker]
 interface <dfn id="service-worker-clients-interface" title="ServiceWorkerClients">ServiceWorkerClients</dfn> {
   // The objects returned will be new instances every time
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-interface">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ServiceWorkerClientQueryOptions</a> <var>options</var>);
+  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#service-worker-client-typedef">ServiceWorkerClient</a>&gt;?&gt; <a href="#service-worker-clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ServiceWorkerClientQueryOptions</a> <var>options</var>);
+  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; openWindow(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
 };
 
 dictionary <dfn id="serviceworker-client-query-options-dictionary" title="ServiceWorkerClientQueryOptions">ServiceWorkerClientQueryOptions</dfn> {
   boolean includeUncontrolled = false;
+  <a href="#client-type-enum">ClientType</a> type = "window";
+};
+
+enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
+  "window",
+  "worker",
+  "sharedworker",
+  "all"
 };
 </spec-idl>
   <!--FIXME(jungkees): remove it if we drop this method - a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;any&gt; <a href="#service-worker-clients-reloadall-method">reloadAll</a>();-->
 
-    <p>The <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> interface represents a container for a list of <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> objects.</p>
+    <p>The <code><a href="#service-worker-clients-interface">ServiceWorkerClients</a></code> interface represents a container for a list of <code><a href="#service-worker-client-typedef">ServiceWorkerClient</a></code> objects.</p>
     <spec-section id="get-all-method">
       <h1><code>getAll(<var>options</var>)</code></h1>
       <p>The <dfn id="service-worker-clients-getall-method"><code>getAll(<var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
@@ -818,24 +840,39 @@ dictionary <dfn id="serviceworker-client-query-options-dictionary" title="Servic
         <li>Run these steps in parallel:
           <ol>
             <li>Let <var>clients</var> be an empty array.</li>
-            <li>If the optional argument <var>options</var> is present and <var>options</var>.<var>includeUncontrolled</var> is true, then:
+            <li>If the optional argument <var>options</var> is omitted, then:
               <ol>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>:
                   <ol>
-                    <li>Add a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent <var>client</var> to <var>clients</var>.</li>
+                    <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>clients</var>.</li>
                   </ol>
-                  <li>Resolve <var>promise</var> with <var>clients</var>.</li>
                 </li>
+                <li>Resolve <var>promise</var> with <var>clients</var>.</li>
               </ol>
             </li>
             <li>Else:
               <ol>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> which are <a href="#dfn-control">controlled</a> by the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>:
+                <li>Let <var>targetClients</var> be an empty array.</li>
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
                   <ol>
-                    <li>Add a <code><a href="#service-worker-client-interface">ServiceWorkerClient</a></code> object that represent <var>client</var> to <var>clients</var>.</li>
+                    <li>If <var>options</var>.<var>includeUncontrolled</var> is omitted or set to false, and <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
+                    <li>Else, add <var>client</var> to <var>targetClients</var>.</li>
                   </ol>
                 </li>
-                <li>Resolve <var>promise</var> with <var>clients</var>.</li>
+                <li>Let <var>matchedClients</var> be an empty array.</li>
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>:
+                  <ol>
+                    <li>If <var>options</var>.<var>type</var> is omitted or set to "<code>window</code>", and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object, add a <code><a href="#window-client-interface">BasicClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object, add a <code><a href="#window-client-interface">BasicClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
+                      <ol>
+                        <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                        <li>Else, add a <code><a href="#basic-client-interface">BasicClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                      </ol>
+                  </ol>
+                </li>
+                <li>Resolve <var>promise</var> with <var>matchedClients</var>.</li>
               </ol>
             </li>
           </ol>
@@ -843,7 +880,7 @@ dictionary <dfn id="serviceworker-client-query-options-dictionary" title="Servic
         <li>Return <var>promise</var>.</li>
       </ol>
       </spec-algorithm>
-      <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/414">SW #414</a>.</p>
+      <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/588">SW #588</a>.</p>
     </spec-section>
   </spec-section>
 
@@ -1092,7 +1129,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
 
 <spec-clause id="cache-objects">
   <h1>Caches</h1>
-  <p>To allow authors to fully manage their content caches for offline use, the <a href="">Window</a> and the <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> provide the caching methods largely conforming to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> with additional convenience methods. An <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> can have multiple, named <code><a href="#cache-interface">Cache</a></code> objects, whose contents are entirely under the control of scripts. Caches are not shared across <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
+  <p>To allow authors to fully manage their content caches for offline use, the <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> and the <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> provide the caching methods largely conforming to <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-objects">ECMAScript 6 Map objects</a> with additional convenience methods. An <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> can have multiple, named <code><a href="#cache-interface">Cache</a></code> objects, whose contents are entirely under the control of scripts. Caches are not shared across <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
 
   <spec-section id="cache-constructs">
     <h1>Constructs</h1>
@@ -2235,7 +2272,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.</li>
           <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
             <ol>
-              <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/#window">Window</a> object, then:
+              <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, then:
                 <ol>
                   <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
                 </ol>
