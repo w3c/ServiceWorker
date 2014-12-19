@@ -1127,7 +1127,9 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
   <spec-section id="cache-constructs">
     <h1>Constructs</h1>
 
-    <p>A <dfn id="dfn-request-to-response-map">request to response map</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
+    <p>A <dfn id="dfn-fetching-record">fetching record</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a <code><a href="http://fetch.spec.whatwg.org/#request">Request</a></code> and [[value]] is a <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>.</p>
+    <p>A <a href="#dfn-fetching-record">fetching record</a> has an associated <dfn id="dfn-incumbent-record">incumbent record</dfn> (a <a href="#dfn-fetching-record">fetching record</a>). It is initially set to null.</p>
+    <p>A <dfn id="dfn-request-to-response-map">request to response map</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of <a href="#dfn-fetching-record">fetching records</a>.</p>
 
     <p>A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a string that represents a name of the <code><a href="#cache-interface">Cache</a></code> object and [[value]] is a <code><a href="#cache-interface">Cache</a></code> object.</p>
 
@@ -1240,7 +1242,7 @@ CacheQueryOptions options;
             <li>Let <var>responseArray</var> be an empty array.</li>
             <li>If the optional argument <var>request</var> is omitted, then:
               <ol>
-                <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
+                <li>For each <a href="#dfn-fetching-record">fetching record</a> <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
                   <ol>
                     <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
                   </ol>
@@ -1266,7 +1268,8 @@ CacheQueryOptions options;
                 <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>entry</var> of <var>entries</var>:
                   <ol>
-                    <li>Add <var>entry</var>[1] to <var>responseArray</var>.</li>
+                    <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, add <var>incumbentRecord</var>.[[value]] to <var>responseArray</var>.</li>
+                    <li>Else, add <var>entry</var>[1] to <var>responseArray</var>.</li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
@@ -1382,8 +1385,8 @@ CacheQueryOptions options;
                     <li>Run the following substeps in parallel:
                       <ol>
                         <li>Wait for either end-of-file to have been pushed to <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> or for <var>r</var> to have a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>.</li>
-                        <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> from <a href="#dfn-request-to-response-map">request to response map</a> and reject <var>responseBodyPromise</var> with a <code>TypeError</code>.</li>
-                        <li>Else, resolve <var>responseBodyPromise</var> with <var>response</var>.</li>
+                        <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>, and reject <var>responseBodyPromise</var> with a <code>TypeError</code>.</li>
+                        <li>Else, set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>, and resolve <var>responseBodyPromise</var> with <var>response</var>.</li>
                       </ol>
                     </li>
                     <li>Add <var>responseBodyPromise</var> to <var>responseBodyPromiseArray</var>.</li>
@@ -1441,8 +1444,8 @@ CacheQueryOptions options;
         <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <var>resultPromise</var> with value <var>responses</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
           <ol>
             <li>Wait for either end-of-file to have been pushed to <var>responses</var>[0]'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> or for <var>r</var> to have a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>.</li>
-            <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> from <a href="#dfn-request-to-response-map">request to response map</a> and reject <var>p</var> with a <code>TypeError</code>.</li>
-            <li>Else, resolve <var>p</var> with undefined.</li>
+            <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>, and reject <var>p</var> with a <code>TypeError</code>.</li>
+            <li>Else, set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>, and resolve <var>p</var> with undefined.</li>
           </ol>
         </li>
         <li>Return <var>p</var>.</li>
@@ -1509,7 +1512,7 @@ CacheQueryOptions options;
             <li>Let <var>resultArray</var> be an empty array.</li>
             <li>If the optional argument <var>request</var> is omitted, then:
               <ol>
-                <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
+                <li>For each <a href="#dfn-fetching-record">fetching record</a> <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
                   <ol>
                     <li>Add <var>entry</var>.[[key]] to <var>resultArray</var>.</li>
                   </ol>
@@ -2808,7 +2811,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>serializedCachedURL</var> and <var>serializedRequestURL</var> be null.</li>
       <li>If the optional argument <var>targetStorage</var> is omitted, then:
         <ol>
-          <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
+          <li>For each <a href="#dfn-fetching-record">fetching record</a> <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
             <ol>
               <li>Set <var>cachedURL</var> to <var>entry</var>.[[key]]'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
               <li>Set <var>requestURL</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>'s <a href="http://fetch.spec.whatwg.org/#concept-request-url">url</a>.</li>
@@ -2942,15 +2945,7 @@ interface FunctionalEvent : ExtendableEvent {
                   <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.<var>request</var> and <var>operation</var>.<var>options</var> as the arguments.</li>
                   <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                     <ol>
-                      <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
-                        <ol>
-                          <li>If <var>requestResponse</var>[0] equals <var>entry</var>.[[key]] and <var>requestResponse</var>[1] equals <var>entry</var>.[[value]], then:
-                            <ol>
-                              <li>Delete <var>entry</var>.</li>
-                            </ol>
-                          </li>
-                        </ol>
-                      </li>
+                      <li>If <var>operation</var>.<var>type</var> matches "delete", remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>.</li>
                     </ol>
                   </li>
                   <li>If <var>operation</var>.<var>type</var> matches "put", then:
@@ -2976,7 +2971,8 @@ interface FunctionalEvent : ExtendableEvent {
                           <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> a TypeError.</li>
                         </ol>
                       </li>
-                      <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.</li>
+                      <li>If there exists a corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> for <var>operation</var>.<var>request</var> and <var>operation</var>.<var>response</var> in <a href="#dfn-request-to-response-map">request to response map</a>, set <var>fetchingRecord</var>.[[value]] to <var>operation</var>.<var>response</var>.</li>
+                      <li>Else, set a newly-created <a href="#dfn-fetching-record">fetching record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.</li>
                       <p class="note">The cache commit is allowed as long as the response's headers are available.</p>
                       <li>Add an array [<var>operation</var>.<var>request</var>, <var>operation</var>.<var>response</var>] to <var>addedRecords</var>.</li>
                     </ol>
