@@ -1385,8 +1385,27 @@ CacheQueryOptions options;
                     <li>Run the following substeps in parallel:
                       <ol>
                         <li>Wait for either end-of-file to have been pushed to <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> or for <var>r</var> to have a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>.</li>
-                        <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>, and reject <var>responseBodyPromise</var> with a <code>TypeError</code>.</li>
-                        <li>Else, set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>, and resolve <var>responseBodyPromise</var> with <var>response</var>.</li>
+                        <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, then:
+                          <ol>
+                            <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, then:
+                              <ol>
+                                <li>Set <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>incumbentRecord</var>.</li>
+                              </ol>
+                            </li>
+                            <li>Else:
+                              <ol>
+                                <li>Delete <var>fetchingRecord</var> from <a href="#dfn-request-to-response-map">request to response map</a>.</li>
+                              </ol>
+                            </li>
+                            <li>Reject <var>responseBodyPromise</var> with a <code>TypeError</code>.</li>
+                          </ol>
+                        </li>
+                        <li>Else:
+                          <ol>
+                            <li>Set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>.</li>
+                            <li>Resolve <var>responseBodyPromise</var> with <var>response</var>.</li>
+                          </ol>
+                        </li>
                       </ol>
                     </li>
                     <li>Add <var>responseBodyPromise</var> to <var>responseBodyPromiseArray</var>.</li>
@@ -1444,8 +1463,27 @@ CacheQueryOptions options;
         <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <var>resultPromise</var> with value <var>responses</var>, perform the following substeps, <var>onFulfilled</var>, in parallel:
           <ol>
             <li>Wait for either end-of-file to have been pushed to <var>responses</var>[0]'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> or for <var>r</var> to have a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>.</li>
-            <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>, and reject <var>p</var> with a <code>TypeError</code>.</li>
-            <li>Else, set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>, and resolve <var>p</var> with undefined.</li>
+            <li>If <var>r</var> had a <a href="https://fetch.spec.whatwg.org/#concept-response-termination-reason">termination reason</a>, then:
+              <ol>
+                <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, then:
+                  <ol>
+                    <li>Set <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>incumbentRecord</var>.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>Delete <var>fetchingRecord</var> from <a href="#dfn-request-to-response-map">request to response map</a>.</li>
+                  </ol>
+                </li>
+                <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
+              </ol>
+            </li>
+            <li>Else:
+              <ol>
+                <li>Set the <a href="#dfn-incumbent-record">incumbent record</a> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> to the copy of <var>fetchingRecord</var>.</li>
+                <li>Resolve <var>p</var> with undefined.</li>
+              </ol>
+            </li>
           </ol>
         </li>
         <li>Return <var>p</var>.</li>
