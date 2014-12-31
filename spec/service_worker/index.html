@@ -1890,15 +1890,14 @@ interface FunctionalEvent : ExtendableEvent {
       <dt>Input</dt>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
         <dd><var>scriptURL</var>, a string that represents the URL of the script</dd>
-        <dd><var>scope</var>, a <a href="https://url.spec.whatwg.org/#concept-relative-url">relative URL</a> that represents a path prefix of a <a href="#dfn-scope-url">scope url</a></dd>
+        <dd><var>scope</var>, a string that represents a <a href="#dfn-scope-url">scope url</a></dd>
         <dd><var>base</var>, a <a href="https://url.spec.whatwg.org/#concept-base-url">base URL</a>, optional</dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a></dd>
     </dl>
     <ol>
-      <li>Let <var>scope</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scope</var> with <var>base</var>.</li>
-      <li>Set <var>scope</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
-      <li>Let <var>scriptURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>scriptURL</var> with <var>base</var>.</li>
+      <li>Let <var>scopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scope</var> with <var>base</var>.</li>
+      <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <var>base</var>.</li>
       <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#is-origin-trustworthy">Is origin potentially trustworthy</a> with the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scriptURL</var> as the argument is <code>Not Trusted</code>, then:
         <ol>
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
@@ -1909,14 +1908,14 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         </ol>
       </li>
-      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scope</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scopeURL</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
         <ol>
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         </ol>
       </li>
       <li>Run the following substeps atomically:
         <ol>
-          <li>Let <var>registration</var> be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>scope</var> as the argument.</li>
+          <li>Let <var>registration</var> be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>scopeURL</var> as the argument.</li>
 
           <li>If <var>registration</var> is not null, then:
             <ol>
@@ -1935,7 +1934,7 @@ interface FunctionalEvent : ExtendableEvent {
           </li>
           <li>Else:
             <ol>
-              <li>Set <var>registration</var> to the result of running <a href="#set-registration-algorithm">Set Registration</a> algorithm passing <var>scope</var> as its argument.</li>
+              <li>Set <var>registration</var> to the result of running <a href="#set-registration-algorithm">Set Registration</a> algorithm passing <var>scopeURL</var> as its argument.</li>
             </ol>
           </li>
           <li>Set <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> to <var>scriptURL</var>.</li>
@@ -1944,6 +1943,7 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
     </ol>
     </spec-algorithm>
+    <p class="fixme">A security condition will be added to check whether the scope is under the location of the script url. (<a href="https://github.com/slightlyoff/ServiceWorker/issues/468#issuecomment-60276779">#468</a>)</p>
   </spec-section>
 
   <spec-section id="update-algorithm">
@@ -2621,7 +2621,7 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-      <li>Let <var>scope</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <a href="#FIXME(jungkees):to-the-exclude-fragment-flag-in-Fetch">exclude fragment flag</a> set.</li>
+      <li>Let <var>scope</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>Run the following substeps in parallel:
         <ol>
           <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scope</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
@@ -2662,14 +2662,15 @@ interface FunctionalEvent : ExtendableEvent {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a <a href="#dfn-scope-url">scope url</a></dd>
+        <dd><var>scope</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
     </dl>
     <ol>
       <li>Run the following steps atomically.</li>
+      <li>Let <var>scopeString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>Let <var>registration</var> be a new <a href="#dfn-service-worker-registration">service worker registration</a> whose <a href="#dfn-scope-url">scope url</a> is set to <var>scope</var>.</li>
-      <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>scope</var>, [[value]]: <var>registration</var>} to <a href="#dfn-scope-to-registration-map">scope to registration map</a>.</li>
+      <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>scopeString</var>, [[value]]: <var>registration</var>} to <a href="#dfn-scope-to-registration-map">scope to registration map</a>.</li>
       <li>Return <var>registration</var>.</li>
     </ol>
     </spec-algorithm>
@@ -2745,14 +2746,16 @@ interface FunctionalEvent : ExtendableEvent {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>clientURL</var>, a <a href="https://url.spec.whatwg.org/#concept-url">URL</a></dd>
+        <dd><var>clientURL</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
     </dl>
     <ol>
       <li>Run the following steps atomically.</li>
-      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> starting with the value of <var>clientURL</var>.</li>
-      <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>matchingScope</var> as the argument.</li>
+      <li>Let <var>clientURLString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>clientURL</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> starting with the value of <var>clientURLString</var>.</li>
+      <li>Let <var>matchingScopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>matchingScope</var>.</li>
+      <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>matchingScopeURL</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
         <ol>
           <li>Return null.</li>
@@ -2769,16 +2772,17 @@ interface FunctionalEvent : ExtendableEvent {
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>scope</var>, a <a href="#dfn-scope-url">scope url</a></dd>
+        <dd><var>scope</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
       <dt>Output</dt>
         <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
     </dl>
     <ol>
       <li>Run the following steps atomically.</li>
       <li>Let <var>registration</var> be null.</li>
+      <li>Let <var>scopeString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
         <ol>
-          <li>If <var>scope</var> matches <var>entry</var>.[[key]], then:
+          <li>If <var>scopeString</var> matches <var>entry</var>.[[key]], then:
             <ol>
               <li>Set <var>registration</var> to <var>entry</var>.[[value]].</li>
             </ol>
