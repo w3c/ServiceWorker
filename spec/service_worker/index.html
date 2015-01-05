@@ -336,7 +336,14 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
       <p class="note">The <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method unregisters the <a href="#dfn-service-worker-registration">service worker registration</a>. It is important to note that the currently <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>'s <a href="#dfn-service-worker-client-active-worker">active worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is effective until all the <a href="#dfn-service-worker-client">service worker clients</a> (including itself) using this <a href="#dfn-service-worker-registration">service worker registration</a> unload. That is, <code><a href="#service-worker-registration-unregister-method">unregister()</a></code> method only affects subsequent <a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigations</a>.</p>
 
-      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running the <a href="#unregister-algorithm">Unregister</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>, and the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a> <var>scope</var> as the arguments.</p>
+      <p><dfn id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>scopeURL</var> be the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>.</li>
+          <li>Return the result of running the <a href="#unregister-algorithm">Unregister</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>, and <var>scopeURL</var> as the arguments.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="service-worker-registration-event-handler">
@@ -427,7 +434,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
         </ol>
       </li>
       <li>Let <var>registration</var> be null.</li>
-      <li>Let <var>clientURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a>.</li>
+      <li>Let <var>clientURL</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
           <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>clientURL</var> as its argument is not null, then:
@@ -464,8 +471,9 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method must return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
     <spec-algorithm>
     <ol>
-      <li>Let <var>p</var> be the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>options</var>.<var>scope</var>, and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a> as the arguments.</li>
-      <li>Return <var>p</var>.</li>
+      <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>Let <var>scopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -478,8 +486,8 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <spec-algorithm>
     <ol>
       <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-      <li>Let <var>clientURL</var> be the result of running the <a href="https://url.spec.whatwg.org/#concept-url-parser">URL parser</a> on <var>clientURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>Set <var>clientURL</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>clientURL</var>.</li>
+      <li>Let <var>clientURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>clientURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>Set <var>clientURL</var> to <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>clientURL</var>.</li>
       <li>Run the following substeps in parallel:
         <ol>
           <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> does not match the document's <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
@@ -1889,15 +1897,12 @@ interface FunctionalEvent : ExtendableEvent {
     <dl>
       <dt>Input</dt>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
-        <dd><var>scriptURL</var>, a string that represents the URL of the script</dd>
-        <dd><var>scope</var>, a string that represents a <a href="#dfn-scope-url">scope url</a></dd>
-        <dd><var>base</var>, a <a href="https://url.spec.whatwg.org/#concept-base-url">base URL</a>, optional</dd>
+        <dd><var>scriptURL</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
+        <dd><var>scopeURL</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a></dd>
     </dl>
     <ol>
-      <li>Let <var>scopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scope</var> with <var>base</var>.</li>
-      <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <var>base</var>.</li>
       <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#is-origin-trustworthy">Is origin potentially trustworthy</a> with the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scriptURL</var> as the argument is <code>Not Trusted</code>, then:
         <ol>
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
@@ -2615,13 +2620,12 @@ interface FunctionalEvent : ExtendableEvent {
     <dl>
       <dt>Input</dt>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
-        <dd><var>scope</var>, a <a href="#dfn-scope-url">scope url</a></dd>
+        <dd><var>scope</var>, an <a href="https://url.spec.whatwg.org/#concept-absolute-url">absolute URL</a></dd>
       <dt>Output</dt>
         <dd><var>promise</var>, a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a></dd>
     </dl>
     <ol>
       <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-      <li>Let <var>scope</var> to the result of running the <a href="https://url.spec.whatwg.org/#concept-url-serializer">URL serializer</a> on <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>Run the following substeps in parallel:
         <ol>
           <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scope</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
