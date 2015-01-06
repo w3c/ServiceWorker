@@ -402,7 +402,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptions">RegistrationOptions</dfn> {
-  <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> scope = "/";
+  <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> scope;
 };
 </spec-idl>
 
@@ -472,7 +472,12 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <spec-algorithm>
     <ol>
       <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>Let <var>scopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>If <var>scriptURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code>TypeError</code>".</li>
+      <li>Let <var>scopeURL</var> be null.</li>
+      <li>If the optional argument <var>options</var> is omitted or <var>options</var>.<var>scope</var> is not present, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.</li>
+      <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
+      <li>Else, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+      <li>If <var>scopeURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code>TypeError</code>".</li>
       <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
     </ol>
     </spec-algorithm>
@@ -485,17 +490,12 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 
     <spec-algorithm>
     <ol>
-      <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
       <li>Let <var>clientURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>clientURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>Set <var>clientURL</var> to <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>clientURL</var>.</li>
+      <li>If <var>clientURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code>TypeError</code>".</li>
+      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> is not the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, return a <var>promise</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+      <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> does not match the document's <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
-            <ol>
-              <li>Reject <var>promise</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
           <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its equivalent, with <var>clientURL</var> as its argument.</li>
           <li>If <var>registration</var> is not null, then:
             <ol>
@@ -528,10 +528,9 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>Run the following substeps in parallel:
         <ol>
           <li>Let <var>array</var> be an empty array.</li>
-          <li>Let <var>origin</var> be the <a href="http://tools.ietf.org/html/rfc6454#section-6.1">unicode serialization</a> of the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>.</li>
           <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
             <ol>
-              <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>entry</var>.[[key]] matches <var>origin</var>, then:
+              <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]] is its <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
                 <ol>
                   <li>Add a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, associated with <var>entry</var>.[[value]] to the <var>array</var>.</li>
                 </ol>
@@ -1908,16 +1907,20 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         </ol>
       </li>
-      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scriptURL</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scriptURL</var> is not <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
         <ol>
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         </ol>
       </li>
-      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scopeURL</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scopeURL</var> is not <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
         <ol>
           <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         </ol>
       </li>
+      <li>Let <var>scriptPathname</var> be "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
+      <li>Let <var>scopePathname</var> be "<code>/</code>" concatenated with the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
+      <li>If <var>scopePathname</var> starts with <var>scriptPathname</var>, do nothing.</li>
+      <li>Else, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Run the following substeps atomically:
         <ol>
           <li>Let <var>registration</var> be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>scopeURL</var> as the argument.</li>
@@ -1948,7 +1951,6 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
     </ol>
     </spec-algorithm>
-    <p class="fixme">A security condition will be added to check whether the scope is under the location of the script url. (<a href="https://github.com/slightlyoff/ServiceWorker/issues/468#issuecomment-60276779">#468</a>)</p>
   </spec-section>
 
   <spec-section id="update-algorithm">
@@ -2628,7 +2630,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scope</var> does not match <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+          <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>scope</var> is not <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
             <ol>
               <li>Reject <var>promise</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
               <li>Abort these steps.</li>
