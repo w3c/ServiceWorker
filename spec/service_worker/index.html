@@ -131,7 +131,7 @@
 
     <spec-section id="service-worker-lifetime">
     <h1>Lifetime</h1>
-    <p>The lifetime of a <a href="#dfn-service-worker">service worker</a> is tied to the execution lifetime of events, not references held by <a href="#dfn-service-worker-client">service worker clients</a> to the <code><a href="#service-worker-interface">ServiceWorker</a></code> object. The user agent may <a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate</a> <a href="#dfn-service-worker">service workers</a> at any time it has no event to handle.</p>
+    <p>The lifetime of a <a href="#dfn-service-worker">service worker</a> is tied to the execution lifetime of events, not references held by <a href="#dfn-service-worker-client">service worker clients</a> to the <code><a href="#service-worker-interface">ServiceWorker</a></code> object. The user agent may <a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate</a> <a href="#dfn-service-worker">service workers</a> at any time it has no event to handle or detects abnormal operation such as infinite loops and similar defective code while handling the events.</p>
     </spec-section>
   </spec-section>
 
@@ -900,6 +900,8 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
     <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and the <code><a href="#install-event-interface">InstallEvent</a></code> interface, which inherits from the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, for <code><a href="#service-worker-global-scope-install-event">install</a></code> event. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
     <p>An <code><a href="#extendable-event-interface" title="ExtendableEvent">ExtendableEvent</a></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promises</a>). It is initially set to null.</p>
+
+    <p>The <a href="#dfn-service-worker">service worker</a> should not be <a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminated</a> until the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> has been settled. However, the user agent may apply a time limit to this lifetime extension in order to abort abnormal operation such as infinite loops and similar defective code.</p>
 
     <spec-section id="wait-until-method">
       <h1><code>event.waitUntil(f)</code></h1>
