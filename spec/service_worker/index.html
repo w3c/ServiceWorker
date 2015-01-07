@@ -155,6 +155,14 @@
     <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is an <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> that specifies various settings for its <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#javascript-global-environment">JavaScript global environment</a>. A <a href="#dfn-service-worker-client">service worker client</a> independently <a href="#scope-match-algorithm">selects</a> and <a href="#dfn-use">uses</a> a <a href="#dfn-service-worker-registration">service worker registration</a> for its own loading and its subresources.</p>
 
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-service-worker-client-active-worker">active worker</dfn> (an <a href="#dfn-active-worker">active worker</a>) which currently <a href="#dfn-control">controls</a> it. It is initially set to null.</p>
+
+    <p>A <dfn id="dfn-window-client">window client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object.</p>
+
+    <p>A <dfn id="dfn-dedicated-worker-client">dedicated worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object.</p>
+
+    <p>A <dfn id="dfn-shared-worker-client">shared worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object.</p>
+
+    <p>A <dfn id="dfn-worker-client">worker client</dfn> is either a <a href="#dfn-dedicated-worker-client">dedicated worker client</a> or a <a href="#dfn-shared-worker-client">shared worker client</a>.</p>
   </spec-section>
 </spec-clause>
 
@@ -842,9 +850,9 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
             <li>Let <var>clients</var> be an empty array.</li>
             <li>If the optional argument <var>options</var> is omitted, then:
               <ol>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>:
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
                   <ol>
-                    <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>clients</var>.</li>
+                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>clients</var>.</li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>clients</var>.</li>
@@ -855,19 +863,27 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                 <li>Let <var>targetClients</var> be an empty array.</li>
                 <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
                   <ol>
-                    <li>If <var>options</var>.<var>includeUncontrolled</var> is omitted or set to false, and <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
-                    <li>Else, add <var>client</var> to <var>targetClients</var>.</li>
+                    <li>If <var>options</var>.<var>includeUncontrolled</var> is false, then:
+                      <ol>
+                        <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
+                      </ol>
+                    </li>
+                    <li>Else:
+                      <ol>
+                        <li>Add <var>client</var> to <var>targetClients</var>.</li>
+                      </ol>
+                    </li>
                   </ol>
                 </li>
                 <li>Let <var>matchedClients</var> be an empty array.</li>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>:
+                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
                   <ol>
-                    <li>If <var>options</var>.<var>type</var> is omitted or set to "<code>window</code>", and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicated-worker-client">dedicated worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>is a <a href="#dfn-shared-worker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
                       <ol>
-                        <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                        <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                         <li>Else, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                       </ol>
                   </ol>
