@@ -158,11 +158,11 @@
 
     <p>A <dfn id="dfn-window-client">window client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object.</p>
 
-    <p>A <dfn id="dfn-dedicated-worker-client">dedicated worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object.</p>
+    <p>A <dfn id="dfn-dedicatedworker-client">dedicated worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object.</p>
 
-    <p>A <dfn id="dfn-shared-worker-client">shared worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object.</p>
+    <p>A <dfn id="dfn-sharedworker-client">shared worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object.</p>
 
-    <p>A <dfn id="dfn-worker-client">worker client</dfn> is either a <a href="#dfn-dedicated-worker-client">dedicated worker client</a> or a <a href="#dfn-shared-worker-client">shared worker client</a>.</p>
+    <p>A <dfn id="dfn-worker-client">worker client</dfn> is either a <a href="#dfn-dedicatedworker-client">dedicated worker client</a> or a <a href="#dfn-sharedworker-client">shared worker client</a>.</p>
   </spec-section>
 </spec-clause>
 
@@ -879,8 +879,8 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                 <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
                   <ol>
                     <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicated-worker-client">dedicated worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>is a <a href="#dfn-shared-worker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>is a <a href="#dfn-sharedworker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
                       <ol>
                         <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
@@ -1886,7 +1886,7 @@ interface FunctionalEvent : ExtendableEvent {
     <h1>Request <a href="#dfn-functional-events">Functional Event</a> Dispatch</h1>
     <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
 
-    <p>Specifications may define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>global object</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
+    <p>Specifications may define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
 
     <p class="note">See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a href="https://notifications.spec.whatwg.org">Notifications API</a>.</p>
   </spec-section>
@@ -2330,12 +2330,12 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.</li>
           <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
             <ol>
-              <li>If <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, then:
+              <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                 <ol>
                   <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
                 </ol>
               </li>
-              <li>Else if <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object, then:
+              <li>Else if <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
                 <ol>
                   <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
                 </ol>
