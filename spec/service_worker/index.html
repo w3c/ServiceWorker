@@ -822,7 +822,8 @@ enum <dfn id="context-frame-type-enum" title="ContextFrameType">ContextFrameType
 interface <dfn id="clients-interface" title="Clients">Clients</dfn> {
   // The objects returned will be new instances every time
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#clients-getall-method">getAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ClientQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; openWindow(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
+  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#clients-openwindow-method">openWindow</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
+  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#clients-claim-method">claim</a>();
 };
 
 dictionary <dfn id="serviceworker-client-query-options-dictionary" title="ClientQueryOptions">ClientQueryOptions</dfn> {
@@ -838,7 +839,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
 };
 </spec-idl>
     <p>The <code><a href="#clients-interface">Clients</a></code> interface represents a container for a list of <code><a href="#client-interface">Client</a></code> objects.</p>
-    <spec-section id="get-all-method">
+    <spec-section id="clients-getall">
       <h1><code>getAll(<var>options</var>)</code></h1>
       <p>The <dfn id="clients-getall-method"><code>getAll(<var>options</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
@@ -895,11 +896,10 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
         <li>Return <var>promise</var>.</li>
       </ol>
       </spec-algorithm>
-      <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/588">SW #588</a>.</p>
     </spec-section>
-    <spec-section id="open-window-method">
+    <spec-section id="clients-openwindow">
       <h1><code>openWindow(<var>url</var>)</code></h1>
-      <p>The <dfn id="open-window-method"><code>openWindow(<var>url</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <p>The <dfn id="clients-openwindow-method"><code>openWindow(<var>url</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
         <li>Let <var>url</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>url</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
@@ -933,6 +933,35 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
       </ol>
       </spec-algorithm>
       <p class="fixme">Creating a client is yet to be defined.</p>
+    </spec-section>
+
+    <spec-section id="clients-claim">
+      <h1><code>claim()</code></h1>
+      <p>The <dfn id="clients-claim-method"><code>claim()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>If the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a> is not an <a href="#dfn-active-worker">active worker</a>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run the following substeps in parallel:
+          <ol>
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
+              <ol>
+                <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> as the argument.</li>
+                <li>If <var>registration</var> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>, continue to the next iteration of the loop.</li>
+                <li>If <var>client</var>'s <a href="#dfn-active-worker">active worker</a> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, then:
+                  <ol>
+                    <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
+                    <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="https://html.spec.whatwg.org/#fire-a-simple-event">fire a simple event named</a> <code>controllerchange</code> at the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object <var>client</var> is <a href="#dfn-service-worker-container-interface-client">associated</a> with.</li>
+                  </ol>
+                </li>
+              </ol>
+            </li>
+            <li>Resolve <var>promise</var> with undefined.</li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
   </spec-section>
 
@@ -1102,7 +1131,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       <ol>
         <li>If <a href="https://dom.spec.whatwg.org/#concept-event">event</a>'s <a href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is unset, then:
           <ol>
-            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
           </ol>
         </li>
         <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
