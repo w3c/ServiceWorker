@@ -158,6 +158,8 @@
 
     <p>A <dfn id="dfn-window-client">window client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object.</p>
 
+    <p>A <a href="#dfn-window-client">window client</a> has an associated <dfn id="dfn-window-client-frametype">frame type</dfn> (a <a href="https://fetch.spec.whatwg.org/#concept-request-context-frame-type">context frame type</a>).</p>
+
     <p>A <dfn id="dfn-dedicatedworker-client">dedicated worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalObject</a> object.</p>
 
     <p>A <dfn id="dfn-sharedworker-client">shared worker client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalObject</a> object.</p>
@@ -800,18 +802,41 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 interface <dfn id="window-client-interface" title="WindowClient">WindowClient</dfn> : <a href="#client-interface">Client</a> {
   readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a>;
   readonly attribute boolean focused;
-  readonly attribute <a href="#context-frame-type-enum">ContextFrameType</a> frameType;
+  readonly attribute <a href="#contextframetype-enum">FrameType</a> <a href="#client-frametype-attribute">frameType</a>;
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; focus();
 };
 
-enum <dfn id="context-frame-type-enum" title="ContextFrameType">ContextFrameType</dfn> {
+enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
+  "auxiliary",
   "top-level",
   "nested",
-  "auxiliary",
   "none"
 };
 </spec-idl>
     <p>A <code><a href="#client-interface">Client</a></code> object has an associated <dfn id="dfn-service-worker-client-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
+
+    <spec-section id="client-frametype">
+      <h1><code>frameType</code></h1>
+
+      <p>The <dfn id="client-frametype-attribute"><code>frameType</code></dfn> attribute must return the value (in <a href="#contextframetype-enum">FrameType</a> enumeration) corresponding to the first matching statement, switching on <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="#dfn-window-client-frametype">frame type</a>:</p>
+
+      <dl>
+        <dt><em>auxiliary</em></dt>
+        <dd>"<code>auxiliary</code>"
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a> is an <a href="https://html.spec.whatwg.org/multipage/browsers.html#auxiliary-browsing-context">auxiliary browsing context</a>.</p></dd>
+
+        <dt><em>top-level</em></dt>
+        <dd>"<code>top-level</code>"
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#top-level-browsing-context">top-level browsing context</a>.</p></dd>
+
+        <dt><em>nested</em></dt>
+        <dd>"<code>nested</code>"
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#nested-browsing-context">nested browsing context</a>.</p></dd>
+
+        <dt><em>none</em></dt>
+        <dd>"<code>none</code>"</dd>
+      </dl>
+    </spec-section>
 
     <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/588">SW #588</a>.</p>
   </spec-section>
@@ -904,19 +929,19 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
       <ol>
         <li>Let <var>url</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>url</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
         <li>If <var>url</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-        <li>If this algorithm is not <a href="https://html.spec.whatwg.org/multipage/browsers.html#allowed-to-show-a-popup">allowed to show a popup, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
+        <li>If this algorithm is not <a href="https://html.spec.whatwg.org/multipage/browsers.html#allowed-to-show-a-popup">allowed to show a popup</a>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
         <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
         <li>Run these steps in parallel:
           <ol>
-            <li>Let <var>newContext</var> be a new <a href="https://html.spec.whatwg.org/multipage/browsers.html#top-level-browsing-context">top level browsing context</a></li>
+            <li>Let <var>newContext</var> be a new <a href="https://html.spec.whatwg.org/multipage/browsers.html#top-level-browsing-context">top level browsing context</a>.</li>
             <li>If <var>url</var> is <code><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#about:blank">about:blank</a></code>, then:
               <!-- this is taken from https://html.spec.whatwg.org/multipage/browsers.html#dom-open -->
               <ol>
-                <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a href="https://html.spec.whatwg.org/multipage/webappapis.html#fire-a-simple-event">fire a simple event</a> named <code><a href="https://html.spec.whatwg.org/multipage/indices.html#event-load">load</a></code> at <var>newContext</var>'s <code><a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object, with <a href="infrastructure.html#concept-event-target-override">target override</a> set to <var>newContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window"><code>Window</code> object's <code>Document</code></a> object.</li>
+                <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="https://html.spec.whatwg.org/multipage/webappapis.html#fire-a-simple-event">fire a simple event</a> named <code><a href="https://html.spec.whatwg.org/multipage/indices.html#event-load">load</a></code> at <var>newContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object, with <a href="infrastructure.html#concept-event-target-override">target override</a> set to <var>newContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-document-window">Window</a> object's <a href="https://dom.spec.whatwg.org/#document">Document</a> object.</li>
               </ol>
             <li>Otherwise:
               <ol>
-                <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigate</a> <var>newContext</var> to <var>url</var>, with <a href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a> and <a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a>.</li>
+                <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">Navigate</a> <var>newContext</var> to <var>url</var>, with <a href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a> and <a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a>.</li>
               </ol>
             </li>
             <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>url</var> is not <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
@@ -989,7 +1014,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
     <spec-section id="wait-until-method">
       <h1><code>event.waitUntil(f)</code></h1>
 
-      <p><a href="#extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></a> method, extends the lifetime of the event. When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated. When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> will define their own behaviours, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
+      <p><code><a href="#extendable-event-waituntil-method">waitUntil(<var>f</var>)</a></code> method, extends the lifetime of the event. When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated. When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> will define their own behaviours, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
 
       <p><dfn id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
