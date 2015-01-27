@@ -351,7 +351,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
       <spec-algorithm>
       <ol>
         <li>Let <var>scopeURL</var> be the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>.</li>
-          <li>Return the result of running the <a href="#unregister-algorithm">Unregister</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>, and <var>scopeURL</var> as the arguments.</li>
+          <li>Return the result of running the <a href="#unregister-algorithm">Unregister</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>, and <var>scopeURL</var> as the arguments.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -488,7 +488,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
       <li>Else, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>scopeURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or their <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
+      <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -800,8 +800,8 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 
 [Exposed=ServiceWorker]
 interface <dfn id="window-client-interface" title="WindowClient">WindowClient</dfn> : <a href="#client-interface">Client</a> {
-  readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a>;
-  readonly attribute boolean focused;
+  readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="#client-visibilitystate-attribute">visibilityState</a>;
+  readonly attribute boolean <a href="#client-focused-attribute">focused</a>;
   readonly attribute <a href="#contextframetype-enum">FrameType</a> <a href="#client-frametype-attribute">frameType</a>;
   <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#client-focus-method">focus</a>();
 };
@@ -815,27 +815,26 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
 </spec-idl>
     <p>A <code><a href="#client-interface">Client</a></code> object has an associated <dfn id="dfn-service-worker-client-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
 
-    <spec-section id="client-focus">
-      <h1><code>focus()</code></h1>
-      <p>The <dfn id="client-focus-method"><code>focus()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-      <spec-algorithm>
-      <ol>
-        <li>If this algorithm is not <a href="https://html.spec.whatwg.org/multipage/browsers.html#allowed-to-show-a-popup">allowed to show a popup</a>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
-        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-        <li>Run these steps in parallel:
-          <ol>
-            <li>Let <var>browsingContext</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
-            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
-              <ol>
-                <li>Run the <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a> with <var>browsingContext</var>.</li>
-                <li>Resolve <var>promise</var> with a new <a href="#window-client-interface">WindowClient</a> representing <var>browsingContext</var>.</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-        <li>Return <var>promise</var>.</li>
-      </ol>
-      </spec-algorithm>
+    <p>A <code><a href="#window-client-interface">WindowClient</a></code> object has an associated <dfn id="dfn-service-worker-client-visibilitystate">visibility state</dfn>, which is one of <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</p>
+
+    <p>A <code><a href="#window-client-interface">WindowClient</a></code> object has an associated <dfn id="dfn-service-worker-client-focusstate">focus state</dfn>, which is either true or false. (Initially false).</p>
+
+    <spec-section id="client-url">
+      <h1><code>url</code></h1>
+
+      <p>The <dfn id="client-url-attribute"><code>url</code></dfn> attribute must return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a>.</p>
+    </spec-section>
+
+    <spec-section id="client-visibilitystate">
+      <h1><code>visibilityState</code></h1>
+
+      <p>The <dfn id="client-visibilitystate-attribute"><code>visibilityState</code></dfn> attribute must return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-client-visibilitystate">visibility state</a>.</p>
+    </spec-section>
+
+    <spec-section id="client-focused">
+      <h1><code>focused</code></h1>
+
+      <p>The <dfn id="client-focused-attribute"><code>focused</code></dfn> attribute must return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-client-focusstate">focus state</a>.</p>
     </spec-section>
 
     <spec-section id="client-frametype">
@@ -861,7 +860,28 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
       </dl>
     </spec-section>
 
-    <p class="fixme">This section will be updated as per <a href="https://github.com/slightlyoff/ServiceWorker/issues/588">SW #588</a>.</p>
+    <spec-section id="client-focus">
+      <h1><code>focus()</code></h1>
+      <p>The <dfn id="client-focus-method"><code>focus()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>If this algorithm is not <a href="https://html.spec.whatwg.org/multipage/browsers.html#allowed-to-show-a-popup">allowed to show a popup</a>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code>" exception.</li>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run these steps in parallel:
+          <ol>
+            <li>Let <var>browsingContext</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+              <ol>
+                <li>Run the <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a> with <var>browsingContext</var>.</li>
+                <li>Resolve <var>promise</var> with the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
   </spec-section>
   <spec-section id="clients">
     <h1><code>Clients</code></h1>
@@ -900,7 +920,12 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
               <ol>
                 <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
                   <ol>
-                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>clients</var>.</li>
+                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                      <ol>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                        <li>Add <var>windowClient</var> to <var>clients</var>.</li>
+                      </ol>
+                    </li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>clients</var>.</li>
@@ -926,12 +951,22 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                 <li>Let <var>matchedClients</var> be an empty array.</li>
                 <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
                   <ol>
-                    <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                      <ol>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                        <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                      </ol>
+                    </li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>is a <a href="#dfn-sharedworker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
                       <ol>
-                        <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, add a <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                        <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                          <ol>
+                            <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                            <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                          </ol>
+                        </li>
                         <li>Else, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                       </ol>
                   </ol>
@@ -973,7 +1008,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                 <li>Abort these steps.</li>
               </ol>
             </li>
-            <li>Let <var>client</var> be a new <a href="#window-client-interface">WindowClient</a> representing <var>newContext</var>.</li>
+            <li>Let <var>client</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>newContext</var> as the argument.</li>
             <li>Resolve <var>promise</var> with <var>client</var>.</li>
           </ol>
         </li>
@@ -2011,7 +2046,7 @@ interface FunctionalEvent : ExtendableEvent {
 
   <spec-section id="request-functional-event-dispatch">
     <h1>Request <a href="#dfn-functional-events">Functional Event</a> Dispatch</h1>
-    <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
+    <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
 
     <p>Specifications may define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
 
@@ -2704,7 +2739,7 @@ interface FunctionalEvent : ExtendableEvent {
         <dd>None</dd>
     </dl>
     <ol>
-      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm with <var>registration</var> and <var>callbackSteps</var>.</li>
+      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> and <var>callbackSteps</var>.</li>
     </ol>
     </spec-algorithm>
     <p class="fixme">Event loop and task queuing model for this algorithm will be specified.</p>
@@ -2986,6 +3021,25 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
       </li>
       <li>Return <var>newestWorker</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+  <spec-section id="capture-windowclient-algorithm">
+    <h1>Capture Window Client</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>browsingContext</var>, a <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a></dd>
+      <dt>Output</dt>
+        <dd><var>windowClient</var>, a <a href="#window-client-interface">WindowClient</a> object</dd>
+    </dl>
+    <ol>
+      <li>Let <var>windowClient</var> be a new <code><a href="#window-client-interface">WindowClient</a></code> object representing <var>browsingContext</var>.</li>
+      <li>Set <var>windowClient</var>'s <a href="dfn-service-worker-client-visibilitystate">visibility state</a> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+      <li>Set <var>windowClient</var>'s <a href="dfn-service-worker-client-visibilitystate">focus state</a> to the result of running <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="https://html.spec.whatwg.org/multipage/interaction.html#dom-document-hasfocus">hasFocus()</a> method.</li>
+      <li>Return <var>windowClient</var>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
