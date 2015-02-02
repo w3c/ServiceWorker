@@ -1996,7 +1996,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   </spec-section>
 
   <spec-section id="cross-origin-resources">
-    <h1>Cross-Origin Resources &amp; CORS</h1>
+    <h1>Cross-Origin Resources and CORS</h1>
 
     <p>Applications tend to cache items that come from a CDN or other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-<a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> resources when appropriate CORS headers are set.</p>
     <p>ServiceWorkers enable this by allowing <code><a href="#cache-interface">Cache</a></code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code><a href="#cache-interface">Cache</a></code> as <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>basic</code>", the objects stored are <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>opaque</code>". <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>opaque</code>" provide a much less expressive API than <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>"; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method and <code><a href="#FIXME(jungkees)">event.forwardTo(<var>url</var>)</a></code> method in the same manner as the <code><a href="http://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>", but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code><a href="#cache-interface">Cache</a></code>s to store them allows applications to avoid re-architecting in most cases.</p>
@@ -2017,7 +2017,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <p><a href="#dfn-service-worker">Service workers</a> are extensible from other specifications.</p>
 
   <spec-section id="extension-to-service-worker-registration">
-    <h1>Define API bound to <a href="#dfn-service-worker-registration">Service Worker Registration</a></h1>
+    <h1>Define API bound to Service Worker Registration</h1>
     <p>Specifications may define an API tied to a <a href="#dfn-service-worker-registration">service worker registration</a> by using <a href="http://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface where it may define the specification specific attributes and methods:</p>
 
     <spec-idl>partial interface ServiceWorkerRegistration {
@@ -2030,7 +2030,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   </spec-section>
 
   <spec-section id="extension-to-extendable-event">
-    <h1>Define <a href="#dfn-functional-events">Functional Event</a></h1>
+    <h1>Define Functional Event</h1>
     <p>Specifications may define a <a href="#dfn-functional-events">functional event</a> by extending <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface:</p>
 
     <spec-idl>// e.g. define FunctionalEvent interface
@@ -2041,7 +2041,7 @@ interface FunctionalEvent : ExtendableEvent {
   </spec-section>
 
   <spec-section id="extension-to-service-worker-global-scope">
-    <h1>Define <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">Event Handler</a></h1>
+    <h1>Define Event Handler</h1>
     <p>Specifications may define an event handler attribute for the corresponding <a href="#dfn-functional-events">functional event</a> using <a href="http://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> interface:</p>
 
     <spec-idl>partial interface ServiceWorkerGlobalScope {
@@ -2050,7 +2050,7 @@ interface FunctionalEvent : ExtendableEvent {
   </spec-section>
 
   <spec-section id="request-functional-event-dispatch">
-    <h1>Request <a href="#dfn-functional-events">Functional Event</a> Dispatch</h1>
+    <h1>Request Functional Event Dispatch</h1>
     <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications may invoke <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
 
     <p>Specifications may define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object) at which it may fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> run by <a href="#handle-functional-event-on-scheduled-task-algorithm">Handle Functional Event On Scheduled Task</a> algorithm which is <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
