@@ -47,13 +47,17 @@
         var contents = [];
         var firstChild = specSections[j].firstChild;
         while (firstChild) {
-          if (firstChild.nodeName != "H1")
+          if (firstChild.nodeName != "H1") {
+            if (firstChild.nodeName == "P") {
+              firstChild.removeAttribute("para_num");
+            }
             contents.push(firstChild);
+          }
           firstChild = firstChild.nextSibling;
         }
 
         specSections[j].parentNode.replaceChild(section, specSections[j]);
-        section.setAttribute("id", sectionID);
+        section.setAttribute("title", sectionID);
         var targetContents = section.querySelectorAll("content");
         targetContents[0].parentNode.replaceChild(node, targetContents[0]);
 
@@ -79,13 +83,17 @@
       var contents = [];
       var firstChild = specClauses[i].firstChild;
       while (firstChild) {
-        if (firstChild.nodeName != "H1")
+        if (firstChild.nodeName != "H1") {
+          if (firstChild.nodeName == "P") {
+            firstChild.removeAttribute("para_num");
+          }
           contents.push(firstChild);
+        }
         firstChild = firstChild.nextSibling;
       }
 
       specClauses[i].parentNode.replaceChild(section, specClauses[i]);
-      section.setAttribute("id", sectionID);
+      section.setAttribute("title", sectionID);
       var targetContents = section.querySelectorAll("content");
       targetContents[0].parentNode.replaceChild(node, targetContents[0]);
 
@@ -179,9 +187,31 @@
       var secNum = h1.getAttribute("data-bookmark-label");
       if (secNum != null) {
         span.textContent = secNum.substr(0, secNum.indexOf(' '));
+
+        // Replace section's h1 elements with right levels of h elements
+        var re = /\./g;
+        var dot = span.textContent.match(re);
+        var h, n;
+
+        if (dot == null)
+          h = this.document.createElement("h2");
+        else if (dot.length == 1)
+          h = this.document.createElement("h3");
+        else if (dot.length == 2)
+          h = this.document.createElement("h4");
+
+        h.setAttribute("id", sections[i].title);
+        h.setAttribute("data-bookmark-label", h1.getAttribute("data-bookmark-label"));
+        h.innerHTML = h1.innerHTML;
+        h1.parentNode.replaceChild(h, h1);
+
       } else { // fixme: data-bookmark-label is not set for this element
         if (h1.innerHTML == "Cross-Origin Resources and CORS") {
           span.textContent = "6.2";
+          h = this.document.createElement("h3");
+          h.setAttribute("id", sections[i].title);
+          h.innerHTML = h1.innerHTML;
+          h1.parentNode.replaceChild(h, h1);
         }
       }
     }
@@ -192,7 +222,7 @@
 
     for (var i = 0, n = sections.length; i < n; ++i) {
       var a = sections[i].querySelector("a");
-      var id = sections[i].getAttribute("id");
+      var id = sections[i].getAttribute("title");
       a.setAttribute("href", "#" + id);
     }
   };
@@ -214,9 +244,9 @@
     var hierarchy = "section";
 
     for (var i = 0, n = sections.length; i < n; ++i) {
-      var sectionID = sections[i].id;
+      var sectionID = sections[i].getAttribute("title");
       var secNum = sections[i].querySelector("span").innerHTML;
-      var secTitle = sections[i].querySelector("h1");
+      var secTitle = sections[i].querySelector("h2, h3, h4");
 
       if (secTitle.firstChild.nodeName == "CODE")
         secTitle = secTitle.firstChild.innerHTML;
