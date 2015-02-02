@@ -284,7 +284,7 @@ nav li li li li .marker { width: 3.25em; }
 
 
   <h1>Service Workers</h1>
-  <h2 id="w3c-working-draft-5-february-2015">W3C Editor's Draft 5 February 2015</h2>
+  <h2 id="w3c-working-draft-5-february-2015">W3C Working Draft 5 February 2015</h2>
   <dl>
   <dt>This version</dt>
     <dd><a href="http://www.w3.org/TR/2015/WD-service-workers-20150205/">http://www.w3.org/TR/2015/WD-service-workers-20150205/</a></dd>
@@ -319,7 +319,7 @@ nav li li li li .marker { width: 3.25em; }
 
   <h2 id="status">Status of This Document</h2>
 
-  <p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <abbr title="World Wide Web Consortium">W3C</abbr> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><abbr title="World Wide Web Consortium">W3C</abbr> technical reports index</a> at http://www.w3.org/TR/.</em></p>
+<p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <abbr title="World Wide Web Consortium">W3C</abbr> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><abbr title="World Wide Web Consortium">W3C</abbr> technical reports index</a> at http://www.w3.org/TR/.</em></p>
 
 <p>This document was published by the <a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a> as a Working Draft. If you wish to make comments regarding this document, please send them to <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a href="mailto:public-webapps-request@w3.org?subject=subscribe">subscribe</a>, <a href="http://lists.w3.org/Archives/Public/public-webapps/">archives</a>). All feedback is welcome.</p><p>Publication as a Working Draft does not imply endorsement by the <abbr title="World Wide Web Consortium">W3C</abbr> Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.</p>
 
@@ -749,8 +749,9 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>scriptURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
       <li>Let <var>scopeURL</var> be null.</li>
-      <li>If the optional argument <var>options</var> is omitted or <var>options</var>.<var>scope</var> is not present, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.</li>
-      <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
+      <li>If the optional argument <var>options</var> is omitted or <var>options</var>.<var>scope</var> is not present, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.
+        <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
+      </li>
       <li>Else, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>scopeURL</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
       <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
@@ -1787,8 +1788,8 @@ CacheQueryOptions options;
                     <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-type">type</a> is <em>error</em>, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
                     <li>Else, resolve <var>responsePromise</var> with new <a href="https://fetch.spec.whatwg.org/#response">Response</a> object associated with <var>response</var>.</li>
                   </ol>
+                  <p class="note">This step ensures that the promise for this fetch resolves as soon as the response's headers become available.</p>
                 </li>
-                <p class="note">This step ensures that the promise for this fetch resolves as soon as the response's headers become available.</p>
                 <li>To <a href="https://fetch.spec.whatwg.org/#process-response-body">process response body</a> for <var>response</var>, do nothing.</li>
                 <li>To <a href="https://fetch.spec.whatwg.org/#process-response-end-of-file">process response end-of-file</a> for <var>response</var>, do nothing.</li>
               </ul>
@@ -1797,8 +1798,8 @@ CacheQueryOptions options;
           </ol>
         </li>
         <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of <var>responsePromiseArray</var></a>.</li>
-        <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming <var>p</var> with <var>onFulfilled</var>.</a></li><a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">
-        </a><li><a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by"></a><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
+        <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>p</var> with <var>onFulfilled</var>.</li>
+        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of <var>p</var> with value <var>responseArray</var></a>, perform the following substeps, <var>onFulfilled</var>, in parallel:
           <ol>
             <li>Let <var>operations</var> be an empty array.</li>
             <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
@@ -3495,8 +3496,9 @@ interface FunctionalEvent : ExtendableEvent {
                         </ol>
                       </li>
                       <li>If there exists a corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> for <var>operation</var>.<var>request</var> and <var>operation</var>.<var>response</var> in <a href="#dfn-request-to-response-map">request to response map</a>, set <var>fetchingRecord</var>.[[value]] to <var>operation</var>.<var>response</var>.</li>
-                      <li>Else, set a newly-created <a href="#dfn-fetching-record">fetching record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.</li>
-                      <p class="note">The cache commit is allowed as long as the response's headers are available.</p>
+                      <li>Else, set a newly-created <a href="#dfn-fetching-record">fetching record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.
+                        <p class="note">The cache commit is allowed as long as the response's headers are available.</p>
+                      </li>
                       <li>Add an array [<var>operation</var>.<var>request</var>, <var>operation</var>.<var>response</var>] to <var>addedRecords</var>.</li>
                     </ol>
                   </li>
