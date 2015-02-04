@@ -340,7 +340,13 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
       <p><dfn id="service-worker-registration-update-method"><code>update()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> as the argument.</li>
+        <li>Let <var>registration</var> be the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>.</li>
+        <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, abort these steps.</li>
+        <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, abort these steps.</li>
+        <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
+        <li>If <var>newestWorker</var> is null, abort these steps.</li>
+        <li>Set <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> to <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
+        <li>Invoke <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var> and <var>registration</var> as the arguments.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -2186,6 +2192,7 @@ interface FunctionalEvent : ExtendableEvent {
                 </ol>
               </li>
               <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
+              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> to <var>client</var>.</li>
               <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
               <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
               <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <var>r</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
@@ -2263,7 +2270,7 @@ interface FunctionalEvent : ExtendableEvent {
                     <ol>
                       <li>Reject <var>p</var> with the error.</li>
                       <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm is null, then:
+                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument is null, then:
                         <ol>
                           <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
                         </ol>
@@ -2297,20 +2304,15 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Let <var>client</var> be an empty <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>.</li>
-      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
+      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, abort these steps.</li>
+      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, abort these steps.</li>
+      <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
+      <li>If <var>newestWorker</var> is null, abort these steps.</li>
+      <li>Set <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> to <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
       <li>Invoke <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>registration</var> as its argument.</li>
     </ol>
     </spec-algorithm>
-    <P class="fixme">Inspect whether the <var>promise</var> returned from <a href="#update-algorithm">Update</a> algorithm should be returned to the caller (either UA internal context or <code><a href="#service-worker-registration-update-method">reg.update()</a></code>).</P>
+    <P class="fixme">What should be the value of the <a href="#dfn-service-worker-client">service worker client</a> passed to Update algorithm? (<a href="https://github.com/slightlyoff/ServiceWorker/issues/615">#615</a>)</P>
   </spec-section>
 
   <spec-section id="installation-algorithm">
