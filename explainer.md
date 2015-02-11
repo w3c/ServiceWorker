@@ -99,7 +99,7 @@ You get fetch events for:
 * Navigations within your ServiceWorker's scope
 * Any requests triggered by those pages, even if they're to another origin
 
-The means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
+This means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
 
 * iframes & `<object>`s - these will pick their own controller based on their resource URL
 * ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the SerivceWorker
