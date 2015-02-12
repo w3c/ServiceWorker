@@ -2193,26 +2193,14 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
               <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> to <var>client</var>.</li>
               <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
+              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>, <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>, and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-manual-redirect-flag">manual redirect flag</a>.</li>
               <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <var>r</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
-              <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>, then:
+              <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> or <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a> is not in the range 200 to 299, then:
                 <ol>
-                  <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-redirect-count">redirect count</a> is not zero, then:
-                    <ol>
-                      <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
-                      <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
-                      <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
+                  <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
+                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
               <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">Extract a MIME type</a> from the <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
