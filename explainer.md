@@ -102,7 +102,7 @@ You get fetch events for:
 This means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
 
 * iframes & `<object>`s - these will pick their own controller based on their resource URL
-* ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the SerivceWorker
+* ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the ServiceWorker
 * Requests triggered within a ServiceWorker - you'd get a loop otherwise
 
 The `request` object gives you information about the request such as its URL, method & headers. But the really fun bit, is you can hijack it and respond differently:
