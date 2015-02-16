@@ -1556,6 +1556,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
             <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> algorithm passing <var>operations</var> as the argument.</li>
             <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>resultPromise</var>  with a fulfillment handler that, when called with argument <var>responses</var>, performs the following substeps in parallel:
               <ol>
+                <li>Let <var>responseBodyPromiseArray</var> be an empty array.</li>
                 <li>For each <var>response</var> in <var>responses</var>:
                   <ol>
                     <li>Let <var>responseBodyPromise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
@@ -1594,7 +1595,8 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                     <li>Add <var>responseBodyPromise</var> to <var>responseBodyPromiseArray</var>.</li>
                   </ol>
                 </li>
-                <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>responseBodyPromiseArray</var>, return undefined.</li>
+                <li>Let <var>q</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>responseBodyPromiseArray</var>.</li>
+                <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>q</var>  with a fulfillment handler that returns undefined.</li>
               </ol>
             </li>
           </ol>
@@ -1703,22 +1705,12 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
         <li>Set the <var>options</var> dictionary member of <var>o</var> to <var>options</var>.</li>
         <li>Add <var>o</var> to <var>operations</var>.</li>
         <li>Let <var>resultPromise</var> to the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
-        <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>resultPromise</var> with a fulfillment handler that returns its argument.</li>
-        <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <var>p</var> with <var>responseArray</var>, perform the following substeps in parallel:
+        <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>resultPromise</var> with a fulfillment handler, when called with argument <var>responseArray</var>, performs the following substeps in parallel:
           <ol>
-            <li>If <var>responseArray</var> is not null, then:
-              <ol>
-                <li>Resolve <var>p</var> with true.</li>
-              </ol>
-            </li>
-            <li>Else:
-              <ol>
-                <li>Resolve <var>p</var> with false.</li>
-              </ol>
-            </li>
+            <li>If <var>responseArray</var> is not null, return true.</li>
+            <li>Else, return false.</li>
           </ol>
         </li>
-        <li>Return <var>p</var>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -1806,7 +1798,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>If <var>cacheName</var> is not null, then:
           <ol>
-            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> and run the following substeps in parallel:
               <ol>
                 <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
                   <ol>
@@ -1825,34 +1817,26 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>Else:
           <ol>
-            <li>Set <var>p</var> to <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with a fulfillment handler that returns its argument.</li>
-            <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <var>p</var> with value <var>keys</var>, perform the following substeps in parallel:
+            <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> the result of running the algorithm specified in <code><a href="#cache-storage-keys-method">keys()</a></code> method, with a fulfillment handler that, when called with argument <var>keys</var>, performs the following substeps in parallel:
               <ol>
                 <li>For each <var>key</var> in <var>keys</var>:
                   <ol>
                     <li>Let <var>q</var> be the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>key</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
                     <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-fulfillment">Upon fulfillment of</a> <var>q</var> with value <var>matchedResponse</var>:
                       <ol>
-                        <li>If <var>matchedResponse</var> is not undefined, then:
-                          <ol>
-                            <li>Resolve <var>p</var> with <var>matchedResponse</var>.</li>
-                            <li>Abort these steps.</li>
-                          </ol>
-                        </li>
+                        <li>If <var>matchedResponse</var> is not undefined, return <var>matchedResponse</var>.</li>
                       </ol>
                     </li>
                     <li><a href="http://www.w3.org/2001/tag/doc/promises-guide#upon-rejection">Upon rejection of</a> <var>q</var> with value <var>err</var>:
                       <ol>
-                        <li>Reject <var>p</var> with <var>err</var>.</li>
-                        <li>Abort these steps.</li>
+                        <li><a href="http://heycam.github.io/webidl/#dfn-throw">Throw</a> <var>err</var>.</li>
                       </ol>
                     </li>
                   </ol>
                 </li>
-                <li>Resolve <var>p</var> with undefined.</li>
+                <li>Return undefined.</li>
               </ol>
             </li>
-            <li>Return <var>p</var>.</li>
           </ol>
         </li>
       </ol>
