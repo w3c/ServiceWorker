@@ -1820,15 +1820,10 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
             <li>Let <var>p</var> be a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolved with undefined.</li>
             <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
               <ol>
-                <li>Set <var>p</var> to the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> itself with:
+                <li>Set <var>p</var> to the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> itself with a fulfillment handler that, when called with argument <var>v</var>, performs the following substeps in parallel:
                   <ol>
-                    <li>A fulfillment handler that, when called with argument <var>v</var>, performs the following substeps in parallel:
-                      <ol>
-                        <li>If <var>v</var> is not undefined, return <var>v</var>.</li>
-                        <li>Return the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>entry</var>.[[value]] as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
-                      </ol>
-                    </li>
-                    <li>A rejection handler that, when called with argument <var>r</var>, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> <var>r</var>.</li>
+                    <li>If <var>v</var> is not undefined, return <var>v</var>.</li>
+                    <li>Return the result of running the algorithm specified in <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code> method of <code><a href="#cache-interface">Cache</a></code> interface with <var>request</var> and <var>options</var> as the arguments (providing <var>entry</var>.[[value]] as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="#cache-match-method">match(<var>request</var>, <var>options</var>)</a></code>.)</li>
                   </ol>
                 </li>
               </ol>
