@@ -177,8 +177,9 @@
 
   <p>Example: Bootstrapping with a ServiceWorker</p>
 
-<spec-code class="prettyprint">// scope defaults to "/"
-navigator.serviceWorker.register("/assets/v1/serviceworker.js").then(
+<spec-code class="prettyprint">// scope defaults to the path the script sits in
+// "/" in this example
+navigator.serviceWorker.register("/serviceworker.js").then(
   function(registration) {
     console.log("success!");
     if (registration.installing) {
@@ -676,7 +677,7 @@ this.addEventListener("fetch", function(e) {
   // promises heavily. e.respondWith() even takes promises to enable this:
   e.respondWith(
     caches.match(e.request).then(function(response) {
-      return response || e.default();
+      return response || fetch(e.request);
     }).catch(function() {
       return caches.match("/fallback.html");
     })
@@ -1116,7 +1117,6 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
   void <a href="#fetch-event-respondwith-method">respondWith</a>((<a href="https://fetch.spec.whatwg.org/#response">Response</a> or <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt;) <var>r</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#fetch-event-default-method">default</a>();
 };
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="https://dom.spec.whatwg.org/#eventinit">EventInit</a> {
@@ -1206,54 +1206,6 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       </spec-algorithm>
     </spec-section>
 
-    <spec-section id="default-method">
-      <h1><code>event.default()</code></h1>
-
-      <p>The invocation of <code><a href="#fetch-event-default-method">event.default()</a></code> method performs a <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <code><a href="#FIXME(jungkees)">event.request</a></code>. <code><a href="#FIXME(jungkees)">event.request</a></code> represents the original request from the <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>. During the execution, the original request is not altered (except the <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>), and thus <code><a href="#fetch-event-default-method">event.default()</a></code> fetches the original request through the UA's HTTP stack. <code><a href="#fetch-event-default-method">event.default()</a></code> returns a promise, which resolves with a <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, that can be an argument to the <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method.</p>
-
-      <p><dfn id="fetch-event-default-method"><code>default()</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-      <spec-algorithm>
-      <ol>
-        <li>If <a href="https://dom.spec.whatwg.org/#concept-event">event</a>'s <a href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is unset, then:
-          <ol>
-            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
-          </ol>
-        </li>
-        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
-        <li>Run the following substeps in parallel:
-          <ol>
-            <li>Let <var>r</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <code>request</code> attribute value.</li>
-            <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-              <ol>
-                <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, then:
-                  <ol>
-                    <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-                    <li>Abort these steps.</li>
-                  </ol>
-                </li>
-                <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-              </ol>
-            </li>
-            <li>Let <var>request</var> be <var>r</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-            <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a> and <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>.</li>
-            <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> with <var>request</var> as its argument.</li>
-            <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>, then:
-              <ol>
-                <li>Reject <var>promise</var> with a <code>TypeError</code>.</li>
-              </ol>
-            </li>
-            <li>Else:
-              <ol>
-                <li>Resolve <var>promise</var> with a new <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>.</li>
-              </ol>
-            </li>
-          </ol>
-        </li>
-        <li>Return <var>promise.</var></li>
-      </ol>
-      </spec-algorithm>
-    </spec-section>
-
     <spec-section id="is-reload-attribute">
       <h1><code>event.isReload</code></h1>
 
@@ -1288,7 +1240,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
         <tr>
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
           <td><code><a href="#fetch-event-interface">FetchEvent</a></code></td>
-          <td>[<a href="#dfn-functional-events">Functional event</a>] <a href="https://fetch.spec.whatwg.org/">Fetch</a> invokes <a href="#on-fetch-request-algorithm">Handle Fetch</a> with <var>request</var>. As a result of performing <a href="#on-fetch-request-algorithm">Handle Fetch</a>, the Service Woker returns a <a href="https://fetch.spec.whatwg.org/#concept-response">response</a> to <a href="https://fetch.spec.whatwg.org/">Fetch</a>. The <a href="https://fetch.spec.whatwg.org/#concept-response">response</a>, represented by a <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, can be retrieved from a <a href="#cache-interface">Cache</a> object or directly from network using <code><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">self.fetch(<var>input</var>, <var>init</var>)</a></code> method or <code><a href="#fetch-event-default-method">event.default()</a></code> method. (A custom <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object can be another option.)</td>
+          <td>[<a href="#dfn-functional-events">Functional event</a>] <a href="https://fetch.spec.whatwg.org/">Fetch</a> invokes <a href="#on-fetch-request-algorithm">Handle Fetch</a> with <var>request</var>. As a result of performing <a href="#on-fetch-request-algorithm">Handle Fetch</a>, the Service Woker returns a <a href="https://fetch.spec.whatwg.org/#concept-response">response</a> to <a href="https://fetch.spec.whatwg.org/">Fetch</a>. The <a href="https://fetch.spec.whatwg.org/#concept-response">response</a>, represented by a <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, can be retrieved from a <a href="#cache-interface">Cache</a> object or directly from network using <code><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">self.fetch(<var>input</var>, <var>init</var>)</a></code> method. (A custom <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object can be another option.)</td>
         </tr>
       </tbody>
     </table>
