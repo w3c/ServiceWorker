@@ -63,7 +63,7 @@ This is to explain how we use labels and milestones to triage the issues. Note: 
 
 **decided**: to record that a decision has been made.
 
-**invalid**: when something doesn't not constitute a valid issue.
+**invalid**: when something doesn't constitute a valid issue.
 
 **wontfix**: a decision has been made not to pursue this issue further.
 
