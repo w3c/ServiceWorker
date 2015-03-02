@@ -101,6 +101,7 @@
       <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">Requirements for Powerful Features</a></li>
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a></li>
       <li><a href="http://www.w3.org/TR/page-visibility/">Page Visibility (Second Edition)</a></li>
+      <li><a href="http://tools.ietf.org/html/rfc4122">A Universally Unique IDentifier (UUID) URN Namespace</a></li>
     </ul>
   </spec-section>
 
@@ -130,6 +131,7 @@
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-state">state</dfn>, which is one of <em>parsed</em>, <em>installing</em>, <em>installed</em>, <em>activating</em>, <em>activated</em>, and <em>redundant</em>. (Initially <em>parsed</em>).</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-url">script url</dfn> (a <a href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (a <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a>), which uniquely identifies itself during the lifetime of the <a href="#dfn-service-worker-registration">service worker registration</a> it belongs to.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn id="dfn-functional-events">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
 
@@ -159,6 +161,8 @@
     <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is an <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> that specifies various settings for its <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#javascript-global-environment">JavaScript global environment</a>. A <a href="#dfn-service-worker-client">service worker client</a> independently <a href="#scope-match-algorithm">selects</a> and <a href="#dfn-use">uses</a> a <a href="#dfn-service-worker-registration">service worker registration</a> for its own loading and its subresources.</p>
 
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-service-worker-client-active-worker">active worker</dfn> (an <a href="#dfn-active-worker">active worker</a>) which currently <a href="#dfn-control">controls</a> it. It is initially set to null.</p>
+
+    <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-service-worker-client-id">id</dfn> (a <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a>), which uniquely identifies itself during its lifetime. It is initially set to a new <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a> when the corresponding <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> that it represents is created.</p>
 
     <p>A <dfn id="dfn-window-client">window client</dfn> is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object.</p>
 
@@ -198,6 +202,7 @@ navigator.serviceWorker.register("/serviceworker.js").then(
 interface <dfn id="service-worker-interface" title="ServiceWorker">ServiceWorker</dfn> : <a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-url-attribute">scriptURL</a>;
   readonly attribute <a href="#service-worker-state-enum">ServiceWorkerState</a> <a href="#service-worker-state-attribute">state</a>;
+  readonly attribute DOMString <a href="#service-worker-id-attribute">id</a>;
   void <a href="#service-worker-postmessage-method">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="https://html.spec.whatwg.org/multipage/infrastructure.html#transferable">Transferable</a>&gt; <var>transfer</var>);
 
   // event
@@ -220,7 +225,7 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
     <spec-section id="service-worker-url">
       <h1><code>scriptURL</code></h1>
 
-      <p>The <dfn id="service-worker-url-attribute"><code>scriptURL</code></dfn> attribute must return <a href="#dfn-service-worker">service worker</a>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-script-url">script url</a>.</p>
+      <p>The <dfn id="service-worker-url-attribute"><code>scriptURL</code></dfn> attribute must return the <a href="#dfn-service-worker">service worker</a>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-script-url">script url</a>.</p>
 
       <p>For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a href="#on-fetch-request-algorithm">matches</a> via the following registration call which has been previously executed:</p>
 
@@ -233,7 +238,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
     <spec-section id="service-worker-state">
       <h1><code>state</code></h1>
 
-      <p>The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the value (in <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration) corresponding to the first matching statement, switching on <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a>:</p>
+      <p>The <dfn id="service-worker-state-attribute"><code>state</code></dfn> attribute must return the value (in <a href="#service-worker-state-enum">ServiceWorkerState</a> enumeration) corresponding to the first matching statement, switching on the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a>:</p>
 
       <dl>
         <dt><em>installing</em></dt>
@@ -256,6 +261,12 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
         <dd>"<code>redundant</code>"
         <p class="note">A new <a href="#dfn-service-worker">service worker</a> is replacing the current <a href="#dfn-service-worker">service worker</a>, or the current <a href="#dfn-service-worker">service worker</a> is being discarded due to an install failure.</p></dd>
       </dl>
+    </spec-section>
+
+    <spec-section id="service-worker-id">
+      <h1><code>id</code></h1>
+
+      <p>The <dfn id="service-worker-id-attribute"><code>id</code></dfn> attribute must return the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-service-worker-id">id</a>.</p>
     </spec-section>
 
     <spec-section id="service-worker-postmessage">
@@ -840,6 +851,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 interface <dfn id="client-interface" title="Client">Client</dfn> {
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> url;
   readonly attribute <a href="#contextframetype-enum">FrameType</a> <a href="#client-frametype-attribute">frameType</a>;
+  readonly attribute DOMString <a href="#client-id-attribute">id</a>;
   void <a href="#client-postmessage-method">postMessage</a>(any <var>message</var>, optional sequence&lt;<a href="https://html.spec.whatwg.org/multipage/infrastructure.html#transferable">Transferable</a>&gt; <var>transfer</var>);
 };
 
@@ -890,6 +902,12 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
         <dt><em>none</em></dt>
         <dd>"<code>none</code>"</dd>
       </dl>
+    </spec-section>
+
+    <spec-section id="client-id">
+      <h1><code>id</code></h1>
+
+      <p>The <dfn id="client-id-attribute"><code>id</code></dfn> attribute must return its associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="#dfn-service-worker-client-id">id</a>.</p>
     </spec-section>
 
     <spec-section id="client-postmessage">
@@ -1041,7 +1059,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                       </ol>
                     </li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var>is a <a href="#dfn-sharedworker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, add a <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
                       <ol>
                         <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
@@ -2239,6 +2257,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Else:
                 <ol>
                   <li>Let <var>worker</var> be a new <a href="#dfn-service-worker">service worker</a> for the script with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>.</li>
+                  <li>Generate a new <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a> and set <var>worker</var>'s <a href="#dfn-service-worker-id">id</a> to the value.</li>
                   <li>If <var>worker</var> fails to start up, due to parse errors or uncaught errors, then:
                     <ol>
                       <li>Reject <var>p</var> with the error.</li>
