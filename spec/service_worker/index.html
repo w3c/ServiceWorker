@@ -133,7 +133,9 @@
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (a <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a>), which uniquely identifies itself during the lifetime of its <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn id="dfn-functional-events">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource-map">script resource map</dfn> which is a <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">List</a> of the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} where [[key]] is a <a href="https://url.spec.whatwg.org/#concept-url">URL</a> and [[value]] is a script resource.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.</p>
 
     <spec-section id="service-worker-lifetime">
     <h1>Lifetime</h1>
@@ -2000,8 +2002,49 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <spec-section id="origin-relativity">
     <h1>Origin Relativity</h1>
 
-    <p>One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
-    <p class="fixme">The section will be updated.</p>
+    <p>One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="#importscripts-method">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
+
+    <spec-section id="importscripts">
+      <h1><code>importScripts(<var>urls</var>)</code></h1>
+
+      <p class="fixme">The <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a> method is defined on the <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> interface. The following algorithm steps monkey patch the method to embrace the <a href="#service-worker-environment">service worker environment</a>.</p>
+
+      <p>When the <dfn id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, the following steps, or their <a href="#dfn-processing-equivalence">equivalent</a>, must be run replacing the step 5 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>serviceWorker</var> be the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
+        <li>If <var>serviceWorker</var>'s <a href="#dfn-imported-scripts-updated-flag">imported scripts updated flag</a> is unset, then:
+          <ol>
+            <li>Attempt to <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#fetch">fetch</a> each resource identified by the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URLs</a>, from the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> specified by <em>settings object</em>, using the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#referrer-source">referrer source</a> specified by <em>settings object</em>, and with the <em>blocking flag</em> set.</li>
+          </ol>
+        </li>
+        <li>Else:
+          <ol>
+            <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set the script resource used in the step 6 to <var>record</var>.[[value]].</li>
+            <li>Else, throw a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
+          </ol>
+        </li>
+      </ol>
+      </spec-algorithm>
+
+      <p>The following steps, or their <a href="http://localhost/spec/service_worker/#dfn-processing-equivalence">equivalent</a>, must be run at the end (as a part) of the step 6.1 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set <var>record</var>.[[value]] to the fetched script resource.</li>
+        <li>Else, set a newly-created Record {[[key]]: <var>url</var>, [[value]]: the fetched script resource} to <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>.</li>
+      </ol>
+      </spec-algorithm>
+
+      <p>The following step, or its <a href="http://localhost/spec/service_worker/#dfn-processing-equivalence">equivalent</a>, must be run as the step 7 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Set <var>serviceWorker</var>'s <a href="#dfn-imported-scripts-updated-flag">imported scripts updated flag</a> if all the attempts have succeeded without any error.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
   </spec-section>
 
   <spec-section id="cross-origin-resources">
