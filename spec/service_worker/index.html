@@ -2021,8 +2021,12 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>Else:
           <ol>
-            <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set the script resource used in the step 6 to <var>record</var>.[[value]].</li>
-            <li>Else, throw a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
+            <li>For each <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URLs</a>:
+              <ol>
+                <li>If there exists a corresponding Record <var>record</var> for <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set the script resource used in the step 6 to <var>record</var>.[[value]].</li>
+                <li>Else, throw a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
+              </ol>
+            </li>
           </ol>
         </li>
       </ol>
@@ -2032,8 +2036,12 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set <var>record</var>.[[value]] to the fetched script resource.</li>
-        <li>Else, set a newly-created Record {[[key]]: <var>url</var>, [[value]]: the fetched script resource} to <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>.</li>
+        <li>If the script resource has been obtained through running <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#fetch">fetch</a>, then:
+          <ol>
+            <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set <var>record</var>.[[value]] to the fetched script resource.</li>
+            <li>Else, set a newly-created Record {[[key]]: <var>url</var>, [[value]]: the fetched script resource} to <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>.</li>
+          </ol>
+        </li>
       </ol>
       </spec-algorithm>
 
