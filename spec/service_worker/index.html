@@ -224,6 +224,8 @@ enum <dfn id="service-worker-state-enum" title="State">ServiceWorkerState</dfn> 
 
     <p>A <code><a href="#service-worker-interface">ServiceWorker</a></code> object has an associated <code><a href="#service-worker-state-enum">ServiceWorkerState</a></code> object which is itself associated with <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a>.</p>
 
+    <p>A <code><a href="#service-worker-interface">ServiceWorker</a></code> object has an associated <dfn id="dfn-service-worker-interface-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
+
     <spec-section id="service-worker-url">
       <h1><code>scriptURL</code></h1>
 
@@ -355,24 +357,48 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
     <p>A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object represents a <a href="#dfn-service-worker-registration">service worker registration</a>. Each <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object is associated with a <dfn id="dfn-service-worker-registration-interface-service-worker-registration">service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>). Multiple separate objects implementing the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#document-environment">document environments</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">worker environments</a> can all be associated with the same <a href="#dfn-service-worker-registration">service worker registration</a> simultaneously.</p>
 
-    <p>A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> has an associated <dfn id="dfn-service-worker-registration-interface-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
+    <p>A <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object has an associated <dfn id="dfn-service-worker-registration-interface-client">service worker client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>).</p>
 
     <spec-section id="navigator-service-worker-installing">
       <h1><code>installing</code></h1>
 
-      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-installing-worker">installing worker</a>.</p>
+      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>installingWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+        <li>Set <var>installingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
+        <li>Return <var>installingWorker</var>.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="navigator-service-worker-waiting">
       <h1><code>waiting</code></h1>
 
-      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-waiting-worker">waiting worker</a>.</p>
+      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>waitingWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
+        <li>Set <var>waitingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
+        <li>Return <var>waitingWorker</var>.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="navigator-service-worker-active">
       <h1><code>active</code></h1>
 
-      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute must return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-active-worker">active worker</a>.</p>
+      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>activeWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-active-worker">active worker</a>.</li>
+        <li>Set <var>activeWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
+        <li>Return <var>activeWorker</var>.</li>
+      </ol>
+      </spec-algorithm>
     </spec-section>
 
     <spec-section id="service-worker-registration-scope">
@@ -943,7 +969,7 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
             <li>Create an event <var>e</var> that uses the <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> interface, with the event type <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">data</a> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a> attribute of <var>e</var> be initialized to the <a href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialisation</a> of the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
-            <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a new <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
+            <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a <code><a href="#service-worker-interface">ServiceWorker</a></code> object, setting its <a href="#dfn-service-worker-interface-client">service worker client</a> to <var>destination</var>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents the <a href="#dfn-service-worker">service worker</a> associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports">ports</a> attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
@@ -3049,11 +3075,12 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Set <var>worker</var>'s <a href="#dfn-state">state</a> to <var>state</var>.</li>
-      <li>Let <var>serviceWorkers</var> be an array containing all the <code><a href="#service-worker-interface">ServiceWorker</a></code> objects associated with <var>worker</var> for all the <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing contexts</a>' <a href="https://dom.spec.whatwg.org/#document">Document</a> objects and the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object represented by <var>worker</var>.</li>
+      <li>Let <var>serviceWorkers</var> be an array containing all the <code><a href="#service-worker-interface">ServiceWorker</a></code> objects associated with <var>worker</var>.</li>
       <li>For each <var>serviceWorker</var> in <var>serviceWorkers</var>:
         <ol>
           <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="https://html.spec.whatwg.org/#fire-a-simple-event">fire a simple event named</a> <code>statechange</code> at <var>serviceWorker</var>.</li>
         </ol>
+        <p>The <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> must use <var>serviceWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> and the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>.</p>
       </li>
     </ol>
     </spec-algorithm>
