@@ -310,6 +310,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
             <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
           <p>The <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> must use the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>.</p>
+          <p class="fixme">The extension of the type of <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> to <a href="#client-interface">Client</a> object depends on <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">HTML</a>. <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=28199">Bug 28199</a> has been filed to address this.</p>
         </li>
       </ol>
       </spec-algorithm>
@@ -495,7 +496,7 @@ interface <dfn id="service-worker-container-interface" title="ServiceWorkerConta
   // events
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-container-oncontrollerchange-attribute">oncontrollerchange</a>;
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-container-onerror-attribute">onerror</a>;
-  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-container-onmessage-attribute">onmessage</a>;
+  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-container-onmessage-attribute">onmessage</a>; // event.source of message events is ServiceWorker object
 };
 
 dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOptions">RegistrationOptions</dfn> {
@@ -782,8 +783,8 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onbeforeevicted-attribute">onbeforeevicted</a>;
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onevicted-attribute">onevicted</a>;
 
-  // The event.source of these MessageEvents are instances of Client
-  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onmessage-attribute">onmessage</a>;
+  // event
+  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onmessage-attribute">onmessage</a>; // event.source of the message events is Client object
 
   // close() method inherited from WorkerGlobalScope <a href="#service-worker-global-scope-close-method">should not be accessible</a>.
 };
@@ -870,8 +871,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
           </tr>
         </tbody>
       </table>
-
-      <p class="note">For <a href="#service-worker-global-scope-onmessage-attribute">onmessage <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a>, <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> objects act as if they had an implicit <code><a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a></code> associated with them. This port is part of a channel that is set up when the <a href="#dfn-service-worker">service worker</a> is spun off to run, but it is not exposed. This object must never be garbage collected before the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. All messages received by that port must immediately be retargeted at the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object. That is, an event named <code>message</code> using the <code><a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code> interface is dispatched on <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object. The <code><a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">event.source</a></code> of these <code><a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>s are instances of <code><a href="#client-interface">Client</a></code>.</p>
     </spec-section>
   </spec-section>
   <spec-section id="client">
@@ -974,6 +973,7 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
             <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
           <p>The <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> must use the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>, and, for those where the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a> specified by the target <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object's <a href="#dfn-service-worker-container-interface-client">service worker client</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a> <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>, must be associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> specified by that target <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object's <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</p>
+          <p class="fixme">The extension of the type of <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> to <a href="#service-worker-interface">ServiceWorker</a> object depends on <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">HTML</a>. <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=28199">Bug 28199</a> has been filed to address this.</p>
         </li>
       </ol>
       </spec-algorithm>
