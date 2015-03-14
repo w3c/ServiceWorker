@@ -12,21 +12,21 @@ We also note that the long history of imperative-only solutions ([Google Gears, 
 
 The ServiceWorker is like a [SharedWorker](https://html.spec.whatwg.org/multipage/workers.html#sharedworker) in that it:
 
-* Runs in its own thread
+* Runs in its own global script context (usually in its own thread)
 * Isn't tied to a particular page
 * Has no DOM access
 
 Unlike a SharedWorker, it:
 
 * Can run without any page at all
-* Can terminate when it isn't in use, and run again when needed
+* Can terminate when it isn't in use, and run again when needed (e.g., it's event-driven)
 * Has a defined upgrade model
 * Is HTTPS only (more on that in a bit)
 
 We can use ServiceWorker:
 
-* to make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
-* as a basis for other 'background' features such as push messaging and background sync
+* To make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
+* As a basis for other 'background' features such as [push messaging](http://updates.html5rocks.com/2015/03/push-notificatons-on-the-open-web) and [background synchronization](https://github.com/slightlyoff/BackgroundSync/blob/master/explainer.md)
 
 ## Getting Started
 
