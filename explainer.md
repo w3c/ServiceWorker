@@ -2,18 +2,26 @@
 
 ## What's All This Then?
 
+Service Workers are being developed to answer frequent questions and concerns about the web platform, including:
+
+ * An inability to explain (in the [Extensible Web Manifesto](https://extensiblewebmanifesto.org/) sense) HTTP caching and high-level HTTP interactions like the HTML5 AppCache
+ * Difficulty in building offline-first web applications in a natural way
+ * The lack of a background excecution context which many proposed capabilities could make use of
+
+We also note that the long history of imperative-only solutions ([Google Gears, [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Having failed serially in many of the same ways, the Service Worker effort has taken a different design approach. Instead of a declarative-only solution, we are designing a largely-imperative system that puts developers firmly in control.
+
 The ServiceWorker is like a [SharedWorker](https://html.spec.whatwg.org/multipage/workers.html#sharedworker) in that it:
 
-* runs in its own thread
-* isn't tied to a particular page
-* has no DOM access
+* Runs in its own thread
+* Isn't tied to a particular page
+* Has no DOM access
 
 Unlike a SharedWorker, it:
 
-* can run without any page at all
-* can terminate when it isn't in use, and run again when needed
-* has a defined upgrade model
-* is HTTPS only (more on that in a bit)
+* Can run without any page at all
+* Can terminate when it isn't in use, and run again when needed
+* Has a defined upgrade model
+* Is HTTPS only (more on that in a bit)
 
 We can use ServiceWorker:
 
