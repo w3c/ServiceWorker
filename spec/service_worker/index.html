@@ -2473,7 +2473,7 @@ interface FunctionalEvent : ExtendableEvent {
                     </ol>
                   </li>
                   <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
-                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extended lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
                 </ol>
               </li>
               <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
@@ -2632,12 +2632,17 @@ interface FunctionalEvent : ExtendableEvent {
                     <ol>
                       <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="https://html.spec.whatwg.org/multipage/workers.html#runtime-script-errors-2">runtime script errors handling</a>.</li>
                       <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
+                      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
+                        <ol>
+                          <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+                        </ol>
+                      </li>
                       <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
                   <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
-                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extended lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
                 </ol>
               </li>
               <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
@@ -2662,6 +2667,11 @@ interface FunctionalEvent : ExtendableEvent {
           <li>If <var>activateFailed</var> is true, then:
             <ol>
               <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
+              <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
+                <ol>
+                  <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+                </ol>
+              </li>
               <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
               <li>Abort these steps.</li>
             </ol>
@@ -2766,7 +2776,7 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
       <li>Else if <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#resource-request">resource request</a>, then:
         <ol>
-          <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> in non-null, then:
+          <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is non-null, then:
             <ol>
               <li>Set <var>registration</var> to <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</li>
             </ol>
@@ -2778,18 +2788,18 @@ interface FunctionalEvent : ExtendableEvent {
           </li>
         </ol>
       </li>
-      <li>Let <var>matchedWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-      <li>If <var>matchedWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, then:
+      <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+      <li>If <var>activeWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, then:
         <ol>
-          <li>Wait for <var>matchedWorker</var>'s <a href="#dfn-state">state</a> to become <em>activated</em>.</li>
-          <li>If <var>matchedWorker</var>'s activation fails, then:
+          <li>Wait for <var>activeWorker</var>'s <a href="#dfn-state">state</a> to become <em>activated</em>.</li>
+          <li>If <var>activeWorker</var>'s activation fails, then:
             <ol>
               <li>Return null.</li>
             </ol>
           </li>
         </ol>
       </li>
-      <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+      <li><a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-algorithm-conventions">Assert</a>: <var>activeWorker</var> is not null, and its <a href="#dfn-state">state</a> is <em>activated</em>.</li>
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the arguement.</li>
       <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
