@@ -1193,7 +1193,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 };
 </spec-idl>
 
-    <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and the <code><a href="#install-event-interface">InstallEvent</a></code> interface, which inherits from the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, for <code><a href="#service-worker-global-scope-install-event">install</a></code> event. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and <code><a href="#service-worker-global-scope-install-event">install</a></code> event. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
     <p>An <code><a href="#extendable-event-interface" title="ExtendableEvent">ExtendableEvent</a></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promises</a>). It is initially set to null.</p>
 
@@ -1216,26 +1216,6 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
         <li>Add <var>f</var> to <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
       </ol>
       </spec-algorithm>
-    </spec-section>
-  </spec-section>
-
-  <spec-section id="install-event-section">
-    <h1><code>InstallEvent</code></h1>
-
-<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#install-event-init-dictionary">InstallEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
-interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#install-event-activeworker-attribute">activeWorker</a>;
-};
-
-dictionary <dfn id="install-event-init-dictionary" title="InstallEventInit">InstallEventInit</dfn> : <a href="https://dom.spec.whatwg.org/#eventinit">EventInit</a> {
-  <a href="#service-worker-interface">ServiceWorker</a> activeWorker;
-};
-</spec-idl>
-
-    <spec-section id="install-event-activeworker">
-      <h1><code>event.activeWorker</code></h1>
-
-      <p><dfn id="install-event-activeworker-attribute"><code>activeWorker</code></dfn> attribute must return the value it was initialized to. When an <a href="https://dom.spec.whatwg.org/#concept-event">event</a> is created the attribute must be initialized to null.</p>
     </spec-section>
   </spec-section>
 
@@ -1373,8 +1353,8 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       <tbody>
         <tr>
           <td><dfn id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
-          <td><code><a href="#install-event-interface">InstallEvent</a></code></td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 4.9.3 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
+          <td><code><a href="#extendable-event-interface">ExtendableEvent</a></code></td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 4.9.2 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
@@ -2452,8 +2432,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the arguement.</li>
           <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
             <ol>
-              <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#install-event-interface">InstallEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
-              <li>Let the <a href="#install-event-activeworker-attribute">activeWorker</a> attribute of <var>e</var> be initialized to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+              <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
               <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
               <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
               <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
