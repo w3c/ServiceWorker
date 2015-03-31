@@ -2160,6 +2160,8 @@ interface FunctionalEvent : ExtendableEvent {
 
   <p>An <dfn id="dfn-installation-result-handle-queue-adt">installation result handle queue</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The user agent must maintain a separate queue for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. The queue is initially empty.</p>
 
+  <p>An <dfn id="dfn-activation-queue-adt">activation queue</dfn> is an <a href="#dfn-algorithm-task-queue">algorithm thread queue</a> for synchronizing the set of concurrent installation jobs. The user agent must maintain a separate queue for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. The queue is initially empty.</p>
+
   <spec-section id="register-algorithm">
     <h1>Register</h1>
 
@@ -2242,117 +2244,109 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Push <var>timeStamp</var> to <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a>, and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
       <li>Run the following substeps in parallel:
         <ol>
-          <li><em>CheckPriority</em>: If the value of the top element of <a href="#dfn-registration-queue-adt">registration queue</a> matches <var>timeStamp</var>, then:
+          <li><em>CheckPriority</em>: If the value of the top element of <a href="#dfn-registration-queue-adt">registration queue</a> is not <var>timeStamp</var>, then:
             <ol>
-              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>.</li>
+              <li>Wait until the top element of <a href="#dfn-registration-queue-adt">registration queue</a> is popped.</li>
+              <li>Jump to the step labeled <em>CheckPriority</em>.</li>
+            </ol>
+            <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
+          </li>
+          <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
+            <ol>
+              <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+              <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+              <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+            </ol>
+          </li>
+          <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then:
+            <ol>
+              <li>Reject <var>p</var> with the exception.</li>
+              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
+          <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> to <var>client</var>.</li>
+          <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
+          <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>, <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>, and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-manual-redirect-flag">manual redirect flag</a>.</li>
+          <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <var>r</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
+          <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> or <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a> is not in the range 200 to 299, then:
+            <ol>
+              <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
+              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">Extract a MIME type</a> from the <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
+            <ol>
+              <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>serviceWorkerAllowed</var> be the result of <a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> `<code>Service-Worker-Allowed</code>` in <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</li>
+          <li>If <var>serviceWorkerAllowed</var> is failure, then:
+            <ol>
+              <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
+              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>scopeURL</var> be <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>.</li>
+          <li>Let <var>maxScopeString</var> be null.</li>
+          <li>If <var>serviceWorkerAllowed</var> is null, then:
+            <ol>
+              <li>Set <var>maxScopeString</var> to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
             </ol>
           </li>
           <li>Else:
             <ol>
-              <li>Wait until the top element of <a href="#dfn-registration-queue-adt">registration queue</a> is popped.</li>
-              <li>Jump to the step labeled <em>CheckProirity</em>.</li>
+              <li>Let <var>maxScope</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>serviceWorkerAllowed</var> with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>.</li>
+              <li>Set <var>maxScopeString</var> to "<code>/</code>" concatenated with the strings in <var>maxScope</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
             </ol>
-            <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
           </li>
-          <li>Run the following substeps atomically:
+          <li>Let <var>scopeString</var> be "<code>/</code>" concatenated with the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
+          <li>If <var>scopeString</var> starts with <var>maxScopeString</var>, do nothing.</li>
+          <li>Else:
             <ol>
-              <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
+              <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+              <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
+          <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is equal to <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> and <var>response</var> is a byte-for-byte match with the script resource of <var>newestWorker</var>, then:
+            <ol>
+              <li>Resolve <var>p</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, which represents <var>registration</var>.</li>
+              <li>Abort these steps.</li>
+            </ol>
+          </li>
+          <li>Else:
+            <ol>
+              <li>Let <var>worker</var> be a new <a href="#dfn-service-worker">service worker</a>.</li>
+              <li>Set <var>worker</var>'s <a href="#dfn-script-url">script url</a> to <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. (<var>worker</var>'s script resource is the fetched <var>response</var>.) Generate a new <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a> and set <var>worker</var>'s <a href="#dfn-service-worker-id">id</a> to the value.</li>
+              <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>worker</var> as the arguement.</li>
+              <li>If an uncaught runtime script error occurs during the above step, then:
                 <ol>
-                  <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-                  <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-                  <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-                  <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-                </ol>
-              </li>
-              <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then:
-                <ol>
-                  <li>Reject <var>p</var> with the exception.</li>
-                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-context">context</a> to <em>serviceworker</em>.</li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> to <var>client</var>.</li>
-              <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
-              <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>, <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>, and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-manual-redirect-flag">manual redirect flag</a>.</li>
-              <li>Let <var>response</var> be the result of running <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> using <var>r</var>, forcing a network fetch if cached entry is greater than 1 day old.</li>
-              <li>If <var>response</var> is a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> or <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a> is not in the range 200 to 299, then:
-                <ol>
-                  <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
-                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">Extract a MIME type</a> from the <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
-                <ol>
-                  <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
-                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Let <var>serviceWorkerAllowed</var> be the result of <a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> `<code>Service-Worker-Allowed</code>` in <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</li>
-              <li>If <var>serviceWorkerAllowed</var> is failure, then:
-                <ol>
-                  <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
-                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Let <var>scopeURL</var> be <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>.</li>
-              <li>Let <var>maxScopeString</var> be null.</li>
-              <li>If <var>serviceWorkerAllowed</var> is null, then:
-                <ol>
-                  <li>Set <var>maxScopeString</var> to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Let <var>maxScope</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>serviceWorkerAllowed</var> with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>.</li>
-                  <li>Set <var>maxScopeString</var> to "<code>/</code>" concatenated with the strings in <var>maxScope</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
-                </ol>
-              </li>
-              <li>Let <var>scopeString</var> be "<code>/</code>" concatenated with the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> (including empty strings), separated from each other by "<code>/</code>".</li>
-              <li>If <var>scopeString</var> starts with <var>maxScopeString</var>, do nothing.</li>
-              <li>Else:
-                <ol>
-                  <li>Reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
-                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-              <li>If <var>newestWorker</var> is not null, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is equal to <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> and <var>response</var> is a byte-for-byte match with the script resource of <var>newestWorker</var>, then:
-                <ol>
-                  <li>Resolve <var>p</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, which represents <var>registration</var>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-              <li>Else:
-                <ol>
-                  <li>Let <var>worker</var> be a new <a href="#dfn-service-worker">service worker</a>.</li>
-                  <li>Set <var>worker</var>'s <a href="#dfn-script-url">script url</a> to <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. (<var>worker</var>'s script resource is the fetched <var>response</var>.) Generate a new <a href="http://tools.ietf.org/html/rfc4122#section-3">UUID</a> and set <var>worker</var>'s <a href="#dfn-service-worker-id">id</a> to the value.</li>
-                  <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>worker</var> as the arguement.</li>
-                  <li>If an uncaught runtime script error occurs during the above step, then:
+                  <li>Reject <var>p</var> with the error.</li>
+                  <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument is null, then:
                     <ol>
-                      <li>Reject <var>p</var> with the error.</li>
-                      <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument is null, then:
-                        <ol>
-                          <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                        </ol>
-                      </li>
-                      <li>Abort these steps.</li>
+                      <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
                     </ol>
                   </li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
             </ol>
           </li>
+          <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>.</li>
           <li>Invoke <a href="#installation-algorithm">Install</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>registration</var>, <var>worker</var>, <var>p</var>, and <var>timeStamp</var> as its arguments.</li>
         </ol>
       </li>
@@ -2403,148 +2397,132 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Let <var>installFailed</var> be false.</li>
-      <li><em>CheckPriority</em>: If the value of the top element of <a href="#dfn-installation-queue-adt">installation queue</a> matches <var>timeStamp</var>, then:
-        <ol>
-          <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a>.</li>
-        </ol>
-      </li>
-      <li>Else:
+      <li><em>CheckPriority</em>: If the value of the top element of <a href="#dfn-installation-queue-adt">installation queue</a> is not <var>timeStamp</var>, then:
         <ol>
           <li>Wait until the top element of <a href="#dfn-installation-queue-adt">installation queue</a> is popped.</li>
-          <li>Jump to the step labeled <em>CheckProirity</em>.</li>
+          <li>Jump to the step labeled <em>CheckPriority</em>.</li>
         </ol>
         <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
       </li>
-      <li>Run the following substeps atomically:
+      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
         <ol>
-          <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
+          <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>The user agent may abort any in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+        </ol>
+      </li>
+      <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to <var>worker</var>.</li>
+      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
+      <li><a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-algorithm-conventions">Assert</a>: <var>registrationPromise</var> is not null.</li>
+      <li>Resolve <var>registrationPromise</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, which represents <var>registration</var>.</li>
+      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="https://html.spec.whatwg.org/#fire-a-simple-event">fire a simple event named</a> <code>updatefound</code> at all the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> objects that represent <var>registration</var> for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>.</li>
+      <li>Let <var>installingWorker</var> be <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+      <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the arguement.</li>
+      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
+        <ol>
+          <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
+          <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+          <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
+          <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
-              <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-              <li>The user agent may abort any in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-            </ol>
-          </li>
-          <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to <var>worker</var>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
-          <li><a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-algorithm-conventions">Assert</a>: <var>registrationPromise</var> is not null.</li>
-          <li>Resolve <var>registrationPromise</var> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, which represents <var>registration</var>.</li>
-          <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a href="https://html.spec.whatwg.org/#fire-a-simple-event">fire a simple event named</a> <code>updatefound</code> at all the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> objects that represent <var>registration</var> for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>.</li>
-          <li>Let <var>installingWorker</var> be <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-          <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the arguement.</li>
-          <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
-            <ol>
-              <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
-              <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
-              <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
-              <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+              <li>If any uncaught runtime script error occurs, then:
                 <ol>
-                  <li>If any uncaught runtime script error occurs, then:
+                  <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="https://html.spec.whatwg.org/multipage/workers.html#runtime-script-errors-2">runtime script errors handling</a>.</li>
+                  <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+                  <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+                  <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
+                  <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm is null, then:
                     <ol>
-                      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="https://html.spec.whatwg.org/multipage/workers.html#runtime-script-errors-2">runtime script errors handling</a>.</li>
-                      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-                      <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-                      <li>Pop the top element from <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-                      <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm is null, then:
-                        <ol>
-                          <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                        </ol>
-                      </li>
-                      <li>Abort these steps.</li>
+                      <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
                     </ol>
                   </li>
-                  <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
-                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
-              <li>Run the following substeps in parallel:
+              <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
+              <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+            </ol>
+          </li>
+          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
+          <li>Run the following substeps in parallel:
+            <ol>
+              <li>Wait until <var>p</var> settles.</li>
+              <li>If <var>p</var> rejected, then:
                 <ol>
-                  <li>Wait until <var>p</var> settles.</li>
-                  <li>If <var>p</var> rejected, then:
-                    <ol>
-                      <li>Set <var>installFailed</var> to true.</li>
-                    </ol>
-                  </li>
-                  <li>Else if <var>p</var> resolved with a value, then:
-                    <ol>
-                      <li>Do nothing.</li>
-                    </ol>
-                  </li>
+                  <li>Set <var>installFailed</var> to true.</li>
+                </ol>
+              </li>
+              <li>Else if <var>p</var> resolved with a value, then:
+                <ol>
+                  <li>Do nothing.</li>
                 </ol>
               </li>
             </ol>
           </li>
         </ol>
       </li>
-      <li><em>CheckResultHandlePriority</em>: If the value of the top element of <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a> matches <var>timeStamp</var>, then:
-        <ol>
-          <li>Pop the top element from <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
-        </ol>
-      </li>
-      <li>Else:
+      <li>Pop the top element from <a href="#dfn-installation-queue-adt">installation queue</a>.</li>
+      <li><em>CheckResultHandlePriority</em>: If the value of the top element of <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a> is not <var>timeStamp</var>, then:
         <ol>
           <li>Wait until the top element of <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a> is popped.</li>
           <li>Jump to the step labeled <em>CheckResultHandlePriority</em>.</li>
         </ol>
         <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
       </li>
-      <li>Run the following substeps atomically:
+      <li>Wait for <var>task</var> to have executed.</li>
+      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is null, then:
         <ol>
-          <li>Wait for <var>task</var> to have executed.</li>
-          <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is null, then:
-            <ol>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>If <var>installFailed</var> is true, then:
-            <ol>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-              <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-              <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm is null, then:
-                <ol>
-                  <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                </ol>
-              </li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
-            <ol>
-              <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
-              <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-            </ol>
-          </li>
-          <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
-          <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
-            <ol>
-              <li>If it was set before <var>timeStamp</var>, unset <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
-              <li>Else, abort these steps.</li>
-            </ol>
-          </li>
-          <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set, then:
-            <ol>
-              <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>serviceWorkerClient</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
-                <ol>
-                  <li>Let <var>exitingWorker</var> be the <a href="#dfn-active-worker">active worker</a> that <a href="#dfn-control">controls</a> <var>serviceWorkerClient</var>.</li>
-                  <li>If <var>exitingWorker</var> is not null, then:
-                    <ol>
-                      <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
-                      </li>
-                      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>exitingWorker</var>.</li>
-                      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-              <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
+          <li>Abort these steps.</li>
         </ol>
       </li>
+      <li>If <var>installFailed</var> is true, then:
+        <ol>
+          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+          <li>If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm is null, then:
+            <ol>
+              <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+            </ol>
+          </li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
+        <ol>
+          <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
+          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
+        </ol>
+      </li>
+      <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+      <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
+      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
+        <ol>
+          <li>If it was set before <var>timeStamp</var>, unset <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.</li>
+          <li>Else, abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set, then:
+        <ol>
+          <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>serviceWorkerClient</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+            <ol>
+              <li>Let <var>exitingWorker</var> be the <a href="#dfn-active-worker">active worker</a> that <a href="#dfn-control">controls</a> <var>serviceWorkerClient</var>.</li>
+              <li>If <var>exitingWorker</var> is not null, then:
+                <ol>
+                  <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
+                  </li>
+                  <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>exitingWorker</var>.</li>
+                  <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+                </ol>
+              </li>
+            </ol>
+          </li>
+          <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>Pop the top element from <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
       <li>Wait until no <a href="#dfn-service-worker-client">service worker client</a> is <a href="#dfn-use">using</a> <var>registration</var> or <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set.</li>
       <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> <var>waitingWorker</var> is not null and <var>waitingWorker</var>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is not set, invoke <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
     </ol>
@@ -2562,110 +2540,119 @@ interface FunctionalEvent : ExtendableEvent {
         <dd>None</dd>
     </dl>
     <ol>
-      <li>Run the following substeps atomically:
+      <li><a href="http://en.wikipedia.org/wiki/Timestamp-based_concurrency_control#Generating_a_Timestamp">Generate a timestamp</a> and let <var>timeStamp</var> be the result value.</li>
+      <li>Push <var>timeStamp</var> to <a href="#dfn-activation-queue-adt">activation queue</a>.</li>
+      <li><em>CheckPriority</em>: If the value of the top element of <a href="#dfn-activation-queue-adt">activation queue</a> is not <var>timeStamp</var>, then:
         <ol>
-          <li>Let <var>activateFailed</var> be false.</li>
-          <li>Let <var>activatingWorker</var> be <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-          <li>Let <var>exitingWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-          <li>If <var>activatingWorker</var> is null, then:
+          <li>Wait until the top element of <a href="#dfn-activation-queue-adt">activation queue</a> is popped.</li>
+          <li>Jump to the step labeled <em>CheckPriority</em>.</li>
+        </ol>
+        <p class="note"><em>Wait</em> is a blocking wait. Implementers may use a condition variable or its equivalent synchronization primitive.</p>
+      </li>
+      <li>Let <var>activateFailed</var> be false.</li>
+      <li>Let <var>activatingWorker</var> be <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
+      <li>Let <var>exitingWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+      <li>If <var>activatingWorker</var> is null, then:
+        <ol>
+          <li>Pop the top element from <a href="#dfn-activation-queue-adt">activation queue</a>.</li>
+          <li>Abort these steps.</li>
+        </ol>
+      </li>
+      <li>If <var>exitingWorker</var> is not null, then:
+        <ol>
+          <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
+          </li>
+          <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>exitingWorker</var>.</li>
+          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+        </ol>
+      </li>
+      <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to <var>activatingWorker</var>.</li>
+      <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to null.</li>
+      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.</li>
+      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+        <ol>
+          <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
             <ol>
-              <li>Abort these steps.</li>
+              <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
             </ol>
           </li>
-          <li>If <var>exitingWorker</var> is not null, then:
+          <li>Else if <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
             <ol>
-              <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
-              </li>
-              <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">Terminate</a> <var>exitingWorker</var>.</li>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+              <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
             </ol>
           </li>
-          <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to <var>activatingWorker</var>.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to null.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.</li>
-          <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27146">creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+        </ol>
+        <p class="note">Resources will now use the service worker registration instead of the existing application cache.</p>
+      </li>
+      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> who is <a href="#dfn-use">using</a> <var>registration</var>:
+        <ol>
+          <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+          <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
+        </ol>
+      </li>
+      <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+      <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the arguement.</li>
+      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
+        <ol>
+          <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
+          <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
+          <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
+          <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
-              <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+              <li>If any uncaught runtime script error occurs, then:
                 <ol>
-                  <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
+                  <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="https://html.spec.whatwg.org/multipage/workers.html#runtime-script-errors-2">runtime script errors handling</a>.</li>
+                  <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
+                  <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
+                    <ol>
+                      <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+                      <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
+                    </ol>
+                  </li>
+                  <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+                  <li>Pop the top element from <a href="#dfn-activation-queue-adt">activation queue</a>.</li>
+                  <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Else if <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
+              <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
+              <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+            </ol>
+          </li>
+          <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
+          <li>Run the following substeps in parallel:
+            <ol>
+              <li>Wait until <var>p</var> settles.</li>
+              <li>If <var>p</var> rejected, then:
                 <ol>
-                  <li>Unassociate <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> from its <a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.</li>
+                  <li>Set <var>activateFailed</var> to true.</li>
+                </ol>
+              </li>
+              <li>Else if <var>p</var> resolved with a value, then:
+                <ol>
+                  <li>Do nothing.</li>
                 </ol>
               </li>
             </ol>
-            <p class="note">Resources will now use the service worker registration instead of the existing application cache.</p>
           </li>
-          <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> who is <a href="#dfn-use">using</a> <var>registration</var>:
+        </ol>
+      </li>
+      <li>Wait for <var>task</var> to have executed, and <var>p</var> defined in <var>task</var> has settled.</li>
+      <li>If <var>activateFailed</var> is true, then:
+        <ol>
+          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
             <ol>
-              <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+              <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
               <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
             </ol>
           </li>
-          <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-          <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the arguement.</li>
-          <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
-            <ol>
-              <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
-              <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
-              <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
-              <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
-                <ol>
-                  <li>If any uncaught runtime script error occurs, then:
-                    <ol>
-                      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#report-the-error">Report the error</a> for the script per the <a href="https://html.spec.whatwg.org/multipage/workers.html#runtime-script-errors-2">runtime script errors handling</a>.</li>
-                      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
-                      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
-                        <ol>
-                          <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
-                          <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
-                        </ol>
-                      </li>
-                      <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
-                      <li>Abort these steps.</li>
-                    </ol>
-                  </li>
-                  <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
-                  <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
-                </ol>
-              </li>
-              <li>Let <var>p</var> be <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var>.</li>
-              <li>Run the following substeps in parallel:
-                <ol>
-                  <li>Wait until <var>p</var> settles.</li>
-                  <li>If <var>p</var> rejected, then:
-                    <ol>
-                      <li>Set <var>activateFailed</var> to true.</li>
-                    </ol>
-                  </li>
-                  <li>Else if <var>p</var> resolved with a value, then:
-                    <ol>
-                      <li>Do nothing.</li>
-                    </ol>
-                  </li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Wait for <var>task</var> to have executed, and <var>p</var> defined in <var>task</var> has settled.</li>
-          <li>If <var>activateFailed</var> is true, then:
-            <ol>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
-              <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-active-worker">active worker</a> is <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>:
-                <ol>
-                  <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
-                  <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
-                </ol>
-              </li>
-              <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
-              <li>Abort these steps.</li>
-            </ol>
-          </li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activated</em> as the arguments.</li>
+          <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+          <li>Pop the top element from <a href="#dfn-activation-queue-adt">activation queue</a>.</li>
+          <li>Abort these steps.</li>
         </ol>
       </li>
+      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activated</em> as the arguments.</li>
+      <li>Pop the top element from <a href="#dfn-activation-queue-adt">activation queue</a>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -2942,7 +2929,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Abort these steps.</li>
         </ol>
       </li>
-      <li>If <var>registration</var>.<var>waiting</var> is not null:
+      <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null:
         <ol>
           <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> at the argument.</li>
         </ol>
