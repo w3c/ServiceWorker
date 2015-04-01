@@ -1497,7 +1497,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
               <ol>
                 <li>For each <a href="#dfn-fetching-record">fetching record</a> <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
                   <ol>
-                    <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+                    <li>Add a  copy of <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
@@ -1521,8 +1521,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                 <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>entry</var> of <var>entries</var>:
                   <ol>
-                    <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, add <var>incumbentRecord</var>.[[value]] to <var>responseArray</var>.</li>
-                    <li>Else, add <var>entry</var>[1] to <var>responseArray</var>.</li>
+                    <li>Let <var>response</var> be null.</li>
+                    <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, set <var>response</var> to a copy of <var>incumbentRecord</var>.[[value]].</li>
+                    <li>Else, set <var>response</var> to a copy of <var>entry</var>[1].</li>
+                    <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-method">method</a> is `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to null.</li>
+                    <li>Add <var>response</var> to <var>responseArray</var>.</li>
                   </ol>
                 </li>
                 <li>Resolve <var>promise</var> with <var>responseArray</var>.</li>
@@ -3235,8 +3238,8 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Set <var>serializedRequestURL</var> to <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.</li>
               <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
                 <ol>
-                  <li>Add <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
-                  <li>Add <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
+                  <li>Add a copy of <var>entry</var>.[[key]] to <var>requestArray</var>.</li>
+                  <li>Add a copy of <var>entry</var>.[[value]] to <var>responseArray</var>.</li>
                 </ol>
               </li>
             </ol>
