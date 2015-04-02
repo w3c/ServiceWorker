@@ -1506,17 +1506,10 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
             </li>
             <li>Else:
               <ol>
-                <li>Let <var>r</var> be null.</li>
-                <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-                  <ol>
-                    <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-                  </ol>
-                </li>
-                <li>Else:
-                  <ol>
-                    <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-                  </ol>
-                </li>
+                <li>Let <var>copy</var> be null.</li>
+                <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object, set <var>copy</var> to the result of running the algorithm specified in <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code> method of <a href="https://fetch.spec.whatwg.org/#request">Request</a> interface (providing <var>request</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code>). If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+                <li>Else, set <var>copy</var> to <var>request</var>.</li>
+                <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>copy</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
                 <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
                 <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>entry</var> of <var>entries</var>:
@@ -1563,23 +1556,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
         <li>Let <var>requestArray</var> be an empty array.</li>
         <li>For each <var>request</var> in <var>requests</var>:
           <ol>
-            <li>Let <var>r</var> be null.</li>
-            <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-              <ol>
-                <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-              </ol>
-            </li>
-            <li>Else:
-              <ol>
-                <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-                  <ol>
-                    <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-                    <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-                  </ol>
-                </li>
-                <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-              </ol>
-            </li>
+            <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
             <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
             <li>Add a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> to <var>requestArray</var>.</li>
             <li>If <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", then:
@@ -1697,23 +1674,7 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>r</var> be null.</li>
-        <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-          <ol>
-            <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-          </ol>
-        </li>
-        <li>Else:
-          <ol>
-            <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null, then:
-              <ol>
-                <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a> is set, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-                <li>Set <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-used-flag">used flag</a>.</li>
-              </ol>
-            </li>
-            <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-          </ol>
-        </li>
+        <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
         <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
         <li>If <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> contains a <a href="https://fetch.spec.whatwg.org/#concept-header">header</a> <a href="https://fetch.spec.whatwg.org/#concept-header-name">named</a> `<code>Vary</code>`, then:
           <ol>
@@ -1781,17 +1742,10 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>r</var> be null.</li>
-        <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-          <ol>
-            <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-          </ol>
-        </li>
-        <li>Else:
-          <ol>
-            <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-          </ol>
-        </li>
+        <li>Let <var>copy</var> be null.</li>
+        <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object, set <var>copy</var> to the result of running the algorithm specified in <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code> method of <a href="https://fetch.spec.whatwg.org/#request">Request</a> interface (providing <var>request</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code>). If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+        <li>Else, set <var>copy</var> to <var>request</var>.</li>
+        <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>copy</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
         <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
         <li>Let <var>operations</var> be an empty array.</li>
         <li>Let <var>o</var> be an empty object representing a <code><a href="#cache-batch-operation-dictionary">CacheBatchOperation</a></code> dictionary.</li>
@@ -1832,17 +1786,10 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
             </li>
             <li>Else:
               <ol>
-                <li>Let <var>r</var> be null.</li>
-                <li>If <var>request</var> is a <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>, then:
-                  <ol>
-                    <li>Set <var>r</var> to the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>request</var> as its argument. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
-                  </ol>
-                </li>
-                <li>Else:
-                  <ol>
-                    <li>Set <var>r</var> to <var>request</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.</li>
-                  </ol>
-                </li>
+                <li>Let <var>copy</var> be null.</li>
+                <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object, set <var>copy</var> to the result of running the algorithm specified in <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code> method of <a href="https://fetch.spec.whatwg.org/#request">Request</a> interface (providing <var>request</var> as thisArgument to the <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[Call]]</a> internal method of <code><a href="https://fetch.spec.whatwg.org/#dom-request-clone">clone()</a></code>). If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
+                <li>Else, set <var>copy</var> to <var>request</var>.</li>
+                <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>copy</var> as its argument. If this throws an exception, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with that exception.</li>
                 <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>'s <a href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.</li>
                 <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <a href="https://fetch.spec.whatwg.org/#request">Request</a> object that represents <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
@@ -2285,7 +2232,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>The user agent may abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
             </ol>
           </li>
-          <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a>. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then:
+          <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>registration</var>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-registration-script-url">registering script url</a>. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then:
             <ol>
               <li>Reject <var>p</var> with the exception.</li>
               <li>Pop the top element from <a href="#dfn-registration-queue-adt">registration queue</a>, <a href="#dfn-installation-queue-adt">installation queue</a> and <a href="#dfn-installation-result-handle-queue-adt">installation result handle queue</a>.</li>
