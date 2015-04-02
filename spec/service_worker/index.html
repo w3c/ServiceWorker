@@ -1595,7 +1595,18 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
                 <li>To <a href="https://fetch.spec.whatwg.org/#process-response">process response</a> for <var>response</var>, run these substeps:
                   <ol>
                     <li>If <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-type">type</a> is <em>error</em>, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
-                    <li>Else if <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> contains a <a href="https://fetch.spec.whatwg.org/#concept-header">header</a> whose <a href="https://fetch.spec.whatwg.org/#concept-header-name">name</a> is `<code>Vary</code>` and <a href="https://fetch.spec.whatwg.org/#concept-header-value">value</a> is `<code>*</code>`, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
+                    <li>Else if <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> contains a <a href="https://fetch.spec.whatwg.org/#concept-header">header</a> <a href="https://fetch.spec.whatwg.org/#concept-header-name">named</a> `<code>Vary</code>`, then:
+                      <ol>
+                        <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a href="http://tools.ietf.org/html/rfc2616#section-4.2">field-values</a> of the <a href="http://tools.ietf.org/html/rfc2616#section-14.44">Vary</a> header.</li>
+                        <li>Let <var>matchAsterisk</var> be false.</li>
+                        <li>For each <var>f</var> in <var>varyHeaders</var>:
+                          <ol>
+                            <li>If <var>f</var> matches "<code>*</code>", set <var>matchAsterisk</var> to true and break the loop.</li>
+                          </ol>
+                        </li>
+                        <li>If <var>matchAsterisk</var> is true, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
+                        <li>Else, resolve <var>responsePromise</var> with a new <a href="https://fetch.spec.whatwg.org/#response">Response</a> object associated with <var>response</var>.</li>
+                      </ol>
                     <li>Else, resolve <var>responsePromise</var> with a new <a href="https://fetch.spec.whatwg.org/#response">Response</a> object associated with <var>response</var>.</li>
                   </ol>
                   <p class="note">This step ensures that the promise for this fetch resolves as soon as the response's headers become available.</p>
@@ -3273,7 +3284,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>For each <var>cachedResponse</var> in <var>responseArray</var> with the index <var>index</var>:
         <ol>
           <li>Let <var>cachedRequest</var> be the <var>index</var>th element in <var>requestArray</var>.</li>
-          <li>If the result of running <var>cachedResponse</var>.<a href="https://fetch.spec.whatwg.org/#dom-response-headers">headers</a> object's <code><a href="https://fetch.spec.whatwg.org/#dom-headers-has">has(<var>name</var>)</a></code> method with "Vary" as the argument is false, or <var>options</var>.<var>ignoreVary</var> is true, then:
+          <li>If <var>cachedResponse</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a> contains no <a href="https://fetch.spec.whatwg.org/#concept-header">header</a> <a href="https://fetch.spec.whatwg.org/#concept-header-name">named</a> `<code>Vary</code>`, or <var>options</var>.<var>ignoreVary</var> is true, then:
             <ol>
               <li>Add an array [<var>cachedRequest</var>, <var>cachedResponse</var>] to <var>resultArray</var>.</li>
               <li>Continue to the next iteration of the loop.</li>
@@ -3283,7 +3294,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Let <var>matchFailed</var> be false.</li>
           <li>For each <var>f</var> in <var>varyHeaders</var>:
             <ol>
-              <li>If <var>f</var> matches "*", or the result of running <var>cachedRequest</var>.<a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="https://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="https://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
+              <li>If <var>f</var> matches "<code>*</code>", or the result of running <var>cachedRequest</var>.<a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="https://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument does not match the result of running <var>request</var>.<a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a> object's <code><a href="https://fetch.spec.whatwg.org/#dom-headers-get">get(<var>name</var>)</a></code> method with <var>f</var> as the argument, then:
                 <ol>
                   <li>Set <var>matchFailed</var> to true.</li>
                   <li>Break the loop.</li>
