@@ -711,7 +711,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
         <tr>
           <td><dfn id="service-worker-container-updatefound-event"><code>updatefound</code></dfn></td>
           <td><code><a href="https://dom.spec.whatwg.org/#event">Event</a></code></td>
-          <td>The <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes (See step 8 of the <a href="#installation-algorithm">Install</a> algorithm).</td>
+          <td>The <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 8 of the <a href="#installation-algorithm">Install</a> algorithm).</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
@@ -1194,16 +1194,16 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 };
 </spec-idl>
 
-    <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and <code><a href="#service-worker-global-scope-install-event">install</a></code> event. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
-
     <p>An <code><a href="#extendable-event-interface" title="ExtendableEvent">ExtendableEvent</a></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promises</a>). It is initially set to null.</p>
 
-    <p>The <a href="#dfn-service-worker">service worker</a> should not be <a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminated</a> until the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> has been settled. However, the user agent may impose a time limit to this lifetime extension.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and <code><a href="#service-worker-global-scope-install-event">install</a></code> event.</p>
+
+    <p><a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may also use or extend the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
     <spec-section id="wait-until-method">
       <h1><code>event.waitUntil(f)</code></h1>
 
-      <p><code><a href="#extendable-event-waituntil-method">waitUntil(<var>f</var>)</a></code> method, extends the lifetime of the event. When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated. When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries. <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> will define their own behaviours, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
+      <p><code><a href="#extendable-event-waituntil-method">waitUntil(<var>f</var>)</a></code> method extends the lifetime of the event.</p>
 
       <p><dfn id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
@@ -1217,6 +1217,30 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
         <li>Add <var>f</var> to <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
       </ol>
       </spec-algorithm>
+
+      <p>In the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <var>task</var> in which the steps of <code><a href="#extendable-event-waituntil-method">waitUntil(<var>f</var>)</a></code> is running, the user agent must run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
+        <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
+          <ol>
+            <li>Let <var>eventObject</var> be the first argument passed to this <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>.</li>
+            <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
+          </ol>
+        </li>
+        <li>Do not <a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate</a> the <a href="#dfn-service-worker">service worker</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> is running <var>task</var> until <a href="http://www.w3.org/2001/tag/doc/promises-guide#waiting-for-all">waiting for all of</a> <var>extendLifetimePromises</var> settles.</li>
+      </ol>
+      </spec-algorithm>
+      <p>However, the user agent may impose a time limit to this lifetime extension.</p>
+
+      <p><a href="#dfn-service-worker">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> may define their own behaviours, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
+
+      <p><a href="#dfn-service-worker">Service workers</a> define the following behaviours for <code><a href="#service-worker-global-scope-install-event">install</a></code> event and <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event:
+        <ul>
+          <li>When called in <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code>, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>f</var> resolves successfully. If <var>f</var> rejects, the installation fails. (See step 11.6.2 of <a href="#installation-algorithm">Install</a> algorithm). This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
+          <li>When called in <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code>, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>f</var> resolves successfully. If <var>f</var> rejects, the activation fails. (See step 16.6.2 of <a href="#activation-algorithm">Activate</a> algorithm). This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
+        </ul>
+      </p>
     </spec-section>
   </spec-section>
 
@@ -1224,7 +1248,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
     <h1><code>FetchEvent</code></h1>
 
 <spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
-interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="https://dom.spec.whatwg.org/#event">Event</a> {
+interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
   readonly attribute <a href="https://fetch.spec.whatwg.org/#request">Request</a> <a href="#fetch-event-request-attribute">request</a>;
   readonly attribute <a href="#client-interface">Client</a> <a href="#fetch-event-client-attribute">client</a>;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
@@ -1238,6 +1262,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
   boolean isReload;
 };
 </spec-idl>
+    <p><a href="#dfn-service-worker">Service workers</a> have an essential <a href="#dfn-functional-events">functional event</a> <code><a href="service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">FetchEvent</a></code> interface which extends the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
     <p>Each event using <code><a href="#fetch-event-interface">FetchEvent</a></code> interface has the following associated flag that is initially unset:
       <ul>
