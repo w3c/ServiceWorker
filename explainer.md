@@ -8,7 +8,7 @@ Service Workers are being developed to answer frequent questions and concerns ab
  * Difficulty in building offline-first web applications in a natural way
  * The lack of a background excecution context which many proposed capabilities could make use of
 
-We also note that the long history of imperative-only solutions ([Google Gears, [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Having failed serially in many of the same ways, the Service Worker effort has taken a different design approach. Instead of a declarative-only solution, we are designing a largely-imperative system that puts developers firmly in control.
+We also note that the long lineage of declarative-only solutions ([Google Gears, [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Each successive declarative-only approach failed in many of the same ways, so the Service Worker effort has taken a different design approach: a largely-imperative system that puts developers firmly in control.
 
 The ServiceWorker is like a [SharedWorker](https://html.spec.whatwg.org/multipage/workers.html#sharedworker) in that it:
 
