@@ -778,8 +778,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onfetch-attribute">onfetch</a>;
-  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onbeforeevicted-attribute">onbeforeevicted</a>;
-  attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onevicted-attribute">onevicted</a>;
 
   // event
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onmessage-attribute">onmessage</a>; // event.source of the message events is Client object
@@ -854,14 +852,6 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
           <tr>
             <td><dfn id="service-worker-global-scope-onfetch-attribute"><code>onfetch</code></dfn></td>
             <td><code><a href="#service-worker-global-scope-fetch-event">fetch</a></code></td>
-          </tr>
-          <tr>
-            <td><dfn id="service-worker-global-scope-onbeforeevicted-attribute"><code>onbeforeevicted</code></dfn></td>
-            <td><code><a href="#service-worker-global-scope-beforeevicted-event">beforeevicted</a></code></td>
-          </tr>
-          <tr>
-            <td><dfn id="service-worker-global-scope-onevicted-attribute"><code>onevicted</code></dfn></td>
-            <td><code><a href="#service-worker-global-scope-evicted-event">evicted</a></code></td>
           </tr>
           <tr>
             <td><dfn id="service-worker-global-scope-onmessage-attribute"><code>onmessage</code></dfn></td>
@@ -1391,8 +1381,6 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
         </tr>
       </tbody>
     </table>
-
-    <p class="note">Custom event types for <dfn id="service-worker-global-scope-beforeevicted-event">beforeevicted</dfn> and <dfn id="service-worker-global-scope-evicted-event">evicted</dfn> should be added.</p>
   </spec-section>
 </spec-clause>
 
@@ -1974,23 +1962,25 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>, <var>p</var>, resolved with the result of running the following substeps:
+        <li>Let <var>p</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run the following substeps:
           <ol>
             <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
               <ol>
                 <li>If <var>cacheName</var> matches <var>entry</var>.[[key]], then:
                   <ol>
-                    <li>Return a new <code><a href="#cache-interface">Cache</a></code> object which is a copy of <var>entry</var>.[[value]].</li>
+                    <li>Resolve <var>p</var> with a new <code><a href="#cache-interface">Cache</a></code> object which is a copy of <var>entry</var>.[[value]].</li>
                     <li>Abort these steps.</li>
                   </ol>
                 </li>
               </ol>
             </li>
             <li>Let <var>cache</var> be a new <code><a href="#cache-interface">Cache</a></code> object.</li>
-            <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#dfn-name-to-cache-map">name to cache map</a>.</li>
-            <li>Return <var>cache</var>.</li>
+            <li>Set a newly-created <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]]: <var>cacheName</var>, [[value]]: <var>cache</var>} to <a href="#dfn-name-to-cache-map">name to cache map</a>. If this cache write operation failed due to exceeding the granted quota limit, reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#quotaexceedederror">QuotaExceededError</a></code>" exception and abort these steps.</li>
+            <li>Resolve <var>p</var> with <var>cache</var>.</li>
           </ol>
         </li>
+        <li>Return <var>p</var>.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -2131,8 +2121,8 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 <spec-clause id="storage-considerations">
   <h1>Storage Considerations</h1>
 
-  <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="SHOULD">should</em> take a dependency on <a href="http://www.w3.org/TR/quota-api/">Quota Management</a> in preparation for an extension event that communicates storage pressure and pre-eviction information to the application.</p>
-  <p class="fixme">The section will be updated.</p>
+  <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="SHOULD">should</em> take a dependency on <a href="http://www.w3.org/TR/quota-api/">Quota Management API</a> that <a href="http://www.w3.org/TR/quota-api/#extensions-to-the-serviceworkerglobalscope-interface">extends the ServiceWorkerGlobalScope</a> with the event listeners <a href="http://www.w3.org/TR/quota-api/#widl-ServiceWorkerGlobalScope-onbeforeevicted">onbeforeevicted</a> and <a href="http://www.w3.org/TR/quota-api/#widl-ServiceWorkerGlobalScope-onevicted">onevicted</a> to detect a storage pressure and give pre-eviction information to the application.</p>
+  <p>The cache write operations in <a href="#dfn-service-worker">service workers</a> when failed due to exceeding the granted quota limit <em class="rfc2119" title="SHOULD">should</em> throw "<code><a href="http://www.w3.org/TR/dom/#dom-domexception-quota_exceeded_err">QuotaExceededError</a></code>" exception.</p>
 </spec-clause>
 
 <spec-clause id="extensibility">
@@ -3405,6 +3395,7 @@ interface FunctionalEvent : ExtendableEvent {
                       <li>Else, set a newly-created <a href="#dfn-fetching-record">fetching record</a> {[[key]]: <var>operation</var>.<var>request</var>, [[value]]: <var>operation</var>.<var>response</var>} to <a href="#dfn-request-to-response-map">request to response map</a>.
                         <p class="note">The cache commit is allowed as long as the response's headers are available.</p>
                       </li>
+                      <li>If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> a "<code><a href="http://heycam.github.io/webidl/#quotaexceedederror">QuotaExceededError</a></code>" exception.</li>
                       <li>Add an array [<var>operation</var>.<var>request</var>, <var>operation</var>.<var>response</var>] to <var>addedRecords</var>.</li>
                     </ol>
                   </li>
