@@ -992,7 +992,9 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
             <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
               <ol>
                 <li>Run the <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a> with <var>browsingContext</var>.</li>
-                <li>Resolve <var>promise</var> with the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
+                <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
+                <li>If <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</li>
+                <li>Else, reject <var>promise</var> with a <code>TypeError</code>.</li>
               </ol>
             </li>
           </ol>
