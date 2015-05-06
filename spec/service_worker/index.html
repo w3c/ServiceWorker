@@ -301,7 +301,7 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
         <li>Make <var>newPorts</var> into a <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#dfn-read-only-array">read only</a> array.</li>
         <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> that runs the following steps:
           <ol>
-            <li>Create an event <var>e</var> that uses the <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> interface, with the event type <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
+            <li>Create an event <var>e</var> that uses the <code><a href="#extendablemessage-event-interface">ExtendableMessageEvent</a></code> interface, with the event type <a href="#service-worker-global-scope-message-event">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">data</a> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a> attribute of <var>e</var> be initialized to the <a href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialisation</a> of the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
             <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> <var>globalObject</var> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a new <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents <var>globalObject</var>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
@@ -311,7 +311,6 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
             <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
           <p>The <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <em class="rfc2119" title="MUST">must</em> use the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>.</p>
-          <p class="fixme">The extension of the type of <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> to <a href="#client-interface">Client</a> object depends on <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">HTML</a>. <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=28199">Bug 28199</a> has been filed to address this.</p>
         </li>
       </ol>
       </spec-algorithm>
@@ -665,10 +664,67 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
           </tr>
           <tr>
             <td><dfn id="service-worker-container-onmessage-attribute"><code>onmessage</code></dfn></td>
-            <td><code><a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a></code></td>
+            <td><code><a href="#service-worker-container-message-event">message</a></code></td>
           </tr>
         </tbody>
       </table>
+    </spec-section>
+  </spec-section>
+
+  <spec-section id="serviceworkermessage-event-section">
+    <h1><code>ServiceWorkerMessageEvent</code></h1>
+
+<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#serviceworkermessage-event-init-dictionary">ServiceWorkerMessageEventInit</a> <var>eventInitDict</var>), Exposed=(Window,Worker)]
+interface <dfn id="serviceworkermessage-event-interface" title="ServiceWorkerMessageEvent">ServiceWorkerMessageEvent</dfn> : <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#event">Event</a> {
+  readonly attribute any <a href="#serviceworkermessage-event-data-attribute">data</a>;
+  readonly attribute DOMString <a href="#serviceworkermessage-event-origin-attribute">origin</a>;
+  readonly attribute DOMString <a href="#serviceworkermessage-event-lasteventid-attribute">lastEventId</a>;
+  readonly attribute (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#serviceworkermessage-event-source-attribute">source</a>;
+  readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#serviceworkermessage-event-ports-attribute">ports</a>;
+
+  void <a href="#serviceworkermessage-event-initserviceworkermessageevent-method">initServiceWorkerMessageEvent</a>(DOMString <var>typeArg</var>, boolean <var>canBubbleArg</var>, boolean <var>cancelableArg</var>, any <var>dataArg</var>, DOMString <var>originArg</var>, DOMString <var>lastEventIdArg</var>, (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>) <var>sourceArg</var>, sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt;? <var>portsArg</var>);
+};
+
+dictionary <dfn id="serviceworkermessage-event-init-dictionary" title="ServiceWorkerMessageEventInit">ServiceWorkerMessageEventInit</dfn> : <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#eventinit">EventInit</a> {
+  any data;
+  DOMString origin;
+  DOMString lastEventId;
+  (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? source;
+  sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt; ports;
+};
+</spec-idl>
+    <p><a href="#dfn-service-worker">Service workers</a> define the <a href="#service-worker-container-message-event">message</a> event that extends the <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a> event defined in <a href="https://html.spec.whatwg.org/">HTML</a> to allow setting a <code><a href="#service-worker-interface">ServiceWorker</a></code> object as the source of the message. For the <a href="#service-worker-container-message-event">message</a> event, <a href="#dfn-service-worker">service workers</a> use the <code><a href="#serviceworkermessage-event-interface">ServiceWorkerMessageEvent</a></code> interface.</p>
+
+    <spec-section id="data-attribute">
+      <h1><code>event.data</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-data-attribute">data</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to null. It represents the message being sent.</p>
+    </spec-section>
+
+    <spec-section id="origin-attribute">
+      <h1><code>event.origin</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-origin-attribute">origin</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to the empty string. It represents the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the <a href="#dfn-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> from which the message is sent.</p>
+    </spec-section>
+
+    <spec-section id="lasteventid-attribute">
+      <h1><code>event.lastEventId</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-lasteventid-attribute">lastEventId</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to the empty string.</p>
+    </spec-section>
+
+    <spec-section id="source-attribute">
+      <h1><code>event.source</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-source-attribute">source</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the <code><a href="#client-interface">ServiceWorker</a></code> object whose associated <a href="#dfn-service-worker">service worker</a> the message is sent from.</p>
+
+      <p class="note">When <a href="https://github.com/mkruisselbrink/navigator-connect/">navigator.connect() API</a> extends the service worker communication model, this attribute may also represent MessagePort object from which the message is sent.</p>
+    </spec-section>
+
+    <spec-section id="ports-attribute">
+      <h1><code>event.ports</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-ports-attribute">ports</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to null. It represents the <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a> array being sent, if any.</p>
+    </spec-section>
+
+    <spec-section id="initserviceworkermessageevent-method">
+      <h1><code>event.initServiceWorkerMessageEvent()</code></h1>
+      <p>The <dfn id="serviceworkermessage-event-initserviceworkermessageevent-method">initServiceWorkerMessageEvent()</dfn> method must initialize the event in a manner analogous to the similarly-named <a href="https://dom.spec.whatwg.org/#dom-event-initeventtype-bubbles-cancelable">initEvent()</a> method defined in <a href="https://dom.spec.whatwg.org/">DOM</a>.</p>
     </spec-section>
   </spec-section>
 
@@ -714,6 +770,11 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
           <td><dfn id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td><code><a href="https://dom.spec.whatwg.org/#event">Event</a></code></td>
           <td>The <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> changes. (See step 12.2 of the <a href="#activation-algorithm">Activate</a> algorithm. The <a href="#dfn-skip-waiting-flag">skip waiting flag</a> of a <a href="#dfn-service-worker">service worker</a> causes <a href="#activation-algorithm">activation</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> to occur while <a href="#dfn-service-worker-client">service worker clients</a> are <a href="#dfn-use">using</a> the <a href="#dfn-service-worker-registration">service worker registration</a>, <code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> immediately reflects the <a href="#dfn-active-worker">active worker</a> as the <a href="#dfn-service-worker">service worker</a> that <a href="#dfn-control">controls</a> the <a href="#dfn-service-worker-client">service worker client</a>.)</td>
+        </tr>
+        <tr>
+          <td><dfn id="service-worker-container-message-event"><code>message</code></dfn></td>
+          <td><code><a href="#serviceworkermessage-event-interface">ServiceWorkerMessageEvent</a></code></td>
+          <td>When it receives a message.</td>
         </tr>
         <tr>
           <td><dfn id="service-worker-container-error-event"><code>error</code></dfn></td>
@@ -855,7 +916,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
           </tr>
           <tr>
             <td><dfn id="service-worker-global-scope-onmessage-attribute"><code>onmessage</code></dfn></td>
-            <td><code><a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a></code></td>
+            <td><code><a href="#service-worker-global-scope-message-event">message</a></code></td>
           </tr>
         </tbody>
       </table>
@@ -953,7 +1014,7 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
         <li>Make <var>newPorts</var> into a <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#dfn-read-only-array">read only</a> array.</li>
         <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> that runs the following steps:
           <ol>
-            <li>Create an event <var>e</var> that uses the <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> interface, with the event type <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
+            <li>Create an event <var>e</var> that uses the <code><a href="#serviceworkermessage-event-interface">ServiceWorkerMessageEvent</a></code> interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">data</a> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a> attribute of <var>e</var> be initialized to the <a href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialisation</a> of the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
             <li>Let the <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a <code><a href="#service-worker-interface">ServiceWorker</a></code> object, setting its <a href="#dfn-service-worker-interface-client">service worker client</a> to <var>destination</var>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a> associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> specified by the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>.</li>
@@ -961,7 +1022,6 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
             <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
           <p>The <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <em class="rfc2119" title="MUST">must</em> use the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>, and, for those where the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a> specified by the target <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object's <a href="#dfn-service-worker-container-interface-client">service worker client</a> is a <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a> <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>, <em class="rfc2119" title="MUST">must</em> be associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> specified by that target <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object's <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</p>
-          <p class="fixme">The extension of the type of <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a> to <a href="#service-worker-interface">ServiceWorker</a> object depends on <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">HTML</a>. <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=28199">Bug 28199</a> has been filed to address this.</p>
         </li>
       </ol>
       </spec-algorithm>
@@ -1252,7 +1312,7 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
   boolean isReload = false;
 };
 </spec-idl>
-    <p><a href="#dfn-service-worker">Service workers</a> have an essential <a href="#dfn-functional-events">functional event</a> <code><a href="service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">Service workers</a> use the <code><a href="#extendable-event-interface">FetchEvent</a></code> interface which extends the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> have an essential <a href="#dfn-functional-events">functional event</a> <code><a href="service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">service workers</a> use the <code><a href="#extendable-event-interface">FetchEvent</a></code> interface which extends the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
 
     <p>Each event using <code><a href="#fetch-event-interface">FetchEvent</a></code> interface has the following associated flag that is initially unset:
       <ul>
@@ -1353,6 +1413,63 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
     </spec-section>
   </spec-section>
 
+  <spec-section id="extendablemessage-event-section">
+    <h1><code>ExtendableMessageEvent</code></h1>
+
+<spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#extendablemessage-event-init-dictionary">ExtendableMessageEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
+interface <dfn id="extendablemessage-event-interface" title="ExtendableMessageEvent">ExtendableMessageEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
+  readonly attribute any <a href="#extendablemessage-event-data-attribute">data</a>;
+  readonly attribute DOMString <a href="#extendablemessage-event-origin-attribute">origin</a>;
+  readonly attribute DOMString <a href="#extendablemessage-event-lasteventid-attribute">lastEventId</a>;
+  readonly attribute (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#extendablemessage-event-source-attribute">source</a>;
+  readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#extendablemessage-event-ports-attribute">ports</a>;
+
+  void <a href="#extendablemessage-event-initextendablemessageevent-method">initExtendableMessageEvent</a>(DOMString <var>typeArg</var>, boolean <var>canBubbleArg</var>, boolean <var>cancelableArg</var>, any <var>dataArg</var>, DOMString <var>originArg</var>, DOMString <var>lastEventIdArg</var>, (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>) <var>sourceArg</var>, sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt;? <var>portsArg</var>);
+};
+
+dictionary <dfn id="extendablemessage-event-init-dictionary" title="ExtendableMessageEventInit">ExtendableMessageEventInit</dfn> : <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> {
+  any data;
+  DOMString origin;
+  DOMString lastEventId;
+  (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? source;
+  sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt; ports;
+};
+</spec-idl>
+    <p><a href="#dfn-service-worker">Service workers</a> define the <a href="#extendable-event-waituntil-method">extendable</a> <a href="#service-worker-global-scope-message-event">message</a> event that extends the <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a> event defined in <a href="https://html.spec.whatwg.org/">HTML</a> to allow extending the lifetime of the event. For the <a href="#service-worker-global-scope-message-event">message</a> event, <a href="#dfn-service-worker">service workers</a> use the <code><a href="#extendablemessage-event-interface">ExtendableMessageEvent</a></code> interface which extends the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface.</p>
+
+    <spec-section id="data-attribute">
+      <h1><code>event.data</code></h1>
+      <p>The <dfn id="extendablemessage-event-data-attribute">data</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to null. It represents the message being sent.</p>
+    </spec-section>
+
+    <spec-section id="origin-attribute">
+      <h1><code>event.origin</code></h1>
+      <p>The <dfn id="extendablemessage-event-origin-attribute">origin</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to the empty string. It represents the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the <a href="#dfn-service-worker-client">service worker client</a> that sent the message.</p>
+    </spec-section>
+
+    <spec-section id="lasteventid-attribute">
+      <h1><code>event.lastEventId</code></h1>
+      <p>The <dfn id="extendablemessage-event-lasteventid-attribute">lastEventId</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to the empty string.</p>
+    </spec-section>
+
+    <spec-section id="source-attribute">
+      <h1><code>event.source</code></h1>
+      <p>The <dfn id="extendablemessage-event-source-attribute">source</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the <code><a href="#client-interface">Client</a></code> object from which the message is sent.</p>
+
+      <p class="note">When <a href="https://github.com/mkruisselbrink/navigator-connect/">navigator.connect() API</a> extends the communication model between cross origin service workers, this attribute may also represent MessagePort object from which the message is sent.</p>
+    </spec-section>
+
+    <spec-section id="ports-attribute">
+      <h1><code>event.ports</code></h1>
+      <p>The <dfn id="extendablemessage-event-ports-attribute">ports</dfn> attribute must return the value it was initialized to. When the object is created, this attribute must be initialized to null. It represents the <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a> array being sent, if any.</p>
+    </spec-section>
+
+    <spec-section id="initextendablemessageevent-method">
+      <h1><code>event.initExtendableMessageEvent()</code></h1>
+      <p>The <dfn id="extendablemessage-event-initextendablemessageevent-method">initExtendableMessageEvent()</dfn> method must initialize the event in a manner analogous to the similarly-named <a href="https://dom.spec.whatwg.org/#dom-event-initeventtype-bubbles-cancelable">initEvent()</a> method defined in <a href="https://dom.spec.whatwg.org/">DOM</a>.</p>
+    </spec-section>
+  </spec-section>
+
   <spec-section id="execution-context-events">
     <h1>Events</h1>
 
@@ -1381,6 +1498,11 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
           <td><dfn id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
           <td><code><a href="#fetch-event-interface">FetchEvent</a></code></td>
           <td>[<a href="#dfn-functional-events">Functional event</a>] <a href="https://fetch.spec.whatwg.org/">Fetch</a> invokes <a href="#on-fetch-request-algorithm">Handle Fetch</a> with <var>request</var>. As a result of performing <a href="#on-fetch-request-algorithm">Handle Fetch</a>, the Service Woker returns a <a href="https://fetch.spec.whatwg.org/#concept-response">response</a> to <a href="https://fetch.spec.whatwg.org/">Fetch</a>. The <a href="https://fetch.spec.whatwg.org/#concept-response">response</a>, represented by a <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, can be retrieved from a <a href="#cache-interface">Cache</a> object or directly from network using <code><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">self.fetch(<var>input</var>, <var>init</var>)</a></code> method. (A custom <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> object can be another option.)</td>
+        </tr>
+        <tr>
+          <td><dfn id="service-worker-global-scope-message-event"><code>message</code></dfn></td>
+          <td><code><a href="#extendablemessage-event-interface">ExtendableMessageEvent</a></code></td>
+          <td>When it receives a message.</td>
         </tr>
       </tbody>
     </table>
