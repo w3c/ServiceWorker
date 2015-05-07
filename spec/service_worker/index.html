@@ -343,14 +343,14 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
 
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRegistration">ServiceWorkerRegistration</dfn> : <a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-installing-attribute">installing</a>;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-active-attribute">active</a>;
+  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-installing-attribute">installing</a>;
+  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
+  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-active-attribute">active</a>;
 
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
 
   void <a href="#service-worker-registration-update-method">update</a>();
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
 
   // event
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-registration-onupdatefound-attribute">onupdatefound</a>;
@@ -469,11 +469,11 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <h1><code>navigator.serviceWorker</code></h1>
 
 <spec-idl>partial interface <a href="https://html.spec.whatwg.org/multipage/webappapis.html#navigator">Navigator</a> {
-  readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
+  [SameObject] readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
 };
 
 partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#workernavigator">WorkerNavigator</a> {
-  readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
+  [SameObject] readonly attribute <a href="#service-worker-container-interface">ServiceWorkerContainer</a> <a href="#navigator-service-worker-attribute">serviceWorker</a>;
 };</spec-idl>
 
     <p>The <dfn id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object for the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>.</p>
@@ -484,13 +484,13 @@ partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#w
 
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
-  [<a href="http://heycam.github.io/webidl/#Unforgeable">Unforgeable</a>] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
-  readonly attribute <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
+  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
+  [SameObject] readonly attribute <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
 
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>clientURL</var> = "");
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-getregistration-method">getRegistration</a>(optional <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>clientURL</var> = "");
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt;?&gt; <a href="#service-worker-container-getregistrations-method">getRegistrations</a>();
 
 
   // events
@@ -679,8 +679,8 @@ interface <dfn id="serviceworkermessage-event-interface" title="ServiceWorkerMes
   readonly attribute any <a href="#serviceworkermessage-event-data-attribute">data</a>;
   readonly attribute DOMString <a href="#serviceworkermessage-event-origin-attribute">origin</a>;
   readonly attribute DOMString <a href="#serviceworkermessage-event-lasteventid-attribute">lastEventId</a>;
-  readonly attribute (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#serviceworkermessage-event-source-attribute">source</a>;
-  readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#serviceworkermessage-event-ports-attribute">ports</a>;
+  [SameObject] readonly attribute (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#serviceworkermessage-event-source-attribute">source</a>;
+  [SameObject] readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#serviceworkermessage-event-ports-attribute">ports</a>;
 
   void <a href="#serviceworkermessage-event-initserviceworkermessageevent-method">initServiceWorkerMessageEvent</a>(DOMString <var>typeArg</var>, boolean <var>canBubbleArg</var>, boolean <var>cancelableArg</var>, any <var>dataArg</var>, DOMString <var>originArg</var>, DOMString <var>lastEventIdArg</var>, (<a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>) <var>sourceArg</var>, sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt;? <var>portsArg</var>);
 };
@@ -831,10 +831,10 @@ this.addEventListener("fetch", function(e) {
 interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGlobalScope">ServiceWorkerGlobalScope</dfn> : <a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a> {
   // A container for a list of Client objects that correspond to
   // browsing contexts (or shared workers) that are on the origin of this SW
-  readonly attribute <a href="#clients-interface">Clients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
-  readonly attribute <a href="#service-worker-registration-interface">ServiceWorkerRegistration</a> registration;
+  [SameObject] readonly attribute <a href="#clients-interface">Clients</a> <a href="#service-worker-global-scope-clients-attribute">clients</a>;
+  [SameObject] readonly attribute <a href="#service-worker-registration-interface">ServiceWorkerRegistration</a> <a href="#service-worker-global-scope-registration">registration</a>;
 
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#service-worker-global-scope-skipwaiting-method">skipWaiting</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#service-worker-global-scope-skipwaiting-method">skipWaiting</a>();
 
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-oninstall-attribute">oninstall</a>;
   attribute <a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a href="#service-worker-global-scope-onactivate-attribute">onactivate</a>;
@@ -937,7 +937,7 @@ interface <dfn id="client-interface" title="Client">Client</dfn> {
 interface <dfn id="window-client-interface" title="WindowClient">WindowClient</dfn> : <a href="#client-interface">Client</a> {
   readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="#client-visibilitystate-attribute">visibilityState</a>;
   readonly attribute boolean <a href="#client-focused-attribute">focused</a>;
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#client-focus-method">focus</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#client-focus-method">focus</a>();
 };
 
 enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
@@ -1070,9 +1070,9 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
 <spec-idl>[Exposed=ServiceWorker]
 interface <dfn id="clients-interface" title="Clients">Clients</dfn> {
   // The objects returned will be new instances every time
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#clients-matchall-method">matchAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ClientQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#clients-openwindow-method">openWindow</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#clients-claim-method">claim</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="#client-interface">Client</a>&gt;?&gt; <a href="#clients-matchall-method">matchAll</a>(optional <a href="#serviceworker-client-query-options-dictionary">ClientQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#clients-openwindow-method">openWindow</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#clients-claim-method">claim</a>();
 };
 
 dictionary <dfn id="serviceworker-client-query-options-dictionary" title="ClientQueryOptions">ClientQueryOptions</dfn> {
@@ -1299,8 +1299,8 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 
 <spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
-  readonly attribute <a href="https://fetch.spec.whatwg.org/#request">Request</a> <a href="#fetch-event-request-attribute">request</a>;
-  readonly attribute <a href="#client-interface">Client</a> <a href="#fetch-event-client-attribute">client</a>;
+  [SameObject] readonly attribute <a href="https://fetch.spec.whatwg.org/#request">Request</a> <a href="#fetch-event-request-attribute">request</a>;
+  [SameObject] readonly attribute <a href="#client-interface">Client</a> <a href="#fetch-event-client-attribute">client</a>;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
   void <a href="#fetch-event-respondwith-method">respondWith</a>((<a href="https://fetch.spec.whatwg.org/#response">Response</a> or <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt;) <var>r</var>);
@@ -1421,8 +1421,8 @@ interface <dfn id="extendablemessage-event-interface" title="ExtendableMessageEv
   readonly attribute any <a href="#extendablemessage-event-data-attribute">data</a>;
   readonly attribute DOMString <a href="#extendablemessage-event-origin-attribute">origin</a>;
   readonly attribute DOMString <a href="#extendablemessage-event-lasteventid-attribute">lastEventId</a>;
-  readonly attribute (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#extendablemessage-event-source-attribute">source</a>;
-  readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#extendablemessage-event-ports-attribute">ports</a>;
+  [SameObject] readonly attribute (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a href="#extendablemessage-event-source-attribute">source</a>;
+  [SameObject] readonly attribute <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>[]? <a href="#extendablemessage-event-ports-attribute">ports</a>;
 
   void <a href="#extendablemessage-event-initextendablemessageevent-method">initExtendableMessageEvent</a>(DOMString <var>typeArg</var>, boolean <var>canBubbleArg</var>, boolean <var>cancelableArg</var>, any <var>dataArg</var>, DOMString <var>originArg</var>, DOMString <var>lastEventIdArg</var>, (<a href="#client-interface">Client</a> or <a href="#service-worker-interface">ServiceWorker</a> or <a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>) <var>sourceArg</var>, sequence&lt;<a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>&gt;? <var>portsArg</var>);
 };
@@ -1534,11 +1534,11 @@ dictionary <dfn id="extendablemessage-event-init-dictionary" title="ExtendableMe
   <spec-section id="self-caches">
     <h1><code>self.caches</code></h1>
 <spec-idl>partial interface <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> {
-  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
+  [SameObject] readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
 };
 
 partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> {
-  readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
+  [SameObject] readonly attribute <a href="#cache-storage-interface">CacheStorage</a> <a href="#global-caches-attribute">caches</a>;
 };
 </spec-idl>
     <spec-section id="global-caches">
@@ -1552,13 +1552,13 @@ partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#w
     <h1><code>Cache</code></h1>
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="cache-interface" title="Cache">Cache</dfn> {
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#cache-match-method">match</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; <a href="#cache-matchall-method">matchAll</a>(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-add-method">add</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-addAll-method">addAll</a>(sequence&lt;<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a>&gt; <var>requests</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-put-method">put</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, <a href="https://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-delete-method">delete</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="https://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; <a href="#cache-keys-method">keys</a>(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#cache-match-method">match</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt;&gt; <a href="#cache-matchall-method">matchAll</a>(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-add-method">add</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-addAll-method">addAll</a>(sequence&lt;<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a>&gt; <var>requests</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#cache-put-method">put</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, <a href="https://fetch.spec.whatwg.org/#response">Response</a> <var>response</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-delete-method">delete</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;<a href="https://fetch.spec.whatwg.org/#request">Request</a>&gt;&gt; <a href="#cache-keys-method">keys</a>(optional <a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
 };
 
 dictionary <dfn id="cache-query-options-dictionary" title="CacheQueryOptions">CacheQueryOptions</dfn> {
@@ -1991,11 +1991,11 @@ dictionary <dfn id="cache-batch-operation-dictionary" title="CacheBatchOperation
 
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</dfn> {
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#cache-storage-match-method">match</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-storage-has-method">has</a>(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; <a href="#cache-storage-open-method">open</a>(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-storage-delete-method">delete</a>(DOMString <var>cacheName</var>);
-  <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; <a href="#cache-storage-keys-method">keys</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <a href="#cache-storage-match-method">match</a>(<a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a> <var>request</var>, optional <a href="#cache-query-options-dictionary">CacheQueryOptions</a> <var>options</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-storage-has-method">has</a>(DOMString <var>cacheName</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#cache-interface">Cache</a>&gt; <a href="#cache-storage-open-method">open</a>(DOMString <var>cacheName</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#cache-storage-delete-method">delete</a>(DOMString <var>cacheName</var>);
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;sequence&lt;DOMString&gt;&gt; <a href="#cache-storage-keys-method">keys</a>();
 };</spec-idl>
 <!--FIXME(jungkees): set method is not entirely dropped yet. <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;any&gt; set(DOMString <var>key</var>, <a href="#cache-interface">Cache</a> <var>val</var>);-->
 
@@ -2010,7 +2010,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>cacheName</var> be null.</li>
         <li>If the optional argument <var>options</var> is not omitted, then:
           <ol>
@@ -2019,7 +2019,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>If <var>cacheName</var> is not null, then:
           <ol>
-            <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> and run the following substeps in parallel:
+            <li>Return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> and run the following substeps in parallel:
               <ol>
                 <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
                   <ol>
@@ -2038,7 +2038,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>Else:
           <ol>
-            <li>Let <var>p</var> be a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolved with undefined.</li>
+            <li>Let <var>p</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> resolved with undefined.</li>
             <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
               <ol>
                 <li>Set <var>p</var> to the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> itself with a fulfillment handler that, when called with argument <var>v</var>, performs the following substeps in parallel:
@@ -2063,8 +2063,8 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
-        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
+        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>Return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
           <ol>
             <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
               <ol>
@@ -2089,7 +2089,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>p</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
         <li>Run the following substeps:
           <ol>
@@ -2120,7 +2120,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-storage-has-method">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
         <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>p</var> with a fulfillment handler that, when called with argument <var>cacheExists</var>, performs the following substeps in parallel:
           <ol>
@@ -2151,9 +2151,9 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is a unique identifier, return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>resultArray</var> be an empty array.</li>
-        <li>Return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
+        <li>Return a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
           <ol>
             <li>For each <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
               <ol>
