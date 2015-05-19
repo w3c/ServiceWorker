@@ -938,6 +938,7 @@ interface <dfn id="window-client-interface" title="WindowClient">WindowClient</d
   readonly attribute <a href="http://www.w3.org/TR/page-visibility/#VisibilityState">VisibilityState</a> <a href="#client-visibilitystate-attribute">visibilityState</a>;
   readonly attribute boolean <a href="#client-focused-attribute">focused</a>;
   [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#client-focus-method">focus</a>();
+  [NewObject] <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">Promise</a>&lt;<a href="#window-client-interface">WindowClient</a>&gt; <a href="#client-navigate-method">navigate</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>url</var> = "");
 };
 
 enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
@@ -1055,6 +1056,40 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
                 <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
                 <li>If <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</li>
                 <li>Else, reject <var>promise</var> with a <code>TypeError</code>.</li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li>Return <var>promise</var>.</li>
+      </ol>
+      </spec-algorithm>
+    </spec-section>
+
+    <spec-section id="client-navigate">
+      <h1><code>navigate(<var>url</var>)</code></h1>
+      <p>The <dfn id="client-navigate-method"><code>navigate()</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <spec-algorithm>
+      <ol>
+        <li>Let <var>url</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>url</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+        <li>If <var>url</var> is failure, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+        <li>If <var>url</var> is <code><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#about:blank">about:blank</a></code>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a> is not <a href="#dfn-control">controlled</a> by this <a href="#dfn-service-worker">service worker</a>, return a <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+        <li>Let <var>promise</var> be a new <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-promise-objects">promise</a>.</li>
+        <li>Run these steps in parallel:
+          <ol>
+            <li>Let <var>browsingContext</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+            <li>If <var>browsingContext</var> has <a href="https://html.spec.whatwg.org/multipage/browsers.html#discard-a-document">discarded</a> its <code><a href="https://html.spec.whatwg.org/multipage/dom.html#document">Document</a></code>, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+              <ol>
+                <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">Navigate</a> <var>browsingContext</var> to <var>url</var> with <a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a> and <a href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a>. The <a href="https://html.spec.whatwg.org/multipage/browsers.html#source-browsing-context">source browsing context</a> must be <var>browsingContext</var>.</li>
+                <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is not the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+                  <ol>
+                    <li>Resolve <var>promise</var> with null.</li>
+                    <li>Abort these steps.</li>
+                  </ol>
+                </li>
+                <li>Let <var>client</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>newContext</var> as the argument.</li>
+                <li>Resolve <var>promise</var> with <var>client</var>.</li>
               </ol>
             </li>
           </ol>
