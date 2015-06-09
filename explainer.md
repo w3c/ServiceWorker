@@ -121,7 +121,7 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-[Here's a live demo](https://jakearchibald.github.io/isserviceworkerready/demos/manual-response/) (you'll need to enable [some flags](http://jakearchibald.com/2014/using-serviceworker-today/#in-canary-today) to get it working in Chrome today).
+[Here's a live demo](https://jakearchibald.github.io/isserviceworkerready/demos/manual-response/).
 
 `.respondWith` takes a `Response` object or a promise that resolves to one. We're creating a manual response above. The `Response` object comes from the [Fetch Spec](https://fetch.spec.whatwg.org/#response-class). Also in the spec is the `fetch()` method, which returns a promise for a response, meaning you can get your response from elsewhere:
 
