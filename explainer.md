@@ -1,6 +1,6 @@
 # Service Workers Explained
 
-## What's All This Then?
+## What's all this then?
 
 Service workers are being developed to answer frequent questions and concerns about the web platform, including:
 
@@ -28,7 +28,7 @@ We can use service worker:
 * To make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
 * As a basis for other 'background' features such as [push messaging](http://updates.html5rocks.com/2015/03/push-notificatons-on-the-open-web) and [background synchronization](https://github.com/slightlyoff/BackgroundSync/blob/master/explainer.md)
 
-## Getting Started
+## Getting started
 
 First you need to register for a service worker:
 
@@ -153,7 +153,7 @@ self.addEventListener('fetch', function(event) {
 
 The service worker comes with a cache API, making it easy to store responses for reuse later, more on that shortly, but first…
 
-## Updating a Service Worker
+## Updating a service worker
 
 The lifecycle of a service worker is based on Chrome's update model: Do as much as possible in the background, don't disrupt the user, complete the update when the current version closes.
 
@@ -219,7 +219,7 @@ Matching within the cache is similar to the browser cache. Method, URL and vary 
 
 You can add individual items to the cache with `cache.put(request, response)`, including ones you've created yourself. You can also control matching, [discounting things](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
 
-## Other Service Worker Related Specifications
+## Other service worker related specifications
 
 Since service worker can spin up in time for events, they've opened up the possibility for other features that happen occasionally in the background, even when the page isn't open. Such as:
 
