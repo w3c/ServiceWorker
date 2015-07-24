@@ -351,7 +351,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
 
-  void <a href="#service-worker-registration-update-method">update</a>();
+  [NewObject] <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;void&gt; <a href="#service-worker-registration-update-method">update</a>();
   [NewObject] <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;boolean&gt; <a href="#service-worker-registration-unregister-method">unregister</a>();
 
   // event
@@ -425,7 +425,13 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
         <li>If <var>newestWorker</var> is null, abort these steps.</li>
         <li>Set <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> to <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
-        <li>Invoke <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var> and <var>registration</var> as the arguments.</li>
+        <li>Let <var>p</var> be the result of running <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var> and <var>registration</var> as the arguments.</li>
+        <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>p</var> with:
+          <ol>
+            <li>A fulfillment handler that returns undefined.</li>
+            <li>A rejection handler that, when called with argument <var>e</var>, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> <var>e</var>.</li>
+          </ol>
+        </li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -607,7 +613,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
           </li>
           <li>Else:
             <ol>
-              <li>Resolve <var>promise</var> with <code>undefined</code>.</li>
+              <li>Resolve <var>promise</var> with undefined.</li>
             </ol>
           </li>
         </ol>
