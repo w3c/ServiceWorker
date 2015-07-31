@@ -104,11 +104,14 @@
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a></li>
       <li><a href="http://www.w3.org/TR/page-visibility/">Page Visibility (Second Edition)</a></li>
       <li><a href="http://tools.ietf.org/html/rfc4122">A Universally Unique IDentifier (UUID) URN Namespace</a></li>
+      <li><a href="http://www.w3.org/2001/tag/doc/unsanctioned-tracking/">(Non-normative) Unsanctioned Web Tracking</a></li>
     </ul>
   </spec-section>
 
   <spec-section class="informative" id="motivations">
     <h1>Motivations</h1>
+
+    <em>This section is non-normative.</em>
 
     <p>Web Applications traditionally assume that the network is reachable. This assumption pervades the platform. HTML documents are loaded over HTTP and traditionally fetch all of their sub-resources via subsequent HTTP requests. This places web content at a disadvantage versus other technology stacks.</p>
 
@@ -2274,6 +2277,11 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
     <p>Applications tend to cache items that come from a CDN or other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-<a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> resources when appropriate CORS headers are set.</p>
     <p>ServiceWorkers enable this by allowing <code><a href="#cache-interface">Cache</a></code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code><a href="#cache-interface">Cache</a></code> as <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>basic</code>", the objects stored are <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>opaque</code>". <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>opaque</code>" provide a much less expressive API than <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>"; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method in the same manner as the <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>", but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code><a href="#cache-interface">Cache</a></code>s to store them allows applications to avoid re-architecting in most cases.</p>
     <p class="fixme">The section will be updated.</p>
+  </spec-section>
+
+  <spec-section id="privacy">
+    <h1>Privacy</h1>
+    <p><a href="#dfn-service-worker">Service workers</a> introduce new persistent storage features including <a href="#dfn-scope-to-registration-map">scope to registration map</a> (for <a href="#dfn-service-worker-registration">service worker registrations</a> and their <a href="#dfn-service-worker">service workers</a>), <a href="#dfn-request-to-response-map">request to response map</a> and <a href="#dfn-name-to-cache-map">name to cache map</a> (for caches), and <a href="#dfn-script-resource-map">script resource map</a> (for script resources). In order to protect users from any potential <a href="http://www.w3.org/2001/tag/doc/unsanctioned-tracking/#h-unsanctioned-tracking-tracking-without-user-control">unsanctioned tracking</a> threat, these persistent storages <em class="rfc2119" title="SHOULD">should</em> be cleared when users intend to clear them and <em class="rfc2119" title="SHOULD">should</em> maintain and interoperate with existing user controls e.g. purging all existing persistent storages.</p>
   </spec-section>
 </spec-clause>
 
