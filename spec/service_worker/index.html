@@ -2204,21 +2204,34 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 <spec-clause id="security-considerations">
   <h1>Security Considerations</h1>
 
-  <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="SHOULD">should</em> be implemented to be HTTPS-only. The reasons for SSL-only support include:</p>
-  <ul>
-    <li>Better to protect end users from man-in-the-middle attacks</li>
-    <li>Do good by encouraging HTTPS adoption</li>
-    <li>Existing "playground" services (e.g. github.io) now work with HTTPS</li>
-    <li>HTTPS is coming across much more of the web quickly</li>
-    <li>Devtools can loosen the restriction for development (file://, localhost, etc.)</li>
-  </ul>
+  <spec-section id="secure-context">
+    <h1>Secure Context</h1>
 
-  <p class="fixme">The section will be updated.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="MUST">must</em> be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-worker">secure workers</a> to serve, and <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="MUST">must</em> be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a> to <a href="#dfn-use">use</a> the <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> of their <a href="#dfn-control">controlling</a> <a href="#dfn-service-worker">service workers</a>. This effectively means that the <a href="">service workers</a> and their <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="MUST">must</em> be completely hosted over HTTPS. The "<code>file</code>" scheme, <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> <em class="rfc2119" title="MAY">may</em> be allowed for development purpose. (Note that they are still <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#threat-risks">risks associated with insecure contexts</a>.</p>
+  </spec-section>
+
+  <spec-section id="content-security">
+    <h1>Content Security Policy</h1>
+
+    <p>Whenever a user agent invokes <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with a <a href="#dfn-service-worker">service worker</a> <var>serviceWorker</var>:
+      <ul>
+        <li>If <var>serviceWorker</var>'s <a href="dfn-script-resource">script resource</a> was delivered with a <code>Content-Security-Policy</code> HTTP header containing the value <var>policy</var>, the user agent <em class="rfc2119" title="MUST">must</em> <a href="https://w3c.github.io/webappsec/specs/CSP2/#enforce">enforce</a> <var>policy</var> for <var>serviceWorker</var>.</li>
+        <li>If <var>serviceWorker</var>'s <a href="dfn-script-resource">script resource</a> was delivered with a <code>Content-Security-Policy-Report-Only</code> HTTP header containing the value <var>policy</var>, the user agent <em class="rfc2119" title="MUST">must</em> <a href="https://w3c.github.io/webappsec/specs/CSP2/#monitor">monitor</a> <var>policy</var> for <var>serviceWorker</var>.</li>
+      </ul>
+    </p>
+    <p>The primary reason for this restriction is to mitigate a broad class of content injection vulnerabilities, such as cross-site scripting (XSS).</p>
+  </spec-section>
 
   <spec-section id="origin-relativity">
     <h1>Origin Relativity</h1>
 
-    <p>One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="#importscripts-method">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
+    <spec-section id="importscripts">
+      <h1>Origin restriction</h1>
+
+      <em>This section is non-normative.</em>
+
+      <p>A <a href="#dfn-service-worker">Service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="#importscripts-method">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
+    </spec-section>
 
     <spec-section id="importscripts">
       <h1><code>importScripts(<var>urls</var>)</code></h1>
@@ -2274,9 +2287,10 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <spec-section id="cross-origin-resources">
     <h1>Cross-Origin Resources and CORS</h1>
 
-    <p>Applications tend to cache items that come from a CDN or other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. It is possible to request many of them directly using &lt;script&gt;, &lt;img&gt;, &lt;video&gt; and &lt;link&gt; elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to XHR many sorts of off-<a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> resources when appropriate CORS headers are set.</p>
-    <p>ServiceWorkers enable this by allowing <code><a href="#cache-interface">Cache</a></code>s to fetch and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code><a href="#cache-interface">Cache</a></code> as <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>basic</code>", the objects stored are <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects with the <code>type</code> attribute set to "<code>opaque</code>". <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>opaque</code>" provide a much less expressive API than <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>"; the bodies and headers cannot be read or set, nor many of the other aspects of their content inspected. They can be passed to <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method in the same manner as the <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code>s typed "<code>basic</code>", but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code><a href="#cache-interface">Cache</a></code>s to store them allows applications to avoid re-architecting in most cases.</p>
-    <p class="fixme">The section will be updated.</p>
+    <em>This section is non-normative.</em>
+
+    <p>Applications tend to cache items that come from a CDN or other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. It is possible to request many of them directly using <code>&lt;script&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;video&gt;</code> and <code>&lt;link&gt;</code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> many sorts of off-<a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> resources when appropriate CORS headers are set.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> enable this by allowing <code><a href="#cache-interface">Caches</a></code> to <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code><a href="#cache-interface">Cache</a></code> as <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic">basic filtered response</a>, the objects stored are <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are either <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors">CORS filtered responses</a> or <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">opaque filtered responses</a>. They can be passed to <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method in the same manner as the <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic">basic filtered responses</a>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code><a href="#cache-interface">Caches</a></code> to store them allows applications to avoid re-architecting in most cases.</p>
   </spec-section>
 
   <spec-section id="privacy">
