@@ -100,7 +100,7 @@
       <li><a href="https://tools.ietf.org/html/rfc7230">Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</a></li>
       <li><a href="https://tools.ietf.org/html/rfc7231">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a></li>
       <li><a href="https://tools.ietf.org/html/rfc7234">Hypertext Transfer Protocol (HTTP/1.1): Caching</a></li>
-      <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">Requirements for Powerful Features</a></li>
+      <li><a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/">Secure Contexts</a></li>
       <li><a href="http://www.w3.org/2001/tag/doc/promises-guide">Writing Promise-Using Specifications</a></li>
       <li><a href="http://www.w3.org/TR/page-visibility/">Page Visibility (Second Edition)</a></li>
       <li><a href="http://tools.ietf.org/html/rfc4122">A Universally Unique IDentifier (UUID) URN Namespace</a></li>
@@ -2207,10 +2207,10 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <spec-section id="secure-context">
     <h1>Secure Context</h1>
 
-    <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="MUST">must</em> be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-worker">secure workers</a> to serve, and <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="MUST">must</em> be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a> to <a href="#dfn-use">use</a> the <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> of their <a href="#dfn-control">controlling</a> <a href="#dfn-service-worker">service workers</a>. This effectively means that the <a href="">service workers</a> and their <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="MUST">must</em> be completely hosted over HTTPS. The <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> <em class="rfc2119" title="MAY">may</em> be allowed for development purpose. (Note that they are still <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#threat-risks">risks associated with insecure contexts</a>.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="SHOULD">should</em> execute in <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>, and the <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="SHOULD">should</em> also be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>. This effectively means that <a href="#dfn-service-worker">service workers</a> and their <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="SHOULD">should</em> be hosted over HTTPS. The user agents <em class="rfc2119" title="MAY">may</em> allow <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> for development purpose. (Note that they are still <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#threat-risks">risks associated with insecure contexts</a>.</p>
   </spec-section>
 
-  <spec-section id="content-security">
+  <spec-section id="content-security-policy">
     <h1>Content Security Policy</h1>
 
     <p>Whenever a user agent invokes <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with a <a href="#dfn-service-worker">service worker</a> <var>serviceWorker</var>:
@@ -2225,7 +2225,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <spec-section id="origin-relativity">
     <h1>Origin Relativity</h1>
 
-    <spec-section id="importscripts">
+    <spec-section id="origin-restriction">
       <h1>Origin restriction</h1>
 
       <em>This section is non-normative.</em>
@@ -2291,6 +2291,19 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
     <p>Applications tend to cache items that come from a CDN or other <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. It is possible to request many of them directly using <code>&lt;script&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;video&gt;</code> and <code>&lt;link&gt;</code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> many sorts of off-<a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> resources when appropriate CORS headers are set.</p>
     <p><a href="#dfn-service-worker">Service workers</a> enable this by allowing <code><a href="#cache-interface">Caches</a></code> to <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code><a href="#cache-interface">Cache</a></code> as <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic">basic filtered response</a>, the objects stored are <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are either <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors">CORS filtered responses</a> or <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">opaque filtered responses</a>. They can be passed to <code><a href="#fetch-event-respondwith-method">event.respondWith(<var>r</var>)</a></code> method in the same manner as the <code><a href="https://fetch.spec.whatwg.org/#response">Response</a></code> objects whose corresponding <a href="#concept-response-response">responses</a> are <a href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic">basic filtered responses</a>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code><a href="#cache-interface">Caches</a></code> to store them allows applications to avoid re-architecting in most cases.</p>
+  </spec-section>
+
+  <spec-section id="implementer-concerns">
+    <h1>Implementer Concerns</h1>
+
+    <em>This section is non-normative.</em>
+
+    <p>The implementers are encouraged to note:
+      <ul>
+        <li>Plug-ins should not load via <a href="#dfn-service-worker">service workers</a>. As plug-ins may get their security origins from their own urls, the embedding <a href="#dfn-service-worker">service worker</a> cannot handle it. For this reason, the <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm makes the <a href="https://fetch.spec.whatwg.org/#potential-client-request">potential client requests</a> (whose context is either <code>&lt;embed&gt;</code> or <code>&lt;object&gt;</code>) immediately fallback to the network without dispatching <a href="#service-worker-global-scope-fetch-event">fetch</a> event.</li>
+        <li>Some of the legacy networking stack code may need to be carefully audited to understand the ramifications of interactions with <a href="#dfn-service-worker">service workers</a>.</li>
+      </ul>
+    </p>
   </spec-section>
 
   <spec-section id="privacy">
