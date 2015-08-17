@@ -1,12 +1,12 @@
 ## What's Going On Here?
 
-Service Workers are a new browser feature that provide event-driven scripts that run independently of web pages. Unlike other workers Service Workers can be shut down at the end of events, note the lack of retained references from documents, and they have access to domain-wide events such as network fetches.
+Service workers are a new browser feature that provide event-driven scripts that run independently of web pages. Unlike other workers, service workers can be shut down at the end of events, note the lack of retained references from documents, and they have access to domain-wide events such as network fetches.
 
-ServiceWorkers also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to "go offline".
+Service worker also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to "go offline".
 
-Service Workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](//www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Unlike AppCache, Service Workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
+Service Workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](//www.whatwg.org/specs/web-apps/current-work/multipage/offline.html). Unlike AppCache, service workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
-To understand the design and how you might build apps with ServiceWorkers, see the [explainer document](explainer.md).
+To understand the design and how you might build apps with service worker, see the [explainer document](explainer.md).
 
 ## Spec and API Development
 
@@ -35,7 +35,7 @@ make
 
 ## Examples
 
-The w3c web mobile group have defined a [series of use-cases where ServiceWorker is particularly useful](https://github.com/w3c-webmob/ServiceWorkersDemos). You can help by adding more use cases, draft implementation code, or even working examples once browsers support the required APIs.
+The w3c web mobile group have defined a [series of use-cases where service worker is particularly useful](https://github.com/w3c-webmob/ServiceWorkersDemos). You can help by adding more use cases, draft implementation code, or even working examples once browsers support the required APIs.
 
 
 ## About labels and milestones on issues
@@ -76,8 +76,8 @@ This is to explain how we use labels and milestones to triage the issues. Note: 
 
 **fetch**: relates to Fetch
 
-**lifecycle**: relates to lifecycle aspects of Service Worker
+**lifecycle**: relates to lifecycle aspects of service worker
 
 **cache**: relevant to the Cache APIs
 
-**question**: not an actual issue. Items that have been filed in order to gain a better understanding of Service Worker.
+**question**: not an actual issue. Items that have been filed in order to gain a better understanding of service worker.
