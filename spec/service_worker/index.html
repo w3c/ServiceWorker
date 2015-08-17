@@ -157,7 +157,7 @@
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-registration-script-url">registering script url</dfn> (a <a href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-installing-worker">installing worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is <em>installing</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-waiting-worker">waiting worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is <em>installed</em>. It is initially set to null.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>    
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-time">last update time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
 
@@ -434,7 +434,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
         <li>If <var>newestWorker</var> is null, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
         <li>Set <var>registration</var>'s <a href="#dfn-registration-script-url">registering script url</a> to <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
-        <li>Let <var>p</var> be the result of running <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var> and <var>registration</var> as the arguments with <em>force bypass cache flag</em> set.</li>
+        <li>Let <var>p</var> be the result of running <a href="#update-algorithm">Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var> and <var>registration</var> as the arguments.</li>
         <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>p</var> with:
           <ol>
             <li>A fulfillment handler that returns undefined.</li>
@@ -1247,7 +1247,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                   </ol>
                 </li>
                 <li>Let <var>client</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>newContext</var> as the argument.</li>
-                <li>Resolve <var>promise</var> with <var>client</var>.</li>                
+                <li>Resolve <var>promise</var> with <var>client</var>.</li>
               </ol>
             </li>
           </ol>
@@ -2581,7 +2581,7 @@ interface FunctionalEvent : ExtendableEvent {
                       <li>Abort these steps.</li>
                     </ol>
                   </li>
-                  <li>If <var>cacheControl</var>'s value has a <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2.8">max-age</a> <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2">response Cache-Control directive</a> and its value <var>v</var> in seconds is less than 86400, set <var>worker</var>'s <a href="#dfn-max-age">max age</a> to <var>v</var>.</li>  
+                  <li>If <var>cacheControl</var>'s value has a <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2.8">max-age</a> <a href="https://tools.ietf.org/html/rfc7234#section-5.2.2">response Cache-Control directive</a> and its value <var>v</var> in seconds is less than 86400, set <var>worker</var>'s <a href="#dfn-max-age">max age</a> to <var>v</var>.</li>
                 </ol>
               </li>
               <li>Set <var>registration</var>'s <a href="#dfn-last-update-time">last update time</a> to the current time.</li>
