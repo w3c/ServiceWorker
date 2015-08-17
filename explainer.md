@@ -92,7 +92,7 @@ If you refresh the document, it'll be under the ServiceWorker's control. You can
 
 If you shift+reload a document it'll always load without a controller, which is handy for testing quick CSS & JS changes.
 
-Documents tend to live their whole life with a particular ServiceWorker, or none at all. However, a ServiceWorker can call `event.replace()` during the `install` event to do an immediate takeover of all pages within scope.
+Documents tend to live their whole life with a particular ServiceWorker, or none at all. However, a ServiceWorker can call `self.skipWaiting()` ([spec](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting)) to do an immediate takeover of all pages within scope.
 
 ## Network intercepting
 
