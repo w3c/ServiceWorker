@@ -2327,7 +2327,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
     <p>The implementers are encouraged to note:
       <ul>
-        <li>Plug-ins should not load via <a href="#dfn-service-worker">service workers</a>. As plug-ins may get their security origins from their own urls, the embedding <a href="#dfn-service-worker">service worker</a> cannot handle it. For this reason, the <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm makes the <a href="https://fetch.spec.whatwg.org/#potential-client-request">potential client requests</a> (whose context is either <code>&lt;embed&gt;</code> or <code>&lt;object&gt;</code>) immediately fallback to the network without dispatching <a href="#service-worker-global-scope-fetch-event">fetch</a> event.</li>
+        <li>Plug-ins should not load via <a href="#dfn-service-worker">service workers</a>. As plug-ins may get their security origins from their own urls, the embedding <a href="#dfn-service-worker">service worker</a> cannot handle it. For this reason, the <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm makes the <a href="https://fetch.spec.whatwg.org/#potential-navigation-or-subresource-request">potential-navigation-or-subresource request</a> (whose context is either <code>&lt;embed&gt;</code> or <code>&lt;object&gt;</code>) immediately fallback to the network without dispatching <a href="#service-worker-global-scope-fetch-event">fetch</a> event.</li>
         <li>Some of the legacy networking stack code may need to be carefully audited to understand the ramifications of interactions with <a href="#dfn-service-worker">service workers</a>.</li>
       </ul>
     </p>
@@ -2989,7 +2989,7 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
       </li>
       <li>Else if <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, then:
-        <p class="note">If the client request is under the scope of a service worker registration, appplication cache is completely bypassed regardless of whether the client request uses the service worker registration.</p>
+        <p class="note">If the non-subresource request is under the scope of a service worker registration, appplication cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.</p>
         <p class="fixme">This behavior requires changing the algorithm steps in HTML: <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27482">Issue 27482</a>.</p>
         <ol>
           <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a> and the <a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.</li>
@@ -3085,7 +3085,7 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Return null and run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</li>
             </ol>
           </li>
-          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#client-request">client request</a>, then:
+          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
@@ -3096,7 +3096,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>If <var>handleFetchFailed</var> is true, then:
         <ol>
           <li>Return a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> and run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</li>
-          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#client-request">client request</a>, then:
+          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
@@ -3106,7 +3106,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Else:
         <ol>
           <li>Return a <a href="https://fetch.spec.whatwg.org/#concept-response">response</a> represented by <var>response</var> and run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</li>
-          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#client-request">client request</a>, then:
+          <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, then:
             <ol>
               <li>Invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
             </ol>
