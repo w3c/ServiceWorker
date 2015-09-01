@@ -2263,23 +2263,21 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
     <spec-section id="importscripts">
       <h1><code>importScripts(<var>urls</var>)</code></h1>
 
-      <p class="fixme">The <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a> method is defined on the <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> interface. The following algorithm steps monkey patch the method to embrace the <a href="#service-worker-environment">service worker environment</a>. The corresponding change request has been filed in HTML: <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=28737">Issue 28737</a>.</p>
+      <p>When the <dfn id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, the user agent <em class="rfc2119" title="MUST">must</em> <a href="https://html.spec.whatwg.org/multipage/workers.html#import-scripts-into-worker-global-scope">import scripts into worker global scope</a>, with the following options:</p>
 
-      <p>When the <dfn id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, the following steps, or their <a href="#dfn-processing-equivalence">equivalent</a>, <em class="rfc2119" title="MUST">must</em> be run as follows.</p>
-
-      <p>The following steps, or their <a href="#dfn-processing-equivalence">equivalent</a>, <em class="rfc2119" title="MUST">must</em> be run preceded by the step 1 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+      <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#validate-the-state">validate the state</a>, the user agent <em class="rfc2119" title="MUST">must</em> run the following step:</p>
 
       <spec-algorithm>
       <ol>
-        <li>If the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</a> is unset, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.</li>
+        <li>If the <var>settings object</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</a> is unset, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.</li>
       </ol>
       </spec-algorithm>
 
-      <p>The following steps, or their <a href="#dfn-processing-equivalence">equivalent</a>, <em class="rfc2119" title="MUST">must</em> be run replacing the step 5 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+      <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#get-a-fetch-result">get a fetch result</a>, the user agent <em class="rfc2119" title="MUST">must</em> run the following steps:</p>
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>serviceWorker</var> be the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
+        <li>Let <var>serviceWorker</var> be the <var>settings object</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
         <li>If <var>serviceWorker</var>'s <a href="#dfn-imported-scripts-updated-flag">imported scripts updated flag</a> is unset, then:
           <ol>
             <li>Attempt to <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#fetch">fetch</a> each resource identified by the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URLs</a>, from the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> specified by <em>settings object</em>, using the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#referrer-source">referrer source</a> specified by <em>settings object</em>, and with the <em>blocking flag</em> set.</li>
@@ -2287,27 +2285,29 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
         </li>
         <li>Else:
           <ol>
-            <li>For each <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URLs</a>:
-              <ol>
-                <li>If there exists a corresponding Record <var>record</var> for <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set the script resource used in the step 6 to <var>record</var>.[[value]].</li>
-                <li>Else, throw a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception.</li>
-              </ol>
-            </li>
+            <li>If there exists a corresponding Record <var>record</var> for <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set the script resource to <var>record</var>.[[value]].</li>
+            <li>Else, set the script resource to null.</li>
           </ol>
         </li>
       </ol>
       </spec-algorithm>
 
-      <p>The following steps, or their <a href="#dfn-processing-equivalence">equivalent</a>, <em class="rfc2119" title="MUST">must</em> be run at the end (as a part) of the step 6.1 of <a href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(<var>urls</var>)</a>:</p>
+      <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#postprocess-the-fetch-result">postprocess the fetch result</a>, the user agent <em class="rfc2119" title="MUST">must</em> run the following steps:</p>
 
       <spec-algorithm>
       <ol>
-        <li>If the script resource has been obtained through running <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#fetch">fetch</a>, then:
+        <li>If <var>serviceWorker</var>'s <a href="#dfn-imported-scripts-updated-flag">imported scripts updated flag</a> is unset, then:
           <ol>
-            <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set <var>record</var>.[[value]] to the fetched script resource.</li>
-            <li>Else, set a newly-created Record {[[key]]: <var>url</var>, [[value]]: the fetched script resource} to <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>.</li>
+            <li>If the fetching attempt failed (e.g. the server returned a 4xx or 5xx status code <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#concept-http-equivalent-codes">or equivalent</a>, or there was a DNS error), <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception and abort all these steps.</li>
+            <li>Else:
+              <ol>
+                <li>If there exists a corresponding Record <var>record</var> for the resulting <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#absolute-url">absolute URL</a> <var>url</var> in <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>, set <var>record</var>.[[value]] to the fetched script resource.</li>
+                <li>Else, set a newly-created Record {[[key]]: <var>url</var>, [[value]]: the fetched script resource} to <var>serviceWorker</var>'s <a href="#dfn-script-resource-map">script resource map</a>.</li>
+              </ol>
+            </li>
           </ol>
         </li>
+        <li>Else, if the script resource is null, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> a "<code><a href="http://heycam.github.io/webidl/#networkerror">NetworkError</a></code>" exception and abort all these steps.</li>
       </ol>
       </spec-algorithm>
     </spec-section>
@@ -2922,7 +2922,7 @@ interface FunctionalEvent : ExtendableEvent {
         <p class="note">If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle is set to an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the initial evaluation of worker script.</p>
       </li>
       <li>Run the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> specified by <var>settingsObject</var> until it is destroyed.</li>
-      <li>Empty <var>workerGlobalScope</var>'s <a href="">list of active timers</a>.</li>
+      <li>Empty <var>workerGlobalScope</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#list-of-active-timers">list of active timers</a>.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
