@@ -890,7 +890,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
 };
 </spec-idl>
 
-    <p>A <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object represents the global execution context of a <a href="#dfn-service-worker">service worker</a>. A <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object has an associated <dfn id="dfn-service-worker-global-scope-service-worker">service worker</dfn> (a <a href="#dfn-service-worker">service worker</a>). A <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object has an associated <dfn id="service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</dfn>. It is initially unset.</p>
+    <p>A <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object represents the global execution context of a <a href="#dfn-service-worker">service worker</a>. A <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object has an associated <dfn id="dfn-service-worker-global-scope-service-worker">service worker</dfn> (a <a href="#dfn-service-worker">service worker</a>).
     <p class="note"><code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a href="#navigator-service-worker-register">registered</a>, a <a href="#dfn-service-worker">service worker</a> is started, kept alive and killed by their relationship to events, not <a href="#dfn-service-worker-client">service worker clients</a>. Any type of synchronous requests must not be initiated inside of a <a href="#dfn-service-worker">service worker</a>.</p>
 
     <p id="service-worker-global-scope-close-method" class="note">The <code><a href="http://www.w3.org/TR/workers/#dom-workerglobalscope-close">close()</a></code> method inherited from <code><a href="http://www.w3.org/TR/workers/#workerglobalscope">WorkerGlobalScope</a></code>, when called on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>, should <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidaccesserror">InvalidAccessError</a></code>" exception.</p>
@@ -2265,13 +2265,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <p>When the <dfn id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object, the user agent <em class="rfc2119" title="MUST">must</em> <a href="https://html.spec.whatwg.org/multipage/workers.html#import-scripts-into-worker-global-scope">import scripts into worker global scope</a>, with the following options:</p>
 
-      <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#validate-the-state">validate the state</a>, the user agent <em class="rfc2119" title="MUST">must</em> run the following step:</p>
-
-      <spec-algorithm>
-      <ol>
-        <li>If the <var>settings object</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</a> is unset, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.</li>
-      </ol>
-      </spec-algorithm>
+      <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#validate-the-state">validate the state</a>, the user agent <em class="rfc2119" title="MUST">must</em> do nothing.</p>
 
       <p>To <a href="https://html.spec.whatwg.org/multipage/workers.html#get-a-fetch-result">get a fetch result</a>, the user agent <em class="rfc2119" title="MUST">must</em> run the following steps:</p>
 
@@ -2680,7 +2674,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
           <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
-          <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> <var>globalObject</var>. During the execution of <a href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatch</a> algorithm, set <var>globalObject</var>'s <a href="#service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</a> when <var>e</var>'s <a href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is set, and unset <var>globalObject</var>'s <a href="#service-worker-global-scope-importscripts-allowed-flag">importscripts allowed flag</a> when <var>e</var>'s <a href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is unset.</li>
+          <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> <var>globalObject</var>.</li>
           <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
           <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
             <ol>
