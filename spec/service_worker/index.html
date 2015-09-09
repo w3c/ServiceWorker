@@ -3140,27 +3140,10 @@ interface FunctionalEvent : ExtendableEvent {
     <ol>
       <li>Run the following steps atomically.</li>
       <li>Let <var>registration</var> be the <a href="#dfn-service-worker-registration">service worker registration</a> <a href="#dfn-use">used</a> by <var>client</var>.</li>
-      <li>If <var>registration</var> is null, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If any other <a href="#dfn-service-worker-client">service worker client</a> is <a href="#dfn-use">using</a> <var>registration</var>, then:
-        <ol>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is true, then:
-        <ol>
-          <li>Invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-          <li>Abort these steps.</li>
-        </ol>
-      </li>
-      <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null:
-        <ol>
-          <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> at the argument.</li>
-        </ol>
-      </li>
+      <li>If <var>registration</var> is null, abort these steps.</li>
+      <li>If any other <a href="#dfn-service-worker-client">service worker client</a> is <a href="#dfn-use">using</a> <var>registration</var>, abort these steps.</li>
+      <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, and the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument and abort these steps.</li>
+      <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as the argument.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
