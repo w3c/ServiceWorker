@@ -1376,7 +1376,6 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 <spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
   [SameObject] readonly attribute <a href="https://fetch.spec.whatwg.org/#request">Request</a> <a href="#fetch-event-request-attribute">request</a>;
-  [SameObject] readonly attribute <a href="#client-interface">Client</a> <a href="#fetch-event-client-attribute">client</a>;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
   void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
@@ -1384,7 +1383,6 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> {
   <a href="https://fetch.spec.whatwg.org/#request">Request</a> request;
-  <a href="#client-interface">Client</a> client;
   boolean isReload = false;
 };
 </spec-idl>
@@ -1402,12 +1400,6 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       <h1><code>event.request</code></h1>
 
       <p><dfn id="fetch-event-request-attribute"><code>request</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
-    </spec-section>
-
-    <spec-section id="fetch-event-client">
-      <h1><code>event.client</code></h1>
-
-      <p><dfn id="fetch-event-client-attribute"><code>client</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
     </spec-section>
 
     <spec-section id="is-reload-attribute">
@@ -3002,10 +2994,6 @@ interface FunctionalEvent : ExtendableEvent {
         <ol>
           <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#fetch-event-interface">FetchEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble and has no default action.</li>
           <li>Let the <a href="#fetch-event-request-attribute">request</a> attribute of <var>e</var> be initialized to <var>r</var>.</li>
-          <li>Let <var>c</var> be null.</li>
-          <li>If <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> is a <a href="#dfn-window-client">window client</a>, set <var>c</var> to the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
-          <li>Else, set <var>c</var> to a <code><a href="#client-interface">Client</a></code> object that represents <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>.</li>
-          <li>Let the <a href="#fetch-event-client-attribute">client</a> attribute of <var>e</var> be initialized to <var>c</var>.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
           <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
           <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
