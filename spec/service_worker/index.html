@@ -1378,7 +1378,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 
 <spec-idl>[Constructor(DOMString <var>type</var>, optional <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
-  void <a href="#install-event-register-foreign-fetch-scopes-method">registerForeignFetchScopes</a>((<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> or sequence&lt;<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>&gt;) <var>subScopes</var>);
+  void <a href="#install-event-register-foreign-fetch-scopes-method">registerForeignFetchScopes</a>(sequence&lt;<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a>&gt; <var>subScopes</var>);
 };
 </spec-idl>
 
@@ -1396,13 +1396,14 @@ interface <dfn id="install-event-interface" title="InstallEvent">InstallEvent</d
             <li>Abort these steps.</li>
           </ol>
         </li>
-        <li>Let <var>scopeURL</var> be the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">registration</a>'s <a href="#dfn-scope-url">scope url</a>.</li>
+        <li>Let <var>scopeString</var> be the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-scope-url">scope url</a>, <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a>.</li>
         <li>Let <var>subScopeURLs</var> be an empty list of <a href="https://url.spec.whatwg.org/#concept-url">URLs</a>.</li>
         <li>For each <var>subScope</var> in <var>subScopes</var>:
           <ol>
-            <li>Let <var>subScopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scopes</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-            <li>If <var>subScopeURL</var> is failure, throw a <code>TypeError</code>.</li>
-            <li>If <var>subScopeURL</var> does not start with <var>scopeURL</var>, throw a <code>TypeError</code>.</li>
+            <li>Let <var>subScopeURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>subScope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
+            <li>If <var>subScopeURL</var> is failure, throw a <code>TypeError</code> and abort these steps.</li>
+            <li>Let <var>subScopeString</var> be the <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>subScopeURL</var>.</li>
+            <li>If <var>subScopeString</var> does not start with <var>scopeString</var>, throw a <code>TypeError</code> and abort these steps.</li>
             <li>Add <var>subScopeURL</var> to <var>subScopeURLs</var>.</li>
           </ol>
         </li>
@@ -2709,7 +2710,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the argument.</li>
       <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#extendable-event-interface">ExtendableEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
+          <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#install-event-interface">InstallEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
           <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> <var>globalObject</var>.</li>
           <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
           <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
@@ -3684,7 +3685,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>Return null.</li>
         </ol>
       </li>
-      <li>Let <var>activeWorker</var> be the result of running the <a href="#foreign-fetch-scope-match-algorithm">Match Service Worker for Foreign Fetch</a> algorithm passing <var>request</var>'s ... as the argument.</li>
+      <li>Let <var>activeWorker</var> be the result of running the <a href="#foreign-fetch-scope-match-algorithm">Match Service Worker for Foreign Fetch</a> algorithm passing <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a> as the argument.</li>
       <li>If <var>activeWorker</var> is null, return null.</li>
       <li>If <var>activeWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, then:
         <ol>
@@ -3782,7 +3783,9 @@ interface FunctionalEvent : ExtendableEvent {
 
   <p>Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the service worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.</p>
 
-  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa and Jake Archibald.</p>
+  <p>The authors would like to thank Marijn Kruisselbrink, Benjamin C. Wiley Sittler, Jake Leichtling, Reilly Grant, Owen Campbell-Moore, Mike Tsao, Jonas Sicking, Nikhil Marathe, Ben Francis, Anne van Kesteren, and Ben Kelly for their valuable time and efforts that made the foreign fetch be part of this specification. Marijn Kruisselbrink has provided the base work for this part of the specification.</p>
+
+  <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa, Jake Archibald and Marijn Kruisselbrink.</p>
 
   <p>Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.</p>
 
