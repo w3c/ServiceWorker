@@ -394,11 +394,11 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="navigator-service-worker-installing">
       <h1><code>installing</code></h1>
 
-      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <p><dfn id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>installingWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
+        <li>Let <var>installingWorker</var> be the <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
         <li>Set <var>installingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>installingWorker</var>.</li>
       </ol>
@@ -408,11 +408,11 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="navigator-service-worker-waiting">
       <h1><code>waiting</code></h1>
 
-      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <p><dfn id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>waitingWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
+        <li>Let <var>waitingWorker</var> be the <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
         <li>Set <var>waitingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>waitingWorker</var>.</li>
       </ol>
@@ -422,11 +422,11 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
     <spec-section id="navigator-service-worker-active">
       <h1><code>active</code></h1>
 
-      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+      <p><dfn id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>activeWorker</var> be a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-active-worker">active worker</a>.</li>
+        <li>Let <var>activeWorker</var> be the <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-active-worker">active worker</a>.</li>
         <li>Set <var>activeWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>activeWorker</var>.</li>
       </ol>
@@ -543,12 +543,19 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
   <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> provides capabilities to register, unregister, and update the <a href="#dfn-service-worker-registration">service worker registrations</a>, and provides access to the state of the <a href="#dfn-service-worker-registration">service worker registrations</a> and their associated <a href="#dfn-service-worker">service workers</a>.</p>
   <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> has an associated <dfn id="dfn-service-worker-container-interface-client">service worker client</dfn>, which is a <a href="#dfn-service-worker-client">service worker client</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a> is associated with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#navigator">Navigator</a> object or the <a href="https://html.spec.whatwg.org/multipage/workers.html#workernavigator">WorkerNavigator</a> object that the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> is retrieved from.</p>
 
-  <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object has an associated <dfn id="dfn-ready-promise">ready promise</dfn> (a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>). It is initially set to null.</p>
+  <p>A <code><a href="#service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</a></code> object has an associated <dfn id="dfn-ready-promise">ready promise</dfn> (a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>). It is initially set to a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</p>
 
   <spec-section id="navigator-service-worker-controller">
     <h1><code>controller</code></h1>
 
-    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return a <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="#dfn-service-worker-client-active-worker">active worker</a>.</p>
+    <p><dfn id="service-worker-container-controller-attribute"><code>controller</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+    <spec-algorithm>
+    <ol>
+      <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return undefined.</li>
+      <li>Return the <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a>.</li>
+    </ol>
+    </spec-algorithm>
     <p class="note"><code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the request is a force refresh (shift+refresh).</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
@@ -557,18 +564,11 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <p><dfn id="service-worker-container-ready-attribute"><code>ready</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
     <spec-algorithm>
     <ol>
-      <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> is null, then:
-        <ol>
-          <li>Set the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> to a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
-        </ol>
-      </li>
-      <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> is settled, then:
-        <ol>
-          <li>Return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a>.</li>
-        </ol>
-      </li>
+      <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> is settled, return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a>.</li>
+      <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Let <var>registration</var> be null.</li>
-      <li>Let <var>clientURL</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>.</li>
+      <li>Let <var>clientURL</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>.</li>
       <li>Run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
         <ol>
           <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>clientURL</var> as its argument is not null, then:
@@ -582,19 +582,16 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
               <li>Jump to the step labeled <em>CheckRegistration</em>.</li>
             </ol>
           </li>
-          <li>If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, then:
-            <ol>
-              <li>Wait until <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> changes.</li>
-            </ol>
+          <li>If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, wait until <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> changes.
             <p class="note">Implementers should consider this condition is met when the corresponding registration request gets to the step 10 of <a href="#activation-algorithm">Activate</a> algorithm.</p>
           </li>
-          <li>Resolve <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> with a <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents <var>registration</var>.</li>
+          <li>Resolve <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a> with the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents <var>registration</var>.</li>
         </ol>
       </li>
       <li>Return <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-ready-promise">ready promise</a>.</li>
     </ol>
     </spec-algorithm>
-    <p class="note">The <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is designed in a way that the returned <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> will never reject. Instead, it waits until the <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> resolves with a <a href="#dfn-service-worker-registration">service worker registration</a> that has an <a href="#dfn-active-worker">active worker</a>.</p>
+    <p class="note">When the <code><a href="#service-worker-container-ready-attribute">ready</a></code> attribute is accessed in a secure context, the returned <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> will never reject. Instead, it waits until the <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> resolves with a <a href="#dfn-service-worker-registration">service worker registration</a> that has an <a href="#dfn-active-worker">active worker</a>.</p>
   </spec-section>
 
   <spec-section id="navigator-service-worker-register">
@@ -602,9 +599,11 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 
     <p class="note">The <code><a href="#service-worker-container-register-method">register(<var>scriptURL</var>, <var>options</var>)</a></code> method creates or updates a <a href="#dfn-service-worker-registration">service worker registration</a> for the given <a href="#dfn-scope-url">scope url</a>. If successful, a <a href="#dfn-service-worker-registration">service worker registration</a> ties the provided <var>script url</var> to a <a href="#dfn-scope-url">scope url</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
 
-    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+    <p><dfn id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
     <spec-algorithm>
     <ol>
+      <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>scriptURL</var> is failure, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
       <li>If any of the strings in <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
@@ -615,7 +614,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>Else, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>scopeURL</var> is failure, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
       <li>If any of the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing the <a href="#dfn-service-worker-container-interface-client">service worker client</a> <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
+      <li>Return the result of running the <a href="#register-algorithm">Register</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>client</var>, <var>scriptURL</var>, <var>scopeURL</var> as the arguments.</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -627,16 +626,18 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 
     <spec-algorithm>
     <ol>
+      <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Let <var>clientURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>clientURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
       <li>If <var>clientURL</var> is failure, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> is not the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, return a <var>promise</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+      <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of <var>clientURL</var> is not <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, return a <var>promise</var> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Let <var>promise</var> be a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
       <li>Run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
         <ol>
           <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its equivalent, with <var>clientURL</var> as its argument.</li>
           <li>If <var>registration</var> is not null, then:
             <ol>
-              <li>Resolve <var>promise</var> with the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, which represents <var>registration</var>.</li>
+              <li>Resolve <var>promise</var> with the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, which represents <var>registration</var>.</li>
             </ol>
           </li>
           <li>Else:
@@ -658,6 +659,8 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
 
     <spec-algorithm>
     <ol>
+      <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
       <li>Let <var>promise</var> be a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
       <li>Run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
         <ol>
@@ -666,7 +669,7 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
             <ol>
               <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]] is its <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
                 <ol>
-                  <li>Add the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <a href="#dfn-service-worker-container-interface-client">service worker client</a>, associated with <var>entry</var>.[[value]] to the <var>array</var>.</li>
+                  <li>Add the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, associated with <var>entry</var>.[[value]] to the <var>array</var>.</li>
                 </ol>
               </li>
             </ol>
@@ -1051,7 +1054,7 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
         <li>If <var>destination</var> is null, <a href="http://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
         <li>If the method was invoked with a second argument <var>transfer</var>, run these substeps:
           <ol>
-            <li>Let <var>newOwner</var> be the <var>destination</var>'s <a href="#dfn-service-worker-client-client">service worker client</a>.</li>
+            <li>Let <var>newOwner</var> be the <var>destination</var>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
             <li>For each object <var>x</var> in <var>transfer</var> in turn, obtain a new object <var>y</var> by <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#transfer-a-transferable-object">transferring</a> the object <var>x</var> to <var>newOwner</var>, and replace the placeholder object that was created for the object <var>x</var> by the new object <var>y</var> wherever the placeholder exists (i.e. in <var>clonedMessage</var> and in <var>newPorts</var>).</li>
           </ol>
         </li>
@@ -1196,6 +1199,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                 <li>Let <var>targetClients</var> be an empty array.</li>
                 <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
                   <ol>
+                    <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, continue to the next iteration of the loop.</li>
                     <li>If <var>options</var>.<var>includeUncontrolled</var> is false, then:
                       <ol>
                         <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
@@ -1285,6 +1289,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
           <ol>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
               <ol>
+                <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, continue to the next iteration of the loop.</li>
                 <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a> as the argument.</li>
                 <li>If <var>registration</var> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>, continue to the next iteration of the loop.</li>
                 <li>If <var>client</var>'s <a href="#dfn-active-worker">active worker</a> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, then:
@@ -2058,7 +2063,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#settings-secure">is settings object a secure context</a> with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is <code>Not Secure</code>, return a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>cacheName</var> be null.</li>
         <li>If the optional argument <var>options</var> is not omitted, then:
           <ol>
@@ -2111,7 +2116,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#settings-secure">is settings object a secure context</a> with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is <code>Not Secure</code>, return a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
           <ol>
             <li>For each <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a>, in key insertion order:
@@ -2137,7 +2142,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#settings-secure">is settings object a secure context</a> with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is <code>Not Secure</code>, return a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>p</var> be a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
         <li>Run the following substeps:
           <ol>
@@ -2168,7 +2173,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#settings-secure">is settings object a secure context</a> with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is <code>Not Secure</code>, return a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>p</var> be the result of running the algorithm specified in <code><a href="#cache-storage-has-method">has(<var>cacheName</var>)</a></code> method with <var>cacheName</var> as the argument.</li>
         <li>Return the result of <a href="http://www.w3.org/2001/tag/doc/promises-guide#transforming-by">transforming</a> <var>p</var> with a fulfillment handler that, when called with argument <var>cacheExists</var>, performs the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
@@ -2200,7 +2205,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
       <spec-algorithm>
       <ol>
-        <li>If the result of running <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#settings-secure">is settings object a secure context</a> with the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a> is <code>Not Secure</code>, return a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+        <li>If the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
         <li>Let <var>resultArray</var> be an empty array.</li>
         <li>Return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> <var>p</var> resolved with the result of running the following substeps:
           <ol>
@@ -2224,7 +2229,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
   <spec-section id="secure-context">
     <h1>Secure Context</h1>
 
-    <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="SHOULD">should</em> execute in <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>, and the <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="SHOULD">should</em> also be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>. This effectively means that <a href="#dfn-service-worker">service workers</a> and their <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="SHOULD">should</em> be hosted over HTTPS. The user agents <em class="rfc2119" title="MAY">may</em> allow <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> for development purpose. (Note that they are still <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#threat-risks">risks associated with insecure contexts</a>.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> <em class="rfc2119" title="MUST">must</em> execute in <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>. <a href="#dfn-service-worker-client">Service worker clients</a> <em class="rfc2119" title="MUST">must</em> also be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a> to register a <a href="#dfn-service-worker-registration">service worker registration</a>, to get access to the <a href="#dfn-service-worker-registration">service worker registrations</a> and the <a href="#dfn-service-worker">service workers</a>, to do messaging with the <a href="#dfn-service-worker">service workers</a>, and to be manipulated by the <a href="#dfn-service-worker">service workers</a>. This effectively means that <a href="#dfn-service-worker">service workers</a> and their <a href="#dfn-service-worker-client">service worker clients</a> <em class="rfc2119" title="SHOULD">should</em> be hosted over HTTPS. The user agents <em class="rfc2119" title="MAY">may</em> allow <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> for development purpose. (Note that they may still be <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#threat-risks">risks associated with insecure contexts</a>.</p>
   </spec-section>
 
   <spec-section id="content-security-policy">
@@ -2964,8 +2969,8 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
       <li>Else if <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, then:
         <p class="note">If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.</p>
-        <p class="fixme">This behavior requires changing the algorithm steps in HTML: <a href="https://www.w3.org/Bugs/Public/show_bug.cgi?id=27482">Issue 27482</a>.</p>
         <ol>
+          <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return null.</li>
           <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a> and the <a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.</li>
           <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-url">url</a> as the argument.</li>
           <li>If <var>registration</var> is null or <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, return null.</li>
