@@ -3301,7 +3301,9 @@ interface FunctionalEvent : ExtendableEvent {
     <ol>
       <li>Run the following steps atomically.</li>
       <li>Let <var>clientURLString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>clientURL</var>.</li>
-      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> starting with the value of <var>clientURLString</var>.</li>
+      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> which the value of <var>clientURLString</var> starts with.
+        <p class="note">The URL string matching in this step is prefix-based rather than path-structural (e.g. a client URL string with "/prefix-of/resource.html" will match a registration for a scope with "/prefix").</p>
+      </li>
       <li>Let <var>parsedMatchingScope</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>matchingScope</var>.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>parsedMatchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
