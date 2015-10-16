@@ -3303,16 +3303,15 @@ interface FunctionalEvent : ExtendableEvent {
     <ol>
       <li>Run the following steps atomically.</li>
       <li>Let <var>clientURLString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>clientURL</var>.</li>
-      <li>Let <var>matchingScope</var> be the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> which the value of <var>clientURLString</var> starts with.
+      <li>Let <var>matchingScope</var> be the empty string.</li>
+      <li>Set <var>matchingScope</var> to the longest [[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> which the value of <var>clientURLString</var> starts with, if it exists.
         <p class="note">The URL string matching in this step is prefix-based rather than path-structural (e.g. a client URL string with "/prefix-of/resource.html" will match a registration for a scope with "/prefix").</p>
       </li>
-      <li>Let <var>parsedMatchingScope</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>matchingScope</var>.</li>
+      <li>Let <var>parsedMatchingScope</var> be null.</li>
+      <li>If <var>matchingScope</var> is not the empty string, set <var>parsedMatchingScope</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>matchingScope</var>.</li>
+      <li>If <var>parsedMatchingScope</var> is failure, return null.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>parsedMatchingScope</var> as the argument.</li>
-      <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
-        <ol>
-          <li>Return null.</li>
-        </ol>
-      </li>
+      <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, return null.</li>
       <li>Return <var>registration</var>.</li>
     </ol>
     </spec-algorithm>
@@ -3330,15 +3329,12 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Run the following steps atomically.</li>
+      <li>Let <var>scopeString</var> be the empty string.</li>
+      <li>If <var>scope</var> is not null, set <var>scopeString</var> to <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>Let <var>registration</var> be null.</li>
-      <li>Let <var>scopeString</var> be <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</li>
       <li>For each <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
         <ol>
-          <li>If <var>scopeString</var> matches <var>entry</var>.[[key]], then:
-            <ol>
-              <li>Set <var>registration</var> to <var>entry</var>.[[value]].</li>
-            </ol>
-          </li>
+          <li>If <var>scopeString</var> matches <var>entry</var>.[[key]], set <var>registration</var> to <var>entry</var>.[[value]].</li>
         </ol>
       </li>
       <li>Return <var>registration</var>.</li>
