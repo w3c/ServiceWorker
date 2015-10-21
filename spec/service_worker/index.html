@@ -665,13 +665,9 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>Run the following substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
         <ol>
           <li>Let <var>array</var> be an empty array.</li>
-          <li>For each <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
+          <li>For each <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
             <ol>
-              <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]] is its <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
-                <ol>
-                  <li>Add the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, associated with <var>entry</var>.[[value]] to the <var>array</var>.</li>
-                </ol>
-              </li>
+              <li>If the <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> of the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]] is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, add the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object, setting its <a href="#dfn-service-worker-registration-interface-client">service worker client</a> to <var>client</var>, associated with <var>entry</var>.[[value]] to the <var>array</var>.</li>
             </ol>
           </li>
           <li>Resolve <var>promise</var> with <var>array</var>.</li>
@@ -2179,7 +2175,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
           <ol>
             <li>If <var>cacheExists</var> is true, then:
               <ol>
-                <li>Delete a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-name-to-cache-map">name to cache map</a> where <var>cacheName</var> matches entry.[[key]].</li>
+                <li>Delete a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> from its <a href="#dfn-name-to-cache-map">name to cache map</a> where <var>cacheName</var> matches entry.[[key]].</li>
                 <li>Return true.</li>
                 <li>Abort these steps.</li>
               </ol>
@@ -3243,7 +3239,7 @@ interface FunctionalEvent : ExtendableEvent {
           <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
         </ol>
       </li>
-      <li>Delete a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> of its <a href="#dfn-scope-to-registration-map">scope to registration map</a> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> is the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]].</li>
+      <li>Delete a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> {[[key]], [[value]]} <var>entry</var> from <a href="#dfn-scope-to-registration-map">scope to registration map</a> where <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> is the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>entry</var>.[[key]].</li>
     </ol>
     </spec-algorithm>
   </spec-section>
@@ -3309,7 +3305,6 @@ interface FunctionalEvent : ExtendableEvent {
       </li>
       <li>Let <var>parsedMatchingScope</var> be null.</li>
       <li>If <var>matchingScope</var> is not the empty string, set <var>parsedMatchingScope</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>matchingScope</var>.</li>
-      <li>If <var>parsedMatchingScope</var> is failure, return null.</li>
       <li>Let <var>registration</var> be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>parsedMatchingScope</var> as the argument.</li>
       <li>If <var>registration</var> is not null and <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, return null.</li>
       <li>Return <var>registration</var>.</li>
