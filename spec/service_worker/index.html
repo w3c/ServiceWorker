@@ -374,9 +374,9 @@ navigator.serviceWorker.register("/service_worker.js", { scope: "/" });</spec-co
 
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRegistration">ServiceWorkerRegistration</dfn> : <a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
-  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-installing-attribute">installing</a>;
-  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
-  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-active-attribute">active</a>;
+  [Unforgeable] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-installing-attribute">installing</a>;
+  [Unforgeable] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-waiting-attribute">waiting</a>;
+  [Unforgeable] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-registration-active-attribute">active</a>;
 
   readonly attribute <a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <a href="#service-worker-registration-scope-attribute">scope</a>;
 
@@ -402,6 +402,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
         <li>Set <var>installingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>installingWorker</var>.</li>
       </ol>
+      <p class="note">The <code><a href="#service-worker-interface">ServiceWorker</a></code> objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
       </spec-algorithm>
     </spec-section>
 
@@ -416,6 +417,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
         <li>Set <var>waitingWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>waitingWorker</var>.</li>
       </ol>
+      <p class="note">The <code><a href="#service-worker-interface">ServiceWorker</a></code> objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
       </spec-algorithm>
     </spec-section>
 
@@ -430,6 +432,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
         <li>Set <var>activeWorker</var>'s <a href="#dfn-service-worker-interface-client">service worker client</a> to the <a href="#dfn-service-worker-registration-interface-client">service worker client</a>.</li>
         <li>Return <var>activeWorker</var>.</li>
       </ol>
+      <p class="note">The <code><a href="#service-worker-interface">ServiceWorker</a></code> objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
       </spec-algorithm>
     </spec-section>
 
@@ -519,7 +522,7 @@ partial interface <a href="https://html.spec.whatwg.org/multipage/workers.html#w
 
 <spec-idl>[Exposed=(Window,Worker)]
 interface <dfn id="service-worker-container-interface" title="ServiceWorkerContainer">ServiceWorkerContainer</dfn> : <a href="https://dom.spec.whatwg.org/#eventtarget">EventTarget</a> {
-  [Unforgeable, SameObject] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
+  [Unforgeable] readonly attribute <a href="#service-worker-interface">ServiceWorker</a>? <a href="#service-worker-container-controller-attribute">controller</a>;
   [SameObject] readonly attribute <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-ready-attribute">ready</a>;
 
   [NewObject] <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;<a href="#service-worker-registration-interface">ServiceWorkerRegistration</a>&gt; <a href="#service-worker-container-register-method">register</a>(<a href="http://heycam.github.io/webidl/#idl-USVString">USVString</a> <var>scriptURL</var>, optional <a href="#registration-option-list-dictionary">RegistrationOptions</a> <var>options</var>);
@@ -555,8 +558,8 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
       <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return undefined.</li>
       <li>Return the <code><a href="#service-worker-interface">ServiceWorker</a></code> object that represents <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a>.</li>
     </ol>
+    <p class="note"><code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the request is a force refresh (shift+refresh). The <code><a href="#service-worker-interface">ServiceWorker</a></code> objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
     </spec-algorithm>
-    <p class="note"><code><a href="#service-worker-container-controller-attribute">navigator.serviceWorker.controller</a></code> returns <code>null</code> if the request is a force refresh (shift+refresh).</p>
   </spec-section>
   <spec-section id="navigator-service-worker-ready">
     <h1><code>ready</code></h1>
