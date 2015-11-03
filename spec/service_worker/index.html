@@ -107,6 +107,8 @@
       <li><a href="http://www.w3.org/TR/page-visibility/">Page Visibility (Second Edition)</a></li>
       <li><a href="http://www.w3.org/2001/tag/doc/unsanctioned-tracking/">(Non-normative) Unsanctioned Web Tracking</a></li>
       <li><a href="https://w3c.github.io/push-api/">Push API</a></li>
+      <li><a href="http://tools.ietf.org/html/rfc5234">Augmented BNF for Syntax Specifications: ABNF</a></li>
+      <li><a href="https://tools.ietf.org/html/rfc3986">Uniform Resource Identifier (URI): Generic Syntax</a></li>
     </ul>
   </spec-section>
 
@@ -912,7 +914,7 @@ interface <dfn id="service-worker-global-scope-interface" title="ServiceWorkerGl
     <spec-section id="service-worker-global-scope-registration">
       <h1><code>registration</code></h1>
 
-      The <dfn id="service-worker-global-scope-scope-attribute"><code>registration</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object that represents the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
+      <p>The <dfn id="service-worker-global-scope-scope-attribute"><code>registration</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> object that represents the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
     </spec-section>
 
     <spec-section id="service-worker-global-scope-skipwaiting">
@@ -3589,6 +3591,43 @@ interface FunctionalEvent : ExtendableEvent {
     </spec-algorithm>
   </spec-section>
 
+</spec-clause>
+
+<spec-clause id="extended-http-headers">
+  <h1>Appendix B: Extended HTTP headers</h1>
+
+  <spec-section id="service-worker-script-resource-request">
+    <h1>Service Worker Script Request</h1>
+    <p>An HTTP request to <a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a> a <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> can include the following <a href="https://fetch.spec.whatwg.org/#concept-header">header</a>:</p>
+
+    <dl>
+      <dt>`<dfn><code>Service-Worker</code></dfn>`</dt>
+      <dd>Indicates this request is a <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> request.
+        <p class="note">This header helps administrators log the requests and detect threats.</p>
+      </dd>
+    </dl>
+  </spec-section>
+
+  <spec-section id="service-worker-script-resource-response">
+    <h1>Service Worker Script Response</h1>
+    <p>An HTTP response to a <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> request can include the following <a href="https://fetch.spec.whatwg.org/#concept-header">header</a>:</p>
+
+    <dl>
+      <dt>`<dfn><code>Service-Worker-Allowed</code></dfn>`</dt>
+      <dd>Indicates the user agent <em class="rfc2119" title="MUST">must</em> override the path restriction, which limits the maximum allowed <a href="#dfn-scope-url">scope url</a> that the script can <a href="#dfn-control">control</a>, to the given value.
+        <p class="note">The value is a URL. If a relative URL is given, it is parsed against the script's URL.</p>
+      </dd>
+    </dl>
+  </spec-section>
+
+  <spec-section id="syntax">
+    <h1>Syntax</h1>
+    <p>ABNF for the values of the headers used by the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> requests and responses:</p>
+    <pre>
+    Service-Worker         = "script" ; case-sensitive
+    Service-Worker-Allowed = <a href="https://tools.ietf.org/html/rfc3986#section-4.1">URI-reference</a>
+    </pre>
+  </spec-section>
 </spec-clause>
 
 <spec-clause id="acknowledgements">
