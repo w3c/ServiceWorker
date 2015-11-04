@@ -106,7 +106,6 @@
       <li><a href="http://www.w3.org/2001/tag/doc/unsanctioned-tracking/">(Non-normative) Unsanctioned Web Tracking</a></li>
       <li><a href="https://w3c.github.io/push-api/">Push API</a></li>
       <li><a href="http://tools.ietf.org/html/rfc5234">Augmented BNF for Syntax Specifications: ABNF</a></li>
-      <li><a href="https://tools.ietf.org/html/rfc3986">Uniform Resource Identifier (URI): Generic Syntax</a></li>
     </ul>
   </spec-section>
 
@@ -2516,7 +2515,9 @@ interface FunctionalEvent : ExtendableEvent {
           </li>
           <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-initiator">initiator</a> to "" and <a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a> to "<code>serviceworker</code>".</li>
           <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> to <var>client</var>.</li>
-          <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</li>
+          <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.
+            <p class="note">See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.</p>
+          </li>
           <li>Set <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>, <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>, and <var>r</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a> to "<code>manual</code>".</li>
           <li>Let <var>newestWorker</var> be null.</li>
           <li>Set <var>newestWorker</var> to the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
@@ -2543,7 +2544,9 @@ interface FunctionalEvent : ExtendableEvent {
               <li>Abort these steps.</li>
             </ol>
           </li>
-          <li>Let <var>serviceWorkerAllowed</var> be the result of <a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> `<code>Service-Worker-Allowed</code>` in <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.</li>
+          <li>Let <var>serviceWorkerAllowed</var> be the result of <a href="https://fetch.spec.whatwg.org/#concept-header-parse">parsing</a> `<code>Service-Worker-Allowed</code>` in <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-response-header-list">header list</a>.
+            <p class="note">See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.</p>
+          </li>
           <li>If <var>serviceWorkerAllowed</var> is failure, then:
             <ol>
               <li>Reject <var>p</var> with a <code>TypeError</code>.</li>
@@ -3618,6 +3621,41 @@ interface FunctionalEvent : ExtendableEvent {
         <p class="note">The value is a URL. If a relative URL is given, it is parsed against the script's URL.</p>
       </dd>
     </dl>
+
+    <p>Example: Default scope</p>
+
+<spec-code class="prettyprint">// Maximum allowed scope defaults to the path the script sits in
+// "/js" in this example
+navigator.serviceWorker.register("/js/sw.js").then(function() {
+  console.log("Install succeeded with the default scope '/js'.");
+});</spec-code>
+
+    <p>Example: Upper path without Service-Worker-Allowed header</p>
+
+<spec-code class="prettyprint">// Set the scope to an upper path of the script location
+// Response has no Service-Worker-Allowed header
+navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).catch(function() {
+  console.error("Install failed due to the path restriction violation.");
+});
+</spec-code>
+
+    <p>Example: Upper path with Service-Worker-Allowed header</p>
+
+<spec-code class="prettyprint">// Set the scope to an upper path of the script location
+// Response included "Service-Worker-Allowed : /"
+navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).then(function() {
+  console.log("Install succeeded as the max allowed scope was overriden to '/'.");
+});
+</spec-code>
+
+    <p>Example: A path restriction voliation even with Service-Worker-Allowed header</p>
+
+<spec-code class="prettyprint">// Set the scope to an upper path of the script location
+// Response included "Service-Worker-Allowed : /foo"
+navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(function() {
+  console.error("Install failed as the scope is still out of the overriden maximum allowed scope.");
+});
+</spec-code>
   </spec-section>
 
   <spec-section id="syntax">
