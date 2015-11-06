@@ -1386,6 +1386,7 @@ dictionary <dfn id="extendable-event-init-dictionary" title="ExtendableEventInit
 <spec-idl>[Constructor(DOMString <var>type</var>, <a href="#fetch-event-init-dictionary">FetchEventInit</a> <var>eventInitDict</var>), Exposed=ServiceWorker]
 interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : <a href="#extendable-event-interface">ExtendableEvent</a> {
   [SameObject] readonly attribute <a href="https://fetch.spec.whatwg.org/#request">Request</a> <a href="#fetch-event-request-attribute">request</a>;
+  readonly attribute DOMString? <a href="#fetch-event-clientid-attribute">clientId</a>;
   readonly attribute boolean <a href="#fetch-event-isreload-attribute">isReload</a>;
 
   void <a href="#fetch-event-respondwith-method">respondWith</a>(<a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">Promise</a>&lt;<a href="https://fetch.spec.whatwg.org/#response">Response</a>&gt; <var>r</var>);
@@ -1393,6 +1394,7 @@ interface <dfn id="fetch-event-interface" title="FetchEvent">FetchEvent</dfn> : 
 
 dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEventInit</dfn> : <a href="#extendable-event-init-dictionary">ExtendableEventInit</a> {
   required <a href="https://fetch.spec.whatwg.org/#request">Request</a> request;
+  DOMString? clientId = null;
   boolean isReload = false;
 };
 </spec-idl>
@@ -1412,14 +1414,20 @@ dictionary <dfn id="fetch-event-init-dictionary" title="FetchEventInit">FetchEve
       <p><dfn id="fetch-event-request-attribute"><code>request</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
     </spec-section>
 
-    <spec-section id="is-reload-attribute">
+    <spec-section id="fetch-event-clientid">
+      <h1><code>event.clientId</code></h1>
+
+      <p><dfn id="fetch-event-clientid-attribute"><code>clientId</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When an <a href="https://dom.spec.whatwg.org/#concept-event">event</a> is created the attribute <em class="rfc2119" title="MUST">must</em> be initialized to null.</p>
+    </spec-section>
+
+    <spec-section id="fetch-event-isreload">
       <h1><code>event.isReload</code></h1>
 
       <p><dfn id="fetch-event-isreload-attribute"><code>isReload</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When an <a href="https://dom.spec.whatwg.org/#concept-event">event</a> is created the attribute <em class="rfc2119" title="MUST">must</em> be initialized to false.</p>
       <p class="note">Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of the <var>Ctrl+l enter</var> is left to the implementations of the user agents.</p>
     </spec-section>
 
-    <spec-section id="respond-with-method">
+    <spec-section id="fetch-event-respondwith">
       <h1><code>event.respondWith(<var>r</var>)</code></h1>
 
       <p class="note">Developers can set the argument <var>r</var> with either a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> that resolves with a <a href="https://fetch.spec.whatwg.org/#response">Reponse</a> object or a <a href="https://fetch.spec.whatwg.org/#response">Reponse</a> object (which is automatically cast to a promise). Otherwise, a <a href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a href="https://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>. Renderer-side security checks about tainting for cross-origin content are tied to the types of <a href="https://fetch.spec.whatwg.org/#concept-filtered-response">filtered responses</a> defined in <a href="https://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>.</p>
@@ -2965,7 +2973,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>Set <var>headersObject</var>'s <a href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a> to <em>immutable</em>.</li>
       <li>Let <var>response</var> be null.</li>
       <li>Let <var>registration</var> be null.</li>
-      <li>Let <var>client</var> be <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>.</li>
+      <li>Let <var>client</var> be the <a href="#dfn-service-worker-client">service worker client</a> that corresponds to <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>.</li>
       <li>Assert: <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a> is not "<code>serviceworker</code>".</li>
       <li>If <var>request</var> is a <a href="https://fetch.spec.whatwg.org/#potential-navigation-or-subresource-request">potential-navigation-or-subresource request</a>, then:
         <ol>
@@ -3003,6 +3011,7 @@ interface FunctionalEvent : ExtendableEvent {
         <ol>
           <li>Create a <a href="https://html.spec.whatwg.org/#concept-events-trusted">trusted</a> event <var>e</var> that uses the <code><a href="#fetch-event-interface">FetchEvent</a></code> interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble and has no default action.</li>
           <li>Let the <a href="#fetch-event-request-attribute">request</a> attribute of <var>e</var> be initialized to <var>r</var>.</li>
+          <li>Let the <a href="#fetch-event-clientid-attribute">clientId</a> attribute of <var>e</var> be initialized to <var>client</var>'s <a href="#dfn-service-worker-client-id">id</a>.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
           <li><a href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"> environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
           <li>For each <a href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a> <a href="https://dom.spec.whatwg.org/#concept-event-listener-invoke">invoked</a>:
