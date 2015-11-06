@@ -1103,14 +1103,19 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
         <li>Run these substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
             <li>Let <var>browsingContext</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
-            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+            <li>Let <var>visibilityState</var> be null.</li>
+            <li>Let <var>focusState</var> be null.</li>
+            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
               <ol>
                 <li>Run the <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a> with <var>browsingContext</var>.</li>
-                <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
-                <li>If <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</li>
-                <li>Else, reject <var>promise</var> with a <code>TypeError</code>.</li>
+                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
               </ol>
             </li>
+            <li>Wait for <var>task</var> to have executed.</li>
+            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>If <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</li>
+            <li>Else, reject <var>promise</var> with a <code>TypeError</code>.</li>
           </ol>
         </li>
         <li>Return <var>promise</var>.</li>
@@ -1132,20 +1137,27 @@ enum <dfn id="contextframetype-enum" title="ContextFrameType">FrameType</dfn> {
           <ol>
             <li>Let <var>browsingContext</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
             <li>If <var>browsingContext</var> has <a href="https://html.spec.whatwg.org/multipage/browsers.html#discard-a-document">discarded</a> its <code><a href="https://html.spec.whatwg.org/multipage/dom.html#document">Document</a></code>, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+            <li>Let <var>navigateFailed</var> to false.</li>
+            <li>Let <var>visibilityState</var> be null.</li>
+            <li>Let <var>focusState</var> be null.</li>
+            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
               <ol>
                 <li><em>HandleNavigate</em>: <a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">Navigate</a> <var>browsingContext</var> to <var>url</var> with <a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a> and <a href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a>. The <a href="https://html.spec.whatwg.org/multipage/browsers.html#source-browsing-context">source browsing context</a> must be <var>browsingContext</var>.</li>
-                <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <var>navigateSteps</var> <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, reject <var>promise</var> with that exception and abort these steps.</li>
-                <li>After <var>navigateSteps</var> has run to completion (including its asynchronous steps), if <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is not the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
-                  <ol>
-                    <li>Resolve <var>promise</var> with null.</li>
-                    <li>Abort these steps.</li>
-                  </ol>
-                </li>
-                <li>Let <var>client</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var> as the argument.</li>
-                <li>Resolve <var>promise</var> with <var>client</var>.</li>
+                <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, set <var>navigateFailed</var> to true.</li>
+                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
               </ol>
             </li>
+            <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
+            <li>If <var>navigateFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+            <li>If <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is not the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+              <ol>
+                <li>Resolve <var>promise</var> with null.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
+            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>Resolve <var>promise</var> with <var>windowClient</var>.</li>
           </ol>
         </li>
         <li>Return <var>promise</var>.</li>
@@ -1177,6 +1189,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
 };
 </spec-idl>
     <p>The user agent <em class="rfc2119" title="MUST">must</em> create a <code><a href="#clients-interface">Clients</a></code> object when a <code><a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a></code> object is created and associate it with that object.</p>
+
     <spec-section id="clients-getall">
       <h1><code>matchAll(<var>options</var>)</code></h1>
       <p>The <dfn id="clients-matchall-method"><code>matchAll(<var>options</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
@@ -1192,7 +1205,19 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                   <ol>
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+                        <li>Let <var>visibilityState</var> be null.</li>
+                        <li>Let <var>focusState</var> be null.</li>
+                        <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+                          <ol>
+                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                            <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
+                          </ol>
+                        </li>
+                        <li>Wait for <var>task</var> to have executed.
+                          <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
+                        </li>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
                         <li>Add <var>windowClient</var> to <var>clients</var>.</li>
                       </ol>
                     </li>
@@ -1224,21 +1249,54 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                   <ol>
                     <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+                        <li>Let <var>visibilityState</var> be null.</li>
+                        <li>Let <var>focusState</var> be null.</li>
+                        <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+                          <ol>
+                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                            <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
+                          </ol>
+                        </li>
+                        <li>Wait for <var>task</var> to have executed.
+                          <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
+                        </li>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
                         <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
                       </ol>
                     </li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, add a new <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, add a new <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
+                      <ol>
+                        <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var> as the argument.</li>
+                        <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
+                      </ol>
+                    </li>
                     <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
                       <ol>
                         <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                           <ol>
-                            <li>Let <var>windowClient</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a> as the argument.</li>
+                            <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+                            <li>Let <var>visibilityState</var> be null.</li>
+                            <li>Let <var>focusState</var> be null.</li>
+                            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+                              <ol>
+                                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                                <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
+                              </ol>
+                            </li>
+                            <li>Wait for <var>task</var> to have executed.
+                              <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
+                            </li>
+                            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
                             <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
                           </ol>
                         </li>
-                        <li>Else, add a new <code><a href="#client-interface">Client</a></code> object that represents <var>client</var> to <var>matchedClients</var>.</li>
+                        <li>Else:
+                          <ol>
+                            <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var> as the argument.</li>
+                            <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
+                          </ol>
+                        </li>
                       </ol>
                   </ol>
                 </li>
@@ -1251,6 +1309,7 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
       </ol>
       </spec-algorithm>
     </spec-section>
+
     <spec-section id="clients-openwindow">
       <h1><code>openWindow(<var>url</var>)</code></h1>
       <p>The <dfn id="clients-openwindow-method"><code>openWindow(<var>url</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
@@ -1264,20 +1323,27 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
         <li>Run these substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
             <li>Let <var>newContext</var> be a new <a href="https://html.spec.whatwg.org/multipage/browsers.html#top-level-browsing-context">top level browsing context</a>.</li>
-            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run the following substeps on <var>newContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
+            <li>Let <var>openWindowFailed</var> to false.</li>
+            <li>Let <var>visibilityState</var> be null.</li>
+            <li>Let <var>focusState</var> be null.</li>
+            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>newContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
               <ol>
                 <li><em>HandleNavigate</em>: <a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">Navigate</a> <var>newContext</var> to <var>url</var>, with <a href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a> and <a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a>.</li>
-                <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <var>navigateSteps</var> <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, reject <var>promise</var> with that exception and abort these steps.</li>
-                <li>After <var>navigateSteps</var> has run to completion (including its asynchronous steps), if <var>newContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is not the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
-                  <ol>
-                    <li>Resolve <var>promise</var> with null.</li>
-                    <li>Abort these steps.</li>
-                  </ol>
-                </li>
-                <li>Let <var>client</var> be the result of running <a href="#capture-windowclient-algorithm">Capture Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>newContext</var> as the argument.</li>
-                <li>Resolve <var>promise</var> with <var>client</var>.</li>
+                <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, set <var>openWindowFailed</var> to true.</li>
+                <li>Set <var>visibilityState</var> to <var>newContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>newContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
               </ol>
             </li>
+            <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
+            <li>If <var>openWindowFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+            <li>If <var>newContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#creation-url">creation url</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is not the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>, then:
+              <ol>
+                <li>Resolve <var>promise</var> with null.</li>
+                <li>Abort these steps.</li>
+              </ol>
+            </li>
+            <li>Let <var>client</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>newContext</var>'s <a href="https://html.spec.whatwg.org/#window">Window</a> object's <a href="https://html.spec.whatwg.org/#environment-settings-object">environment settings object</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>Resolve <var>promise</var> with <var>client</var>.</li>
           </ol>
         </li>
         <li>Return <var>promise</var>.</li>
@@ -2069,7 +2135,7 @@ interface <dfn id="cache-storage-interface" title="CacheStorage">CacheStorage</d
 
     <p>The user agent <em class="rfc2119" title="MUST">must</em> create a <code><a href="#cache-storage-interface">CacheStorage</a></code> object when a <a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a> object or a <a href="https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope">WorkerGlobalScope</a> object is created and associate it with that object.</p>
 
-    <p>A <code><a href="#cache-storage-interface">CacheStorage</a></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated global object's <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. Multiple separate objects implementing the <code><a href="#cache-storage-interface">CacheStorage</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#document-environment">document environments</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">worker environments</a> can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
+    <p>A <code><a href="#cache-storage-interface">CacheStorage</a></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>. Multiple separate objects implementing the <code><a href="#cache-storage-interface">CacheStorage</a></code> interface across <a href="https://html.spec.whatwg.org/multipage/webappapis.html#document-environment">document environments</a> and <a href="https://html.spec.whatwg.org/multipage/webappapis.html#worker-environment">worker environments</a> can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
 
     <spec-section id="cache-storage-match">
       <h1><code>match(<var>request</var>, <var>options</var>)</code></h1>
@@ -2944,7 +3010,7 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>If <var>serviceWorker</var> is not running, abort these steps.</li>
-      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var> environment settings object's global object.</li>
+      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var> environment settings object's <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>.</li>
       <li>Set <var>serviceWorkerGlobalScope</var>'s closing flag to true.</li>
       <li>If there are any <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a>, whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a>, <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a href="#dfn-service-worker-registration-task-queue">task queues</a> in the same order using their original <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task sources</a>, and discard all the <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> (including <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> whose <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> without processing them.
         <p class="note">This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.</p>
@@ -3391,20 +3457,41 @@ interface FunctionalEvent : ExtendableEvent {
     </spec-algorithm>
   </spec-section>
 
-  <spec-section id="capture-windowclient-algorithm">
-    <h1>Capture Window Client</h1>
+  <spec-section id="create-client-algorithm">
+    <h1>Create Client</h1>
 
     <spec-algorithm>
     <dl>
       <dt>Input</dt>
-        <dd><var>browsingContext</var>, a <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a></dd>
+        <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
       <dt>Output</dt>
-        <dd><var>windowClient</var>, a <a href="#window-client-interface">WindowClient</a> object</dd>
+        <dd><var>clientObject</var>, a <code><a href="#client-interface">Client</a></code> object</dd>
     </dl>
     <ol>
-      <li>Let <var>windowClient</var> be a new <code><a href="#window-client-interface">WindowClient</a></code> object that represents <var>browsingContext</var>.</li>
-      <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-visibilitystate">visibility state</a> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
-      <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
+      <li>Let <var>clientObject</var> be a new <code><a href="#client-interface">Client</a></code> object.</li>
+      <li>Set <var>clientObject</var>'s <a href="#dfn-service-worker-client-client">service worker client</a> to <var>client</var>.</li>
+      <li>Return <var>clientObject</var>.</li>
+    </ol>
+    </spec-algorithm>
+  </spec-section>
+
+  <spec-section id="create-windowclient-algorithm">
+    <h1>Create Window Client</h1>
+
+    <spec-algorithm>
+    <dl>
+      <dt>Input</dt>
+        <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
+        <dd><var>visibilityState</var>, a string</dd>
+        <dd><var>focusState</var>, a boolean</dd>
+      <dt>Output</dt>
+        <dd><var>windowClient</var>, a <code><a href="#window-client-interface">WindowClient</a></code> object</dd>
+    </dl>
+    <ol>
+      <li>Let <var>windowClient</var> be a new <code><a href="#window-client-interface">WindowClient</a></code> object.</li>
+      <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-client">service worker client</a> to <var>client</var>.</li>
+      <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-visibilitystate">visibility state</a> to <var>visibilityState</var>.</li>
+      <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> to <var>focusState</var>.</li>
       <li>Return <var>windowClient</var>.</li>
     </ol>
     </spec-algorithm>
