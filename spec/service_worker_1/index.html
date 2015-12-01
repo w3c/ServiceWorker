@@ -1246,56 +1246,52 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
         <li>Let <var>promise</var> be a new <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
         <li>Run these substeps <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
-            <li>Let <var>clients</var> be an empty array.</li>
-            <li>If the optional argument <var>options</var> is omitted, then:
+            <li>Let <var>targetClients</var> be an empty array.</li>
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
               <ol>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
+                <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, continue to the next iteration of the loop.</li>
+                <li>If <var>options</var>.<var>includeUncontrolled</var> is false, then:
                   <ol>
-                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
-                      <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
-                        <li>Let <var>visibilityState</var> be null.</li>
-                        <li>Let <var>focusState</var> be null.</li>
-                        <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
-                          <ol>
-                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
-                            <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
-                          </ol>
-                        </li>
-                        <li>Wait for <var>task</var> to have executed.
-                          <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
-                        </li>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                        <li>Add <var>windowClient</var> to <var>clients</var>.</li>
-                      </ol>
-                    </li>
+                    <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
                   </ol>
                 </li>
-                <li>Resolve <var>promise</var> with <var>clients</var>.</li>
+                <li>Else:
+                  <ol>
+                    <li>Add <var>client</var> to <var>targetClients</var>.</li>
+                  </ol>
+                </li>
               </ol>
             </li>
-            <li>Else:
+            <li>Let <var>matchedClients</var> be an empty array.</li>
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
               <ol>
-                <li>Let <var>targetClients</var> be an empty array.</li>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>:
+                <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
-                    <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, continue to the next iteration of the loop.</li>
-                    <li>If <var>options</var>.<var>includeUncontrolled</var> is false, then:
+                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
+                    <li>Let <var>visibilityState</var> be null.</li>
+                    <li>Let <var>focusState</var> be null.</li>
+                    <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
                       <ol>
-                        <li>If <var>client</var>'s <a href="#dfn-service-worker-client-active-worker">active worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
+                        <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
+                        <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
                       </ol>
                     </li>
-                    <li>Else:
-                      <ol>
-                        <li>Add <var>client</var> to <var>targetClients</var>.</li>
-                      </ol>
+                    <li>Wait for <var>task</var> to have executed.
+                      <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
                     </li>
+                    <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                    <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
                   </ol>
                 </li>
-                <li>Let <var>matchedClients</var> be an empty array.</li>
-                <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
+                <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
                   <ol>
-                    <li>If <var>options</var>.<var>type</var> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                    <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var> as the argument.</li>
+                    <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
+                  </ol>
+                </li>
+                <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
+                  <ol>
+                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
                         <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
                         <li>Let <var>visibilityState</var> be null.</li>
@@ -1313,44 +1309,16 @@ enum <dfn id="client-type-enum" title="ClientType">ClientType</dfn> {
                         <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
                       </ol>
                     </li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.<var>type</var> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
+                    <li>Else:
                       <ol>
                         <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var> as the argument.</li>
                         <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
                       </ol>
                     </li>
-                    <li>Else if <var>options</var>.<var>type</var> is "<code>all</code>", then:
-                      <ol>
-                        <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
-                          <ol>
-                            <li>Let <var>browsingContext</var> be <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</li>
-                            <li>Let <var>visibilityState</var> be null.</li>
-                            <li>Let <var>focusState</var> be null.</li>
-                            <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a href="https://html.spec.whatwg.org/#user-interaction-task-source">user interaction task source</a>:
-                              <ol>
-                                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>'s <a href="http://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a> attribute value.</li>
-                                <li>Set <var>focusState</var> to the result of running the <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>'s <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</li>
-                              </ol>
-                            </li>
-                            <li>Wait for <var>task</var> to have executed.
-                              <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
-                            </li>
-                            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                            <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
-                          </ol>
-                        </li>
-                        <li>Else:
-                          <ol>
-                            <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var> as the argument.</li>
-                            <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
-                          </ol>
-                        </li>
-                      </ol>
                   </ol>
-                </li>
-                <li>Resolve <var>promise</var> with <var>matchedClients</var>.</li>
               </ol>
             </li>
+            <li>Resolve <var>promise</var> with <var>matchedClients</var>.</li>
           </ol>
         </li>
         <li>Return <var>promise</var>.</li>
