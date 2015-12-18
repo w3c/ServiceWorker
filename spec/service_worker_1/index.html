@@ -455,11 +455,11 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
       <p><dfn id="service-worker-registration-update-method"><code>update()</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
       <spec-algorithm>
       <ol>
-        <li>Let <var>p</var> be a promise.</li>
+        <li>Let <var>p</var> be a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
         <li>Let <var>registration</var> be the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>.</li>
-        <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+        <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, reject <var>p</var> with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.</li>
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
-        <li>If <var>newestWorker</var> is null, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</li>
+        <li>If <var>newestWorker</var> is null, reject <var>p</var> with an "<code><a href="http://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, <var>p</var>, and the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>.</li>
         <li>Run the following substep <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
@@ -480,7 +480,7 @@ interface <dfn id="service-worker-registration-interface" title="ServiceWorkerRe
 
       <spec-algorithm>
       <ol>
-        <li>Let <var>p</var> be a promise.</li>
+        <li>Let <var>p</var> be a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>unregister</em>, the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>, null, <var>p</var>, and the <a href="#dfn-service-worker-registration-interface-client">service worker client</a> <var>client</var>.</li>
         <li>Run the following substep <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
           <ol>
@@ -619,19 +619,19 @@ dictionary <dfn id="registration-option-list-dictionary" title="RegistrationOpti
     <ol>
       <li>Let <var>p</var> be a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.</li>
       <li>Let <var>client</var> be the <a href="https://dom.spec.whatwg.org/#context-object">context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
-      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception.</li>
+      <li>If <var>client</var> is not a <a href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, reject <var>p</var> with a "<code><a href="http://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception and abort these steps.</li>
       <li>Let <var>scriptURL</var> be the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>scriptURL</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>If <var>scriptURL</var> is failure, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>If <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>If any of the strings in <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+      <li>If <var>scriptURL</var> is failure, reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If any of the strings in <var>scriptURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>Let <var>scopeURL</var> be null.</li>
       <li>If <var>options</var>.<var>scope</var> is <a href="http://heycam.github.io/webidl/#dfn-present">not present</a>, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.
         <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
       </li>
       <li>Else, set <var>scopeURL</var> to the result of <a href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> <var>options</var>.<var>scope</var> with <a href="https://html.spec.whatwg.org/multipage/webappapis.html#entry-settings-object">entry settings object</a>'s <a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>.</li>
-      <li>If <var>scopeURL</var> is failure, return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>If <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
-      <li>If any of the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", return a <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</li>
+      <li>If <var>scopeURL</var> is failure, reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If any of the strings in <var>scopeURL</var>'s <a href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a href="https://encoding.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.</li>
       <li>Run the following substep <a href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:
         <ol>
