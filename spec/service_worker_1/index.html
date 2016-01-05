@@ -2687,8 +2687,9 @@ interface FunctionalEvent : ExtendableEvent {
     </dl>
     <ol>
       <li>Let <var>registration</var> be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> as the argument.</li>
+      <li>If <var>registration</var> is null or <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, reject <var>job</var>'s <a href="#dfn-job-promise">promise</a> with a <code>TypeError</code> and invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.</li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, invoke <a href="#finish-job-algorithm">Fininsh Job</a> with <var>job</var>.</li>
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.</li>
       <li>Let <var>r</var> be the associated <a href="https://fetch.spec.whatwg.org/#concept-request">request</a> of the result of invoking the initial value of <a href="https://fetch.spec.whatwg.org/#dom-request">Request</a> as constructor with <var>job</var>'s <a href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-job-script-url">script url</a>. If this <a href="http://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then:
         <ol>
           <li>Reject <var>job</var>'s <a href="#dfn-job-promise">promise</a> with the exception.</li>
