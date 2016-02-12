@@ -274,7 +274,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 <section>
   <h2 id="model">Model</h2>
 
-  <section>
+  <section dfn-for="service worker">
     <h3 id="service-worker-concept">Service Worker</h3>
 
     <p>A <dfn id="dfn-service-worker">service worker</dfn> is a type of <a>web worker</a>. A <a href="#dfn-service-worker">service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a for="resource">origin</a>.</p>
@@ -302,7 +302,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </section>
   </section>
 
-  <section>
+  <section dfn-for="service worker registration">
     <h3 id="service-worker-registration-concept">Service Worker Registration</h3>
 
     <p>A <dfn id="dfn-service-worker-registration">service worker registration</dfn> is a tuple of a <a href="#dfn-scope-url">scope url</a> and a set of <a href="#dfn-service-worker">service workers</a>, an <a href="#dfn-installing-worker">installing worker</a>, a <a href="#dfn-waiting-worker">waiting worker</a>, and an <a href="#dfn-active-worker">active worker</a>. A user agent <em class="rfc2119" title="MAY">may</em> enable many <a href="#dfn-service-worker-registration">service worker registrations</a> at a single origin so long as the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> differs. A <a href="#dfn-service-worker-registration">service worker registration</a> of an identical <a href="#dfn-scope-url">scope url</a> when one already exists in the user agent causes the existing <a href="#dfn-service-worker-registration">service worker registration</a> to be replaced.</p>
@@ -313,7 +313,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -322,7 +322,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </section>
   </section>
 
-  <section>
+  <section dfn-for="service worker client">
     <h3 id="service-worker-client-concept">Service Worker Client</h3>
     <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is an <a>environment settings object</a> that specifies various settings for its <a>JavaScript global environment</a>.</p>
 
@@ -2862,13 +2862,13 @@ this.addEventListener("fetch", function(e) {
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-client">client</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a href="#dfn-client">client</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
