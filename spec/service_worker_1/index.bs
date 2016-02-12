@@ -16,6 +16,7 @@ Abstract:
 Abstract: The core of this system is an event-driven <a>Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.
 Abstract:
 Abstract: The service worker is a generic entry point for event-driven background processing in the Web Platform that is <a href="#extensibility">extensible by other specifications</a>.
+Ignored Terms: javascript global environment, worker environment, worker environments, document environment, document environments, referrer source
 </pre>
 
 <pre class=biblio>
@@ -38,8 +39,11 @@ Abstract: The service worker is a generic entry point for event-driven backgroun
 </pre>
 
 <pre class=link-defaults>
-spec: html; type: interface;
+spec: dom-ls; type: interface
     text: Document
+    text: Event
+    text: EventTarget
+
 spec: html; type: dfn
     text: about:blank
     text: active document
@@ -51,7 +55,6 @@ spec: html; type: dfn
     text: browsing context
     text: code entry-point
     text: discard a document
-    text: document environments
     text: effective script origin
     text: entry settings object
     text: environment settings object
@@ -64,7 +67,6 @@ spec: html; type: dfn
     text: global object
     text: incumbent settings object
     text: in parallel
-    text: javascript global environment
     text: kill a worker
     text: list of active timers
     text: navigate
@@ -72,7 +74,6 @@ spec: html; type: dfn
     text: neutered
     text: parent browsing context
     text: queue a task
-    text: referrer source
     text: replacement enabled
     text: responsible browsing context
     text: responsible document
@@ -93,7 +94,6 @@ spec: html; type: dfn
     text: unload a document
     text: user interaction task source
     text: utf-8 decode
-    text: worker environments
 
 spec: url; type: dfn
     text: is local
@@ -105,7 +105,7 @@ spec: webidl; type: dfn;
 </pre>
 
 <pre class=anchors>
-spec: dom; urlPrefix: https://dom.spec.whatwg.org/
+spec: dom-ls; urlPrefix: https://dom.spec.whatwg.org/
     type: dfn; text: ASCII case-insensitive; url: ascii-case-insensitive
 
 spec: ecma-262; urlPrefix: http://www.ecma-international.org/ecma-262/6.0/
@@ -176,8 +176,8 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: attribute; for: Request
         text: headers; url: dom-request-headers
     type: method
-        text: get(); for: Headers; url: dom-heafers-get
-        text: fetch(); for: GlobalFetch; url: dom-global-fetch
+        text: get(name); for: Headers; url: dom-heafers-get
+        text: fetch(input, init); for: GlobalFetch; url: dom-global-fetch
 
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: dfn
@@ -194,7 +194,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: fire a simple event
             text: jump to a code entry point
             text: report the error
-            text: task queues; for: event loop; url: task-queue
+            text: task queue; for: event loop
         urlPrefix: workers.html
             text: get a fetch result
             text: import scripts into worker global scope
@@ -234,10 +234,6 @@ spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
 spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     type: dfn
         text: Vary; url: section-7.1.4
-
-spec: unsanctioned-tracking; urlPrefix: https://www.w3.org/2001/tag/doc/unsanctioned-tracking/
-    type: dfn
-        text: unsanctioned tracking; url: h-unsanctioned-tracking-tracking-without-user-control
 
 spec: url; urlPrefix: https://url.spec.whatwg.org/
     type: dfn
@@ -317,7 +313,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a spec="html" for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -2593,7 +2589,7 @@ this.addEventListener("fetch", function(e) {
   <section>
     <h3 id="privacy">Privacy</h3>
 
-    <p><a href="#dfn-service-worker">Service workers</a> introduce new persistent storage features including <a href="#dfn-scope-to-registration-map">scope to registration map</a> (for <a href="#dfn-service-worker-registration">service worker registrations</a> and their <a href="#dfn-service-worker">service workers</a>), <a href="#dfn-request-to-response-map">request to response map</a> and <a href="#dfn-name-to-cache-map">name to cache map</a> (for caches), and <a href="#dfn-script-resource-map">script resource map</a> (for script resources). In order to protect users from any potential <a>unsanctioned tracking</a> threat, these persistent storages <em class="rfc2119" title="SHOULD">should</em> be cleared when users intend to clear them and <em class="rfc2119" title="SHOULD">should</em> maintain and interoperate with existing user controls e.g. purging all existing persistent storages.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> introduce new persistent storage features including <a href="#dfn-scope-to-registration-map">scope to registration map</a> (for <a href="#dfn-service-worker-registration">service worker registrations</a> and their <a href="#dfn-service-worker">service workers</a>), <a href="#dfn-request-to-response-map">request to response map</a> and <a href="#dfn-name-to-cache-map">name to cache map</a> (for caches), and <a href="#dfn-script-resource-map">script resource map</a> (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages <em class="rfc2119" title="SHOULD">should</em> be cleared when users intend to clear them and <em class="rfc2119" title="SHOULD">should</em> maintain and interoperate with existing user controls e.g. purging all existing persistent storages.</p>
   </section>
 </section>
 
@@ -2656,7 +2652,7 @@ this.addEventListener("fetch", function(e) {
 
     <p>Specifications <em class="rfc2119" title="MAY">may</em> define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a {{ServiceWorkerGlobalScope}} object) at which it <em class="rfc2119" title="MAY">may</em> fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a>task</a> <a lt="queue a task">queued</a> by <a href="#handle-functional-event-algorithm">Handle Functional Event</a> algorithm.</p>
 
-    <p class="note">See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a href="https://notifications.spec.whatwg.org">Notifications API</a>.</p>
+    <p class="note">See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a biblio data-biblio-type="informative" lt="notifications">Notifications API</a>.</p>
   </section>
 </section>
 
@@ -3903,7 +3899,7 @@ navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(functio
   <section>
     <h3 id="syntax">Syntax</h3>
 
-    <p>ABNF for the values of the headers used by the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> requests and responses:</p>
+    <p><a biblio data-biblio-type="normative" lt="rfc5234">ABNF</a> for the values of the headers used by the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-script-resource">script resource</a> requests and responses:</p>
 
     <pre>
     Service-Worker = %x73.63.72.69.70.74 ; "script", case-sensitive
