@@ -8,15 +8,16 @@ Level: 1
 Editor: Alex Russell, Google, slightlyoff@chromium.org
 Editor: Jungkee Song, Samsung Electronics, jungkee.song@samsung.com
 Editor: Jake Archibald, Google, jakearchibald@chromium.org
-Group: webplatform
+Editor: Marijn Kruisselbrink, Google, mek@chromium.org
 Repository: slightlyoff/ServiceWorker
-Markup Shorthands: css no
+Group: webplatform
 Abstract: This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.
 Abstract:
 Abstract: The core of this system is an event-driven <a>Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.
 Abstract:
 Abstract: The service worker is a generic entry point for event-driven background processing in the Web Platform that is <a href="#extensibility">extensible by other specifications</a>.
-Ignored Terms: javascript global environment, worker environment, worker environments, document environment, document environments, referrer source
+Ignored Terms: javascript global environment, worker environment, worker environments, document environment, document environments, referrer source, script execution environment, script execution environments, code entry-point, jump to a code entry point, used flag
+Markup Shorthands: css no
 </pre>
 
 <pre class=biblio>
@@ -53,7 +54,6 @@ spec: html; type: dfn
     text: application cache
     text: auxiliary browsing context
     text: browsing context
-    text: code entry-point
     text: discard a document
     text: effective script origin
     text: entry settings object
@@ -80,7 +80,6 @@ spec: html; type: dfn
     text: responsible event loop
     text: same origin
     text: script
-    text: script execution environment
     text: settings object
     text: source browsing context
     text: structured clone
@@ -126,7 +125,7 @@ spec: csp2; urlPrefix: https://w3c.github.io/webappsec-csp/2/
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
         text: basic filtered response; url: concept-filtered-response-basic
-        text: CORS filtered response; url: concept-filtered-response-cors"
+        text: CORS filtered response; url: concept-filtered-response-cors
         text: extract a mime type; url: concept-header-extract-mime-type
         text: fetch; url: concept-fetch
         text: filtered response; url: concept-filtered-response
@@ -146,7 +145,6 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: subresource request
         text: synchronous flag
         text: terminate; url: concept-fetch-terminate
-        text: used flag; url: concept-body-used-flag
         text: guard; for: headers; url: concept-headers-guard
         for: header
             text: name; url: concept-header-name
@@ -176,7 +174,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: attribute; for: Request
         text: headers; url: dom-request-headers
     type: method
-        text: get(name); for: Headers; url: dom-heafers-get
+        text: get(name); for: Headers; url: dom-headers-get
         text: fetch(input, init); for: GlobalFetch; url: dom-global-fetch
 
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
@@ -192,7 +190,6 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: creation url
             text: dom manipulation task source
             text: fire a simple event
-            text: jump to a code entry point
             text: report the error
             text: task queue; for: event loop
         urlPrefix: workers.html
@@ -215,7 +212,7 @@ spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
 spec: powerful-features; urlPrefix: https://w3c.github.io/webappsec/specs/powerfulfeatures/#
     type: dfn
         text: is origin potentially trustworthy; url: is-origin-trustworthy
-        text: risks associated with insecure contexts; url: thread-risks
+        text: risks associated with insecure contexts; url: threat-risks
         text: secure context
 
 spec: promises-guide; urlPrefix: https://www.w3.org/2001/tag/doc/promises-guide#
@@ -225,8 +222,8 @@ spec: promises-guide; urlPrefix: https://www.w3.org/2001/tag/doc/promises-guide#
 
 spec: quota-api; urlPrefix: http://www.w3.org/TR/quota-api/
     type: attribute; for: ServiceWorkerGlobalScope
-        text: onbeforeevicted
-        text: onevicted
+        text: onbeforeevicted; url: widl-ServiceWorkerGlobalScope-onbeforeevicted
+        text: onevicted; url: widl-ServiceWorkerGlobalScope-onevicted
 
 spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
     type: dfn
@@ -265,7 +262,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
   <p>Web developers familiar with previous attempts to solve the offline problem have reported a deficit of flexibility in those solutions. As a result, the <a href="#dfn-service-worker">service worker</a> is highly procedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep <a href="#dfn-service-worker">service workers</a> responsive in the face of a single-threaded execution model. As a result, APIs exposed by <a href="#dfn-service-worker">service workers</a> are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.</p>
 
-  <p>Developers using the <a lt="application cache">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag/index.html#section6">unrecoverable errors</a>. A key design principle of the <a href="#dfn-service-worker">service worker</a> is that errors should <em>always</em> be recoverable. Many details of the update process of <a href="#dfn-service-worker">service workers</a> are designed to avoid these hazards.</p>
+  <p>Developers using the <a lt="application cache">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the <a href="#dfn-service-worker">service worker</a> is that errors should <em>always</em> be recoverable. Many details of the update process of <a href="#dfn-service-worker">service workers</a> are designed to avoid these hazards.</p>
 
   <p><a href="#dfn-service-worker">Service workers</a> are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a>Shared Workers</a> and <a href="https://developer.chrome.com/extensions/background_pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, <a href="#dfn-service-worker">service workers</a> bear more than a passing resemblance to <a href="https://developer.chrome.com/extensions/event_pages">Chrome Event Pages</a>, the successor to Background Pages. <a href="#dfn-service-worker">Service workers</a> may be started by user agents <em>without an attached document</em> and may be killed by the user agent at nearly any time. Conceptually, <a href="#dfn-service-worker">service workers</a> can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that <a href="#dfn-service-worker">service workers</a> may be started and killed many times a second.</p>
 
@@ -513,7 +510,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <p>The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that <em class="rfc2119" title="MUST">must</em> be supported, as <a>event handler IDL attributes</a>, by all objects implementing {{ServiceWorker}} interface:</p>
 
-      <table>
+      <table class="data">
         <thead>
           <tr>
             <th><a>event handler</a></th>
@@ -648,7 +645,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <p>The following is the <a>event handler</a> (and its corresponding <a>event handler event type</a>) that <em class="rfc2119" title="MUST">must</em> be supported, as <a>event handler IDL attributes</a>, by all objects implementing <code><a href="#service-worker-registration-interface">ServiceWorkerRegistration</a></code> interface:</p>
 
-      <table>
+      <table class="data">
         <thead>
           <tr>
             <th><a>event handler</a></th>
@@ -678,7 +675,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       };
     </pre>
 
-    <p>The <dfn attribute for="Navigator" id="navigator-service-worker-attribute"><dfn attribute for="WorkerNavigator" id="worker-navigator-service-worker-attribute"><code>serviceWorker</code></dfn></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the {{ServiceWorkerContainer}} object that is associated with the <a>context object</a>.</p>
+    <p>The <dfn attribute for="Navigator,WorkerNavigator" id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the {{ServiceWorkerContainer}} object that is associated with the <a>context object</a>.</p>
   </section>
 
   <section dfn-for="ServiceWorkerContainer">
@@ -860,7 +857,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <p>The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that <em class="rfc2119" title="MUST">must</em> be supported, as <a>event handler IDL attributes</a>, by all objects implementing the <a href="#service-worker-container-interface">ServiceWorkerContainer</a> interface:</p>
 
-      <table>
+      <table class="data">
         <thead>
           <tr>
             <th><a>event handler</a></th>
@@ -945,7 +942,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The following event is dispatched on {{ServiceWorker}} object:</p>
 
-    <table>
+    <table class="data">
       <thead>
         <tr>
           <th>Event name</th>
@@ -964,7 +961,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The following event is dispatched on {{ServiceWorkerRegistration}} object:</p>
 
-    <table>
+    <table class="data">
       <thead>
         <tr>
           <th>Event name</th>
@@ -983,7 +980,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The following events are dispatched on {{ServiceWorkerContainer}} object:</p>
 
-    <table dfn-for="ServiceWorkerContainer">
+    <table class="data" dfn-for="ServiceWorkerContainer">
       <thead>
         <tr>
           <th>Event name</th>
@@ -1125,7 +1122,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <p>The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that <em class="rfc2119" title="MUST">must</em> be supported, as <a>event handler IDL attributes</a>, by all objects implementing the <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> interface:</p>
 
-      <table>
+      <table class="data">
         <thead>
           <tr>
             <th><a>event handler</a></th>
@@ -1155,7 +1152,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
   </section>
 
   <section>
-    <h3 id="client-section">{{Client}}</h3>
+    <h3 id="client">{{Client}}</h3>
 
     <pre class="idl">
       [Exposed=ServiceWorker]
@@ -1347,7 +1344,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
   </section>
 
   <section dfn-for="Clients">
-    <h3 id="clients-section">{{Clients}}</h3>
+    <h3 id="clients">{{Clients}}</h3>
 
     <pre class="idl">
       [Exposed=ServiceWorker]
@@ -1812,7 +1809,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The following events are dispatched on <a href="#service-worker-global-scope-interface">ServiceWorkerGlobalScope</a> object:</p>
 
-    <table dfn-for="ServiceWorkerGlobalScope">
+    <table class="data" dfn-for="ServiceWorkerGlobalScope">
       <thead>
         <tr>
           <th>Event name</th>
@@ -1891,7 +1888,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
   </section>
 
   <section dfn-for="Cache">
-    <h3 id="cache-section">{{Cache}}</h3>
+    <h3 id="cache">{{Cache}}</h3>
 
     <pre class="idl">
       [Exposed=(Window,Worker)]
@@ -2679,14 +2676,14 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn> It is initially unset.</P>
 
-  <p>Two <a href="#dfn-job">jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a href="dfn-job-type">job type</a> is the same and:
+  <p>Two <a href="#dfn-job">jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a href="#dfn-job-type">job type</a> is the same and:
     <ul>
-      <li>For <em>register</em> and <em>update</em> <a href="#dfn-job">jobs</a>, both their <a href="dfn-job-scope-url">scope url</a> and the <a href="dfn-job-script-url">script url</a> are the same.</li>
-      <li>For <em>unregister</em> <a href="#dfn-job">jobs</a>, their <a href="dfn-job-scope-url">scope url</a> is the same.</li>
+      <li>For <em>register</em> and <em>update</em> <a href="#dfn-job">jobs</a>, both their <a href="#dfn-job-scope-url">scope url</a> and the <a href="#dfn-job-script-url">script url</a> are the same.</li>
+      <li>For <em>unregister</em> <a href="#dfn-job">jobs</a>, their <a href="#dfn-job-scope-url">scope url</a> is the same.</li>
     </ul>
   </p>
 
-  <p>A <dfn id="dfn-job-queue">job queue</dfn> is a queue used to synchronize the set of concurrent <a href="#dfn-job">jobs</a>. The <a href="#dfn-job-queue">job queue</a> contains <a href="#dfn-job">jobs</a> as its elements. The <a href="#dfn-job-queue">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue">job queue</a> for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. A <a href="#dfn-job-queue">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue">job queue</a> for the <a href="#dfn-job">job</a>'s <a href="dfn-job-scope-url">scope url</a>.</p>
+  <p>A <dfn id="dfn-job-queue">job queue</dfn> is a queue used to synchronize the set of concurrent <a href="#dfn-job">jobs</a>. The <a href="#dfn-job-queue">job queue</a> contains <a href="#dfn-job">jobs</a> as its elements. The <a href="#dfn-job-queue">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue">job queue</a> for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. A <a href="#dfn-job-queue">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue">job queue</a> for the <a href="#dfn-job">job</a>'s <a href="#dfn-job-scope-url">scope url</a>.</p>
 
   <section algorithm="create-job-algorithm">
     <h3 id="create-job-algorithm">Create Job</h3>
