@@ -49,6 +49,7 @@ spec: dom
         text: Event
         text: EventTarget
 
+spec: html; type: element; text: link
 spec: html; type: dfn
     text: about:blank
     text: active document
@@ -58,6 +59,7 @@ spec: html; type: dfn
     text: auxiliary browsing context
     text: browsing context
     text: discard a document
+    text: document base url
     text: effective script origin
     text: entry settings object
     text: environment settings object
@@ -203,6 +205,8 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: StructuredCloneWithTransfer
         urlPrefix: interaction.html
             text: has focus steps
+        urlPrefix: semantics.html
+            text: external resource link
         urlPrefix: webappapis.html
             text: classic script
             text: creation url
@@ -259,6 +263,12 @@ spec: quota-api; urlPrefix: http://www.w3.org/TR/quota-api/
     type: attribute; for: ServiceWorkerGlobalScope
         text: onbeforeevicted; url: widl-ServiceWorkerGlobalScope-onbeforeevicted
         text: onevicted; url: widl-ServiceWorkerGlobalScope-onevicted
+
+spec: rfc5988; urlPrefix: https://tools.ietf.org/html/rfc5988
+    type: dfn
+        text: context IRI; url: section-5.2
+        text: target attribute; url: section-5.4
+        text: target IRI; url: section-5.1
 
 spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
     type: dfn
@@ -763,20 +773,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>p</var> be a <a>promise</a>.</li>
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
         <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> <var>scriptURL</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
-        <li>If <var>scriptURL</var> is failure, reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>If <var>scriptURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>If any of the strings in <var>scriptURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
         <li>Let <var>scopeURL</var> be null.</li>
-        <li>If <var>options</var>.{{RegistrationOptions/scope}} is <a lt="present">not present</a>, set <var>scopeURL</var> to the result of <a for="url">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.
-          <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
-        </li>
-        <li>Else, set <var>scopeURL</var> to the result of <a for="url">parsing</a> <var>options</var>.{{RegistrationOptions/scope}} with <a>entry settings object</a>'s <a>API base URL</a>.</li>
-        <li>If <var>scopeURL</var> is failure, reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>If <var>scopeURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>If any of the strings in <var>scopeURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.</li>
-        <li>Set <var>job</var>'s <a>worker type</a> to <var>options</var>.{{RegistrationOptions/type}}.</li>
-        <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
+        <li>If <var>options</var>.{{RegistrationOptions/scope}} is <a>present</a>, set <var>scopeURL</var> to <var>options</var>.{{RegistrationOptions/scope}}.</li>
+        <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, <var>client</var>, <var>client</var>'s <a>creation URL</a> and <var>options</var>.{{RegistrationOptions/type}}.</li>
         <li>Return <var>p</var>.</li>
       </ol>
     </section>
@@ -2029,6 +2028,82 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
   </section>
 </section>
 
+<section>
+  <h2 id="link-type-serviceworker">Link type "<code>serviceworker</code>"</h2>
+  <p>The <dfn id="dfn-link-type-serviceworker" lt="serviceworker link type"><code>serviceworker</code></dfn> keyword may be used with <{link}> elements. This keyword creates an <a>external resource link</a> (<dfn id="dfn-serviceworker-link">serviceworker link</dfn>) that is used to declare a <a for="/">service worker registration</a> and its <a for="service worker registration">scope url</a>.</p>
+
+  <section>
+    <h3 id="link-element-processing">Processing</h3>
+
+    <p>When a user agent that supports [[!RFC5988]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent <em class="rfc2119" title="SHOULD">should</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+    <ol>
+      <li>If the <code>Link</code> header has an "<code>anchor</code>" parameter, abort these steps.</li>
+      <li>Let <var>contextURL</var> be the result of <a for="url">parsing</a> the <a>context IRI</a> of the <code>Link</code> header.</li>
+      <li>If the result of running <a>Is origin potentially trustworthy</a> with the <a for="resource">origin</a> of <var>contextURL</var> is <code>Not Trusted</code>, abort these steps.</li>
+      <li>Let <var>request</var> be the <a for="fetch">request</a> for which this header was received in the response.</li>
+      <li>If <var>request</var>'s <a for="request">client</a> is not a <a>secure context</a>, abort these steps.</li>
+      <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <a>target IRI</a> of the <code>Link</code> header.</li>
+      <li>Let <var>scopeURL</var> be the "<code>scope</code>" <a>target attribute</a> of the <code>Link</code> header, or null if no such attribute is present.</li>
+      <li>Let <var>workerType</var> be the "<code>workertype</code>" <a>target attribute</a> of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.</li>
+      <li>If <var>workerType</var> is not a valid {{WorkerType}} value, abort these steps.</li>
+      <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, a new <a>promise</a>, null, <var>contextURL</var> and <var>workerType</var>.</li>
+    </ol>
+
+    <p>When a <a>serviceworker link</a>'s <{link}> element is <a lt="in a document">inserted into a document</a>, a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a Document</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent <em class="rfc2119" title="SHOULD">should</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+    <ol>
+      <li>If the <{link/href}> attribute is the empty string, abort these steps.</li>
+      <li>Let <var>client</var> be the document's <a for="ServiceWorkerContainer">service worker client</a>.</li>
+      <li>If <var>client</var> is not a <a>secure context</a>, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
+      <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <{link/href}> attribute with document's <a>document base URL</a>.</li>
+      <li>Let <var>scopeURL</var> be the <{link/scope}> attribute, or null if the <{link/scope}> attribute is omitted.</li>
+      <li>Let <var>workerType</var> be the <{link/workertype}> attribute, or "<code>classic</code>" if the <{link/workertype}> attribute is omitted.</li>
+      <li>If <var>workerType</var> is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
+      <li>Let <var>promise</var> be a new <a>promise</a>.</li>
+      <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, <var>promise</var>, <var>client</var>, <var>client</var>'s <a>creation URL</a> and <var>workerType</var>.</li>
+      <li>Run the following substeps <a>in parallel</a>:
+        <ol>
+          <li>Wait until <var>promise</var> settles.</li>
+          <li>If <var>promise</var> rejected, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element.</li>
+          <li>If <var>promise</var> resolved, <a>queue a task</a> to <a>fire a simple event</a> named <code>load</code> at the <{link}> element.</li>
+        </ol>
+      </li>
+    </ol>
+
+    <p>The <a href="#dfn-serviceworker-link">serviceworker link</a> element <em class="rfc2119" title="MUST NOT">must not</em> <a href="https://html.spec.whatwg.org/multipage/syntax.html#delay-the-load-event">delay the load event</a> of the element's <a href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>.</p>
+
+    <div class="example">
+      A resource being loaded with the following response header:
+      <pre class="highlight">
+        Link: &lt;/js/sw.js&gt;; rel="serviceworker"; scope="/"
+      </pre>
+      has more or less the same effect as a document being loaded in a secure context with the following <code>link</code> element:
+      <pre class="lang-html">
+        &lt;link rel="serviceworker" href="/js/sw.js" scope="/"&gt;
+      </pre>
+      which is more or less equivalent to the page containing javascript code like:
+      <pre class="lang-js">
+        navigator.serviceworker.register("/js/sw.js", { scope: "/" });
+      </pre>
+    </div>
+  </section>
+
+  <section>
+    <h3 id="link-element-interface-section">Link element interface extensions</h3>
+
+    <pre class="idl">
+      partial interface HTMLLinkElement {
+        [CEReactions] attribute USVString scope;
+        [CEReactions] attribute WorkerType workerType;
+      };
+    </pre>
+
+    <p>The <dfn attribute for=HTMLLinkElement id="link-scope-attribute">scope</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">scope</dfn> content attribute.</p>
+
+    <p>The <dfn attribute for=HTMLLinkElement id="link-workertype-attribute">workerType</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">workertype</dfn> content attribute.</p>
+  </section>
+</section>
 
 <section>
   <h2 id="cache-objects">Caches</h2>
@@ -2857,6 +2932,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-client">client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>). It is initially null.</P>
 
+  <P>A <a>job</a> has a <dfn for=job>referrer</dfn> (a <a for=url>URL</a> or null).</p>
+
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-promise" lt="job promise">promise</dfn> (a <a>promise</a>). It is initially null.</P>
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a href="#dfn-job">jobs</a>). It is initially the empty list.</P>
@@ -2892,6 +2969,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Set <var>job</var>'s <a href="#dfn-job-script-url">script url</a> to <var>scriptURL</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-promise">promise</a> to <var>promise</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-client">client</a> to <var>client</var>.</li>
+      <li>If <var>client</var> is not null, set <var>job</var>'s <a>referrer</a> to <var>client</var>'s <a>creation URL</a>.</li>
       <li>Return <var>job</var>.</li>
     </ol>
   </section>
@@ -3001,6 +3079,39 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </ol>
   </section>
 
+  <section algorithm="start-register-algorithm">
+    <h3 id="start-register-algorithm">Start Register</h3>
+
+    <dl>
+      <dt>Input</dt>
+        <dd><var>scopeURLString</var>, a string</dd>
+        <dd><var>scriptURL</var>, a <a for="url">URL</a></dd>
+        <dd><var>promise</var>, a <a>promise</a></dd>
+        <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
+        <dd><var>referrer</var>, a <a for=url>URL</a></dd>
+        <dd><var>workerType</var>, a <a>worker type</a></dd>
+      <dt>Output</dt>
+        <dd>none</dd>
+    </dl>
+    <ol>
+      <li>If <var>scriptURL</var> is failure, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If <var>scriptURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If any of the strings in <var>scriptURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>Let <var>scopeURL</var> be null.</li>
+      <li>If <var>scopeURLString</var> is null, set <var>scopeURL</var> to the result of <a for="url">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.
+        <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
+      </li>
+      <li>Else, set <var>scopeURL</var> to the result of <a for="url">parsing</a> <var>scopeURLString</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
+      <li>If <var>scopeURL</var> is failure, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If <var>scopeURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>If any of the strings in <var>scopeURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
+      <li>Let <var>job</var> be the result of running [[#create-job-algorithm]] with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>promise</var>, and <var>client</var>.</li>
+      <li>Set <var>job</var>'s <a>worker type</a> to <var>workerType</var>.</li>
+      <li>Set <var>job</var>'s <a>referrer</a> to <var>referrer</var>.</li>
+      <li>Invoke [[#schedule-job-algorithm]] with <var>job</var>.</li>
+    </ol>
+  </section>
+
   <section algorithm="register-algorithm">
     <h3 id="register-algorithm">Register</h3>
 
@@ -3017,13 +3128,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a for=job>referrer</a>'s <a for="resource">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a for=job>referrer</a>'s <a for="resource">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
