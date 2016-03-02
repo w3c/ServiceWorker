@@ -202,8 +202,10 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: report the error
             text: run a classic script
             text: run a module script
-            text: script
+            text: script; url: concept-script
+            text: set up the request; url: fetching-scripts-set-up-request
             text: task queue; for: event loop
+            text: validate the response; url: fetching-scripts-validate-response
         urlPrefix: workers.html
             text: get a fetch result
             text: https state
@@ -301,7 +303,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (an opaque string), which uniquely identifies itself during the lifetime of its <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn id="dfn-functional-events">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
-    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource">script resource</dfn> (a <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-script">script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> which is "<code>none</code>", "<code>deprecated</code>", or "<code>modern</code>". Unless stated otherwise, it is "<code>none</code>".</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> which is "<code>none</code>", "<code>deprecated</code>", or "<code>modern</code>". Unless stated otherwise, it is "<code>none</code>".</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource-map">script resource map</dfn> which is a <a>List</a> of the <a>Record</a> {\[[key]], \[[value]]} where \[[key]] is a <a for="url">URL</a> and \[[value]] is a script resource.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.</p>
@@ -804,7 +806,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-register">
       <h4 id="navigator-service-worker-register">{{ServiceWorkerContainer/register(scriptURL, options)}}</h4>
 
-      <p class="note">The {{ServiceWorkerContainer/register(scriptURL, options)}} method creates or updates a <a href="#dfn-service-worker-registration">service worker registration</a> for the given <a href="#dfn-scope-url">scope url</a>. If successful, a <a href="#dfn-service-worker-registration">service worker registration</a> ties the provided <var>script url</var> to a <a href="#dfn-scope-url">scope url</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
+      <p class="note">The {{ServiceWorkerContainer/register(scriptURL, options)}} method creates or updates a <a href="#dfn-service-worker-registration">service worker registration</a> for the given <a href="#dfn-scope-url">scope url</a>. If successful, a <a href="#dfn-service-worker-registration">service worker registration</a> ties the provided <var>scriptURL</var> to a <a href="#dfn-scope-url">scope url</a>, which is subsequently used for <a href="#on-fetch-request-algorithm">navigation matching</a>.</p>
 
       <p><dfn method id="service-worker-container-register-method"><code>register(<var>scriptURL</var>, <var>options</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
@@ -3036,9 +3038,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Switching on <var>job</var>'s <a>worker type</a>, run these substeps with the following options:
         <dl>
         <dt><em>"<code>classic</code>"</em></dt>
-        <dd><p><a>Fetch a classic worker script</a> given <var>job</var>’s <a>serialized</a> <a>script url</a>, <var>job</var>’s <a href="#dfn-job-client">client</a>, and "<code>serviceworker</code>".</p></dd>
+        <dd><p><a>Fetch a classic worker script</a> given <var>job</var>’s <a>serialized</a> <a href="#dfn-job-script-url">script url</a>, <var>job</var>’s <a href="#dfn-job-client">client</a>, and "<code>serviceworker</code>".</p></dd>
         <dt><em>"<code>module</code>"</em></dt>
-        <dd><p><a>Fetch a module script tree</a> given <var>job</var>’s <a>serialized</a> <a>script url</a>, "<code>omit</code>", "<code>serviceworker</code>", and <var>job</var>’s <a href="#dfn-job-client">client</a>.</p></dd>
+        <dd><p><a>Fetch a module script tree</a> given <var>job</var>’s <a>serialized</a> <a href="#dfn-job-script-url">script url</a>, "<code>omit</code>", "<code>serviceworker</code>", and <var>job</var>’s <a href="#dfn-job-client">client</a>.</p></dd>
         </dl>
         <p>To <a>set up the request</a> given <var>request</var>, run the following steps:</p>
         <ol>
@@ -3056,12 +3058,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <p>To <a>validate the response</a> given <var>response</var>, run the following steps:</p>
         <ol>
           <li>If <var>response</var>'s <a for="response">type</a> is "<code>error</code>" or <var>response</var>'s <a for="response">status</a> is not an <a href="https://fetch.spec.whatwg.org/#ok-status">ok status</a>, then:
-            <ol>
-              <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
-              <li>If <var>newestWorker</var> is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-              <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.</li>
-              <li>Return false and abort these steps.</li>
-            </ol>
+            
           </li>
           <li><a>Extract a MIME type</a> from the <var>response</var>'s <a for="response">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
             <ol>
@@ -3108,6 +3105,14 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>If <var>response</var>'s <a for="response">cache state</a> is not "<code>local</code>", set <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> to the current time.</li>
           <li>Return true.</li>
         </ol>
+        <p>If the algorithm asynchronously completes with null, then:
+          <ol>
+            <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
+            <li>If <var>newestWorker</var> is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
+            <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
+          </ol>
+        </p>
+        <p>Else, continue the rest of these steps after the algorithm's asynchronous completion, with <var>script</var> being the asynchronous completion value.</p>
       </li>
       <li>If <var>newestWorker</var> is not null, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> <a for="url">equals</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, and <var>script</var> is a byte-for-byte match with <var>newestWorker</var>'s <a href="#dfn-script-resource">script resource</a>, then:
         <ol>
