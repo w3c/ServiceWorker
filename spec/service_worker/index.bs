@@ -130,11 +130,15 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
         text: basic filtered response; url: concept-filtered-response-basic
         text: CORS filtered response; url: concept-filtered-response-cors
+        text: disturbed; url: concept-body-disturbed
+        text: empty; url: concept-empty-readablestream
         text: extract a mime type; url: concept-header-extract-mime-type
         text: fetch; url: concept-fetch
         text: filtered response; url: concept-filtered-response
+        text: get a reader; url: concept-get-reader
         text: header; url: concept-header
         text: http fetch; url: concept-http-fetch
+        text: locked; url: concept-body-locked
         text: navigation request
         text: network error; url: concept-network-error
         text: non-subresource request
@@ -142,9 +146,12 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: potential-navigation-or-subresource request
         text: process response
         text: process response end-of-file
+        text: read all bytes; url: concept-read-all-bytes-from-readablestream
+        text: ReadableStream; url: concept-readablestream
         text: request; for: fetch; url: concept-request
         text: response; for: fetch; url: concept-response
         text: skip service worker flag
+        text: stream; url: concept-body-stream
         text: subresource request
         text: synchronous flag
         text: terminate; url: concept-fetch-terminate
@@ -172,6 +179,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
             text: termination reason
             text: type
     type: interface
+        text: Headers
         text: Request
         text: RequestInfo
         text: Response
@@ -1770,7 +1778,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p><a href="#dfn-service-worker">Service workers</a> have an essential <a href="#dfn-functional-events">functional event</a> <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">service workers</a> use the <code><dfn interface id="fetch-event-interface">FetchEvent</dfn></code> interface which extends the {{ExtendableEvent}} interface.</p>
 
-    <p>Each event using {{FetchEvent}} interface has the following associated flag that is initially unset:
+    <p>Each event using {{FetchEvent}} interface has an associated <dfn>potential response</dfn> (a <a>response</a>), initially set to null, and the following associated flags that are initially unset:
       <ul>
         <li><dfn id="wait-to-respond-flag">wait to respond flag</dfn></li>
         <li><dfn id="respond-with-entered-flag">respond-with entered flag</dfn></li>
@@ -1833,10 +1841,22 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <ol>
                 <li>If <var>response</var> is a {{Response}} object, then:
                   <ol>
-                    <li>If <var>response</var>'s <a for="response">body</a> is non-null, then:
+                    <li>If <var>response</var> is <a>disturbed</a> or <a>locked</a>, then:
                       <ol>
-                        <li>If <var>response</var>'s <a>used flag</a> is set, set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
-                        <li>Set <var>response</var>'s <a>used flag</a>.</li>
+                        <li>Set the <a href="#respond-with-error-flag">respond-with error flag</a>.</li>
+                      </ol>
+                    </li>
+                    <li>Else:
+                      <ol>
+                        <li>Set the <a>potential response</a> to <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>.</li>
+                        <li>If <var>response</var>'s body is non-null, run these substeps:
+                          <ol>
+                            <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
+                            <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
+                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
+                            <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
+                          </ol>
+                        </li>
                       </ol>
                     </li>
                   </ol>
@@ -2202,12 +2222,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Let <var>operations</var> be an empty array.</li>
             <li>For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>:
               <ol>
-                <li>If <var>response</var>'s <a for="response">body</a> is non-null, then:
-                <ol>
-                  <li>If <var>response</var>'s <a>used flag</a> is set, <a>throw</a> a <code>TypeError</code>.</li>
-                  <li>Set <var>response</var>'s <a>used flag</a>.</li>
-                </ol>
-              </li>
                 <li>Let <var>o</var> be an empty object representing a {{CacheBatchOperation}} dictionary.</li>
                 <li>Set the {{CacheBatchOperation/type}} dictionary member of <var>o</var> to "put".</li>
                 <li>Set the {{CacheBatchOperation/request}} dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].</li>
@@ -2296,17 +2310,21 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             </li>
           </ol>
         </li>
-        <li>If <var>response</var>'s <a for="response">body</a> is non-null, then:
+        <li>If <var>response</var> is <a>disturbed</a> or <a>locked</a>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
+        <li>Let <var>newResponse</var> be a new {{Response}} object associated with <var>response</var>'s associated <a>response</a> and <var>response</var>'s associated {{Headers}} object.</li>
+        <li>If <var>response</var>'s body is non-null, run these substeps:
           <ol>
-            <li>If <var>response</var>'s <a>used flag</a> is set, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
-            <li>Set <var>response</var>'s <a>used flag</a>.</li>
+            <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
+            <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
+            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
+            <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
           </ol>
         </li>
         <li>Let <var>operations</var> be an empty array.</li>
         <li>Let <var>o</var> be an empty object representing a {{CacheBatchOperation}} dictionary.</li>
         <li>Set the {{CacheBatchOperation/type}} dictionary member of <var>o</var> to "put".</li>
         <li>Set the {{CacheBatchOperation/request}} dictionary member of <var>o</var> to a {{Request}} object associated with <var>r</var>.</li>
-        <li>Set the {{CacheBatchOperation/response}} dictionary member of <var>o</var> to <var>response</var>.</li>
+        <li>Set the {{CacheBatchOperation/response}} dictionary member of <var>o</var> to <var>newResponse</var>.</li>
         <li>Add <var>o</var> to <var>operations</var>.</li>
         <li>Let <var>resultPromise</var> be the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.</li>
         <li>Return the result of <a>transforming</a> <var>resultPromise</var> with a fulfillment handler that, when called with argument <var>responses</var>, performs the following substeps <a>in parallel</a>:
@@ -3467,23 +3485,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
                 <ol>
                   <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
-                  <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, then:
-                    <ol>
-                      <li>Set <var>handleFetchFailed</var> to true.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>If the argument passed into the <var>event</var>'s {{FetchEvent/respondWith(r)}} method <var>arg</var> is a {{Response}} object, then:
-                        <ol><li>Set <var>response</var> to <var>arg</var>.</ol>
-                      </li>
-                      <li>Else:
-                        <ol>
-                          <li>Set <var>response</var> to the value which <var>arg</var> resolved with.</li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </li>
+                  <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
+                  <li>Else, set <var>response</var> to <var>event</var>'s <a>potential response</a>.</li>
                 </ol>
               </li>
               <li>If <var>event</var>'s <a>canceled flag</a> is set, set <var>eventCanceled</var> to true.</li>
@@ -3510,7 +3513,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       </li>
       <li>Else:
         <ol>
-          <li>Return a <a for="fetch">response</a> represented by <var>response</var> and continue running these substeps <a>in parallel</a>.</li>
+          <li>Return <var>response</var> and continue running these substeps <a>in parallel</a>.</li>
           <li>If <var>request</var> is a <a>non-subresource request</a>, or <var>request</var> is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var>.</li>
         </ol>
       </li>
@@ -3578,24 +3581,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <li>If <var>event</var>'s <a>wait to respond flag</a> is set, then:
                 <ol>
                   <li>Wait until <var>event</var>'s <a>wait to respond flag</a> is unset.</li>
-                  <li>If <var>event</var>'s <a>respond-with error flag</a> is set, then:
-                    <ol>
-                      <li>Set <var>handleFetchFailed</var> to true.</li>
-                    </ol>
-                  </li>
-                  <li>Else:
-                    <ol>
-                      <li>If the argument passed into the <var>event</var>'s {{FetchEvent/respondWith(r)}} method <var>arg</var> is a {{Response}} object, then:
-                        <ol><li>Set <var>response</var> to <var>arg</var>.</ol>
-                      </li>
-                      <li>Else:
-                        <ol>
-                          <li>Set <var>response</var> to the value which <var>arg</var> resolved with.</li>
-                        </ol>
-                      </li>
-                      <li>Set <var>response</var> to an <a>opaque filtered response</a> of <var>response</var>.</li>
-                    </ol>
-                  </li>
+                  <li>If <var>event</var>'s <a>respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
+                  <li>Else, set <var>response</var> to an <a>opaque filtered response</a> of <var>event</var>'s <a>potential response</a>.</li>
                 </ol>
               </li>
               <li>If <var>event</var>'s <a>canceled flag</a> is set, then:
@@ -3631,7 +3618,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       </li>
       <li>Else:
         <ol>
-          <li>Return a <a for="fetch">response</a> represented by <var>response</var>.</li>
+          <li>Return <var>response</var>.</li>
         </ol>
       </li>
     </ol>

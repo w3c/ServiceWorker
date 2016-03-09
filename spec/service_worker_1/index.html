@@ -1397,7 +1397,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/Icons/w3c_home" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-02">2 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-09">9 March 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2853,7 +2853,7 @@ interface <a class="idl-code" data-link-type="interface" href="#fetch-event-inte
 };
 </pre>
      <p><a href="#dfn-service-worker" id="ref-for-dfn-service-worker-78">Service workers</a> have an essential <a href="#dfn-functional-events" id="ref-for-dfn-functional-events-5">functional event</a> <code><a href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-4">fetch</a></code>. For <code><a href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-5">fetch</a></code> event, <a href="#dfn-service-worker" id="ref-for-dfn-service-worker-79">service workers</a> use the <code><dfn class="dfn-paneled idl-code" data-dfn-for="FetchEvent" data-dfn-type="interface" data-export="" id="fetch-event-interface">FetchEvent<span class="dfn-panel"><b><a href="#fetch-event-interface">#fetch-event-interface</a></b><b>Referenced in:</b><span><a href="#ref-for-fetch-event-interface-1">4.5. FetchEvent</a> <a href="#ref-for-fetch-event-interface-2">(2)</a> <a href="#ref-for-fetch-event-interface-3">(3)</a></span><span><a href="#ref-for-fetch-event-interface-4">4.7. Events</a></span><span><a href="#ref-for-fetch-event-interface-5">Handle Fetch</a></span></span></dfn></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendable-event-interface" id="ref-for-extendable-event-interface-6">ExtendableEvent</a></code> interface.</p>
-     <p>Each event using <code class="idl"><a data-link-type="idl" href="#fetch-event-interface" id="ref-for-fetch-event-interface-3">FetchEvent</a></code> interface has the following associated flag that is initially unset: </p>
+     <p>Each event using <code class="idl"><a data-link-type="idl" href="#fetch-event-interface" id="ref-for-fetch-event-interface-3">FetchEvent</a></code> interface has an associated <dfn class="dfn-paneled" data-dfn-for="FetchEvent" data-dfn-type="dfn" data-noexport="" id="fetchevent-potential-response">potential response<span class="dfn-panel"><b><a href="#fetchevent-potential-response">#fetchevent-potential-response</a></b><b>Referenced in:</b><span><a href="#ref-for-fetchevent-potential-response-1">4.5.4. event.respondWith(r)</a></span><span><a href="#ref-for-fetchevent-potential-response-2">Handle Fetch</a></span></span></dfn> (a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a>), initially set to null, and the following associated flags that are initially unset: </p>
      <ul>
       <li><dfn class="dfn-paneled" data-dfn-for="FetchEvent" data-dfn-type="dfn" data-noexport="" id="wait-to-respond-flag">wait to respond flag<span class="dfn-panel"><b><a href="#wait-to-respond-flag">#wait-to-respond-flag</a></b><b>Referenced in:</b><span><a href="#ref-for-wait-to-respond-flag-1">4.5.4. event.respondWith(r)</a> <a href="#ref-for-wait-to-respond-flag-2">(2)</a></span><span><a href="#ref-for-wait-to-respond-flag-3">Handle Fetch</a> <a href="#ref-for-wait-to-respond-flag-4">(2)</a></span></span></dfn>
       <li><dfn class="dfn-paneled" data-dfn-for="FetchEvent" data-dfn-type="dfn" data-noexport="" id="respond-with-entered-flag">respond-with entered flag<span class="dfn-panel"><b><a href="#respond-with-entered-flag">#respond-with-entered-flag</a></b><b>Referenced in:</b><span><a href="#ref-for-respond-with-entered-flag-1">4.5.4. event.respondWith(r)</a> <a href="#ref-for-respond-with-entered-flag-2">(2)</a></span><span><a href="#ref-for-respond-with-entered-flag-3">Handle Fetch</a></span></span></dfn>
@@ -2876,7 +2876,7 @@ interface <a class="idl-code" data-link-type="interface" href="#fetch-event-inte
      <section data-algorithm="fetch-event-respondwith">
       <h4 class="heading settled" data-level="4.5.4" id="fetch-event-respondwith"><span class="secno">4.5.4. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#fetch-event-respondwith-method" id="ref-for-fetch-event-respondwith-method-2">event.respondWith(r)</a></code></span><a class="self-link" href="#fetch-event-respondwith"></a></h4>
       <p class="note" role="note">Developers can set the argument <var>r</var> with either a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> that resolves with a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object or a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object (which is automatically cast to a promise). Otherwise, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a> is returned to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>. Renderer-side security checks about tainting for cross-origin content are tied to the types of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response">filtered responses</a> defined in <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch">Fetch</a>.</p>
-      <p><dfn class="dfn-paneled idl-code" data-dfn-for="FetchEvent" data-dfn-type="method" data-export="" id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code><span class="dfn-panel"><b><a href="#fetch-event-respondwith-method">#fetch-event-respondwith-method</a></b><b>Referenced in:</b><span><a href="#ref-for-fetch-event-respondwith-method-1">4.5. FetchEvent</a></span><span><a href="#ref-for-fetch-event-respondwith-method-2">4.5.4. event.respondWith(r)</a></span><span><a href="#ref-for-fetch-event-respondwith-method-3">6.4. Cross-Origin Resources and CORS</a></span><span><a href="#ref-for-fetch-event-respondwith-method-4">Handle Fetch</a></span></span></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-33">equivalent</a>:</p>
+      <p><dfn class="dfn-paneled idl-code" data-dfn-for="FetchEvent" data-dfn-type="method" data-export="" id="fetch-event-respondwith-method"><code>respondWith(<var>r</var>)</code><span class="dfn-panel"><b><a href="#fetch-event-respondwith-method">#fetch-event-respondwith-method</a></b><b>Referenced in:</b><span><a href="#ref-for-fetch-event-respondwith-method-1">4.5. FetchEvent</a></span><span><a href="#ref-for-fetch-event-respondwith-method-2">4.5.4. event.respondWith(r)</a></span><span><a href="#ref-for-fetch-event-respondwith-method-3">6.4. Cross-Origin Resources and CORS</a></span></span></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-33">equivalent</a>:</p>
       <ol>
        <li>
         If the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#dispatch-flag">dispatch flag</a> is unset, then: 
@@ -2909,10 +2909,22 @@ interface <a class="idl-code" data-link-type="interface" href="#fetch-event-inte
             If <var>response</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, then: 
             <ol>
              <li>
-              If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> is non-null, then: 
+              If <var>response</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, then: 
               <ol>
-               <li>If <var>response</var>’s <a data-link-type="dfn">used flag</a> is set, set the <a href="#respond-with-error-flag" id="ref-for-respond-with-error-flag-2">respond-with error flag</a>.
-               <li>Set <var>response</var>’s <a data-link-type="dfn">used flag</a>.
+               <li>Set the <a href="#respond-with-error-flag" id="ref-for-respond-with-error-flag-2">respond-with error flag</a>.
+              </ol>
+             <li>
+              Else: 
+              <ol>
+               <li>Set the <a data-link-type="dfn" href="#fetchevent-potential-response" id="ref-for-fetchevent-potential-response-1">potential response</a> to <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>.
+               <li>
+                If <var>response</var>’s body is non-null, run these substeps: 
+                <ol>
+                 <li>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object.
+                 <li>Set <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>dummyStream</var>.
+                 <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>dummyStream</var>.
+                 <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.
+                </ol>
               </ol>
             </ol>
            <li>
@@ -3213,12 +3225,6 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
          <li>
           For each <var>response</var> in <var>responseArray</var> with the index <var>index</var>: 
           <ol>
-           <li>
-            If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> is non-null, then: 
-            <ol>
-             <li>If <var>response</var>’s <a data-link-type="dfn">used flag</a> is set, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> a <code>TypeError</code>.
-             <li>Set <var>response</var>’s <a data-link-type="dfn">used flag</a>.
-            </ol>
            <li>Let <var>o</var> be an empty object representing a <code class="idl"><a data-link-type="idl" href="#dictdef-cache-cachebatchoperation" id="ref-for-dictdef-cache-cachebatchoperation-1">CacheBatchOperation</a></code> dictionary.
            <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-type" id="ref-for-dom-cachebatchoperation-type-1">type</a></code> dictionary member of <var>o</var> to "put".
            <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-request" id="ref-for-dom-cachebatchoperation-request-1">request</a></code> dictionary member of <var>o</var> to <var>requestArray</var>[<var>index</var>].
@@ -3302,17 +3308,21 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
            <li>If <var>f</var> matches "<code>*</code>", return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.
           </ol>
         </ol>
+       <li>If <var>response</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.
+       <li>Let <var>newResponse</var> be a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>’s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a> and <var>response</var>’s associated <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code> object.
        <li>
-        If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> is non-null, then: 
+        If <var>response</var>’s body is non-null, run these substeps: 
         <ol>
-         <li>If <var>response</var>’s <a data-link-type="dfn">used flag</a> is set, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.
-         <li>Set <var>response</var>’s <a data-link-type="dfn">used flag</a>.
+         <li>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object.
+         <li>Set <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>dummyStream</var>.
+         <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>dummyStream</var>.
+         <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.
         </ol>
        <li>Let <var>operations</var> be an empty array.
        <li>Let <var>o</var> be an empty object representing a <code class="idl"><a data-link-type="idl" href="#dictdef-cache-cachebatchoperation" id="ref-for-dictdef-cache-cachebatchoperation-2">CacheBatchOperation</a></code> dictionary.
        <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-type" id="ref-for-dom-cachebatchoperation-type-2">type</a></code> dictionary member of <var>o</var> to "put".
        <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-request" id="ref-for-dom-cachebatchoperation-request-2">request</a></code> dictionary member of <var>o</var> to a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>r</var>.
-       <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-response" id="ref-for-dom-cachebatchoperation-response-2">response</a></code> dictionary member of <var>o</var> to <var>response</var>.
+       <li>Set the <code class="idl"><a data-link-type="idl" href="#dom-cachebatchoperation-response" id="ref-for-dom-cachebatchoperation-response-2">response</a></code> dictionary member of <var>o</var> to <var>newResponse</var>.
        <li>Add <var>o</var> to <var>operations</var>.
        <li>Let <var>resultPromise</var> be the result of running <a href="#batch-cache-operations-algorithm">Batch Cache Operations</a> passing <var>operations</var> as the argument.
        <li>
@@ -4333,25 +4343,8 @@ interface FunctionalEvent : ExtendableEvent {
             If <var>event</var>’s <a href="#wait-to-respond-flag" id="ref-for-wait-to-respond-flag-3">wait to respond flag</a> is set, then: 
             <ol>
              <li>Wait until <var>event</var>’s <a href="#wait-to-respond-flag" id="ref-for-wait-to-respond-flag-4">wait to respond flag</a> is unset.
-             <li>
-              If <var>event</var>’s <a href="#respond-with-error-flag" id="ref-for-respond-with-error-flag-5">respond-with error flag</a> is set, then: 
-              <ol>
-               <li>Set <var>handleFetchFailed</var> to true.
-              </ol>
-             <li>
-              Else: 
-              <ol>
-               <li>
-                If the argument passed into the <var>event</var>’s <code class="idl"><a data-link-type="idl" href="#fetch-event-respondwith-method" id="ref-for-fetch-event-respondwith-method-4">respondWith(r)</a></code> method <var>arg</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object, then: 
-                <ol>
-                 <li>Set <var>response</var> to <var>arg</var>.
-                </ol>
-               <li>
-                Else: 
-                <ol>
-                 <li>Set <var>response</var> to the value which <var>arg</var> resolved with.
-                </ol>
-              </ol>
+             <li>If <var>event</var>’s <a href="#respond-with-error-flag" id="ref-for-respond-with-error-flag-5">respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.
+             <li>Else, set <var>response</var> to <var>event</var>’s <a data-link-type="dfn" href="#fetchevent-potential-response" id="ref-for-fetchevent-potential-response-2">potential response</a>.
             </ol>
            <li>If <var>event</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is set, set <var>eventCanceled</var> to true.
           </ol>
@@ -4376,7 +4369,7 @@ interface FunctionalEvent : ExtendableEvent {
        <li>
         Else: 
         <ol>
-         <li>Return a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a> represented by <var>response</var> and continue running these substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.
+         <li>Return <var>response</var> and continue running these substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.
          <li>If <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a>, or <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#subresource-request">subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>’s <a href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time-6">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-54">equivalent</a>, with <var>registration</var>.
         </ol>
       </ol>
@@ -5118,6 +5111,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="#service-worker-postmessage-method">method for ServiceWorker</a><span>, in §3.1.3</span>
      <li><a href="#client-postmessage-method">method for Client</a><span>, in §4.2.4</span>
     </ul>
+   <li><a href="#fetchevent-potential-response">potential response</a><span>, in §4.5</span>
    <li><a href="#dfn-processing-equivalence">processing equivalence</a><span>, in §Unnumbered section</span>
    <li><a href="#cache-put-method">put(request, response)</a><span>, in §5.4.5</span>
    <li><a href="#service-worker-container-ready-attribute">ready</a><span>, in §3.4.2</span>
@@ -5280,6 +5274,7 @@ interface FunctionalEvent : ExtendableEvent {
    <li>
     <a data-link-type="biblio" href="#biblio-fetch">[FETCH]</a> defines the following terms:
     <ul>
+     <li><a href="https://fetch.spec.whatwg.org/#headers">Headers</a>
      <li><a href="https://fetch.spec.whatwg.org/#request">Request</a>
      <li><a href="https://fetch.spec.whatwg.org/#requestinfo">RequestInfo</a>
      <li><a href="https://fetch.spec.whatwg.org/#response">Response</a>
@@ -5290,10 +5285,13 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors">cors filtered response</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a>
      <li><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">fetch(input, init)</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-filtered-response">filtered response</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-get-reader">get a reader</a>
      <li><a href="https://fetch.spec.whatwg.org/#dom-headers-get">get(name)</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header">header</a>
@@ -5301,6 +5299,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-http-fetch">http fetch</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-initiator">initiator</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-method">method</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-name">name</a>
      <li><a href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a>
@@ -5311,11 +5310,14 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#potential-navigation-or-subresource-request">potential-navigation-or-subresource request</a>
      <li><a href="https://fetch.spec.whatwg.org/#process-response">process response</a>
      <li><a href="https://fetch.spec.whatwg.org/#process-response-end-of-file">process response end-of-file</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">read all bytes</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-readablestream">readablestream</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response">response</a>
      <li><a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a>
      <li><a href="https://fetch.spec.whatwg.org/#subresource-request">subresource request</a>
      <li><a href="https://fetch.spec.whatwg.org/#synchronous-flag">synchronous flag</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-fetch-terminate">terminate</a>
