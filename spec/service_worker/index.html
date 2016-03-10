@@ -1397,7 +1397,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/Icons/w3c_home" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-09">9 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-10">10 March 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3213,9 +3213,14 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
             For each <var>entry</var> of <var>entries</var>: 
             <ol>
              <li>Let <var>response</var> be null.
-             <li>If the <a href="#dfn-incumbent-record" id="ref-for-dfn-incumbent-record-1">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record" id="ref-for-dfn-fetching-record-5">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map" id="ref-for-dfn-request-to-response-map-4">request to response map</a> is not null, set <var>response</var> to a copy of <var>incumbentRecord</var>.[value].
+             <li>If the <a href="#dfn-incumbent-record" id="ref-for-dfn-incumbent-record-1">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record" id="ref-for-dfn-fetching-record-5">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map" id="ref-for-dfn-request-to-response-map-4">request to response map</a> is not null, set <var>response</var> to a copy of <var>incumbentRecord</var>.[[value]].
              <li>Else, set <var>response</var> to a copy of <var>entry</var>[1].
-             <li>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> is `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, set <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to null.
+             <li>
+              If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> is `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, then: 
+              <ol>
+               <li>Let <var>actualResponse</var> be <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, if <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> is not a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response">filtered response</a>, and to <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-internal-response">internal response</a> otherwise.
+               <li>Set <var>actualResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to null.
+              </ol>
              <li>Add <var>response</var> to <var>responseArray</var>.
             </ol>
            <li>Resolve <var>promise</var> with <var>responseArray</var>.
@@ -3278,9 +3283,9 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
                  <li>If <var>f</var> matches "<code>*</code>", set <var>matchAsterisk</var> to true and break the loop.
                 </ol>
                <li>If <var>matchAsterisk</var> is true, reject <var>responsePromise</var> with a <code>TypeError</code>.
-               <li>Else, resolve <var>responsePromise</var> with a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>.
+               <li>Else, resolve <var>responsePromise</var> with a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var> and a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code> object whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a> is "<code>immutable</code>".
               </ol>
-             <li>Else, resolve <var>responsePromise</var> with a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>.
+             <li>Else, resolve <var>responsePromise</var> with a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var> and a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code> object whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a> is "<code>immutable</code>".
             </ol>
             <p class="note" role="note">This step ensures that the promise for this fetch resolves as soon as the response’s headers become available.</p>
            <li>To <a data-link-type="dfn">process response body</a> for <var>response</var>, do nothing.
@@ -3380,7 +3385,7 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
           </ol>
         </ol>
        <li>If <var>response</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.
-       <li>Let <var>newResponse</var> be a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>’s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a> and <var>response</var>’s associated <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code> object.
+       <li>Let <var>newResponse</var> be a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response">Response</a></code> object associated with <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> and a new <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code> object whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a> is <var>response</var>’s <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#headers">Headers</a></code>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-headers-guard">guard</a>.
        <li>
         If <var>response</var>’s body is non-null, run these substeps: 
         <ol>
@@ -5531,6 +5536,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#dom-request-headers">headers</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-http-fetch">http fetch</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-initiator">initiator</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-internal-response">internal response</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-method">method</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-name">name</a>

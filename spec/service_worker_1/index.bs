@@ -136,6 +136,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: filtered response; url: concept-filtered-response
         text: get a reader; url: concept-get-reader
         text: header; url: concept-header
+        text: internal response; url: concept-internal-response
         text: http fetch; url: concept-http-fetch
         text: locked; url: concept-body-locked
         text: navigation request
@@ -2040,9 +2041,14 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                 <li>For each <var>entry</var> of <var>entries</var>:
                   <ol>
                     <li>Let <var>response</var> be null.</li>
-                    <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, set <var>response</var> to a copy of <var>incumbentRecord</var>.[value].</li>
+                    <li>If the <a href="#dfn-incumbent-record">incumbent record</a> <var>incumbentRecord</var> of the corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> in <a href="#dfn-request-to-response-map">request to response map</a> is not null, set <var>response</var> to a copy of <var>incumbentRecord</var>.\[[value]].</li>
                     <li>Else, set <var>response</var> to a copy of <var>entry</var>[1].</li>
-                    <li>If <var>r</var>'s <a for="request">method</a> is `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, set <var>response</var>'s <a for="response">body</a> to null.</li>
+                    <li>If <var>r</var>'s <a for="request">method</a> is `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, then:
+                      <ol>
+                        <li>Let <var>actualResponse</var> be <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, if <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> is not a <a>filtered response</a>, and to <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>'s <a>internal response</a> otherwise.</li>
+                        <li>Set <var>actualResponse</var>'s <a for="response">body</a> to null.</li>
+                      </ol>
+                    </li>
                     <li>Add <var>response</var> to <var>responseArray</var>.</li>
                   </ol>
                 </li>
@@ -2110,10 +2116,10 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                           </ol>
                         </li>
                         <li>If <var>matchAsterisk</var> is true, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
-                        <li>Else, resolve <var>responsePromise</var> with a new {{Response}} object associated with <var>response</var>.</li>
+                        <li>Else, resolve <var>responsePromise</var> with a new {{Response}} object associated with <var>response</var> and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>".</li>
                       </ol>
                     </li>
-                    <li>Else, resolve <var>responsePromise</var> with a new {{Response}} object associated with <var>response</var>.</li>
+                    <li>Else, resolve <var>responsePromise</var> with a new {{Response}} object associated with <var>response</var> and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>".</li>
                   </ol>
                   <p class="note">This step ensures that the promise for this fetch resolves as soon as the response's headers become available.</p>
                 </li>
@@ -2219,7 +2225,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           </ol>
         </li>
         <li>If <var>response</var> is <a>disturbed</a> or <a>locked</a>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
-        <li>Let <var>newResponse</var> be a new {{Response}} object associated with <var>response</var>'s associated <a>response</a> and <var>response</var>'s associated {{Headers}} object.</li>
+        <li>Let <var>newResponse</var> be a new {{Response}} object associated with <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> and a new {{Headers}} object whose <a>guard</a> is <var>response</var>'s {{Headers}}'s <a>guard</a>.</li>
         <li>If <var>response</var>'s body is non-null, run these substeps:
           <ol>
             <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
