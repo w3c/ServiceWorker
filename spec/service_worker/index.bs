@@ -653,6 +653,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
         <li>If <var>newestWorker</var> is null, reject <var>p</var> with an "{{InvalidStateError}}" exception and abort these steps.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, <var>p</var>, and the <a>context object</a>'s <a>relevant settings object</a> <var>client</var>.</li>
+        <li>Set <var>job</var>'s <a>worker type</a> to <var>newestWorker</var>'s <a for="service worker">type</a>.</li>
         <li>Run the following substep <a>in parallel</a>:
           <ol>
             <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
@@ -830,7 +831,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>If <var>scopeURL</var> is failure, reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
         <li>If <var>scopeURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
         <li>If any of the strings in <var>scopeURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
-        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>options</var>.<a href="#dom-registrationoptions-type">type</a>, <var>p</var>, and <var>client</var>.</li>
+        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.</li>
+        <li>Set <var>job</var>'s <a>worker type</a> to <var>options</var>.{{RegistrationOptions/type}}.</li>
         <li>Run the following substep <a>in parallel</a>:
           <ol>
             <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
@@ -2829,7 +2831,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <dd><var>jobType</var>, a <a href="#dfn-job-type">job type</a></dd>
         <dd><var>scopeURL</var>, a <a for="url">URL</a></dd>
         <dd><var>scriptURL</var>, a <a for="url">URL</a></dd>
-        <dd><var>workerExecutionType</var>, "<code>classic</code>" or "<code>module</code>"</dd>
         <dd><var>promise</var>, a <a>promise</a></dd>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
       <dt>Output</dt>
@@ -2840,7 +2841,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Set <var>job</var>'s <a href="#dfn-job-type">job type</a> to <var>jobType</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> to <var>scopeURL</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-script-url">script url</a> to <var>scriptURL</var>.</li>
-      <li>Set <var>job</var>'s <a href="#dfn-job-worker-type">worker type</a> to <var>workerExecutionType</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-promise">promise</a> to <var>promise</var>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-client">client</a> to <var>client</var>.</li>
       <li>Return <var>job</var>.</li>
@@ -3172,6 +3172,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
       <li>If <var>newestWorker</var> is null, abort these steps.</li>
       <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, a new <a>promise</a>, and null.</li>
+      <li>Set <var>job</var>'s <a>worker type</a> to <var>newestWorker</var>'s <a for="service worker">type</a>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-force-bypass-cache-flag">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.</li>
       <li>Run the following substep <a>in parallel</a>:
         <ol>
