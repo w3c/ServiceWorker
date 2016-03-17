@@ -2866,7 +2866,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Let <var>lastJob</var> be the element at the back of the <a href="#dfn-job-queue">job queue</a>.</li>
           <li>If <var>job</var> is <a href="#dfn-job-equivalent">equivalent</a> to <var>lastJob</var>, append <var>job</var>'s <a href="#dfn-job-promise">promise</a> to <var>lastJob</var>'s <a href="#dfn-job-list-of-equivalent-job-promises">list of equivalent job promises</a>.</li>
-          <li>Else, push <var>job</var> to the <a href="#dfn-job-queue">job queue</a> and invoke <a href="#doom-installing-worker-algorithm">Doom Installing Worker</a>.</li>
+          <li>Else, push <var>job</var> to the <a href="#dfn-job-queue">job queue</a>.</li>
         </ol>
       </li>
     </ol>
@@ -2889,7 +2889,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <p class="note">For a register job and an update job, the user agent delays invoking <a href="#register-algorithm">Register</a> and <a href="#update-algorithm">Update</a> respectively until after the document initiated the job has been dispatched {{Document/DOMContentLoaded}} event. If the job's <a href="#dfn-job-client">client</a> is a <a href="#dfn-worker-client">worker client</a>, it is delayed until after the worker script has evaluated.</p>
       </li>
       <li>Else if <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>unregister</em>, invoke <a href="#unregister-algorithm">Unregister</a> with <var>job</var> and continue running these steps <a>in parallel</a>.</li>
-      <li>Invoke <a href="#doom-installing-worker-algorithm">Doom Installing Worker</a>.</li>
     </ol>
   </section>
 
@@ -2906,38 +2905,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li><a>Assert</a>: the top element in the <a href="#dfn-job-queue">job queue</a> is <var>job</var>.</li>
       <li>Pop the top element from the <a href="#dfn-job-queue">job queue</a>.</li>
       <li>If the <a href="#dfn-job-queue">job queue</a> is not empty, invoke <a href="#run-job-algorithm">Run Job</a> with the top element of the <a href="#dfn-job-queue">job queue</a>.</li>
-    </ol>
-  </section>
-
-  <section algorithm="doom-installing-worker-algorithm">
-    <h3 id="doom-installing-worker-algorithm">Doom Installing Worker</h3>
-
-    <dl>
-      <dt>Input</dt>
-        <dd>none</dd>
-      <dt>Output</dt>
-        <dd>none</dd>
-    </dl>
-    <ol>
-      <li><a>Assert</a>: the <a href="#dfn-job-queue">job queue</a> is not empty.</li>
-      <li>Let <var>frontJob</var> be the element in the front of the <a href="#dfn-job-queue">job queue</a>.</li>
-      <li>If <var>frontJob</var>'s <a href="#dfn-job-type">job type</a> is not <em>register</em>, return.</li>
-      <li>Let <var>registration</var> be the result of running <a href="#get-newest-worker-algorithm">Get Registration</a> with <var>frontJob</var>'s <a href="#dfn-job-scope-url">scope url</a>.</li>
-      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is null, return.</li>
-      <li>For each <a href="#dfn-job">job</a> <var>job</var> except the element in the front in the <a href="#dfn-job-queue">job queue</a>:
-        <ol>
-          <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>register</em>, then:
-            <ol>
-              <li>Terminate <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-              <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-              <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-              <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-              <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>frontJob</var>.</li>
-              <li>Return.</li>
-            </ol>
-          </li>
-        </ol>
-      </li>
     </ol>
   </section>
 
@@ -3235,9 +3202,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       </li>
       <p>If <var>task</var> is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>installingWorker</var>, set <var>installFailed</var> to true.</p>
       <li>Wait for <var>task</var> to have executed or been discarded.</li>
-      <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is null, abort these steps.
-        <p class="note">This means the Doom Installing Worker nullified the installing worker.</p>
-      </li>
       <li>If <var>installFailed</var> is true, then:
         <ol>
           <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
