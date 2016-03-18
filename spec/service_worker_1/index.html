@@ -1397,7 +1397,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/Icons/w3c_home" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-17">17 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-18">18 March 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2910,15 +2910,19 @@ interface <a class="idl-code" data-link-type="interface" href="#fetch-event-inte
              <li>
               Else: 
               <ol>
-               <li>Set the <a data-link-type="dfn" href="#fetchevent-potential-response" id="ref-for-fetchevent-potential-response-1">potential response</a> to <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>.
+               <li>Let <var>potentialResponse</var> be a copy of <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.
                <li>
                 If <var>response</var>’s body is non-null, run these substeps: 
                 <ol>
+                 <li>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.
                  <li>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object.
                  <li>Set <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>dummyStream</var>.
                  <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>dummyStream</var>.
                  <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.
                 </ol>
+                <p class="note" role="note">These substeps are meant to produce the observable equivalent of "piping" response’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object that is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, while the data readable from potentialResponse’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is now equal to what used to be response’s, if response’s original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
+                <p class="issue" id="issue-f6f6de6b"><a class="self-link" href="#issue-f6f6de6b"></a>These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
+               <li>Set the <a data-link-type="dfn" href="#fetchevent-potential-response" id="ref-for-fetchevent-potential-response-1">potential response</a> to <var>potentialResponse</var>.
               </ol>
             </ol>
            <li>
@@ -5706,6 +5710,7 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-storage-in
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
    <div class="issue">The behavior of the attribute getter in non-secure contexts is in discussion.<a href="#issue-0c69834a"> ↵ </a></div>
+   <div class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.<a href="#issue-f6f6de6b"> ↵ </a></div>
   </div>
 <script>
         document.body.addEventListener("click", function(e) {

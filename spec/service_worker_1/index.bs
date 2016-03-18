@@ -1757,15 +1757,19 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     </li>
                     <li>Else:
                       <ol>
-                        <li>Set the <a>potential response</a> to <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>.</li>
+                        <li>Let <var>potentialResponse</var> be a copy of <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.</li>
                         <li>If <var>response</var>'s body is non-null, run these substeps:
                           <ol>
+                            <li>Set <var>potentialResponse</var>'s <a>body</a> to <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.</li>
                             <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
                             <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
                             <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
                             <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
                           </ol>
+                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" response's <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>'s <a>stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a>ReadableStream</a> object that is <a>disturbed</a> and <a>locked</a>, while the data readable from potentialResponse's <a>body</a>'s <a>stream</a> is now equal to what used to be response's, if response's original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
+                          <p class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
                         </li>
+                        <li>Set the <a>potential response</a> to <var>potentialResponse</var>.</li>
                       </ol>
                     </li>
                   </ol>
