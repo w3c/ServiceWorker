@@ -1397,7 +1397,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/Icons/w3c_home" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-18">18 March 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-03-22">22 March 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3913,7 +3913,12 @@ interface FunctionalEvent : ExtendableEvent {
          <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.
         </ol>
        <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.
-       <li>If <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-7">job type</a> is <em>update</em>, and <var>newestWorker</var>’s <a href="#dfn-script-url" id="ref-for-dfn-script-url-4">script url</a> is not <var>job</var>’s <a href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-6">script url</a>, invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.
+       <li>
+        If <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-7">job type</a> is <em>update</em>, and <var>newestWorker</var>’s <a href="#dfn-script-url" id="ref-for-dfn-script-url-4">script url</a> is not <var>job</var>’s <a href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-6">script url</a>, then: 
+        <ol>
+         <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.
+         <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.
+        </ol>
        <li>
         Let <var>r</var> be the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> as constructor with <var>job</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-7">script url</a>. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, then: 
         <ol>

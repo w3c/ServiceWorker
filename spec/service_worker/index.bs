@@ -3024,7 +3024,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.</li>
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, then:
+        <ol>
+          <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
+          <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
+        </ol>
+      </li>
       <li>Switching on <var>job</var>'s <a>worker type</a>, run these substeps with the following options:
         <dl>
         <dt><em>"<code>classic</code>"</em></dt>
