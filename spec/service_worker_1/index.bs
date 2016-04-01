@@ -629,6 +629,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>registration</var> be the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>.</li>
         <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
         <li>If <var>newestWorker</var> is null, reject <var>p</var> with an "{{InvalidStateError}}" exception and abort these steps.</li>
+        <li>If the <a>context object</a>'s <a>relevant settings object</a>'s <a>global object</a> <var>globalObject</var> is a {{ServiceWorkerGlobalScope}} object, and <var>globalObject</var>'s associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-state">state</a> is <em>installing</em>, reject <var>p</var> with an "{{InvalidStateError}}" exception and abort these steps.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, <var>p</var>, and the <a>context object</a>'s <a>relevant settings object</a> <var>client</var>.</li>
         <li>Run the following substep <a>in parallel</a>:
           <ol>
@@ -2928,7 +2929,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a>state</a> is <em>installing</em> or <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, then:
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
