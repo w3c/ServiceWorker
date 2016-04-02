@@ -1,4 +1,4 @@
-# ServiceWorkers Explained
+# Service Workers Explained
 
 ## What's All This Then?
 
@@ -8,7 +8,7 @@ Service Workers are being developed to answer frequent questions and concerns ab
  * Difficulty in building offline-first web applications in a natural way
  * The lack of a background execution context which many proposed capabilities could make use of
 
-We also note that the long lineage of declarative-only solutions ([Google Gears, [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Each successive declarative-only approach failed in many of the same ways, so the Service Worker effort has taken a different design approach: a largely-imperative system that puts developers firmly in control.
+We also note that the long lineage of declarative-only solutions ([Google Gears](http://gearsblog.blogspot.com/2011/03/stopping-gears.html), [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Each successive declarative-only approach failed in many of the same ways, so the Service Worker effort has taken a different design approach: a largely-imperative system that puts developers firmly in control.
 
 The ServiceWorker is like a [SharedWorker](https://html.spec.whatwg.org/multipage/workers.html#sharedworker) in that it:
 
@@ -23,14 +23,14 @@ Unlike a SharedWorker, it:
 * Has a defined upgrade model
 * Is HTTPS only (more on that in a bit)
 
-We can use ServiceWorker:
+We can use a service worker:
 
 * To make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
 * As a basis for other 'background' features such as [push messaging](http://updates.html5rocks.com/2015/03/push-notificatons-on-the-open-web) and [background synchronization](https://github.com/slightlyoff/BackgroundSync/blob/master/explainer.md)
 
 ## Getting Started
 
-First you need to register for a ServiceWorker:
+First you need to register a ServiceWorker:
 
 ```js
 if ('serviceWorker' in navigator) {
@@ -44,19 +44,19 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-In this example, `/my-app/sw.js` is the location of the ServiceWorker script, and it controls pages whose URL begins `/my-app/`. The scope is optional, and defaults to `/`.
+In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins with `/my-app/`. The scope is optional, and defaults to `/`.
 
 `.register` returns a promise. If you're new to promises, check out the [HTML5Rocks article](http://www.html5rocks.com/en/tutorials/es6/promises/).
 
 Some restrictions:
 
 * The registering page must have been served securely (HTTPS without cert errors)
-* The ServiceWorker script must be on the same origin as the page, although you can import scripts from other origins using [`importScripts`](https://html.spec.whatwg.org/multipage/workers.html#apis-available-to-workers:dom-workerglobalscope-importscripts)
+* The service worker script must be on the same origin as the page, although you can import scripts from other origins using [`importScripts`](https://html.spec.whatwg.org/multipage/workers.html#apis-available-to-workers:dom-workerglobalscope-importscripts)
 * …as must the scope
 
 ### HTTPS only you say?
 
-Using ServiceWorker you can hijack connections, respond differently, & filter responses. Powerful stuff. While you would use these powers for good, a man-in-the-middle might not. To avoid this, you can only register for ServiceWorkers on pages served over HTTPS, so we know the ServiceWorker the browser receives hasn't been tampered with during its journey through the network.
+Using a service worker you can hijack connections, respond differently, and filter responses. Powerful stuff. While you would use these powers for good, a man-in-the-middle might not. To avoid this, you can only register service workers on pages served over HTTPS, so we know the ServiceWorker the browser receives hasn't been tampered with during its journey through the network.
 
 Github Pages are served over HTTPS, so they're a great place to host demos.
 
@@ -88,9 +88,9 @@ You can pass a promise to `event.waitUntil` to extend the installation process. 
 
 Well, not quite. A document will pick a ServiceWorker to be its controller when it navigates, so the document you called `.register` from isn't being controlled, because there wasn't a ServiceWorker there when it first loaded.
 
-If you refresh the document, it'll be under the ServiceWorker's control. You can check `navigator.serviceWorker.controller` to see which ServiceWorker is in control, or `null` if there isn't one. Note: when you're updating from one ServiceWorker to another, things work a little differently, we'll get onto that in the "Updating" section.
+If you refresh the document, it'll be under the service worker's control. You can check `navigator.serviceWorker.controller` to see which service worker is in control, or `null` if there isn't one. Note: when you're updating from one service worker to another, things work a little differently. We'll get into that in the "Updating" section.
 
-If you shift+reload a document it'll always load without a controller, which is handy for testing quick CSS & JS changes.
+If you Shift+reload a document, it'll always load without a controller, which is handy for testing quick CSS & JS changes.
 
 Documents tend to live their whole life with a particular ServiceWorker, or none at all. However, a ServiceWorker can call `self.skipWaiting()` ([spec](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting)) to do an immediate takeover of all pages within scope.
 
@@ -104,14 +104,14 @@ self.addEventListener('fetch', function(event) {
 
 You get fetch events for:
 
-* Navigations within your ServiceWorker's scope
+* Navigations within your service worker's scope
 * Any requests triggered by those pages, even if they're to another origin
 
 This means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
 
 * iframes & `<object>`s - these will pick their own controller based on their resource URL
-* ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the ServiceWorker
-* Requests triggered within a ServiceWorker - you'd get a loop otherwise
+* service workers - requests to fetch/update a ServiceWorker don't go through the ServiceWorker
+* Requests triggered within a service worker - you'd get a loop otherwise
 
 The `request` object gives you information about the request such as its URL, method & headers. But the really fun bit, is you can hijack it and respond differently:
 
@@ -137,7 +137,7 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-In the above, I'm capturing requests that end `.jpg` and instead responding with a Google doodle. `fetch()` requests are CORS by default, but by setting `no-cors` I can use the response even if it doesn't have CORS access headers (although I can't access the content with JavaScript). [Here's a demo of that](https://jakearchibald.github.io/isserviceworkerready/demos/img-rewrite/).
+In the above, I'm capturing requests that end `.jpg` and instead responding with a Google doodle. `fetch()` requests are [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) by default, but by setting `no-cors` I can use the response even if it doesn't have CORS access headers (although I can't access the content with JavaScript). [Here's a demo of that](https://jakearchibald.github.io/isserviceworkerready/demos/img-rewrite/).
 
 Promises let you fallback from one method to another:
 
@@ -151,13 +151,13 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-The ServiceWorker comes with a cache API, making it easy to store responses for reuse later, more on that shortly, but first…
+The service worker comes with a cache API, making it easy to store responses for reuse later. More on that shortly, but first…
 
-## Updating a ServiceWorker
+## Updating a service worker
 
-The lifecycle of a ServiceWorker is based on Chrome's update model: Do as much as possible in the background, don't disrupt the user, complete the update when the current version closes.
+The lifecycle of a service worker is based on Chrome's update model: Do as much as possible in the background, don't disrupt the user, complete the update when the current version closes.
 
-Whenever you navigate to page within scope of your ServiceWorker, the browser checks for updates in the background. If the script is byte-different, it's considered to be a new version, and installed (note: only the script is checked, not external `importScripts`). However, the old version remains in control over pages until all tabs using it are gone (unless `.replace()` is called during install). Then the old version is garbage collected and the new version takes over.
+Whenever you navigate to a page within scope of your service worker, the browser checks for updates in the background. If the script is byte-different, it's considered to be a new version, and installed (note: only the script is checked, not external `importScripts`). However, the old version remains in control over pages until all tabs using it are gone (unless `.replace()` is called during install). Then the old version is garbage collected and the new version takes over.
 
 This avoids the problem of two versions of a site running at the same time, in different tabs. Our current strategy for this is ["cross fingers, hope it doesn't happen"](https://twitter.com/jaffathecake/status/502779501936652289).
 
@@ -229,9 +229,8 @@ Since ServiceWorkers can spin up in time for events, they've opened up the possi
 
 ## Conclusions
 
-This document only scratches the surface of what ServiceWorkers enable, and aren't an exhaustive list of all of the available APIs available to controlled pages or ServiceWorker instances. Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use ServiceWorkers. It is, hopefully, a guide to understanding the promise of ServiceWorkers and the rich promise of offline-by-default web applications that are URL friendly and scalable.
+This document only scratches the surface of what service workers enable, and isn't an exhaustive list of all of the available APIs available to controlled pages or ServiceWorker instances. Nor does it cover emergent practices for authoring, composing, and upgrading applications architected to use service workers. It is, hopefully, a guide to understanding the promise of service workers and the rich promise of offline-by-default web applications that are URL friendly and scalable.
 
 ## Acknowledgments
 
 Many thanks to [Web Personality of the Year nominee](http://www.ubelly.com/thecritters/) Jake ("B.J.") Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Andrew Betts, Chris Wilson, Aaron Boodman, Dave Herman, Jonas Sicking, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
-
