@@ -2,23 +2,31 @@
 
 ## What's All This Then?
 
+Service Workers are being developed to answer frequent questions and concerns about the web platform, including:
+
+ * An inability to explain (in the [Extensible Web Manifesto](https://extensiblewebmanifesto.org/) sense) HTTP caching and high-level HTTP interactions like the HTML5 AppCache
+ * Difficulty in building offline-first web applications in a natural way
+ * The lack of a background execution context which many proposed capabilities could make use of
+
+We also note that the long lineage of declarative-only solutions ([Google Gears, [Dojo Offline](http://www.sitepen.com/blog/category/dojo-offline/), and [HTML5 AppCache](http://alistapart.com/article/application-cache-is-a-douchebag)) have failed to deliver on their promise. Each successive declarative-only approach failed in many of the same ways, so the Service Worker effort has taken a different design approach: a largely-imperative system that puts developers firmly in control.
+
 The ServiceWorker is like a [SharedWorker](https://html.spec.whatwg.org/multipage/workers.html#sharedworker) in that it:
 
-* runs in its own thread
-* isn't tied to a particular page
-* has no DOM access
+* Runs in its own global script context (usually in its own thread)
+* Isn't tied to a particular page
+* Has no DOM access
 
 Unlike a SharedWorker, it:
 
-* can run without any page at all
-* can terminate when it isn't in use, and run again when needed
-* has a defined upgrade model
-* is HTTPS only (more on that in a bit)
+* Can run without any page at all
+* Can terminate when it isn't in use, and run again when needed (e.g., it's event-driven)
+* Has a defined upgrade model
+* Is HTTPS only (more on that in a bit)
 
 We can use ServiceWorker:
 
-* to make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
-* as a basis for other 'background' features such as push messaging and background sync
+* To make sites work [faster and/or offline](https://www.youtube.com/watch?v=px-J9Ghvcx4) using network intercepting
+* As a basis for other 'background' features such as [push messaging](http://updates.html5rocks.com/2015/03/push-notificatons-on-the-open-web) and [background synchronization](https://github.com/slightlyoff/BackgroundSync/blob/master/explainer.md)
 
 ## Getting Started
 
@@ -84,7 +92,7 @@ If you refresh the document, it'll be under the ServiceWorker's control. You can
 
 If you shift+reload a document it'll always load without a controller, which is handy for testing quick CSS & JS changes.
 
-Documents tend to live their whole life with a particular ServiceWorker, or none at all. However, a ServiceWorker can call `event.replace()` during the `install` event to do an immediate takeover of all pages within scope.
+Documents tend to live their whole life with a particular ServiceWorker, or none at all. However, a ServiceWorker can call `self.skipWaiting()` ([spec](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting)) to do an immediate takeover of all pages within scope.
 
 ## Network intercepting
 
@@ -99,10 +107,10 @@ You get fetch events for:
 * Navigations within your ServiceWorker's scope
 * Any requests triggered by those pages, even if they're to another origin
 
-The means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
+This means you get to hear about requests for the page itself, the CSS, JS, images, XHR, beacons… all of it. The exceptions are:
 
 * iframes & `<object>`s - these will pick their own controller based on their resource URL
-* ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the SerivceWorker
+* ServiceWorkers - requests to fetch/update a ServiceWorker don't go through the ServiceWorker
 * Requests triggered within a ServiceWorker - you'd get a loop otherwise
 
 The `request` object gives you information about the request such as its URL, method & headers. But the really fun bit, is you can hijack it and respond differently:
@@ -113,7 +121,7 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-[Here's a live demo](https://jakearchibald.github.io/isserviceworkerready/demos/manual-response/) (you'll need to enable [some flags](http://jakearchibald.com/2014/using-serviceworker-today/#in-canary-today) to get it working in Chrome today).
+[Here's a live demo](https://jakearchibald.github.io/isserviceworkerready/demos/manual-response/).
 
 `.respondWith` takes a `Response` object or a promise that resolves to one. We're creating a manual response above. The `Response` object comes from the [Fetch Spec](https://fetch.spec.whatwg.org/#response-class). Also in the spec is the `fetch()` method, which returns a promise for a response, meaning you can get your response from elsewhere:
 

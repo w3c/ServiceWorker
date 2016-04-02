@@ -10,7 +10,7 @@ To understand the design and how you might build apps with ServiceWorkers, see t
 
 ## Spec and API Development
 
-For the nitty-gritty of the API, the [draft W3C specification](//slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) and [`service_worker.ts`](//github.com/slightlyoff/ServiceWorker/blob/master/service_worker.ts) are authoritative.
+For the nitty-gritty of the API, the [draft W3C specification](//slightlyoff.github.io/ServiceWorker/spec/service_worker/index.html) is authoritative. For implementers and developers who seek a more stable version, [Service Workers 1](//slightlyoff.github.io/ServiceWorker/spec/service_worker_1/index.html) is a right document with which the contributors only focus on fixing bugs and resolving compatibility issues.
 
 Spec development happens via [issues in this repository](https://github.com/slightlyoff/ServiceWorker/issues). For general discussion, please use the [public-webapps@w3.org mailing list](http://lists.w3.org/Archives/Public/public-webapps/) with a `Subject:` prefix of `[service-workers]`.
 
@@ -22,16 +22,7 @@ To edit the spec locally, you'll need a copy of [the Web Components-based framew
 git submodule update --init --recursive
 ```
 
-To make edits to the design, please send pull requests against the TypeScript file (`service_worker.ts`) and spec (`spec/service_worker/index.html`). Changes to the spec without corresponding changes to the `.ts` file will not be accepted.
-
-Building the JS version of the TypeScript API description isn't essential, but here's how:
-
-```sh
-# From the root of the project directory
-npm install
-# From the root of the project directory
-make
-```
+To make edits to the design, please send pull requests against the spec (`spec/service_worker/index.html`).
 
 ## Examples
 
@@ -63,7 +54,7 @@ This is to explain how we use labels and milestones to triage the issues. Note: 
 
 **decided**: to record that a decision has been made.
 
-**invalid**: when something doesn't not constitute a valid issue.
+**invalid**: when something doesn't constitute a valid issue.
 
 **wontfix**: a decision has been made not to pursue this issue further.
 
