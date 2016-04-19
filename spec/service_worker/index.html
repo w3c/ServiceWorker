@@ -3274,6 +3274,23 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
       <h4 class="heading settled" data-level="5.4.2" id="cache-matchall"><span class="secno">5.4.2. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#cache-matchall-method" id="ref-for-cache-matchall-method-3">matchAll(request, options)</a></code></span><a class="self-link" href="#cache-matchall"></a></h4>
       <p><dfn class="dfn-paneled idl-code" data-dfn-for="Cache" data-dfn-type="method" data-export="" data-lt="matchAll(request, options)|matchAll(request)|matchAll()" id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>options</var>)</code><span class="dfn-panel"><b><a href="#cache-matchall-method">#cache-matchall-method</a></b><b>Referenced in:</b><span><a href="#ref-for-cache-matchall-method-1">5.4. Cache</a></span><span><a href="#ref-for-cache-matchall-method-2">5.4.1. match(request, options)</a></span><span><a href="#ref-for-cache-matchall-method-3">5.4.2. matchAll(request, options)</a></span></span></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-37">equivalent</a>:</p>
       <ol>
+       <li>Let <var>r</var> be null.
+       <li>
+        If the optional argument <var>request</var> is not omitted, then: 
+        <ol>
+         <li>
+          If <var>request</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> object, then: 
+          <ol>
+           <li>Set <var>r</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.
+           <li>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> is neither `<code>GET</code>` nor `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> resolved with an empty array.
+          </ol>
+         <li>
+          Else if <var>request</var> is a string, then: 
+          <ol>
+           <li>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with that exception.
+          </ol>
+         <li>Set <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.
+        </ol>
        <li>Let <var>promise</var> be a new <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.
        <li>
         Run these substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
@@ -3293,19 +3310,6 @@ interface <a class="idl-code" data-link-type="interface" href="#cache-interface"
          <li>
           Else: 
           <ol>
-           <li>Let <var>r</var> be null.
-           <li>
-            If <var>request</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> object, then: 
-            <ol>
-             <li>Set <var>r</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request">request</a>.
-             <li>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method">method</a> is neither `<code>GET</code>` nor `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, resolve <var>promise</var> with an empty array.
-            </ol>
-           <li>
-            Else if <var>request</var> is a string, then: 
-            <ol>
-             <li>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, return a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> rejected with that exception.
-            </ol>
-           <li>Set <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment">fragment</a> to null.
            <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request">Request</a></code> object associated with <var>r</var> and <var>options</var> as the arguments.
            <li>
             For each <var>entry</var> of <var>entries</var>: 

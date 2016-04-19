@@ -1995,6 +1995,23 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <p><dfn method for="Cache" id="cache-matchall-method"><code>matchAll(<var>request</var>, <var>options</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <ol>
+        <li>Let <var>r</var> be null.</li>
+        <li>If the optional argument <var>request</var> is not omitted, then:
+          <ol>
+            <li>If <var>request</var> is a {{Request}} object, then:
+              <ol>
+                <li>Set <var>r</var> to <var>request</var>'s <a for="request">request</a>.</li>
+                <li>If <var>r</var>'s <a for="request">method</a> is neither `<code>GET</code>` nor `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, return a <a>promise</a> resolved with an empty array.</li>
+              </ol>
+            </li>
+            <li>Else if <var>request</var> is a string, then:
+              <ol>
+                <li>Set <var>r</var> to the associated <a for="request">request</a> of the result of invoking the initial value of {{Request}} as constructor with <var>request</var> as its argument. If this <a>throws</a> an exception, return a <a>promise</a> rejected with that exception.</li>
+              </ol>
+            </li>
+            <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
+          </ol>
+        </li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
@@ -2012,19 +2029,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             </li>
             <li>Else:
               <ol>
-                <li>Let <var>r</var> be null.</li>
-                <li>If <var>request</var> is a {{Request}} object, then:
-                  <ol>
-                    <li>Set <var>r</var> to <var>request</var>'s <a for="request">request</a>.</li>
-                    <li>If <var>r</var>'s <a for="request">method</a> is neither `<code>GET</code>` nor `<code>HEAD</code>` and <var>options</var>.<var>ignoreMethod</var> is false, resolve <var>promise</var> with an empty array.</li>
-                  </ol>
-                </li>
-                <li>Else if <var>request</var> is a string, then:
-                  <ol>
-                    <li>Set <var>r</var> to the associated <a for="request">request</a> of the result of invoking the initial value of {{Request}} as constructor with <var>request</var> as its argument. If this <a>throws</a> an exception, return a <a>promise</a> rejected with that exception.</li>
-                  </ol>
-                </li>
-                <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
                 <li>Let <var>entries</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a {{Request}} object associated with <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>entry</var> of <var>entries</var>:
                   <ol>
