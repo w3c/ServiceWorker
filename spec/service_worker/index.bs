@@ -657,11 +657,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>If the <a>context object</a>'s <a>relevant settings object</a>'s <a>global object</a> <var>globalObject</var> is a {{ServiceWorkerGlobalScope}} object, and <var>globalObject</var>'s associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-state">state</a> is <em>installing</em>, reject <var>p</var> with an "{{InvalidStateError}}" exception and abort these steps.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, <var>p</var>, and the <a>context object</a>'s <a>relevant settings object</a> <var>client</var>.</li>
         <li>Set <var>job</var>'s <a>worker type</a> to <var>newestWorker</var>'s <a for="service worker">type</a>.</li>
-        <li>Run the following substep <a>in parallel</a>:
-          <ol>
-            <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
-          </ol>
-        </li>
+        <li><a>Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
         <li>Return <var>p</var>.</li>
       </ol>
     </section>
@@ -676,11 +672,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <ol>
         <li>Let <var>p</var> be a <a>promise</a>.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>unregister</em>, the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>, null, <var>p</var>, and the <a>context object</a>'s <a>relevant settings object</a> <var>client</var>.</li>
-        <li>Run the following substep <a>in parallel</a>:
-          <ol>
-            <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
-          </ol>
-        </li>
+        <li><a>Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
         <li>Return <var>p</var>.</li>
       </ol>
     </section>
@@ -836,11 +828,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>If any of the strings in <var>scopeURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</li>
         <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.</li>
         <li>Set <var>job</var>'s <a>worker type</a> to <var>options</var>.{{RegistrationOptions/type}}.</li>
-        <li>Run the following substep <a>in parallel</a>:
-          <ol>
-            <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
-          </ol>
-        </li>
+        <li><a>Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
         <li>Return <var>p</var>.</li>
       </ol>
     </section>
@@ -2942,7 +2930,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </ul>
   </p>
 
-  <p>A <dfn id="dfn-job-queue">job queue</dfn> is a queue used to synchronize the set of concurrent <a href="#dfn-job">jobs</a>. The <a href="#dfn-job-queue">job queue</a> contains <a href="#dfn-job">jobs</a> as its elements. The <a href="#dfn-job-queue">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue">job queue</a> for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. A <a href="#dfn-job-queue">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue">job queue</a> for the <a href="#dfn-job">job</a>'s <a href="#dfn-job-scope-url">scope url</a>.</p>
+  <p>A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a href="#dfn-job">jobs</a>. The <a href="#dfn-job-queue">job queue</a> contains <a href="#dfn-job">jobs</a> as its elements. The <a href="#dfn-job-queue">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue">job queue</a> for each <a href="#dfn-service-worker-registration">service worker registration</a> keyed by its <a href="#dfn-scope-url">scope url</a>. A <a href="#dfn-job-queue">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue">job queue</a> for the <a href="#dfn-job">job</a>'s <a href="#dfn-job-scope-url">scope url</a>.</p>
 
   <section algorithm="create-job-algorithm">
     <h3 id="create-job-algorithm">Create Job</h3>
@@ -2980,7 +2968,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li>If the <a href="#dfn-job-queue">job queue</a> is empty, then:
         <ol>
-          <li>Push <var>job</var> to the <a href="#dfn-job-queue">job queue</a> and invoke <a href="#run-job-algorithm">Run Job</a>.</li>
+          <li>Push <var>job</var> to the <a href="#dfn-job-queue">job queue</a>.</li>
+          <li>Invoke <a href="#run-job-algorithm">Run Job</a> <a>in parallel</a>.</li>
         </ol>
       </li>
       <li>Else:
@@ -3005,11 +2994,11 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li><a>Assert</a>: the <a href="#dfn-job-queue">job queue</a> is not empty.</li>
       <li>Let <var>job</var> be the element in the front of the <a href="#dfn-job-queue">job queue</a>.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>register</em>, invoke <a href="#register-algorithm">Register</a> with <var>job</var> and continue running these steps <a>in parallel</a>.</li>
-      <li>Else if <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, invoke <a href="#update-algorithm">Update</a> with <var>job</var> and continue running these steps <a>in parallel</a>.
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>register</em>, invoke <a href="#register-algorithm">Register</a> with <var>job</var>.</li>
+      <li>Else if <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, invoke <a href="#update-algorithm">Update</a> with <var>job</var>.
         <p class="note">For a register job and an update job, the user agent delays invoking <a href="#register-algorithm">Register</a> and <a href="#update-algorithm">Update</a> respectively until after the document initiated the job has been dispatched {{Document/DOMContentLoaded}} event. If the job's <a href="#dfn-job-client">client</a> is a <a href="#dfn-worker-client">worker client</a>, it is delayed until after the worker script has evaluated.</p>
       </li>
-      <li>Else if <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>unregister</em>, invoke <a href="#unregister-algorithm">Unregister</a> with <var>job</var> and continue running these steps <a>in parallel</a>.</li>
+      <li>Else if <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>unregister</em>, invoke <a href="#unregister-algorithm">Unregister</a> with <var>job</var>.</li>
     </ol>
   </section>
 
@@ -3267,11 +3256,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, a new <a>promise</a>, and null.</li>
       <li>Set <var>job</var>'s <a>worker type</a> to <var>newestWorker</var>'s <a for="service worker">type</a>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-force-bypass-cache-flag">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.</li>
-      <li>Run the following substep <a>in parallel</a>:
-        <ol>
-          <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
-        </ol>
-      </li>
+      <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
     </ol>
   </section>
 

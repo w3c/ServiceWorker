@@ -1397,7 +1397,7 @@ Possible extra rowspan handling
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/Icons/w3c_home" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-04-15">15 April 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-04-19">19 April 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1972,11 +1972,7 @@ interface <a class="idl-code" data-link-type="interface" href="#service-worker-r
        <li>If <var>newestWorker</var> is null, reject <var>p</var> with an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.
        <li>If the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#execution-context&apos;s-global-object">global object</a> <var>globalObject</var> is a <code class="idl"><a data-link-type="idl" href="#service-worker-global-scope-interface" id="ref-for-service-worker-global-scope-interface-3">ServiceWorkerGlobalScope</a></code> object, and <var>globalObject</var>’s associated <a href="#dfn-service-worker-global-scope-service-worker" id="ref-for-dfn-service-worker-global-scope-service-worker-2">service worker</a>’s <a href="#dfn-state" id="ref-for-dfn-state-6">state</a> is <em>installing</em>, reject <var>p</var> with an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception and abort these steps.
        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>’s <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-7">scope url</a>, <var>newestWorker</var>’s <a href="#dfn-script-url" id="ref-for-dfn-script-url-2">script url</a>, <var>p</var>, and the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a> <var>client</var>.
-       <li>
-        Run the following substep <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
-        <ol>
-         <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
-        </ol>
+       <li><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
        <li>Return <var>p</var>.
       </ol>
      </section>
@@ -1987,11 +1983,7 @@ interface <a class="idl-code" data-link-type="interface" href="#service-worker-r
       <ol>
        <li>Let <var>p</var> be a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>.
        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>unregister</em>, the <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-8">scope url</a> of the <a href="#dfn-service-worker-registration-interface-service-worker-registration" id="ref-for-dfn-service-worker-registration-interface-service-worker-registration-6">service worker registration</a>, null, <var>p</var>, and the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a> <var>client</var>.
-       <li>
-        Run the following substep <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
-        <ol>
-         <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
-        </ol>
+       <li><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
        <li>Return <var>p</var>.
       </ol>
      </section>
@@ -2113,11 +2105,7 @@ interface <a class="idl-code" data-link-type="interface" href="#service-worker-c
        <li>If <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.
        <li>If any of the strings in <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.
        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.
-       <li>
-        Run the following substep <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
-        <ol>
-         <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
-        </ol>
+       <li><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
        <li>Return <var>p</var>.
       </ol>
      </section>
@@ -3731,7 +3719,7 @@ interface FunctionalEvent : ExtendableEvent {
       <li>For <em>unregister</em> <a href="#dfn-job" id="ref-for-dfn-job-10">jobs</a>, their <a href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-2">scope url</a> is the same.
      </ul>
      <p></p>
-     <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue<span class="dfn-panel"><b><a href="#dfn-job-queue">#dfn-job-queue</a></b><b>Referenced in:</b><span><a href="#ref-for-dfn-job-queue-1">Appendix A: Algorithms</a> <a href="#ref-for-dfn-job-queue-2">(2)</a> <a href="#ref-for-dfn-job-queue-3">(3)</a> <a href="#ref-for-dfn-job-queue-4">(4)</a> <a href="#ref-for-dfn-job-queue-5">(5)</a> <a href="#ref-for-dfn-job-queue-6">(6)</a></span><span><a href="#ref-for-dfn-job-queue-7">Schedule Job</a> <a href="#ref-for-dfn-job-queue-8">(2)</a> <a href="#ref-for-dfn-job-queue-9">(3)</a> <a href="#ref-for-dfn-job-queue-10">(4)</a></span><span><a href="#ref-for-dfn-job-queue-11">Run Job</a> <a href="#ref-for-dfn-job-queue-12">(2)</a></span><span><a href="#ref-for-dfn-job-queue-13">Finish Job</a> <a href="#ref-for-dfn-job-queue-14">(2)</a> <a href="#ref-for-dfn-job-queue-15">(3)</a> <a href="#ref-for-dfn-job-queue-16">(4)</a></span></span></dfn> is a queue used to synchronize the set of concurrent <a href="#dfn-job" id="ref-for-dfn-job-11">jobs</a>. The <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a href="#dfn-job" id="ref-for-dfn-job-12">jobs</a> as its elements. The <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> keyed by its <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a>. A <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a href="#dfn-job" id="ref-for-dfn-job-13">job</a>’s <a href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
+     <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue<span class="dfn-panel"><b><a href="#dfn-job-queue">#dfn-job-queue</a></b><b>Referenced in:</b><span><a href="#ref-for-dfn-job-queue-1">Appendix A: Algorithms</a> <a href="#ref-for-dfn-job-queue-2">(2)</a> <a href="#ref-for-dfn-job-queue-3">(3)</a> <a href="#ref-for-dfn-job-queue-4">(4)</a> <a href="#ref-for-dfn-job-queue-5">(5)</a> <a href="#ref-for-dfn-job-queue-6">(6)</a></span><span><a href="#ref-for-dfn-job-queue-7">Schedule Job</a> <a href="#ref-for-dfn-job-queue-8">(2)</a> <a href="#ref-for-dfn-job-queue-9">(3)</a> <a href="#ref-for-dfn-job-queue-10">(4)</a></span><span><a href="#ref-for-dfn-job-queue-11">Run Job</a> <a href="#ref-for-dfn-job-queue-12">(2)</a></span><span><a href="#ref-for-dfn-job-queue-13">Finish Job</a> <a href="#ref-for-dfn-job-queue-14">(2)</a> <a href="#ref-for-dfn-job-queue-15">(3)</a> <a href="#ref-for-dfn-job-queue-16">(4)</a></span></span></dfn> is a thread safe queue used to synchronize the set of concurrent <a href="#dfn-job" id="ref-for-dfn-job-11">jobs</a>. The <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a href="#dfn-job" id="ref-for-dfn-job-12">jobs</a> as its elements. The <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em class="rfc2119" title="SHOULD">should</em> satisfy the general properties of FIFO queue. A user agent <em class="rfc2119" title="MUST">must</em> maintain a separate <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> keyed by its <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a>. A <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a href="#dfn-job" id="ref-for-dfn-job-13">job</a>’s <a href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
      <section data-algorithm="create-job-algorithm">
       <h3 class="heading settled" id="create-job-algorithm"><span class="content">Create Job</span><a class="self-link" href="#create-job-algorithm"></a></h3>
       <dl>
@@ -3766,7 +3754,8 @@ interface FunctionalEvent : ExtendableEvent {
        <li>
         If the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-7">job queue</a> is empty, then: 
         <ol>
-         <li>Push <var>job</var> to the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-8">job queue</a> and invoke <a href="#run-job-algorithm">Run Job</a>.
+         <li>Push <var>job</var> to the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-8">job queue</a>.
+         <li>Invoke <a href="#run-job-algorithm">Run Job</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.
         </ol>
        <li>
         Else: 
@@ -3788,11 +3777,11 @@ interface FunctionalEvent : ExtendableEvent {
       <ol>
        <li><a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-11">job queue</a> is not empty.
        <li>Let <var>job</var> be the element in the front of the <a href="#dfn-job-queue" id="ref-for-dfn-job-queue-12">job queue</a>.
-       <li>If <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-4">job type</a> is <em>register</em>, invoke <a href="#register-algorithm">Register</a> with <var>job</var> and continue running these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.
+       <li>If <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-4">job type</a> is <em>register</em>, invoke <a href="#register-algorithm">Register</a> with <var>job</var>.
        <li>
-        Else if <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-5">job type</a> is <em>update</em>, invoke <a href="#update-algorithm">Update</a> with <var>job</var> and continue running these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>. 
+        Else if <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-5">job type</a> is <em>update</em>, invoke <a href="#update-algorithm">Update</a> with <var>job</var>. 
         <p class="note" role="note">For a register job and an update job, the user agent delays invoking <a href="#register-algorithm">Register</a> and <a href="#update-algorithm">Update</a> respectively until after the document initiated the job has been dispatched <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/indices.html#event-domcontentloaded">DOMContentLoaded</a></code> event. If the job’s <a href="#dfn-job-client" id="ref-for-dfn-job-client-2">client</a> is a <a href="#dfn-worker-client" id="ref-for-dfn-worker-client-2">worker client</a>, it is delayed until after the worker script has evaluated.</p>
-       <li>Else if <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-6">job type</a> is <em>unregister</em>, invoke <a href="#unregister-algorithm">Unregister</a> with <var>job</var> and continue running these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.
+       <li>Else if <var>job</var>’s <a href="#dfn-job-type" id="ref-for-dfn-job-type-6">job type</a> is <em>unregister</em>, invoke <a href="#unregister-algorithm">Unregister</a> with <var>job</var>.
       </ol>
      </section>
      <section data-algorithm="finish-job-algorithm">
@@ -4027,11 +4016,7 @@ interface FunctionalEvent : ExtendableEvent {
        <li>If <var>newestWorker</var> is null, abort these steps.
        <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>’s <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-14">scope url</a>, <var>newestWorker</var>’s <a href="#dfn-script-url" id="ref-for-dfn-script-url-7">script url</a>, a new <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a>, and null.
        <li>Set <var>job</var>’s <a href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-1">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.
-       <li>
-        Run the following substep <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
-        <ol>
-         <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
-        </ol>
+       <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.
       </ol>
      </section>
      <section data-algorithm="installation-algorithm">
