@@ -317,9 +317,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <dfn id="dfn-service-worker-registration">service worker registration</dfn> is a tuple of a <a href="#dfn-scope-url">scope url</a> and a set of <a href="#dfn-service-worker">service workers</a>, an <a href="#dfn-installing-worker">installing worker</a>, a <a href="#dfn-waiting-worker">waiting worker</a>, and an <a href="#dfn-active-worker">active worker</a>. A user agent <em class="rfc2119" title="MAY">may</em> enable many <a href="#dfn-service-worker-registration">service worker registrations</a> at a single origin so long as the <a href="#dfn-scope-url">scope url</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> differs. A <a href="#dfn-service-worker-registration">service worker registration</a> of an identical <a href="#dfn-scope-url">scope url</a> when one already exists in the user agent causes the existing <a href="#dfn-service-worker-registration">service worker registration</a> to be replaced.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-scope-url">scope url</dfn> (a <a for="url">URL</a>).</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-registration-script-url">registering script url</dfn> (a <a for="url">URL</a>).</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-installing-worker">installing worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is <em>installing</em>. It is initially set to null.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-waiting-worker">waiting worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is <em>installed</em>. It is initially set to null.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a>) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-installing-worker">installing worker</dfn> (a <a href="#dfn-service-worker">service worker</a> or null) whose <a href="#dfn-state">state</a> is <em>installing</em>. It is initially set to null.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-waiting-worker">waiting worker</dfn> (a <a href="#dfn-service-worker">service worker</a> or null) whose <a href="#dfn-state">state</a> is <em>installed</em>. It is initially set to null.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a> or null) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
@@ -461,29 +461,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section>
       <h4 id="service-worker-state">{{ServiceWorker/state}}</h4>
 
-      <p>The <dfn attribute id="service-worker-state-attribute"><code>state</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value (in <dfn enum id="service-worker-state-enum"><code>ServiceWorkerState</code></dfn> enumeration) corresponding to the first matching statement, switching on the <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a>:</p>
-
-      <dl>
-        <dt><em>installing</em></dt>
-        <dd>"<code>installing</code>"
-        <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-installing-worker">installing worker</a>. During this state, <code><a href="#extendable-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code> <a>event handler</a> to extend the life of the <a href="#dfn-installing-worker">installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the <a href="#dfn-service-worker">service worker</a> is not active until all of the core caches are populated.</p></dd>
-
-        <dt><em>installed</em></dt>
-        <dd>"<code>installed</code>"
-        <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered a <a href="#dfn-waiting-worker">waiting worker</a>.</p></dd>
-
-        <dt><em>activating</em></dt>
-        <dd>"<code>activating</code>"
-        <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a>. During this state, <code><a href="#extendable-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code> <a>event handler</a> to extend the life of the <a href="#dfn-active-worker">active worker</a> until the passed <a>promise</a> resolves successfully. No <a href="#dfn-functional-events">functional events</a> are dispatched until the state becomes <em>activated</em>.</p></dd>
-
-        <dt><em>activated</em></dt>
-        <dd>"<code>activated</code>"
-        <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a> ready to handle <a href="#dfn-functional-events">functional events</a>.</p></dd>
-
-        <dt><em>redundant</em></dt>
-        <dd>"<code>redundant</code>"
-        <p class="note">A new <a href="#dfn-service-worker">service worker</a> is replacing the current <a href="#dfn-service-worker">service worker</a>, or the current <a href="#dfn-service-worker">service worker</a> is being discarded due to an install failure.</p></dd>
-      </dl>
+      <p>The <dfn attribute id="service-worker-state-attribute"><code>state</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value (in <dfn enum id="service-worker-state-enum"><code>ServiceWorkerState</code></dfn> enumeration) to which it was last set.</p>
     </section>
 
     <section algorithm="service-worker-postmessage">
@@ -575,12 +553,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-installing">
       <h4 id="navigator-service-worker-installing">{{ServiceWorkerRegistration/installing}}</h4>
 
-      <p><dfn attribute id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-      <ol>
-        <li>Let <var>installingWorker</var> be the {{ServiceWorker}} object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-        <li>Return <var>installingWorker</var>.</li>
-      </ol>
+      <p><dfn attribute id="service-worker-registration-installing-attribute"><code>installing</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value to which it was last set.</p>
 
       <p class="note">The {{ServiceWorker}} objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
     </section>
@@ -588,12 +561,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-waiting">
       <h4 id="navigator-service-worker-waiting">{{ServiceWorkerRegistration/waiting}}</h4>
 
-      <p><dfn attribute id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-      <ol>
-        <li>Let <var>waitingWorker</var> be the {{ServiceWorker}} object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-        <li>Return <var>waitingWorker</var>.</li>
-      </ol>
+      <p><dfn attribute id="service-worker-registration-waiting-attribute"><code>waiting</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value to which it was last set.</p>
 
       <p class="note">The {{ServiceWorker}} objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
     </section>
@@ -601,12 +569,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section algorithm="navigator-service-worker-active">
       <h4 id="navigator-service-worker-active">{{ServiceWorkerRegistration/active}}</h4>
 
-      <p><dfn attribute id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the result of running these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-      <ol>
-        <li>Let <var>activeWorker</var> be the {{ServiceWorker}} object that represents the <a href="#dfn-service-worker-registration-interface-service-worker-registration">service worker registration</a>'s <a href="#dfn-active-worker">active worker</a>.</li>
-        <li>Return <var>activeWorker</var>.</li>
-      </ol>
+      <p><dfn attribute id="service-worker-registration-active-attribute"><code>active</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value to which it was last set.</p>
 
       <p class="note">The {{ServiceWorker}} objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
     </section>
@@ -1851,12 +1814,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <tr>
           <td><dfn event id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
           <td>{{ExtendableEvent}}</td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 11.2 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-installing-worker">installing worker</a> changes. (See step 10.2 of the <a href="#installation-algorithm">Install</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
           <td>{{ExtendableEvent}}</td>
-          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-active-worker">active worker</a> changes. (See step 15.2 of the <a href="#activation-algorithm">Activate</a> algorithm.)</td>
+          <td>[<a href="#dfn-lifecycle-events">Lifecycle event</a>] The <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-active-worker">active worker</a> changes. (See step 12.2 of the <a href="#activation-algorithm">Activate</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
@@ -3059,8 +3022,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li>Let <var>installFailed</var> be false.</li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
-      <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to <var>worker</var>.</li>
-      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
+      <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and <var>worker</var> as the arguments.</li>
+      <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
       <li><a>Assert</a>: <var>job</var>'s <a href="#dfn-job-promise">promise</a> is not null.</li>
       <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the {{ServiceWorkerRegistration}} object which represents <var>registration</var>.</li>
       <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> and all the <a href="#dfn-service-worker">service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is <var>registration</var>.</li>
@@ -3076,8 +3039,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <li>If any uncaught runtime script error occurs, then:
                 <ol>
                   <li><a>Report the error</a> for the script per the <a>runtime script errors handling</a>.</li>
-                  <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-                  <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+                  <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+                  <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and null as the arguments.</li>
                   <li>If <var>newestWorker</var> is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
                   <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
                 </ol>
@@ -3100,8 +3063,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Wait for <var>task</var> to have executed or been discarded.</li>
       <li>If <var>installFailed</var> is true, then:
         <ol>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and null as the arguments.</li>
           <li>If <var>newestWorker</var> is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
@@ -3110,13 +3073,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
         <ol>
           <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
           <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
         </ol>
       </li>
-      <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-      <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
-      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
+      <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>waiting</code>" and <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> as the arguments.</li>
+      <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and null as the arguments.</li>
+      <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>installed</em> as the arguments.</li>
       <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set, then:
         <ol>
           <li>Run <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, passing <var>registration</var> as the argument.</li>
@@ -3124,7 +3087,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
       <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var>.</li>
-      <li>Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a href="#update-state-algorithm">Update State</a> invoked in this algorithm have executed.</li>
+      <li>Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a href="#update-state-algorithm">Update Worker State</a> invoked in this algorithm have executed.</li>
       <li>Wait until no <a href="#dfn-service-worker-client">service worker client</a> is <a href="#dfn-use">using</a> <var>registration</var> or <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set.</li>
       <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> <var>waitingWorker</var> is not null and <var>waitingWorker</var>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is not set, invoke <a href="#activation-algorithm">Activate</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>registration</var> as its argument.</li>
     </ol>
@@ -3148,12 +3111,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Wait for <var>exitingWorker</var> to finish handling any in-progress requests.
           </li>
           <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>exitingWorker</var>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>exitingWorker</var> and <em>redundant</em> as the arguments.</li>
         </ol>
       </li>
-      <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to <var>activatingWorker</var>.</li>
-      <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to null.</li>
-      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.
+      <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>active</code>" and <var>activatingWorker</var> as the arguments.</li>
+      <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>waiting</code>" and null as the arguments.</li>
+      <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activating</em> as the arguments.
         <p class="note">Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.</p>
       </li>
       <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
@@ -3187,7 +3150,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
       <li>Wait for <var>task</var> to have executed and <var>p</var> defined in <var>task</var> has settled, or <var>task</var> to have been discarded or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>.</li>
-      <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activated</em> as the arguments.</li>
+      <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activated</em> as the arguments.</li>
     </ol>
   </section>
 
@@ -3517,24 +3480,24 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>If <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
         <ol>
           <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and null as the arguments.</li>
           <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
         </ol>
       </li>
       <li>If <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
         <ol>
           <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>waiting</code>" and null as the arguments.</li>
           <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-waiting-worker">waiting worker</a>.</li>
         </ol>
       </li>
       <li>If <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is not null, then:
         <ol>
           <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-          <li>Run the <a href="#update-state-algorithm">Update State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
-          <li>Set <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> to null.</li>
+          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>redundant</em> as the arguments.</li>
+          <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>active</code>" and null as the arguments.</li>
           <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
         </ol>
       </li>
@@ -3542,8 +3505,55 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </ol>
   </section>
 
+  <section algorithm="update-registration-state-algorithm">
+    <h3 id="update-registration-state-algorithm">Update Registration State</h3>
+
+    <dl>
+      <dt>Input</dt>
+        <dd><var>registration</var>, a <a href="#dfn-service-worker-registration">service worker registration</a></dd>
+        <dd><var>target</var>, a string (one of "<code>installing</code>", "<code>waiting</code>", and "<code>active</code>")</dd>
+        <dd><var>source</var>, a <a href="#dfn-service-worker">service worker</a> or null</dd>
+      <dt>Output</dt>
+        <dd>None</dd>
+    </dl>
+    <ol>
+      <li>Let <var>registrationObjects</var> be an array containing all the {{ServiceWorkerRegistration}} objects associated with <var>registration</var>.</li>
+      <li>If <var>target</var> is "<code>installing</code>", then:
+        <ol>
+          <li>Set <var>registration</var>'s <a>installing worker</a> to <var>source</var>.</li>
+          <li>For each <var>registrationObject</var> in <var>registrationObjects</var>:
+            <ol>
+              <li><a>Queue a task</a> to set the <a href="#service-worker-registration-installing-attribute">installing</a> attribute of <var>registrationObject</var> to the {{ServiceWorker}} object that represents <var>registration</var>’s <a>installing worker</a>, or null if <var>registration</var>’s <a>installing worker</a> is null.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Else if <var>target</var> is "<code>waiting</code>", then:
+        <ol>
+          <li>Set <var>registration</var>'s <a>waiting worker</a> to <var>source</var>.</li>
+          <li>For each <var>registrationObject</var> in <var>registrationObjects</var>:
+            <ol>
+              <li><a>Queue a task</a> to set the <a href="#service-worker-registration-waiting-attribute">waiting</a> attribute of <var>registrationObject</var> to the {{ServiceWorker}} object that represents <var>registration</var>’s <a>waiting worker</a>, or null if <var>registration</var>’s <a>waiting worker</a> is null.</li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+      <li>Else if <var>target</var> is "<code>active</code>", then:
+        <ol>
+          <li>Set <var>registration</var>'s <a>active worker</a> to <var>source</var>.</li>
+          <li>For each <var>registrationObject</var> in <var>registrationObjects</var>:
+            <ol>
+              <li><a>Queue a task</a> to set the <a href="#service-worker-registration-active-attribute">active</a> attribute of <var>registrationObject</var> to the {{ServiceWorker}} object that represents <var>registration</var>’s <a>active worker</a>, or null if <var>registration</var>’s <a>active worker</a> is null.</li>
+            </ol>
+          </li>
+        </ol>
+        <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>registrationObject</var>'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.</p>
+      </li>
+    </ol>
+  </section>
+
   <section algorithm="update-state-algorithm">
-    <h3 id="update-state-algorithm">Update State</h3>
+    <h3 id="update-state-algorithm">Update Worker State</h3>
 
     <dl>
       <dt>Input</dt>
@@ -3554,12 +3564,39 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </dl>
     <ol>
       <li>Set <var>worker</var>'s <a href="#dfn-state">state</a> to <var>state</var>.</li>
-      <li>Let <var>serviceWorkers</var> be an array containing all the <code><a href="#service-worker-interface">ServiceWorker</a></code> objects associated with <var>worker</var>.</li>
-      <li>For each <var>serviceWorker</var> in <var>serviceWorkers</var>:
+      <li>Let <var>workerObjects</var> be an array containing all the <code><a href="#service-worker-interface">ServiceWorker</a></code> objects associated with <var>worker</var>.</li>
+      <li>For each <var>workerObject</var> in <var>workerObjects</var>:
         <ol>
-          <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>statechange</code> at <var>serviceWorker</var>.</li>
+          <li><a>Queue a task</a> to run these substeps:
+            <ol>
+              <li>Set the <a href="#service-worker-state-attribute">state</a> attribute of <var>workerObject</var> to the value (in {{ServiceWorkerState}} enumeration) corresponding to the first matching statement, switching on <var>worker</var>'s <a href="#dfn-state">state</a>:
+                <dl>
+                  <dt><em>installing</em></dt>
+                  <dd>"<code>installing</code>"
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-installing-worker">installing worker</a>. During this state, <code><a href="#extendable-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-oninstall-attribute">oninstall</a></code> <a>event handler</a> to extend the life of the <a href="#dfn-installing-worker">installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the <a href="#dfn-service-worker">service worker</a> is not active until all of the core caches are populated.</p></dd>
+
+                  <dt><em>installed</em></dt>
+                  <dd>"<code>installed</code>"
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered a <a href="#dfn-waiting-worker">waiting worker</a>.</p></dd>
+
+                  <dt><em>activating</em></dt>
+                  <dd>"<code>activating</code>"
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a>. During this state, <code><a href="#extendable-event-waituntil-method">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-onactivate-attribute">onactivate</a></code> <a>event handler</a> to extend the life of the <a href="#dfn-active-worker">active worker</a> until the passed <a>promise</a> resolves successfully. No <a href="#dfn-functional-events">functional events</a> are dispatched until the state becomes <em>activated</em>.</p></dd>
+
+                  <dt><em>activated</em></dt>
+                  <dd>"<code>activated</code>"
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a> ready to handle <a href="#dfn-functional-events">functional events</a>.</p></dd>
+
+                  <dt><em>redundant</em></dt>
+                  <dd>"<code>redundant</code>"
+                  <p class="note">A new <a href="#dfn-service-worker">service worker</a> is replacing the current <a href="#dfn-service-worker">service worker</a>, or the current <a href="#dfn-service-worker">service worker</a> is being discarded due to an install failure.</p></dd>
+                </dl>
+              </li>
+              <li><a>Fire a simple event</a> named <code>statechange</code> at <var>workerObject</var>.</li>
+            </ol>
+          </li>
         </ol>
-        <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>serviceWorker</var>'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.</p>
+        <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>workerObject</var>'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.</p>
       </li>
     </ol>
   </section>
