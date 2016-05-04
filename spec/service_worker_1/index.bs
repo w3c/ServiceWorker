@@ -333,7 +333,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
   <section dfn-for="service worker client">
     <h3 id="service-worker-client-concept">Service Worker Client</h3>
-    <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is an <a>environment settings object</a> that specifies various settings for its <a>JavaScript global environment</a>.</p>
+    <p>A <dfn id="dfn-service-worker-client">service worker client</dfn> is a type of <a>environment settings object</a>.</p>
 
     <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-service-worker-client-active-worker">active worker</dfn> (an <a href="#dfn-active-worker">active worker</a>) which currently <a href="#dfn-control">controls</a> it. It is initially set to null.</p>
 
@@ -437,7 +437,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       };
     </pre>
 
-    <p>A <code><dfn interface id="service-worker-interface">ServiceWorker</dfn></code> object represents a <a href="#dfn-service-worker">service worker</a>. Each {{ServiceWorker}} object is associated with a <a href="#dfn-service-worker">service worker</a>. Multiple separate objects implementing the {{ServiceWorker}} interface across <a>document environments</a> and <a>worker environments</a> can all be associated with the same <a href="#dfn-service-worker">service worker</a> simultaneously.</p>
+    <p>A <code><dfn interface id="service-worker-interface">ServiceWorker</dfn></code> object represents a <a href="#dfn-service-worker">service worker</a>. Each {{ServiceWorker}} object is associated with a <a href="#dfn-service-worker">service worker</a>. Multiple separate objects implementing the {{ServiceWorker}} interface across documents and workers can all be associated with the same <a href="#dfn-service-worker">service worker</a> simultaneously.</p>
 
     <p>A {{ServiceWorker}} object has an associated {{ServiceWorkerState}} object which is itself associated with <a href="#dfn-service-worker">service worker</a>'s <a href="#dfn-state">state</a>.</p>
 
@@ -497,7 +497,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="unicode serialisation of an origin">Unicode serialisation</a> of the <a for="resource">origin</a> specified by the <a>incumbent settings object</a>.</li>
             <li>If the <a>global object</a> <var>globalObject</var> specified by the <a>incumbent settings object</a> is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{ServiceWorker}} object that represents <var>globalObject</var>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
             <li>Else if <var>globalObject</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>globalObject</var>'s <a>browsing context</a>.</li>
-            <li>Else, let it be initialized to a new {{Client}} object that represents <var>globalObject</var>'s <a>worker environment</a>.</li>
+            <li>Else, let it be initialized to a new {{Client}} object that represents the worker associated with <var>globalObject</var>.</li>
             <li>Let the {{ExtendableMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
@@ -548,7 +548,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       };
     </pre>
 
-    <p>A <code><dfn interface id="service-worker-registration-interface">ServiceWorkerRegistration</dfn></code> object represents a <a href="#dfn-service-worker-registration">service worker registration</a>. Each {{ServiceWorkerRegistration}} object is associated with a <dfn id="dfn-service-worker-registration-interface-service-worker-registration">service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>). Multiple separate objects implementing the {{ServiceWorkerRegistration}} interface across <a>document environments</a> and <a>worker environments</a> can all be associated with the same <a href="#dfn-service-worker-registration">service worker registration</a> simultaneously.</p>
+    <p>A <code><dfn interface id="service-worker-registration-interface">ServiceWorkerRegistration</dfn></code> object represents a <a href="#dfn-service-worker-registration">service worker registration</a>. Each {{ServiceWorkerRegistration}} object is associated with a <dfn id="dfn-service-worker-registration-interface-service-worker-registration">service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>). Multiple separate objects implementing the {{ServiceWorkerRegistration}} interface across documents and workers can all be associated with the same <a href="#dfn-service-worker-registration">service worker registration</a> simultaneously.</p>
 
     <section algorithm="navigator-service-worker-installing">
       <h4 id="navigator-service-worker-installing">{{ServiceWorkerRegistration/installing}}</h4>
@@ -1902,7 +1902,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       };
     </pre>
 
-    <p>A <code><dfn interface id="cache-interface">Cache</a></code> object represents a <a href="#dfn-request-to-response-map">request to response map</a>. Multiple separate objects implementing the {{Cache}} interface across <a>document environments</a> and <a>worker environments</a> can all be associated with the same <a href="#dfn-request-to-response-map">request to response map</a> simultaneously.</p>
+    <p>A <code><dfn interface id="cache-interface">Cache</a></code> object represents a <a href="#dfn-request-to-response-map">request to response map</a>. Multiple separate objects implementing the {{Cache}} interface across documents and workers can all be associated with the same <a href="#dfn-request-to-response-map">request to response map</a> simultaneously.</p>
 
     <p>{{Cache}} objects are always enumerable via {{Window/caches|self.caches}} in insertion order (per <a lt="map objects">ECMAScript 6 Map objects</a>).</p>
 
@@ -2325,7 +2325,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The user agent <em class="rfc2119" title="MUST">must</em> create a {{CacheStorage}} object when a {{Window}} object or a {{WorkerGlobalScope}} object is created and associate it with that object.</p>
 
-    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a>global object</a>'s <a>environment settings object</a>'s <a for="resource">origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across <a>document environments</a> and <a>worker environments</a> can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
+    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a>global object</a>'s <a>environment settings object</a>'s <a for="resource">origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across documents and workers can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
 
     <section algorithm="cache-storage-match">
       <h4 id="cache-storage-match">{{CacheStorage/match(request, options)}}</h4>
@@ -3210,7 +3210,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </dl>
     <ol>
       <li>If <var>serviceWorker</var> is not running, abort these steps.</li>
-      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var> environment settings object's <a>global object</a>.</li>
+      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var>'s <a>environment settings object</a>'s <a>global object</a>.</li>
       <li>Set <var>serviceWorkerGlobalScope</var>'s closing flag to true.</li>
       <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a href="#dfn-service-worker-registration-task-queue">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> without processing them.
         <p class="note">This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.</p>
@@ -3540,7 +3540,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             </ol>
           </li>
         </ol>
-        <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>registrationObject</var>'s <a>relevant settings object</a>'s <a>responsible event loop</a>.</p>
+        <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>registrationObject</var>'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.</p>
       </li>
     </ol>
   </section>
