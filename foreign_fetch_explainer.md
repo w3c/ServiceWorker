@@ -25,7 +25,7 @@ Handling these fetch events is pretty similar to how you'd handle regular fetch 
 
 ```js
 self.addEventListener('foreignfetch', function(e) {
-  // Do whatever local work is necesary to handle the fetch,
+  // Do whatever local work is necessary to handle the fetch,
   // or just pass it through to the network:
   e.respondWith(fetch(e.request).then(response => ({response: response}));
 });
