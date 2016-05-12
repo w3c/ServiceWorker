@@ -42,7 +42,7 @@ To help with making it easier to write secure service workers, by default all re
 ```js
 self.addEventListener('foreignfetch', function(e) {
   e.respondWith(fetch(e.request).then(response =>
-    ({response: response, origin: e.request.origin, headers: ['...']})));
+    ({response: response, origin: e.origin, headers: ['...']})));
 });
 ```
 
