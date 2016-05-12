@@ -1829,12 +1829,14 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       [Constructor(DOMString type, ForeignFetchEventInit eventInitDict), Exposed=ServiceWorker]
       interface ForeignFetchEvent : ExtendableEvent {
         [SameObject] readonly attribute Request request;
+        readonly attribute USVString origin;
 
         void respondWith(Promise&lt;ForeignFetchResponse&gt; r);
       };
 
       dictionary ForeignFetchEventInit : ExtendableEventInit {
         required Request request;
+        USVString origin = "null";
       };
 
       dictionary ForeignFetchResponse {
@@ -1857,7 +1859,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section>
       <h4 id="foreign-fetch-event-request">{{ForeignFetchEvent/request|event.request}}</h4>
 
-      <p><dfn attribute><code>request</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
+      <p>The <dfn attribute><code>request</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
+    </section>
+
+    <section>
+      <h4 id="foreign-fetch-event-origin">{{ForeignFetchEvent/origin|event.origin}}</h4>
+
+      <p>The <dfn attribute><code>origin</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to.</p>
     </section>
 
     <section algorithm="foreign-fetch-event-respondwith">
@@ -3228,8 +3236,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </dl>
     <ol>
       <li>Let <var>installFailed</var> be false.</li>
-      <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>  
-      <li>Let <var>redundantWorker</var> be null.</li>    
+      <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
+      <li>Let <var>redundantWorker</var> be null.</li>
       <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and <var>worker</var> as the arguments.</li>
       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
       <li><a>Assert</a>: <var>job</var>'s <a href="#dfn-job-promise">promise</a> is not null.</li>
@@ -3598,7 +3606,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ForeignFetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>, which does not bubble and has no default action.</li>
-          <li>Let the {{FetchEvent/request}} attribute of <var>e</var> be initialized to <var>r</var>.</li>
+          <li>Let the {{ForeignFetchEvent/request}} attribute of <var>e</var> be initialized to <var>r</var>.</li>
+          <li>Let the {{ForeignFetchEvent/origin}} attribute of <var>e</var> be initialized to the  <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for=request>origin</a>.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a>global object</a>.</li>
           <li>For each <a>event listener</a> <a>invoked</a>:
             <ol>
