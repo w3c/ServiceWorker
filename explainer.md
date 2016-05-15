@@ -44,7 +44,7 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins `/my-app/`. The scope is optional, and defaults to `/`.
+In this example, `/my-app/sw.js` is the location of the ServiceWorker script, and it controls pages whose URL begins `/my-app/`. The scope is optional, and defaults to `./`. A ServiceWorker script cannot control pages that are higher in scope without using the `Service-Worker-Allowed` HTTP header.
 
 `.register` returns a promise. If you’re new to promises, check out the [HTML5Rocks article](http://www.html5rocks.com/en/tutorials/es6/promises/).
 
