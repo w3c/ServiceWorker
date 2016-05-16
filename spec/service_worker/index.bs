@@ -1848,7 +1848,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p><a href="#dfn-service-worker">Service workers</a> have a <a href="#dfn-functional-events">functional event</a> <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>. For <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code> events, <a href="#dfn-service-worker">service workers</a> use the <code><dfn interface>ForeignFetchEvent</dfn></code> interface which extends the {{ExtendableEvent}} interface.</p>
 
-    <p>Each event using {{ForeignFetchEvent}} interface has an associated <dfn>potential response</dfn> (a <a for="fetch">response</a>), initially set to null, an associated <dfn>origin</dfn> (a <a for="url">URL</a>), initially set to null, an associated <dfn>list of exposed headers</dfn> (whose element type is a byte string), initially set to an empty list, and the following associated flags that are initially unset:
+    <p>Each event using {{ForeignFetchEvent}} interface has an associated <dfn>potential response</dfn> (a <a for="fetch">response</a>), initially set to null, an associated <dfn>origin</dfn> (a {{USVString}} or null), initially set to null, an associated <dfn>list of exposed headers</dfn> (whose element type is a byte string), initially set to an empty list, and the following associated flags that are initially unset:
       <ul>
         <li><dfn id="foreign-fetch-wait-to-respond-flag">wait to respond flag</dfn></li>
         <li><dfn id="foreign-fetch-respond-with-entered-flag">respond-with entered flag</dfn></li>
@@ -3638,7 +3638,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Else set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
                 </ol>
               </li>
-              <li>Else if <var>event</var>'s <a>origin</a> is not equal to <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
+              <li>Else if <var>event</var>'s <a>origin</a> is not equal to the <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
               <li>Else if <var>event</var>'s <a>potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>event</var>'s <a>potential response</a>.</li>
               <li>Else if <var>request</var>'s <a>response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
               <li>Else:
