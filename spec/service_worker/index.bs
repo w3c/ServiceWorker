@@ -2879,7 +2879,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-promise" lt="job promise">promise</dfn> (a <a>promise</a>). It is initially null.</P>
 
-  <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-list-of-equivalent-job-promises">list of equivalent job promises</dfn> (a list of <a>promises</a>). It is initially the empty list.</P>
+  <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a href="#dfn-job">jobs</a>). It is initially the empty list.</P>
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn> It is initially unset.</P>
 
@@ -2934,7 +2934,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Else:
         <ol>
           <li>Let <var>lastJob</var> be the element at the back of the <a href="#dfn-job-queue">job queue</a>.</li>
-          <li>If <var>job</var> is <a href="#dfn-job-equivalent">equivalent</a> to <var>lastJob</var> and <var>lastJob</var>'s <a href="#dfn-job-promise">promise</a> has not settled, append <var>job</var>'s <a href="#dfn-job-promise">promise</a> to <var>lastJob</var>'s <a href="#dfn-job-list-of-equivalent-job-promises">list of equivalent job promises</a>.</li>
+          <li>If <var>job</var> is <a href="#dfn-job-equivalent">equivalent</a> to <var>lastJob</var> and <var>lastJob</var>'s <a href="#dfn-job-promise">promise</a> has not settled, append <var>job</var> to <var>lastJob</var>'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>.</li>
           <li>Else, push <var>job</var> to the <a href="#dfn-job-queue">job queue</a>.</li>
         </ol>
       </li>
@@ -2992,10 +2992,10 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <dd>none</dd>
     </dl>
     <ol>
-      <li>Resolve <var>job</var>'s <a href="#dfn-job-promise">promise</a> with <var>value</var>.</li>
-      <li>For each <var>promise</var> in <var>job</var>'s <a href="#dfn-job-list-of-equivalent-job-promises">list of equivalent job promises</a>:
+      <li>If <var>job</var>'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to resolve <var>job</var>'s <a href="#dfn-job-promise">promise</a> with <var>value</var> on <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.</li>
+      <li>For each <var>equivalentJob</var> in <var>job</var>'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>:
         <ol>
-          <li>Resolve <var>promise</var> with <var>value</var>.</li>
+          <li>If <var>equivalentJob</var>'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to resolve <var>equivalentJob</var>'s <a href="#dfn-job-promise">promise</a> with <var>value</var> on <var>equivalentJob</var>'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.</li>
         </ol>
       </li>
     </ol>
@@ -3012,10 +3012,10 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <dd>none</dd>
     </dl>
     <ol>
-      <li>Reject <var>job</var>'s <a href="#dfn-job-promise">promise</a> with <var>reason</var>.</li>
-      <li>For each <var>promise</var> in <var>job</var>'s <a href="#dfn-job-list-of-equivalent-job-promises">list of equivalent job promises</a>:
+      <li>If <var>job</var>'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to reject <var>job</var>'s <a href="#dfn-job-promise">promise</a> with <var>reason</var> on <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.</li>
+      <li>For each <var>equivalentJob</var> in <var>job</var>'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>:
         <ol>
-          <li>Reject <var>promise</var> with <var>reason</var>.</li>
+          <li>If <var>equivalentJob</var>'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to reject <var>equivalentJob</var>'s <a href="#dfn-job-promise">promise</a> with <var>reason</var> on <var>equivalentJob</var>'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.</li>
         </ol>
       </li>
     </ol>
@@ -3216,7 +3216,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</li>
       <li>If <var>newestWorker</var> is null, abort these steps.</li>
-      <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, a new <a>promise</a>, and null.</li>
+      <li>Let <var>job</var> be the result of running <a href="#create-job-algorithm">Create Job</a> with <em>update</em>, <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, null, and null.</li>
       <li>Set <var>job</var>'s <a>worker type</a> to <var>newestWorker</var>'s <a for="service worker">type</a>.</li>
       <li>Set <var>job</var>'s <a href="#dfn-job-force-bypass-cache-flag">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.</li>
       <li>Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with <var>job</var>.</li>
