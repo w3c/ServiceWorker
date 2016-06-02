@@ -1591,7 +1591,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       };
     </pre>
 
-    <p>An <code><dfn interface id="extendable-event-interface" title="ExtendableEvent">ExtendableEvent</dfn></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially set to null.</p>
+    <p>An <code><dfn interface id="extendable-event-interface" title="ExtendableEvent">ExtendableEvent</dfn></code> object has an associated <dfn id="dfn-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially an empty array.</p>
+
+    <p>An {{ExtendableEvent}} object has an associated <dfn id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.</p>
 
     <p><a href="#dfn-service-worker">Service workers</a> have two <a href="#dfn-lifecycle-events">lifecycle events</a>, <code><a href="#service-worker-global-scope-install-event">install</a></code> and <code><a href="#service-worker-global-scope-activate-event">activate</a></code>. <a href="#dfn-service-worker">Service workers</a> use the {{ExtendableEvent}} interface for <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event and <code><a href="#service-worker-global-scope-install-event">install</a></code> event.</p>
 
@@ -1605,38 +1607,40 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <p><dfn method for="ExtendableEvent" id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <ol>
-        <li>If the <a>dispatch flag</a> is unset, then:
+        <li>If the <a>extensions allowed flag</a> is unset, then:
           <ol>
             <li><a>Throw</a> an "{{InvalidStateError}}" exception.</li>
             <li>Abort these steps.</li>
           </ol>
         </li>
-        <li>Add <var>f</var> to <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
-      </ol>
-
-      <p>In the <a>task</a> <var>task</var> in which the steps of <code><a href="#extendable-event-waituntil-method">waitUntil(<var>f</var>)</a></code> is running, the user agent <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-      <ol>
-        <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
-        <li>For each <a>event listener</a> <a>invoked</a>:
-          <ol>
-            <li>Let <var>eventObject</var> be the first argument passed to this <a>event listener</a>.</li>
-            <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
-          </ol>
-        </li>
-        <li>Do not <a href="#terminate-service-worker-algorithm">terminate</a> the <a href="#dfn-service-worker">service worker</a> whose <a>responsible event loop</a> is running <var>task</var> until <a>waiting for all</a> of <var>extendLifetimePromises</var> settles.</li>
-      </ol>
-      <p>However, the user agent <em class="rfc2119" title="MAY">may</em> impose a time limit to this lifetime extension.</p>
-
-      <p><a href="#dfn-service-worker">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em class="rfc2119" title="MAY">may</em> define their own behaviors, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
-
-      <p><a href="#dfn-service-worker">Service workers</a> define the following behaviors for <code><a href="#service-worker-global-scope-install-event">install</a></code> event and <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event:</p>
-
-      <ul>
-        <li>When called in {{ServiceWorkerGlobalScope/oninstall}}, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a>promise</a> <var>f</var> resolves successfully. (See step 11.6.1 of <a href="#installation-algorithm">Install</a> algorithm.) If <var>f</var> rejects, the installation fails. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
-        <li>When called in {{ServiceWorkerGlobalScope/onactivate}}, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a>promise</a> <var>f</var> settles. (See step 13 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
-      </ul>
+        <li>Add <var>f</var> to the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
+      </ol>      
     </section>
+    <p>When <a>dispatching</a> an event <var>e</var> that uses the {{ExtendableEvent}} interface, the user agent <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+    <ol>
+      <li>If <var>e</var>'s <a>extend lifetime promises</a> is empty, unset <var>e</var>'s <a>extensions allowed flag</a> and abort these steps.</li>
+      <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
+      <li>Run the following substeps <a>in parallel</a>:
+        <ol>
+          <li><em>SetupPromiseArray</em>: Set <var>extendLifetimePromises</var> to a copy of <var>e</var>'s <a>extend lifetime promises</a>.</li>
+          <li>Wait until the result of <a>waiting for all</a> of <var>extendLifetimePromises</var> settles.</li>
+          <li>If the length of <var>extendLifetimePromises</var> does not equal the length of <var>e</var>'s <a>extend lifetime promises</a>, jump to the step labeled <em>SetupPromiseArray</em>.</li>
+          <li>Unset <var>e</var>'s <a>extensions allowed flag</a>.</li>
+        </ol>
+      </li>
+    </ol>
+      
+    <p>The user agent <em class="rfc2119" title="SHOULD NOT">should not</em> <a href="#terminate-service-worker-algorithm">terminate</a> the <a>service worker</a> associated with <var>e</var>'s <a>relevant settings object</a>'s <a>global object</a> until <var>e</var>'s <a>extensions allowed flag</a> is unset. However, the user agent <em class="rfc2119" title="MAY">may</em> impose a time limit to this lifetime extension.</p>
+
+    <p><a href="#dfn-service-worker">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em class="rfc2119" title="MAY">may</em> define their own behaviors, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
+
+    <p><a href="#dfn-service-worker">Service workers</a> define the following behaviors for <code><a href="#service-worker-global-scope-install-event">install</a></code> event and <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event:</p>
+
+    <ul>
+      <li>When called in {{ServiceWorkerGlobalScope/oninstall}}, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a>promise</a> <var>f</var> resolves successfully. (See step 11.5.1 of <a href="#installation-algorithm">Install</a> algorithm.) If <var>f</var> rejects, the installation fails. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
+      <li>When called in {{ServiceWorkerGlobalScope/onactivate}}, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a>promise</a> <var>f</var> settles. (See step 13 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
+    </ul>
   </section>
 
   <section dfn-for="InstallEvent">
@@ -1768,6 +1772,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Abort these steps.</li>
           </ol>
         </li>
+        <li>Add <var>r</var> to the <a>extend lifetime promises</a>.
+          <p class="note">{{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil(f)|event.waitUntil(r)}} is called.</p>
+        </li>
         <li>Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
@@ -1888,6 +1895,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Abort these steps.</li>
           </ol>
         </li>
+        <li>Add <var>r</var> to the <a>extend lifetime promises</a>.</li>
         <li>Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
@@ -2293,7 +2301,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Add <var>responsePromise</var> to <var>responsePromiseArray</var>.</li>
           </ol>
         </li>
-        <li>Let <var>p</var> be <a lt="waiting for all">waiting for all of <var>responsePromiseArray</var></a>.</li>
+        <li>Let <var>p</var> be <a>waiting for all</a> of <var>responsePromiseArray</var>.</li>
         <li>Return the result of <a>transforming</a> <var>p</var> with a fulfillment handler that, when called with argument <var>responseArray</var>, performs the following substeps <a>in parallel</a>:
           <ol>
             <li>Let <var>operations</var> be an empty array.</li>
@@ -3249,7 +3257,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{InstallEvent}} interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a>environment settings object</a>'s <a>global object</a> <var>globalObject</var>.</li>
-          <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
           <li>For each <a>event listener</a> <a>invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, then:
@@ -3262,11 +3269,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
                 </ol>
               </li>
-              <li>Let <var>eventObject</var> be the first argument passed to this <a>event listener</a>.</li>
-              <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
             </ol>
           </li>
-          <li>Let <var>p</var> be <a>waiting for all</a> of <var>extendLifetimePromises</var>.</li>
+          <li>Let <var>p</var> be <a>waiting for all</a> of <var>e</var>'s <a>extend lifetime promises</a>.</li>
           <li>Run the following substeps <a>in parallel</a>:
             <ol>
               <li>Wait until <var>p</var> settles.</li>
@@ -3357,15 +3362,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a>global object</a>.</li>
-          <li>Let <var>extendLifetimePromises</var> be an empty array.</li>
           <li>For each <a>event listener</a> <a>invoked</a>:
             <ol>
               <li>If any uncaught runtime script error occurs, <a>report the error</a> for the script per the <a>runtime script errors handling</a>.</li>
-              <li>Let <var>eventObject</var> be the first argument passed to this <a>event listener</a>.</li>
-              <li>Append <var>eventObject</var>'s <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to <var>extendLifetimePromises</var>.</li>
             </ol>
           </li>
-          <li>Let <var>p</var> be <a>waiting for all</a> of <var>extendLifetimePromises</var>.</li>
+          <li>Let <var>p</var> be <a>waiting for all</a> of <var>e</var>'s <a>extend lifetime promises</a>.</li>
         </ol>
       </li>
       <li>Wait for <var>task</var> to have executed and <var>p</var> defined in <var>task</var> has settled, or <var>task</var> to have been discarded or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>.</li>
@@ -3524,18 +3526,17 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Let <var>event</var> be the event for which this <a>event listener</a> was invoked.</li>
-              <li>If <var>event</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
-              <li>If <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
-                <ol>
-                  <li>Wait until <var>event</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
-                  <li>If <var>event</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
-                  <li>Else, set <var>response</var> to <var>event</var>'s <a>potential response</a>.</li>
-                </ol>
-              </li>
-              <li>If <var>event</var>'s <a>canceled flag</a> is set, set <var>eventCanceled</var> to true.</li>
             </ol>
           </li>
+          <li>If <var>e</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
+          <li>If <var>e</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
+            <ol>
+              <li>Wait until <var>e</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is unset.</li>
+              <li>If <var>e</var>'s <a href="#respond-with-error-flag">respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
+              <li>Else, set <var>response</var> to <var>e</var>'s <a>potential response</a>.</li>
+            </ol>
+          </li>
+          <li>If <var>e</var>'s <a>canceled flag</a> is set, set <var>eventCanceled</var> to true.</li>
         </ol>
         <p>If <var>task</var> is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
         <p>The <var>task</var> <em class="rfc2119" title="MUST">must</em> use <var>activeWorker</var>'s <a>event loop</a> and the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a>.</p>
@@ -3617,45 +3618,32 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Abort these steps.</li>
                 </ol>
               </li>
-              <li>Let <var>event</var> be the event for which this <a>event listener</a> was invoked.</li>
-              <li>If <var>event</var>'s <a>respond-with entered flag</a> is set, then:
-                <ol>
-                  <li>Set <var>respondWithEntered</var> to true.</li>
-                </ol>
-              </li>
-              <li>If <var>event</var>'s <a>wait to respond flag</a> is set, then:
-                <ol>
-                  <li>Wait until <var>event</var>'s <a>wait to respond flag</a> is unset.</li>
-                </ol>
-              </li>
-              <li>Let <var>internalResponse</var> be <var>event</var>'s <a>potential response</a>.</li>
-              <li>If <var>internalResponse</var> is a <a>filtered response</a>, set <var>internalResponse</var> to <var>internalResponse</var>'s <a>internal response</a>.</li>
-              <li>If <var>event</var>'s <a>respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
-              <li>Else if <var>event</var>'s <a>origin</a> is null:
-                <ol>
-                  <li>If <var>event</var>'s <a>list of exposed headers</a> is not empty, set <var>handleFetchFailed</var> to true.</li>
-                  <li>Else if <var>event</var>'s <a>potential response</a> is a <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>event</var>'s <a>potential response</a>.</li>
-                  <li>Else set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
-                </ol>
-              </li>
-              <li>Else if <var>event</var>'s <a>origin</a> is not equal to the <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
-              <li>Else if <var>event</var>'s <a>potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>event</var>'s <a>potential response</a>.</li>
-              <li>Else if <var>request</var>'s <a>response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
-              <li>Else:
-                <ol>
-                  <li>Let <var>headers</var> be <var>event</var>'s <a>list of exposed headers</a>.</li>
-                  <li>If <var>response</var> is a <a>CORS filtered response</a>, remove from <var>internalResponse</var>'s <a>CORS-exposed header-names list</a> all values not in <var>headers</var>.</li>
-                  <li>Else set <var>internalResponse</var>'s <a>CORS-exposed header-names list</a> to <var>headers</var>.</li>
-                  <li>Set <var>response</var> to a <a>CORS filtered response</a> of <var>internalResponse</var>.</li>
-                </ol>
-              </li>
-              <li>If <var>event</var>'s <a>canceled flag</a> is set, then:
-                <ol>
-                  <li>Set <var>eventCanceled</var> to true.</li>
-                </ol>
-              </li>
             </ol>
           </li>
+          <li>If <var>e</var>'s <a>respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
+          <li>If <var>e</var>'s <a>wait to respond flag</a> is set, wait until <var>e</var>'s <a>wait to respond flag</a> is unset.</li>
+          <li>Let <var>internalResponse</var> be <var>e</var>'s <a>potential response</a>.</li>
+          <li>If <var>internalResponse</var> is a <a>filtered response</a>, set <var>internalResponse</var> to <var>internalResponse</var>'s <a>internal response</a>.</li>
+          <li>If <var>e</var>'s <a>respond-with error flag</a> is set, set <var>handleFetchFailed</var> to true.</li>
+          <li>Else if <var>e</var>'s <a>origin</a> is null:
+            <ol>
+              <li>If <var>e</var>'s <a>list of exposed headers</a> is not empty, set <var>handleFetchFailed</var> to true.</li>
+              <li>Else if <var>e</var>'s <a>potential response</a> is a <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>e</var>'s <a>potential response</a>.</li>
+              <li>Else set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
+            </ol>
+          </li>
+          <li>Else if <var>e</var>'s <a>origin</a> is not equal to the <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
+          <li>Else if <var>e</var>'s <a>potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>e</var>'s <a>potential response</a>.</li>
+          <li>Else if <var>request</var>'s <a>response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
+          <li>Else:
+            <ol>
+              <li>Let <var>headers</var> be <var>e</var>'s <a>list of exposed headers</a>.</li>
+              <li>If <var>response</var> is a <a>CORS filtered response</a>, remove from <var>internalResponse</var>'s <a>CORS-exposed header-names list</a> all values not in <var>headers</var>.</li>
+              <li>Else set <var>internalResponse</var>'s <a>CORS-exposed header-names list</a> to <var>headers</var>.</li>
+              <li>Set <var>response</var> to a <a>CORS filtered response</a> of <var>internalResponse</var>.</li>
+            </ol>
+          </li>
+          <li>If <var>e</var>'s <a>canceled flag</a> is set, set <var>eventCanceled</var> to true.</li>
         </ol>
         <p>If <var>task</var> is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
         <p>The <var>task</var> <em class="rfc2119" title="MUST">must</em> use <var>activeWorker</var>'s <a>event loop</a> and the <a>handle fetch task source</a>.</p>
