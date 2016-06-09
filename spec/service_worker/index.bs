@@ -2188,7 +2188,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                 <li>Set <var>r</var> to the associated <a for="request">request</a> of the result of invoking the initial value of {{Request}} as constructor with <var>request</var> as its argument. If this <a>throws</a> an exception, return a <a>promise</a> rejected with that exception.</li>
               </ol>
             </li>
-            <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
           </ol>
         </li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
@@ -2267,7 +2266,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                 <li>Break the loop.</li>
               </ol>
             </li>
-            <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
             <li>Set <var>r</var>'s <a for="request">initiator</a> to "<code>fetch</code>" and <a for="request">destination</a> to "<code>subresource</code>".</li>
             <li>Add a {{Request}} object associated with <var>r</var> to <var>requestArray</var>.</li>
             <li>Let <var>responsePromise</var> be a new <a>promise</a>.</li>
@@ -2384,7 +2382,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>If <var>r</var>'s <a for="request">url</a>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
           </ol>
         </li>
-        <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
         <li>If <var>response</var>'s associated <a for="response">response</a>'s <a for="response">header list</a> contains a <a>header</a> <a for="header">named</a> `<code>Vary</code>`, then:
           <ol>
             <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a for="http">field-values</a> of the <a>Vary</a> header.</li>
@@ -2465,7 +2462,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Set <var>r</var> to the associated <a for="request">request</a> of the result of invoking the initial value of {{Request}} as constructor with <var>request</var> as its argument. If this <a>throws</a> an exception, return a <a>promise</a> rejected with that exception.</li>
           </ol>
         </li>
-        <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
         <li>Let <var>operations</var> be an empty array.</li>
         <li>Let <var>o</var> be an empty object representing a {{CacheBatchOperation}} dictionary.</li>
         <li>Set the {{CacheBatchOperation/type}} dictionary member of <var>o</var> to "delete".</li>
@@ -2515,7 +2511,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     <li>Set <var>r</var> to the associated <a for="request">request</a> of the result of invoking the initial value of {{Request}} as constructor with <var>request</var> as its argument. If this <a>throws</a> an exception, return a <a>promise</a> rejected with that exception.</li>
                   </ol>
                 </li>
-                <li>Set <var>r</var>'s <a for="request">url</a>'s <a for="url">fragment</a> to null.</li>
                 <li>Let <var>requestResponseArray</var> be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing a {{Request}} object that represents <var>r</var> and <var>options</var> as the arguments.</li>
                 <li>For each <var>requestResponse</var> in <var>requestResponseArray</var>:
                   <ol>
@@ -3062,7 +3057,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, unset it.</li>
           <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-          <li>If <var>newestWorker</var> is not null and <var>job</var>'s <a href="#dfn-job-script-url">script url</a> <a for="url">equals</a> <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a>, then:
+          <li>If <var>newestWorker</var> is not null and <var>job</var>'s <a href="#dfn-job-script-url">script url</a> <a for="url">equals</a> <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
             <ol>
               <li>If <var>newestWorker</var> is an <a href="#dfn-active-worker">active worker</a>, then:
                 <ol>
@@ -3101,7 +3096,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> is not <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, then:
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> does not <a for="url">equal</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
@@ -4107,7 +4102,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Let <var>resultArray</var> be an empty array.</li>
       <li>If <var>options</var>.{{CacheQueryOptions/ignoreMethod}} is false and <var>request</var>.<var>method</var> is neither "<code>GET</code>" nor "<code>HEAD</code>", return <var>resultArray</var>.</li>
       <li>Let <var>cachedURL</var> and <var>requestURL</var> be null.</li>
-      <li>Let <var>serializedCachedURL</var> and <var>serializedRequestURL</var> be null.</li>
       <li>If the optional argument <var>targetStorage</var> is omitted, then:
         <ol>
           <li>For each <a href="#dfn-fetching-record">fetching record</a> <var>entry</var> of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
@@ -4120,9 +4114,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Set <var>requestURL</var>'s <a for="url">query</a> to the empty string.</li>
                 </ol>
               </li>
-              <li>Set <var>serializedCachedURL</var> to <a for="url">serialized</a> <var>cachedURL</var>.</li>
-              <li>Set <var>serializedRequestURL</var> to <a for="url">serialized</a> <var>requestURL</var>.</li>
-              <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
+              <li>If <var>cachedURL</var> <a for="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
                 <ol>
                   <li>Add a copy of <var>entry</var>.\[[key]] to <var>requestArray</var>.</li>
                   <li>Add a copy of <var>entry</var>.\[[value]] to <var>responseArray</var>.</li>
@@ -4144,9 +4136,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <li>Set <var>requestURL</var>'s <a for="url">query</a> to the empty string.</li>
                 </ol>
               </li>
-              <li>Set <var>serializedCachedURL</var> to <a for="url">serialized</a> <var>cachedURL</var>.</li>
-              <li>Set <var>serializedRequestURL</var> to <a for="url">serialized</a> <var>requestURL</var>.</li>
-              <li>If <var>serializedCachedURL</var> matches <var>serializedRequestURL</var>, then:
+              <li>If <var>cachedURL</var> <a for="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
                 <ol>
                   <li>Add <var>record</var>[0] to <var>requestArray</var>.</li>
                   <li>Add <var>record</var>[1] to <var>responseArray</var>.</li>
@@ -4220,8 +4210,18 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                       <li>If <var>r</var>'s <a for="request">url</a>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", <a>throw</a> a <code>TypeError</code>.</li>
                       <li>If <var>r</var>'s <a for="request">method</a> is not `<code>GET</code>`, <a>throw</a> a <code>TypeError</code>.</li>
                       <li>If <var>operation</var>.{{CacheBatchOperation/options}} is not null, <a>throw</a> a <code>TypeError</code>.</li>
-                      <li>If there exists a corresponding <a href="#dfn-fetching-record">fetching record</a> <var>fetchingRecord</var> for <var>operation</var>.{{CacheBatchOperation/request}} and <var>operation</var>.{{CacheBatchOperation/response}} in <a href="#dfn-request-to-response-map">request to response map</a>, set <var>fetchingRecord</var>.\[[value]] to <var>operation</var>.{{CacheBatchOperation/response}}.</li>
-                      <li>Else, set a newly-created <a href="#dfn-fetching-record">fetching record</a> {\[[key]]: <var>operation</var>.{{CacheBatchOperation/request}}, \[[value]]: <var>operation</var>.{{CacheBatchOperation/response}}} to <a href="#dfn-request-to-response-map">request to response map</a>.
+                      <li>Set <var>requestResponseArray</var> to the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing <var>operation</var>.{{CacheBatchOperation/request}}.</li>
+                      <li>If <var>requestResponseArray</var> is not an empty array, then:
+                        <ol>
+                          <li>Let <var>requestResponse</var> be <var>requestResponseArray</var>[0].</li>
+                          <li>Let <var>fetchingRecord</var> be the corresponding <a href="#dfn-fetching-record">fetching record</a> for <var>requestResponse</var>[0] and <var>requestResponse</var>[1] in <a href="#dfn-request-to-response-map">request to response map</a>.</li>
+                          <li>Set <var>fetchingRecord</var>.\[[key]] to <var>operation</var>.{{CacheBatchOperation/request}} and <var>fetchingRecord</var>.\[[value]] to <var>operation</var>.{{CacheBatchOperation/response}}.</li>
+                        </ol>
+                      </li>
+                      <li>Else:
+                        <ol>
+                          <li>Set a newly-created <a href="#dfn-fetching-record">fetching record</a> {\[[key]]: <var>operation</var>.{{CacheBatchOperation/request}}, \[[value]]: <var>operation</var>.{{CacheBatchOperation/response}}} to <a href="#dfn-request-to-response-map">request to response map</a>.</li>
+                        </ol>
                         <p class="note">The cache commit is allowed as long as the response's headers are available.</p>
                       </li>
                       <li>If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" exception.</li>
