@@ -90,9 +90,9 @@ spec: html; type: dfn
     text: structured clone
     text: task sources
     text: tasks
+    text: the global object's realm
     text: the worker's documents
     text: top-level browsing context
-    text: transfer a transferable object
     text: trusted event
     text: unicode serialisation of an origin
     text: unload a document
@@ -200,6 +200,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: origin; for: resource; url: origin-2
         urlPrefix: infrastructure.html
             text: read only array; url: dfn-read-only-array
+            text: StructuredCloneWithTransfer
         urlPrefix: interaction.html
             text: has focus steps
         urlPrefix: webappapis.html
@@ -446,7 +447,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       interface ServiceWorker : EventTarget {
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
-        void postMessage(any message, optional sequence&lt;Transferable&gt; transfer);
+        void postMessage(any message, optional sequence&lt;object&gt; transfer);
 
         // event
         attribute EventHandler onstatechange;
@@ -496,25 +497,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is "<code>redundant</code>", <a>throw</a> an "{{InvalidStateError}}" exception and abort these steps. </li>
-        <li>Let <var>newPorts</var> be an empty array.</li>
-        <li>Let <var>transferMap</var> be an empty association list of {{Transferable}} objects to placeholder objects.</li>
-        <li>If the method was invoked with a second argument <var>transfer</var>, run these substeps:
-          <ol>
-            <li>If any object is listed in <var>transfer</var> more than once, or any of the {{Transferable}} objects listed in <var>transfer</var> are marked as <a>neutered</a>, then <a>throw</a> a "{{DataCloneError}}" exception and abort these steps.</li>
-            <li>For each object <var>x</var> in <var>transfer</var> in turn, add a mapping from <var>x</var> to a new unique placeholder object created for <var>x</var> to <var>transferMap</var>, and if <var>x</var> is a {{MessagePort}} object, also append the placeholder object to <var>newPorts</var>.</li>
-          </ol>
-        </li>
-        <li>Let <var>clonedMessage</var> be a <a>structured clone</a> of <var>message</var> with <var>transferMap</var> as the <var>transferMap</var>. If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>serviceWorker</var> be the <a href="#dfn-service-worker">service worker</a> represented by the <a>context object</a>.</li>
         <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>serviceWorker</var> as the argument.</li>
         <li>Let <var>destination</var> be the {{ServiceWorkerGlobalScope}} object associated with <var>serviceWorker</var>.</li>
-        <li>If the method was invoked with a second argument <var>transfer</var>, run these substeps:
-          <ol>
-            <li>Let <var>newOwner</var> be the <var>destination</var>'s <a>environment settings object</a>.</li>
-            <li>For each object <var>x</var> in <var>transfer</var> in turn, obtain a new object <var>y</var> by <a lt="transfer a transferable object">transferring</a> the object <var>x</var> to <var>newOwner</var>, and replace the placeholder object that was created for the object <var>x</var> by the new object <var>y</var> wherever the placeholder exists (i.e. in <var>clonedMessage</var> and in <var>newPorts</var>).</li>
-          </ol>
-        </li>
-        <li>Make <var>newPorts</var> into a <a>read only array</a>.</li>
+        <li>Let <var>targetRealm</var> be <var>destination</var>'s <a lt="the global object's Realm">Realm</a>.</li>
+        <li>Let <var>cloneRecord</var> be <a>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
+        <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
+        <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li><a>Queue a task</a> that runs the following steps:
           <ol>
             <li>Create an event <var>e</var> that uses the {{ExtendableMessageEvent}} interface, with the event type <a href="#service-worker-global-scope-message-event">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
@@ -1155,7 +1144,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         readonly attribute USVString url;
         readonly attribute FrameType frameType;
         readonly attribute DOMString id;
-        void postMessage(any message, optional sequence&lt;Transferable&gt; transfer);
+        void postMessage(any message, optional sequence&lt;object&gt; transfer);
       };
 
       [Exposed=ServiceWorker]
@@ -1221,24 +1210,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <p>The <dfn method for="Client" id="client-postmessage-method"><code>postMessage(<var>message</var>, <var>transfer</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
       <ol>
-        <li>Let <var>newPorts</var> be an empty array.</li>
-        <li>Let <var>transferMap</var> be an empty association list of {{Transferable}} objects to placeholder objects.</li>
-        <li>If the method was invoked with a second argument <var>transfer</var>, run these substeps:
-          <ol>
-            <li>If any object is listed in <var>transfer</var> more than once, or any of the {{Transferable}} objects listed in <var>transfer</var> are marked as <a>neutered</a>, then <a>throw</a> a "{{DataCloneError}}" exception and abort these steps.</li>
-            <li>For each object <var>x</var> in <var>transfer</var> in turn, add a mapping from <var>x</var> to a new unique placeholder object created for <var>x</var> to <var>transferMap</var>, and if <var>x</var> is a {{MessagePort}} object, also append the placeholder object to <var>newPorts</var>.</li>
-          </ol>
-        </li>
-        <li>Let <var>clonedMessage</var> be a <a>structured clone</a> of <var>message</var> with <var>transferMap</var> as the <var>transferMap</var>. If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>destination</var> be the {{ServiceWorkerContainer}} object whose <a href="#dfn-service-worker-container-interface-client">service worker client</a> is the <a>context object</a>'s <a href="#dfn-service-worker-client-client">service worker client</a>.</li>
         <li>If <var>destination</var> is null, <a>throw</a> an "{{InvalidStateError}}" exception.</li>
-        <li>If the method was invoked with a second argument <var>transfer</var>, run these substeps:
-          <ol>
-            <li>Let <var>newOwner</var> be the <var>destination</var>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
-            <li>For each object <var>x</var> in <var>transfer</var> in turn, obtain a new object <var>y</var> by <a lt="transfer a transferable object">transferring</a> the object <var>x</var> to <var>newOwner</var>, and replace the placeholder object that was created for the object <var>x</var> by the new object <var>y</var> wherever the placeholder exists (i.e. in <var>clonedMessage</var> and in <var>newPorts</var>).</li>
-          </ol>
-        </li>
-        <li>Make <var>newPorts</var> into a <a>read only array</a>.</li>
+        <li>Let <var>targetRealm</var> be <var>destination</var>'s <a lt="the global object's Realm">Realm</a>.</li>
+        <li>Let <var>cloneRecord</var> be <a>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
+        <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
+        <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li><a>Queue a task</a> that runs the following steps:
           <ol>
             <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
@@ -1614,7 +1591,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           </ol>
         </li>
         <li>Add <var>f</var> to the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
-      </ol>      
+      </ol>
     </section>
     <p>When <a>dispatching</a> an event <var>e</var> that uses the {{ExtendableEvent}} interface, the user agent <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
@@ -1630,7 +1607,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ol>
       </li>
     </ol>
-      
+
     <p>The user agent <em class="rfc2119" title="SHOULD NOT">should not</em> <a href="#terminate-service-worker-algorithm">terminate</a> the <a>service worker</a> associated with <var>e</var>'s <a>relevant settings object</a>'s <a>global object</a> until <var>e</var>'s <a>extensions allowed flag</a> is unset. However, the user agent <em class="rfc2119" title="MAY">may</em> impose a time limit to this lifetime extension.</p>
 
     <p><a href="#dfn-service-worker">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em class="rfc2119" title="MAY">may</em> define their own behaviors, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
