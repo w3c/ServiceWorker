@@ -203,6 +203,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: creation url
             text: dom manipulation task source
             text: fire a simple event
+            text: relevant global object; url: concept-relevant-global
             text: report the error
             text: task queue; for: event loop
         urlPrefix: workers.html
@@ -655,6 +656,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         [NewObject] Promise&lt;any&gt; getRegistration(optional USVString clientURL = "");
         [NewObject] Promise&lt;sequence&lt;ServiceWorkerRegistration&gt;&gt; getRegistrations();
 
+        void startMessages();
+
 
         // events
         attribute EventHandler oncontrollerchange;
@@ -675,6 +678,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
   <p>A {{ServiceWorkerContainer}} has an associated <dfn id="dfn-service-worker-container-interface-client" for=ServiceWorkerContainer>service worker client</dfn>, which is a <a href="#dfn-service-worker-client">service worker client</a> whose <a>global object</a> is associated with the {{Navigator}} object or the {{WorkerNavigator}} object that the {{ServiceWorkerContainer}} is retrieved from.</p>
 
   <p>A {{ServiceWorkerContainer}} object has an associated <dfn id="dfn-ready-promise">ready promise</dfn> (a <a>promise</a>). It is initially set to a new <a>promise</a>.</p>
+
+  <p>A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn id="dfn-client-message-queue">client message queue</dfn>, initially empty. A <a>client message queue</a> can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's <a>client message queue</a> is enabled, the <a>event loop</a> <em class="rfc2119" title="MUST">must</em> use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its <a>client message queue</a> <em class="rfc2119" title="MUST">must</em> be associated with its <a>relevant settings object</a>'s <a>responsible document</a>.</p>
 
     <section algorithm="navigator-service-worker-controller">
       <h4 id="navigator-service-worker-controller">{{ServiceWorkerContainer/controller}}</h4>
@@ -806,6 +811,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       </ol>
     </section>
 
+    <section algorithm="navigator-service-worker-startMessages">
+      <h4 id="navigator-service-worker-startMessages">{{ServiceWorkerContainer/startMessages()}}</h4>
+
+      <p><dfn method id="service-worker-container-startMessages-method"><code>startMessages()</code></dfn> method <em class="rfc2119" title="MUST">must</em> enable <a>context object</a>'s <a>client message queue</a> if it is not enabled.</p>
+    </section>
+
     <section>
       <h4 id="service-worker-container-event-handlers">Event handlers</h4>
 
@@ -833,6 +844,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           </tr>
         </tbody>
       </table>
+
+      <p>The first time the <a>context object</a>'s <a href="#service-worker-container-onmessage-attribute">onmessage</a> IDL attribute is set, its <a>client message queue</a> <em class="rfc2119" title="MUST">must</em> be enabled.</p>
     </section>
   </section>
 
@@ -1183,7 +1196,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>cloneRecord</var> be <a>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
-        <li><a>Queue a task</a> that runs the following steps:
+        <li>Add a <a>task</a> that runs the following steps to <var>destination</var>'s <a>client message queue</a>:
           <ol>
             <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble, is not cancelable, and has no default action.</li>
             <li>Let the {{ServiceWorkerMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
@@ -1192,7 +1205,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Let the {{ServiceWorkerMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
-          <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use the <a>DOM manipulation task source</a>, and, for those where the <a>event loop</a> specified by the target {{ServiceWorkerContainer}} object's <a href="#dfn-service-worker-container-interface-client">service worker client</a> is a <a>browsing context</a> <a>event loop</a>, <em class="rfc2119" title="MUST">must</em> be associated with the <a>responsible document</a> specified by that target {{ServiceWorkerContainer}} object's <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</p>
         </li>
       </ol>
     </section>
@@ -1456,7 +1468,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>url</var> be the result of <a for="url">parsing</a> <var>url</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
         <li>If <var>url</var> is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
         <li>If <var>url</var> is <code><a>about:blank</a></code>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
-        <li>If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "<{{InvalidAccessError}}" exception.</li>
+        <li>If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" exception.</li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
