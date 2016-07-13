@@ -1572,23 +1572,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p><a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em class="rfc2119" title="MAY">may</em> also use or extend the {{ExtendableEvent}} interface.</p>
 
-    <section algorithm="wait-until-method">
-      <h4 id="wait-until-method">{{ExtendableEvent/waitUntil(f)|event.waitUntil(f)}}</h4>
-
-      <p>{{ExtendableEvent/waitUntil(f)}} method extends the lifetime of the event.</p>
-
-      <p><dfn method for="ExtendableEvent" id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
-
-      <ol>
-        <li>If the <a>extensions allowed flag</a> is unset, then:
-          <ol>
-            <li><a>Throw</a> an "{{InvalidStateError}}" exception.</li>
-            <li>Abort these steps.</li>
-          </ol>
-        </li>
-        <li>Add <var>f</var> to the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
-      </ol>
-    </section>
     <p>When <a>dispatching</a> an event <var>e</var> that uses the {{ExtendableEvent}} interface, the user agent <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
 
     <ol>
@@ -1606,13 +1589,31 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The user agent <em class="rfc2119" title="SHOULD NOT">should not</em> <a href="#terminate-service-worker-algorithm">terminate</a> the <a for="/">service worker</a> associated with <var>e</var>'s <a>relevant settings object</a>'s <a>global object</a> until <var>e</var>'s <a>extensions allowed flag</a> is unset. However, the user agent <em class="rfc2119" title="MAY">may</em> impose a time limit to this lifetime extension.</p>
 
+    <section algorithm="wait-until-method">
+      <h4 id="wait-until-method">{{ExtendableEvent/waitUntil(f)|event.waitUntil(f)}}</h4>
+
+      <p>{{ExtendableEvent/waitUntil(f)}} method extends the lifetime of the event.</p>
+
+      <p><dfn method for="ExtendableEvent" id="extendable-event-waituntil-method"><code>waitUntil(<var>f</var>)</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps or their <a href="#dfn-processing-equivalence">equivalent</a>:</p>
+
+      <ol>
+        <li>If the <a>extensions allowed flag</a> is unset, then:
+          <ol>
+            <li><a>Throw</a> an "{{InvalidStateError}}" exception.</li>
+            <li>Abort these steps.</li>
+          </ol>
+        </li>
+        <li>Add <var>f</var> to the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a>.</li>
+      </ol>
+    </section>
+
     <p><a href="#dfn-service-worker">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em class="rfc2119" title="MAY">may</em> define their own behaviors, allowing the <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a href="#dfn-extend-lifetime-promises">extend lifetime promises</a> to suggest operation failure.</p>
 
-    <p><a href="#dfn-service-worker">Service workers</a> define the following behaviors for <code><a href="#service-worker-global-scope-install-event">install</a></code> event and <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event:</p>
+    <p><a href="#dfn-service-worker">Service workers</a> define the following behaviors for <code><a href="#service-worker-global-scope-install-event">install</a></code> event and <code><a href="#service-worker-global-scope-activate-event">activate</a></code> event, respectively:</p>
 
     <ul>
-      <li>When called in {{ServiceWorkerGlobalScope/oninstall}}, it delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until the passed <a>promise</a> <var>f</var> resolves successfully. (See step 11.5.1 of <a href="#installation-algorithm">Install</a> algorithm.) If <var>f</var> rejects, the installation fails. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
-      <li>When called in {{ServiceWorkerGlobalScope/onactivate}}, it delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until the passed <a>promise</a> <var>f</var> settles. (See step 13 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
+      <li>Adding a <a>promise</a> <var>f</var> to the event's <a>extend lifetime promises</a> delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all the <a>promises</a> in the <a>extend lifetime promises</a> resolve successfully. (See step 11.3.1 of <a href="#installation-algorithm">Install</a> algorithm.) If <var>f</var> rejects, the installation fails. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
+      <li>Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
     </ul>
   </section>
 
@@ -3020,32 +3021,17 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a>environment settings object</a>'s <a>global object</a> <var>globalObject</var>.</li>
-          <li>For each <a>event listener</a> <a>invoked</a>:
+          <li><em>WaitForAsynchronousExtensions</em>: Run the following substeps <a>in parallel</a>:
             <ol>
-              <li>If any uncaught runtime script error occurs, then:
-                <ol>
-                  <li><a>Report the error</a> for the script per the <a>runtime script errors handling</a>.</li>
-                  <li>Set <var>redundantWorker</var> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
-                  <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>installing</code>" and null as the arguments.</li>
-                  <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>redundantWorker</var> and <em>redundant</em> as the arguments.</li>
-                  <li>If <var>newestWorker</var> is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</li>
-                  <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
-          <li>Let <var>p</var> be <a>waiting for all</a> of <var>e</var>'s <a>extend lifetime promises</a>.</li>
-          <li>Run the following substeps <a>in parallel</a>:
-            <ol>
-              <li>Wait until <var>p</var> settles.</li>
-              <li>If <var>p</var> rejected, set <var>installFailed</var> to true.</li>
-              <li>Else if <var>p</var> resolved with a value, do nothing.</li>
+              <li>Wait until <var>e</var>'s <a>extensions allowed flag</a> is unset.</li>
+              <li>If the result of <a>waiting for all</a> of <var>e</var>'s <a>extend lifetime promises</a> rejected, set <var>installFailed</var> to true.</li>
             </ol>
           </li>
         </ol>
       </li>
       <p>If <var>task</var> is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>installingWorker</var>, set <var>installFailed</var> to true.</p>
       <li>Wait for <var>task</var> to have executed or been discarded.</li>
+      <li>Wait for the step labeled <em>WaitForAsynchronousExtensions</em> to complete.</li>
       <li>If <var>installFailed</var> is true, then:
         <ol>
           <li>Set <var>redundantWorker</var> to <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
@@ -3125,15 +3111,11 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble, is not cancelable, and has no default action.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a>global object</a>.</li>
-          <li>For each <a>event listener</a> <a>invoked</a>:
-            <ol>
-              <li>If any uncaught runtime script error occurs, <a>report the error</a> for the script per the <a>runtime script errors handling</a>.</li>
-            </ol>
-          </li>
-          <li>Let <var>p</var> be <a>waiting for all</a> of <var>e</var>'s <a>extend lifetime promises</a>.</li>
+          <li><em>WaitForAsynchronousExtensions</em>: Wait, <a>in parallel</a>, until <var>e</var>'s <a>extensions allowed flag</a> is unset.</li>
         </ol>
       </li>
-      <li>Wait for <var>task</var> to have executed and <var>p</var> defined in <var>task</var> has settled, or <var>task</var> to have been discarded or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>.</li>
+      <li>Wait for <var>task</var> to have executed or been discarded, or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>.</li>
+      <li>Wait for the step labeled <em>WaitForAsynchronousExtensions</em> to complete.</li>
       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> and <em>activated</em> as the arguments.</li>
     </ol>
   </section>
@@ -3281,16 +3263,6 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Let the <a href="#fetch-event-clientid-attribute">clientId</a> attribute of <var>e</var> be initialized to <var>client</var>'s <a href="#dfn-service-worker-client-id">id</a> if <var>request</var> is not a <a>non-subresource request</a>, and to null otherwise.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a>global object</a>.</li>
-          <li>For each <a>event listener</a> <a>invoked</a>:
-            <ol>
-              <li>If any uncaught runtime script error occurs, then:
-                <ol>
-                  <li><a>Report the error</a> for the script per the <a>runtime script errors handling</a>.</li>
-                  <li>Abort these steps.</li>
-                </ol>
-              </li>
-            </ol>
-          </li>
           <li>If <var>e</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
           <li>If <var>e</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
             <ol>
