@@ -34,9 +34,7 @@ First you need to register for a service worker:
 
 ```js
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/my-app/sw.js', {
-    scope: '/my-app/'
-  }).then(function(reg) {
+  navigator.serviceWorker.register('/my-app/sw.js').then(function(reg) {
     console.log('Yey!', reg);
   }).catch(function(err) {
     console.log('Boo!', err);
@@ -44,7 +42,7 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins `/my-app/`. The scope is optional, and defaults to `/`.
+In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins `/my-app/`.
 
 `.register` returns a promise. If you’re new to promises, check out the [HTML5Rocks article](http://www.html5rocks.com/en/tutorials/es6/promises/).
 
