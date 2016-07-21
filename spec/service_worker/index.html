@@ -35,7 +35,6 @@
  *   - .note       for informative notes             (div, p, span, aside, details)
  *   - .example    for informative examples          (div, p, pre, span)
  *   - .issue      for issues                        (div, p, span)
- *   - .assertion  for assertions                    (div, p, span)
  *   - .advisement for loud normative statements     (div, p, strong)
  *   - .annoying-warning for spec obsoletion notices (div, aside, details)
  *
@@ -599,7 +598,7 @@
 /*                             Colored Boxes                                  */
 /******************************************************************************/
 
-	.issue, .note, .example, .assertion, .advisement, blockquote {
+	.issue, .note, .example, .advisement, blockquote {
 		padding: .5em;
 		border: .5em;
 		border-left-style: solid;
@@ -614,7 +613,6 @@
 	.note,
 	.example,
 	.advisement,
-	.assertion,
 	blockquote {
 		margin: 1em auto;
 	}
@@ -692,14 +690,6 @@
 	}
 	details.note[open] > summary {
 		border-bottom: 1px silver solid;
-	}
-
-/** Assertion Box *************************************************************/
-	/*  for assertions in algorithms */
-
-	.assertion {
-		border-color: #AAA;
-		background: #EEE;
 	}
 
 /** Advisement Box ************************************************************/
@@ -1409,7 +1399,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-29">29 July 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-08-03">3 August 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -2904,6 +2894,7 @@ pre.idl.highlight { color: #708090; }
        <li>Set the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.
        <li>Set the <a href="#respond-with-entered-flag" id="ref-for-respond-with-entered-flag-2">respond-with entered flag</a>.
        <li>Set the <a href="#wait-to-respond-flag" id="ref-for-wait-to-respond-flag-1">wait to respond flag</a>.
+       <li>Let <var>targetRealm</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a> of the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>. 
        <li>
         Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
         <ol>
@@ -2927,18 +2918,41 @@ pre.idl.highlight { color: #708090; }
              <li>
               Else: 
               <ol>
-               <li>Let <var>potentialResponse</var> be a copy of <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.
+               <li>Let <var>bytes</var> be an empty byte sequence. 
+               <li>Let <var>end-of-body</var> be false. 
+               <li>Let <var>done</var> be false. 
+               <li>Let <var>potentialResponse</var> be a copy of <var>response</var>’s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>.
                <li>
                 If <var>response</var>’s body is non-null, run these substeps: 
                 <ol>
-                 <li>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.
-                 <li>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object.
-                 <li>Set <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>dummyStream</var>.
-                 <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>dummyStream</var>.
-                 <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.
+                 <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a>.
+                 <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.
+                 <li>
+                  Let <var>pull</var> be an action that runs these subsubsteps: 
+                  <ol>
+                   <li>Let <var>promise</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-chunk-from-reader">reading</a> a chunk from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> with <var>reader</var>.
+                   <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
+                   <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.
+                   <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-error-readablestream">error</a> <var>newStream</var> with a <code>TypeError</code>.
+                  </ol>
+                 <li>Let <var>cancel</var> be an action that <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-cancel-stream-reader">cancels</a> <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> with <var>reader</var>.
+                 <li>Let <var>newStream</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-construct-readablestream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.
+                 <li>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>newStream</var>.
+                 <li>Run these subsubsteps repeatedly <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a> while <var>done</var> is false:
+                 <ol>
+                  <li>If <var>newStream</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream-errored">errored</a>, then set <var>done</var> to true.
+                  <li>Otherwise, if <var>bytes</var> is empty and <var>end-of-body</var> is true, then <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-close-readablestream">close</a> <var>newStream</var> and set <var>done</var> to true.
+                  <li>
+                   Otherwise, if <var>bytes</var> is not empty, run these subsubsubsteps: 
+                   <ol>
+                    <li>Let <var>chunk</var> be a subsequence of <var>bytes</var> starting from the beginning of <var>bytes</var>.
+                    <li>Remove <var>chunk</var> from <var>bytes</var>. 
+                    <li>Let <var>buffer</var> be an <code>ArrayBuffer</code> object created in <var>targetRealm</var> and containing <var>chunk</var>. 
+                    <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-enqueue-readablestream">Enqueue</a> a <code>Uint8Array</code> object created in <var>targetRealm</var> and wrapping <var>buffer</var> to <var>newStream</var>. 
+                   </ol>
+                 </ol>
                 </ol>
-                <p class="note" role="note">These substeps are meant to produce the observable equivalent of "piping" response’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object that is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, while the data readable from potentialResponse’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is now equal to what used to be response’s, if response’s original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
-                <p class="issue" id="issue-f6f6de6b"><a class="self-link" href="#issue-f6f6de6b"></a>These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
+                <p class="note" role="note">These substeps are meant to produce the observable equivalent of "piping" <var>response</var>’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> into <var>potentialResponse</var>.</p>
                <li>Set the <a data-link-type="dfn" href="#fetchevent-potential-response" id="ref-for-fetchevent-potential-response-1">potential response</a> to <var>potentialResponse</var>.
               </ol>
             </ol>
@@ -3012,6 +3026,7 @@ pre.idl.highlight { color: #708090; }
        <li>Set the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.
        <li>Set the <a href="#respond-with-entered-flag" id="ref-for-respond-with-entered-flag-4">respond-with entered flag</a>.
        <li>Set the <a href="#wait-to-respond-flag" id="ref-for-wait-to-respond-flag-3">wait to respond flag</a>.
+       <li>Let <var>targetRealm</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a> of the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>. 
        <li>
         Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>: 
         <ol>
@@ -3037,18 +3052,40 @@ pre.idl.highlight { color: #708090; }
              <li>
               Else: 
               <ol>
+               <li>Let <var>bytes</var> be an empty byte sequence. 
+               <li>Let <var>end-of-body</var> be false. 
+               <li>Let <var>done</var> be false. 
                <li>Let <var>potentialResponse</var> be a copy of <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-2">response</a></code>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.
                <li>
                 If <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-3">response</a></code>'s body is non-null, run these substeps: 
                 <ol>
-                 <li>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-4">response</a></code>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.
-                 <li>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object.
-                 <li>Set <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-5">response</a></code>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>dummyStream</var>.
-                 <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>dummyStream</var>.
-                 <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.
+                 <li>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader">getting a reader</a> from <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-4">response</a></code>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a>.
+                 <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.
+                 <li>
+                  Let <var>pull</var> be an action that runs these subsubsteps: 
+                  <ol>
+                   <li>Let <var>promise</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-chunk-from-reader">reading</a> a chunk from <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-5">response</a></code>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> with <var>reader</var>.
+                   <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
+                   <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.
+                   <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-error-readablestream">error</a> <var>newStream</var> with a <code>TypeError</code>.
+                  </ol>
+                 <li>Let <var>cancel</var> be an action that <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-cancel-stream-reader">cancels</a> <var>response</var>.<code class="idl"><a data-link-type="idl" href="#dom-foreignfetchresponse-response" id="ref-for-dom-foreignfetchresponse-response-6">response</a></code>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> with <var>reader</var>.
+                 <li>Let <var>newStream</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-construct-readablestream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.
+                 <li>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is <var>newStream</var>.
+                 <li>Run these subsubsteps repeatedly <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a> while <var>done</var> is false:
+                 <ol>
+                  <li>If <var>newStream</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream-errored">errored</a>, then set <var>done</var> to true.
+                  <li>Otherwise, if <var>bytes</var> is empty and <var>end-of-body</var> is true, then <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-close-readablestream">close</a> <var>newStream</var> and set <var>done</var> to true.
+                  <li>
+                   Otherwise, if <var>bytes</var> is not empty, run these subsubsubsteps: 
+                   <ol>
+                    <li>Let <var>chunk</var> be a subsequence of <var>bytes</var> starting from the beginning of <var>bytes</var>.
+                    <li>Remove <var>chunk</var> from <var>bytes</var>. 
+                    <li>Let <var>buffer</var> be an <code>ArrayBuffer</code> object created in <var>targetRealm</var> and containing <var>chunk</var>. 
+                    <li><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-enqueue-readablestream">Enqueue</a> a <code>Uint8Array</code> object created in <var>targetRealm</var> and wrapping <var>buffer</var> to <var>newStream</var>. 
+                   </ol>
+                 </ol>
                 </ol>
-                <p class="note" role="note">These substeps are meant to produce the observable equivalent of "piping" response’s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-readablestream">ReadableStream</a> object that is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a> and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked">locked</a>, while the data readable from potentialResponse’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a> is now equal to what used to be response’s, if response’s original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
-                <p class="issue" id="issue-f6f6de6b0"><a class="self-link" href="#issue-f6f6de6b0"></a>These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
                <li>Set the <a data-link-type="dfn" href="#foreignfetchevent-potential-response" id="ref-for-foreignfetchevent-potential-response-1">potential response</a> to <var>potentialResponse</var>.
               </ol>
             </ol>
@@ -5754,12 +5791,18 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-body">body</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-cache-state">cache state</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-cancel-stream-reader">cancel a reader</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-close-readablestream">close readablestream</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-construct-readablestream">construct a readablestream</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors">cors filtered response</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-cors-exposed-header-names-list">cors-exposed header-names list</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-disturbed">disturbed</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">empty</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-enqueue-readablestream">enqueue a chunk to readablestream</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-error-readablestream">error readablestream</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-readablestream-errored">errored</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-header-extract-mime-type">extract a mime type</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-fetch">fetch</a>
      <li><a href="https://fetch.spec.whatwg.org/#dom-global-fetch">fetch(input, init)</a>
@@ -5787,6 +5830,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#potential-navigation-or-subresource-request">potential-navigation-or-subresource request</a>
      <li><a href="https://fetch.spec.whatwg.org/#process-response">process response</a>
      <li><a href="https://fetch.spec.whatwg.org/#process-response-end-of-file">process response end-of-file</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-read-chunk-from-reader">read a chunk from a reader</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream">read all bytes</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-readablestream">readablestream</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
@@ -5866,6 +5910,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context">realm execution context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant realm</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#replacement-enabled">replacement enabled</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-browsing-context">responsible browsing context</a>
@@ -6273,8 +6318,6 @@ interface FunctionalEvent : ExtendableEvent {
 </pre>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
-   <div class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.<a href="#issue-f6f6de6b"> ↵ </a></div>
-   <div class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.<a href="#issue-f6f6de6b0"> ↵ </a></div>
    <div class="issue">Remove this definition after sorting out the referencing sites.<a href="#issue-b739bfcf"> ↵ </a></div>
    <div class="issue">This needs an extra step in the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-http-fetch">HTTP fetch</a> algorithm in between step 3 and 4, to call this algorithm for all requests if response is null at that point.<a href="#issue-298020d1"> ↵ </a></div>
   </div>
@@ -7525,7 +7568,7 @@ interface FunctionalEvent : ExtendableEvent {
   <aside class="dfn-panel" data-for="dom-foreignfetchresponse-response">
    <b><a href="#dom-foreignfetchresponse-response">#dom-foreignfetchresponse-response</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-foreignfetchresponse-response-1">4.7.3. event.respondWith(r)</a> <a href="#ref-for-dom-foreignfetchresponse-response-2">(2)</a> <a href="#ref-for-dom-foreignfetchresponse-response-3">(3)</a> <a href="#ref-for-dom-foreignfetchresponse-response-4">(4)</a> <a href="#ref-for-dom-foreignfetchresponse-response-5">(5)</a>
+    <li><a href="#ref-for-dom-foreignfetchresponse-response-1">4.7.3. event.respondWith(r)</a> <a href="#ref-for-dom-foreignfetchresponse-response-2">(2)</a> <a href="#ref-for-dom-foreignfetchresponse-response-3">(3)</a> <a href="#ref-for-dom-foreignfetchresponse-response-4">(4)</a> <a href="#ref-for-dom-foreignfetchresponse-response-5">(5)</a> <a href="#ref-for-dom-foreignfetchresponse-response-6">(6)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-foreignfetchresponse-origin">
