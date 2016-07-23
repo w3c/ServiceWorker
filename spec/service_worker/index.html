@@ -1163,6 +1163,12 @@ Possible extra rowspan handling
             [data-md] > :last-child {
                 margin-bottom: 0;
             }</style>
+<style>/* style-hidedel */
+
+            #hidedel:checked ~ del, #hidedel:checked ~ * del { display:none; }
+            #hidedel ~ #hidedel-label::before, #hidedel ~ * #hidedel-label::before { content: "☐ "; }
+            #hidedel:checked ~ #hidedel-label::before, #hidedel:checked ~ * #hidedel-label::before { content: "☑ "; }
+        </style>
 <style>/* style-selflinks */
 
             .heading, .issue, .note, .example, li, dt {
@@ -1396,10 +1402,11 @@ pre.idl.highlight { color: #708090; }
         .highlight .il { color: #000000 } /* Literal.Number.Integer.Long */
         </style>
  <body class="h-entry">
+  <input id="hidedel" style="display:none" type="checkbox">
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-21">21 July 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-07-23">23 July 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1416,6 +1423,9 @@ pre.idl.highlight { color: #708090; }
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:jungkee.song@samsung.com">Jungkee Song</a> (<span class="p-org org">Samsung Electronics</span>)
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:jakearchibald@chromium.org">Jake Archibald</a> (<span class="p-org org">Google</span>)
      <dd class="editor p-author h-card vcard"><a class="p-name fn u-email email" href="mailto:mek@chromium.org">Marijn Kruisselbrink</a> (<span class="p-org org">Google</span>)
+     <dt>Toggle Diffs:
+     <dd>
+      <label for="hidedel" id="hidedel-label">Hide deleted text</label>
     </dl>
    </div>
    <div data-fill-with="warning"></div>
@@ -4596,7 +4606,7 @@ interface FunctionalEvent : ExtendableEvent {
           </ol>
          <li>Else if <var>e</var>’s <a data-link-type="dfn" href="#foreignfetchevent-origin" id="ref-for-foreignfetchevent-origin-3">origin</a> is not equal to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialization</a> of <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-origin">origin</a>, set <var>handleFetchFailed</var> to true.
          <li>Else if <var>e</var>’s <a data-link-type="dfn" href="#foreignfetchevent-potential-response" id="ref-for-foreignfetchevent-potential-response-5">potential response</a> is an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">opaque filtered response</a> or is an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque-redirect">opaque-redirect filtered response</a>, set <var>response</var> to <var>e</var>’s <a data-link-type="dfn" href="#foreignfetchevent-potential-response" id="ref-for-foreignfetchevent-potential-response-6">potential response</a>.
-         <li>Else if <var>request</var>’s <a data-link-type="dfn">response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">opaque filtered response</a> of <var>internalResponse</var>.
+         <li>Else if <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-response-tainting">response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque">opaque filtered response</a> of <var>internalResponse</var>.
          <li>
           Else: 
           <ol>
@@ -5792,6 +5802,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request">request</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>
+     <li><a href="https://fetch.spec.whatwg.org/#concept-request-response-tainting">response tainting</a>
      <li><a href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip service worker flag</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a>
