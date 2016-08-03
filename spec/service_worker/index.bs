@@ -132,9 +132,15 @@ spec: csp2; urlPrefix: https://w3c.github.io/webappsec-csp/2/
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
         text: basic filtered response; url: concept-filtered-response-basic
+        text: cancel a reader; url: concept-cancel-stream-reader
+        text: close ReadableStream; url: concept-close-readablestream
+        text: construct a ReadableStream; url: concept-construct-readablestream
         text: CORS filtered response; url: concept-filtered-response-cors
         text: disturbed; url: concept-body-disturbed
         text: empty; url: concept-empty-readablestream
+        text: enqueue a chunk to ReadableStream; url: concept-enqueue-readablestream
+        text: error ReadableStream; url: concept-error-readablestream
+        text: errored; url: concept-readablestream-errored
         text: extract a mime type; url: concept-header-extract-mime-type
         text: fetch; url: concept-fetch
         text: filtered response; url: concept-filtered-response
@@ -152,6 +158,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: potential-navigation-or-subresource request
         text: process response
         text: process response end-of-file
+        text: read a chunk from a reader; url: concept-read-chunk-from-reader
         text: read all bytes; url: concept-read-all-bytes-from-readablestream
         text: ReadableStream; url: concept-readablestream
         text: request; for: fetch; url: concept-request
@@ -216,6 +223,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: https state; for: environment settings object
             text: module script
             text: realm execution context
+            text: relevant Realm; url: concept-relevant-realm
             text: relevant global object; url: concept-relevant-global
             text: report the error
             text: run a classic script
@@ -1753,6 +1761,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
+        <li>Let <var>targetRealm</var> be the <a>relevant Realm</a> of the <a>context object</a>.
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
             <li>Wait until <var>r</var> settles.</li>
@@ -1772,17 +1781,41 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     </li>
                     <li>Else:
                       <ol>
-                        <li>Let <var>potentialResponse</var> be a copy of <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.</li>
+                        <li>Let <var>bytes</var> be an empty byte sequence.
+                        <li>Let <var>end-of-body</var> be false.
+                        <li>Let <var>done</var> be false.
+                        <li>Let <var>potentialResponse</var> be a copy of <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its <a>body</a>.</li>
                         <li>If <var>response</var>'s body is non-null, run these substeps:
                           <ol>
-                            <li>Set <var>potentialResponse</var>'s <a>body</a> to <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.</li>
-                            <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
-                            <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
-                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
-                            <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
+                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>response</var>'s <a>body</a>'s <a>stream</a>.</li>
+                            <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.</li>
+                            <li>Let <var>pull</var> be an action that runs these subsubsteps:
+                              <ol>
+                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a reader">reading</a> a chunk from <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                                <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.</li>
+                                <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.</li>
+                                <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a lt="error ReadableStream">error</a> <var>newStream</var> with a <code>TypeError</code>.</li>
+                              </ol>
+                            </li>
+                            <li>Let <var>cancel</var> be an action that <a lt="cancel a reader">cancels</a> <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                            <li>Let <var>newStream</var> be the result of <a lt="construct a ReadableStream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.</li>
+                            <li>Set <var>potentialResponse</var>'s <a>body</a> to a new <a>body</a> whose <a>stream</a> is <var>newStream</var>.</li>
+                            <li>Run these subsubsteps repeatedly <a>in parallel</a> while <var>done</var> is false:</li>
+                              <ol>
+                                <li>If <var>newStream</var> is <a>errored</a>, then set <var>done</var> to true.</li>
+                                <li>Otherwise, if <var>bytes</var> is empty and <var>end-of-body</var> is true, then <a lt="close ReadableStream">close</a> <var>newStream</var> and set <var>done</var> to true.</li>
+                                <li>Otherwise, if <var>bytes</var> is not empty, run these subsubsubsteps:
+                                  <ol>
+                                    <li>Let <var>chunk</var> be a subsequence of <var>bytes</var> starting from the beginning of <var>bytes</var>.</li>
+                                    <li>Remove <var>chunk</var> from <var>bytes</var>.
+                                    <li>Let <var>buffer</var> be an <code>ArrayBuffer</code> object created in <var>targetRealm</var> and containing <var>chunk</var>.
+                                    <li><a lt="enqueue a chunk to ReadableStream">Enqueue</a> a <code>Uint8Array</code> object created in <var>targetRealm</var> and wrapping <var>buffer</var> to <var>newStream</var>.
+                                  </ol>
+                                </li>
+                              </ol>
+                            </li>
                           </ol>
-                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" response's <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>'s <a>stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a>ReadableStream</a> object that is <a>disturbed</a> and <a>locked</a>, while the data readable from potentialResponse's <a>body</a>'s <a>stream</a> is now equal to what used to be response's, if response's original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
-                          <p class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
+                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>'s <a>stream</a> into <var>potentialResponse</var>.</p>
                         </li>
                         <li>Set the <a>potential response</a> to <var>potentialResponse</var>.</li>
                       </ol>
@@ -1874,6 +1907,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.</li>
         <li>Set the <a href="#respond-with-entered-flag">respond-with entered flag</a>.</li>
         <li>Set the <a href="#wait-to-respond-flag">wait to respond flag</a>.</li>
+        <li>Let <var>targetRealm</var> be the <a>relevant Realm</a> of the <a>context object</a>.
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
             <li>Wait until <var>r</var> settles.</li>
@@ -1895,17 +1929,40 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     </li>
                     <li>Else:
                       <ol>
+                        <li>Let <var>bytes</var> be an empty byte sequence.
+                        <li>Let <var>end-of-body</var> be false.
+                        <li>Let <var>done</var> be false.
                         <li>Let <var>potentialResponse</var> be a copy of <var>response</var>.{{ForeignFetchResponse/response}}'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its body.</li>
                         <li>If <var>response</var>.{{ForeignFetchResponse/response}}'s body is non-null, run these substeps:
                           <ol>
-                            <li>Set <var>potentialResponse</var>'s <a>body</a> to <var>response</var>.{{ForeignFetchResponse/response}}'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>.</li>
-                            <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
-                            <li>Set <var>response</var>.{{ForeignFetchResponse/response}}'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
-                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
-                            <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
+                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>response</var>.{{ForeignFetchResponse/response}}'s <a>body</a>'s <a>stream</a>.</li>
+                            <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.</li>
+                            <li>Let <var>pull</var> be an action that runs these subsubsteps:
+                              <ol>
+                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a reader">reading</a> a chunk from <var>response</var>.{{ForeignFetchResponse/response}}'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                                <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.</li>
+                                <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.</li>
+                                <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a lt="error ReadableStream">error</a> <var>newStream</var> with a <code>TypeError</code>.</li>
+                              </ol>
+                            </li>
+                            <li>Let <var>cancel</var> be an action that <a lt="cancel a reader">cancels</a> <var>response</var>.{{ForeignFetchResponse/response}}'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                            <li>Let <var>newStream</var> be the result of <a lt="construct a ReadableStream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.</li>
+                            <li>Set <var>potentialResponse</var>'s <a>body</a> to a new <a>body</a> whose <a>stream</a> is <var>newStream</var>.</li>
+                            <li>Run these subsubsteps repeatedly <a>in parallel</a> while <var>done</var> is false:</li>
+                              <ol>
+                                <li>If <var>newStream</var> is <a>errored</a>, then set <var>done</var> to true.</li>
+                                <li>Otherwise, if <var>bytes</var> is empty and <var>end-of-body</var> is true, then <a lt="close ReadableStream">close</a> <var>newStream</var> and set <var>done</var> to true.</li>
+                                <li>Otherwise, if <var>bytes</var> is not empty, run these subsubsubsteps:
+                                  <ol>
+                                    <li>Let <var>chunk</var> be a subsequence of <var>bytes</var> starting from the beginning of <var>bytes</var>.</li>
+                                    <li>Remove <var>chunk</var> from <var>bytes</var>.
+                                    <li>Let <var>buffer</var> be an <code>ArrayBuffer</code> object created in <var>targetRealm</var> and containing <var>chunk</var>.
+                                    <li><a lt="enqueue a chunk to ReadableStream">Enqueue</a> a <code>Uint8Array</code> object created in <var>targetRealm</var> and wrapping <var>buffer</var> to <var>newStream</var>.
+                                  </ol>
+                                </li>
+                              </ol>
+                            </li>
                           </ol>
-                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" response's <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>'s <a>stream</a> into potentialResponse. That is, response is left with a <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> with a <a>ReadableStream</a> object that is <a>disturbed</a> and <a>locked</a>, while the data readable from potentialResponse's <a>body</a>'s <a>stream</a> is now equal to what used to be response's, if response's original <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> is non-null.</p>
-                          <p class="issue">These substeps will be replaced by <a href="https://github.com/slightlyoff/ServiceWorker/issues/850#issuecomment-197893295">using pipe</a> when the algorithm for <a href="https://streams.spec.whatwg.org/#rs-pipe-to">pipeTo</a> becomes stable.</p>
                         </li>
                         <li>Set the <a>potential response</a> to <var>potentialResponse</var>.</li>
                       </ol>
