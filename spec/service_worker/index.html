@@ -4130,12 +4130,8 @@ interface FunctionalEvent : ExtendableEvent {
          <li>
           If <var>newestWorker</var> is not null and <var>job</var>’s <a href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>newestWorker</var>’s <a href="#dfn-script-url" id="ref-for-dfn-script-url-3">script url</a> with the <em>exclude fragments flag</em> set, then: 
           <ol>
-           <li>
-            If <var>newestWorker</var> is an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-22">active worker</a>, then: 
-            <ol>
-             <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#service-worker-registration-interface" id="ref-for-service-worker-registration-interface-17">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.
-             <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.
-            </ol>
+           <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#service-worker-registration-interface" id="ref-for-service-worker-registration-interface-17">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.
+           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.
           </ol>
         </ol>
        <li>
@@ -4365,16 +4361,16 @@ interface FunctionalEvent : ExtendableEvent {
        <li>If <var>registration</var>’s <a href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-12">waiting worker</a> is null, abort these steps.
        <li>Let <var>redundantWorker</var> be null.
        <li>
-        If <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-23">active worker</a> is not null, then: 
+        If <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-22">active worker</a> is not null, then: 
         <ol>
-         <li>Set <var>redundantWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-24">active worker</a>.
+         <li>Set <var>redundantWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-23">active worker</a>.
          <li>Wait for <var>redundantWorker</var> to finish handling any in-progress requests. 
          <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>redundantWorker</var>.
         </ol>
        <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>active</code>" and <var>registration</var>’s <a href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-13">waiting worker</a> as the arguments.
        <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>waiting</code>" and null as the arguments.
        <li>
-        Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-25">active worker</a> and <em>activating</em> as the arguments. 
+        Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-24">active worker</a> and <em>activating</em> as the arguments. 
         <p class="note" role="note">Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.</p>
        <li>If <var>redundantWorker</var> is not null, run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>redundantWorker</var> and <em>redundant</em> as the arguments.
        <li>
@@ -4387,10 +4383,10 @@ interface FunctionalEvent : ExtendableEvent {
        <li>
         For each <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-40">service worker client</a> <var>client</var> who is <a href="#dfn-use" id="ref-for-dfn-use-5">using</a> <var>registration</var>: 
         <ol>
-         <li>Set <var>client</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-26">active worker</a> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-27">active worker</a>.
+         <li>Set <var>client</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-25">active worker</a> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-26">active worker</a>.
          <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.
         </ol>
-       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-28">active worker</a>.
+       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-27">active worker</a>.
        <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.
        <li>
         <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps: 
@@ -4401,7 +4397,7 @@ interface FunctionalEvent : ExtendableEvent {
         </ol>
        <li>Wait for <var>task</var> to have executed or been discarded, or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of <var>activeWorker</var>.
        <li>Wait for the step labeled <em>WaitForAsynchronousExtensions</em> to complete.
-       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-29">active worker</a> and <em>activated</em> as the arguments.
+       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-28">active worker</a> and <em>activated</em> as the arguments.
       </ol>
      </section>
      <section class="algorithm" data-algorithm="run-service-worker-algorithm">
@@ -4452,7 +4448,7 @@ interface FunctionalEvent : ExtendableEvent {
        <li>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state">HTTPS state</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-8">script resource</a>’s <a href="#dfn-https-state" id="ref-for-dfn-https-state-1">HTTPS state</a>.
        <li>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-type">type</a> to <var>serviceWorker</var>’s <a href="#dfn-type" id="ref-for-dfn-type-4">type</a>.
        <li>Create a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerlocation">WorkerLocation</a></code> object and associate it with <var>workerGlobalScope</var>.
-       <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-30">active worker</a>, and there are any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> queued in <var>serviceWorker</var>’s <a href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-13">containing service worker registration</a>’s <a href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue-3">task queues</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue</a> them to <var>serviceWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> in the same order using their original <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task sources</a>.
+       <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-29">active worker</a>, and there are any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> queued in <var>serviceWorker</var>’s <a href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-13">containing service worker registration</a>’s <a href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue-3">task queues</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue</a> them to <var>serviceWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> in the same order using their original <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task sources</a>.
        <li>
         If <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script">classic script</a>, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-classic-script">run the classic script</a> <var>script</var>. Otherwise, it is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#module-script">module script</a>; <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-module-script">run the module script</a> <var>script</var>. 
         <p class="note" role="note">In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#kill-a-worker">kill a worker</a> or <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate a worker</a> algorithms.</p>
@@ -4518,8 +4514,8 @@ interface FunctionalEvent : ExtendableEvent {
          <li>If <var>client</var> is not a <a data-link-type="dfn" href="https://w3c.github.io/webappsec/specs/powerfulfeatures/#secure-context">secure context</a>, return null.
          <li>If <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a> and the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.
          <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-52">equivalent</a>, passing <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url">url</a> as the argument.
-         <li>If <var>registration</var> is null or <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-31">active worker</a> is null, return null.
-         <li>Set <var>client</var>’s <a href="#dfn-service-worker-client-active-worker" id="ref-for-dfn-service-worker-client-active-worker-6">active worker</a> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-32">active worker</a>.
+         <li>If <var>registration</var> is null or <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-30">active worker</a> is null, return null.
+         <li>Set <var>client</var>’s <a href="#dfn-service-worker-client-active-worker" id="ref-for-dfn-service-worker-client-active-worker-6">active worker</a> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-31">active worker</a>.
         </ol>
         <p class="note" role="note">From this point, the <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-43">service worker client</a> starts to <a href="#dfn-use" id="ref-for-dfn-use-6">use</a> its <a href="#dfn-service-worker-client-active-worker" id="ref-for-dfn-service-worker-client-active-worker-7">active worker</a>’s <a href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-15">containing service worker registration</a>.</p>
        <li>
@@ -4528,7 +4524,7 @@ interface FunctionalEvent : ExtendableEvent {
          <li>If <var>client</var>’s <a href="#dfn-service-worker-client-active-worker" id="ref-for-dfn-service-worker-client-active-worker-8">active worker</a> is non-null, set <var>registration</var> to <var>client</var>’s <a href="#dfn-service-worker-client-active-worker" id="ref-for-dfn-service-worker-client-active-worker-9">active worker</a>’s <a href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-16">containing service worker registration</a>.
          <li>Else, return null.
         </ol>
-       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-33">active worker</a>.
+       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-32">active worker</a>.
        <li>
         If <var>activeWorker</var>’s <a href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-2">set of event types to handle</a> does not contain <code>fetch</code>, return null. 
         <p class="note" role="note">To avoid unnecessary delays, the Handle Fetch enforces early return when no event listeners have been deterministically added in the service worker’s global during the very first script execution.</p>
@@ -4684,8 +4680,8 @@ interface FunctionalEvent : ExtendableEvent {
       </dl>
       <ol>
        <li><a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: a <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-list-and-record-specification-type">Record</a> with the [[value]] equals to <var>registration</var> is contained in <a href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-7">scope to registration map</a>.
-       <li><a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-34">active worker</a> is not null.
-       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-35">active worker</a>.
+       <li><a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-33">active worker</a> is not null.
+       <li>Let <var>activeWorker</var> be <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-34">active worker</a>.
        <li>
         If <var>activeWorker</var>’s <a href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-3">set of event types to handle</a> does not contain the event type for this functional event, return. 
         <p class="note" role="note">To avoid unnecessary delays, the Handle Functional Event enforces early return when no event listeners have been deterministically added in the service worker’s global during the very first script execution.</p>
@@ -4819,9 +4815,9 @@ interface FunctionalEvent : ExtendableEvent {
          <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>redundantWorker</var> and <em>redundant</em> as the arguments.
         </ol>
        <li>
-        If <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-36">active worker</a> is not null, then: 
+        If <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-35">active worker</a> is not null, then: 
         <ol>
-         <li>Set <var>redundantWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-37">active worker</a>.
+         <li>Set <var>redundantWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-36">active worker</a>.
          <li><a href="#terminate-service-worker-algorithm">Terminate</a> <var>redundantWorker</var>.
          <li>The user agent <em class="rfc2119" title="MAY">may</em> abort in-flight requests triggered by <var>redundantWorker</var>.
          <li>Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing <var>registration</var>, "<code>active</code>" and null as the arguments.
@@ -4865,11 +4861,11 @@ interface FunctionalEvent : ExtendableEvent {
        <li>
         Else if <var>target</var> is "<code>active</code>", then: 
         <ol>
-         <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-38">active worker</a> to <var>source</var>.
+         <li>Set <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-37">active worker</a> to <var>source</var>.
          <li>
           For each <var>registrationObject</var> in <var>registrationObjects</var>: 
           <ol>
-           <li><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to set the <a href="#service-worker-registration-active-attribute" id="ref-for-service-worker-registration-active-attribute-3">active</a> attribute of <var>registrationObject</var> to the <code class="idl"><a data-link-type="idl" href="#service-worker-interface" id="ref-for-service-worker-interface-31">ServiceWorker</a></code> object that represents <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-39">active worker</a>, or null if <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-40">active worker</a> is null.
+           <li><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to set the <a href="#service-worker-registration-active-attribute" id="ref-for-service-worker-registration-active-attribute-3">active</a> attribute of <var>registrationObject</var> to the <code class="idl"><a data-link-type="idl" href="#service-worker-interface" id="ref-for-service-worker-interface-31">ServiceWorker</a></code> object that represents <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-38">active worker</a>, or null if <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-39">active worker</a> is null.
           </ol>
         </ol>
         <p>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <em class="rfc2119" title="MUST">must</em> use <var>registrationObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> and the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>.</p>
@@ -4907,11 +4903,11 @@ interface FunctionalEvent : ExtendableEvent {
              <dt><em>activating</em>
              <dd>
               "<code>activating</code>" 
-              <p class="note" role="note">The <a href="#dfn-service-worker" id="ref-for-dfn-service-worker-113">service worker</a> in this state is considered an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-41">active worker</a>. During this state, <code><a href="#extendable-event-waituntil-method" id="ref-for-extendable-event-waituntil-method-7">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-onactivate-attribute" id="ref-for-service-worker-global-scope-onactivate-attribute-2">onactivate</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-42">active worker</a> until the passed <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> resolves successfully. No <a href="#dfn-functional-events" id="ref-for-dfn-functional-events-12">functional events</a> are dispatched until the state becomes <em>activated</em>.</p>
+              <p class="note" role="note">The <a href="#dfn-service-worker" id="ref-for-dfn-service-worker-113">service worker</a> in this state is considered an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-40">active worker</a>. During this state, <code><a href="#extendable-event-waituntil-method" id="ref-for-extendable-event-waituntil-method-7">event.waitUntil(<var>f</var>)</a></code> can be called inside the <code><a href="#service-worker-global-scope-onactivate-attribute" id="ref-for-service-worker-global-scope-onactivate-attribute-2">onactivate</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-41">active worker</a> until the passed <a data-link-type="dfn" href="http://www.ecma-international.org/ecma-262/6.0/#sec-promise-objects">promise</a> resolves successfully. No <a href="#dfn-functional-events" id="ref-for-dfn-functional-events-12">functional events</a> are dispatched until the state becomes <em>activated</em>.</p>
              <dt><em>activated</em>
              <dd>
               "<code>activated</code>" 
-              <p class="note" role="note">The <a href="#dfn-service-worker" id="ref-for-dfn-service-worker-114">service worker</a> in this state is considered an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-43">active worker</a> ready to handle <a href="#dfn-functional-events" id="ref-for-dfn-functional-events-13">functional events</a>.</p>
+              <p class="note" role="note">The <a href="#dfn-service-worker" id="ref-for-dfn-service-worker-114">service worker</a> in this state is considered an <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-42">active worker</a> ready to handle <a href="#dfn-functional-events" id="ref-for-dfn-functional-events-13">functional events</a>.</p>
              <dt><em>redundant</em>
              <dd>
               "<code>redundant</code>" 
@@ -4971,7 +4967,7 @@ interface FunctionalEvent : ExtendableEvent {
        <li>Run the following steps atomically.
        <li>Let <var>registration</var> be the result of running the <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>requestURL</var> as the argument.
        <li>If <var>registration</var> is null, return null.
-       <li>Let <var>worker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-44">active worker</a>.
+       <li>Let <var>worker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-43">active worker</a>.
        <li>If <var>worker</var> is null, return null.
        <li>Let <var>requestURLString</var> be the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>requestURL</var>.
        <li>
@@ -5017,7 +5013,7 @@ interface FunctionalEvent : ExtendableEvent {
        <li>Let <var>newestWorker</var> be null.
        <li>If <var>registration</var>’s <a href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-21">installing worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>’s <a href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-22">installing worker</a>.
        <li>Else if <var>registration</var>’s <a href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-22">waiting worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>’s <a href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-23">waiting worker</a>.
-       <li>Else if <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-45">active worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-46">active worker</a>.
+       <li>Else if <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-44">active worker</a> is not null, set <var>newestWorker</var> to <var>registration</var>’s <a href="#dfn-active-worker" id="ref-for-dfn-active-worker-45">active worker</a>.
        <li>Return <var>newestWorker</var>.
       </ol>
      </section>
@@ -6614,16 +6610,15 @@ interface FunctionalEvent : ExtendableEvent {
     <li><a href="#ref-for-dfn-active-worker-17">4.3.4. claim()</a> <a href="#ref-for-dfn-active-worker-18">(2)</a> <a href="#ref-for-dfn-active-worker-19">(3)</a>
     <li><a href="#ref-for-dfn-active-worker-20">4.4. ExtendableEvent</a>
     <li><a href="#ref-for-dfn-active-worker-21">4.9. Events</a>
-    <li><a href="#ref-for-dfn-active-worker-22">Register</a>
-    <li><a href="#ref-for-dfn-active-worker-23">Activate</a> <a href="#ref-for-dfn-active-worker-24">(2)</a> <a href="#ref-for-dfn-active-worker-25">(3)</a> <a href="#ref-for-dfn-active-worker-26">(4)</a> <a href="#ref-for-dfn-active-worker-27">(5)</a> <a href="#ref-for-dfn-active-worker-28">(6)</a> <a href="#ref-for-dfn-active-worker-29">(7)</a>
-    <li><a href="#ref-for-dfn-active-worker-30">Run Service Worker</a>
-    <li><a href="#ref-for-dfn-active-worker-31">Handle Fetch</a> <a href="#ref-for-dfn-active-worker-32">(2)</a> <a href="#ref-for-dfn-active-worker-33">(3)</a>
-    <li><a href="#ref-for-dfn-active-worker-34">Handle Functional Event</a> <a href="#ref-for-dfn-active-worker-35">(2)</a>
-    <li><a href="#ref-for-dfn-active-worker-36">Clear Registration</a> <a href="#ref-for-dfn-active-worker-37">(2)</a>
-    <li><a href="#ref-for-dfn-active-worker-38">Update Registration State</a> <a href="#ref-for-dfn-active-worker-39">(2)</a> <a href="#ref-for-dfn-active-worker-40">(3)</a>
-    <li><a href="#ref-for-dfn-active-worker-41">Update Worker State</a> <a href="#ref-for-dfn-active-worker-42">(2)</a> <a href="#ref-for-dfn-active-worker-43">(3)</a>
-    <li><a href="#ref-for-dfn-active-worker-44">Match Service Worker for Foreign Fetch</a>
-    <li><a href="#ref-for-dfn-active-worker-45">Get Newest Worker</a> <a href="#ref-for-dfn-active-worker-46">(2)</a>
+    <li><a href="#ref-for-dfn-active-worker-22">Activate</a> <a href="#ref-for-dfn-active-worker-23">(2)</a> <a href="#ref-for-dfn-active-worker-24">(3)</a> <a href="#ref-for-dfn-active-worker-25">(4)</a> <a href="#ref-for-dfn-active-worker-26">(5)</a> <a href="#ref-for-dfn-active-worker-27">(6)</a> <a href="#ref-for-dfn-active-worker-28">(7)</a>
+    <li><a href="#ref-for-dfn-active-worker-29">Run Service Worker</a>
+    <li><a href="#ref-for-dfn-active-worker-30">Handle Fetch</a> <a href="#ref-for-dfn-active-worker-31">(2)</a> <a href="#ref-for-dfn-active-worker-32">(3)</a>
+    <li><a href="#ref-for-dfn-active-worker-33">Handle Functional Event</a> <a href="#ref-for-dfn-active-worker-34">(2)</a>
+    <li><a href="#ref-for-dfn-active-worker-35">Clear Registration</a> <a href="#ref-for-dfn-active-worker-36">(2)</a>
+    <li><a href="#ref-for-dfn-active-worker-37">Update Registration State</a> <a href="#ref-for-dfn-active-worker-38">(2)</a> <a href="#ref-for-dfn-active-worker-39">(3)</a>
+    <li><a href="#ref-for-dfn-active-worker-40">Update Worker State</a> <a href="#ref-for-dfn-active-worker-41">(2)</a> <a href="#ref-for-dfn-active-worker-42">(3)</a>
+    <li><a href="#ref-for-dfn-active-worker-43">Match Service Worker for Foreign Fetch</a>
+    <li><a href="#ref-for-dfn-active-worker-44">Get Newest Worker</a> <a href="#ref-for-dfn-active-worker-45">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-last-update-check-time">
