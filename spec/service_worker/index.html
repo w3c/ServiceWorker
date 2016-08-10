@@ -2615,19 +2615,29 @@ pre.idl.highlight { color: #708090; }
             If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-clientqueryoptions-type" id="ref-for-dom-clientqueryoptions-type-1">type</a></code> is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-6">window client</a>, then: 
             <ol>
              <li>Let <var>browsingContext</var> be <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.
-             <li>Let <var>visibilityState</var> be null.
-             <li>Let <var>focusState</var> be null.
+             <li>Let <var>isClientEnumerable</var> be false.
+             <li>Let <var>visibilityState</var> be the empty string.
+             <li>Let <var>focusState</var> be false.
              <li>
-              <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>: 
+              <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substep on <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>: 
               <ol>
-               <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
-               <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
+               <li>
+                If <var>browsingContext</var> has not been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#a-browsing-context-is-discarded">discarded</a> and <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> is <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>, then: 
+                <ol>
+                 <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
+                 <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
+                 <li>Set <var>isClientEnumerable</var> to true.
+                </ol>
               </ol>
              <li>
               Wait for <var>task</var> to have executed. 
               <p class="note" role="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
-             <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-21">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
-             <li>Add <var>windowClient</var> to <var>matchedClients</var>.
+             <li>
+              If <var>isClientEnumerable</var> is true, then: 
+              <ol>
+               <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-21">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
+               <li>Add <var>windowClient</var> to <var>matchedClients</var>.
+              </ol>
             </ol>
            <li>
             Else if <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-clientqueryoptions-type" id="ref-for-dom-clientqueryoptions-type-2">type</a></code> is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client" id="ref-for-dfn-dedicatedworker-client-2">dedicated worker client</a>, or <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-clientqueryoptions-type" id="ref-for-dom-clientqueryoptions-type-3">type</a></code> is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client" id="ref-for-dfn-sharedworker-client-2">shared worker client</a>, then: 
@@ -2642,19 +2652,29 @@ pre.idl.highlight { color: #708090; }
               If <var>client</var> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-7">window client</a>, then: 
               <ol>
                <li>Let <var>browsingContext</var> be <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#global-object">global object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.
-               <li>Let <var>visibilityState</var> be null.
-               <li>Let <var>focusState</var> be null.
+               <li>Let <var>isClientEnumerable</var> be false.
+               <li>Let <var>visibilityState</var> be the empty string.
+               <li>Let <var>focusState</var> be false.
                <li>
-                <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>: 
+                <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substep on <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>: 
                 <ol>
-                 <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
-                 <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
+                 <li>
+                  If <var>browsingContext</var> has not been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#a-browsing-context-is-discarded">discarded</a> and <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> is <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>, then: 
+                  <ol>
+                   <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
+                   <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
+                   <li>Set <var>isClientEnumerable</var> to true.
+                  </ol>
                 </ol>
                <li>
                 Wait for <var>task</var> to have executed. 
                 <p class="note" role="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
-               <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-23">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
-               <li>Add <var>windowClient</var> to <var>matchedClients</var>.
+               <li>
+                If <var>isClientEnumerable</var> is true, then: 
+                <ol>
+                 <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence" id="ref-for-dfn-processing-equivalence-23">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
+                 <li>Add <var>windowClient</var> to <var>matchedClients</var>.
+                </ol>
               </ol>
              <li>
               Else: 
@@ -5854,6 +5874,7 @@ interface FunctionalEvent : ExtendableEvent {
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#workerlocation">WorkerLocation</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#workernavigator">WorkerNavigator</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#a-browsing-context-is-discarded">a browsing context is discarded</a>
      <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#about:blank">about:blank</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">api base url</a>

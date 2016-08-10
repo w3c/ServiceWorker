@@ -49,6 +49,7 @@ spec: dom
         text: EventTarget
 
 spec: html; type: dfn
+    text: a browsing context is discarded
     text: about:blank
     text: active document
     text: api base url
@@ -1417,19 +1418,29 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                 <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
                     <li>Let <var>browsingContext</var> be <var>client</var>'s <a>global object</a>'s <a>browsing context</a>.</li>
-                    <li>Let <var>visibilityState</var> be null.</li>
-                    <li>Let <var>focusState</var> be null.</li>
-                    <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
+                    <li>Let <var>isClientEnumerable</var> be false.</li>
+                    <li>Let <var>visibilityState</var> be the empty string.</li>
+                    <li>Let <var>focusState</var> be false.</li>
+                    <li><a>Queue a task</a> <var>task</var> to run the following substep on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                       <ol>
-                        <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
-                        <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                        <li>If <var>browsingContext</var> has not been <a lt="a browsing context is discarded">discarded</a> and <var>client</var>'s <a>responsible document</a> is <var>browsingContext</var>'s <a>active document</a>, then:
+                          <ol>
+                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
+                            <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                            <li>Set <var>isClientEnumerable</var> to true.</li>
+                          </ol>
+                        </li>
                       </ol>
                     </li>
                     <li>Wait for <var>task</var> to have executed.
                       <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
                     </li>
-                    <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                    <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                    <li>If <var>isClientEnumerable</var> is true, then:
+                      <ol>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                        <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                      </ol>
+                    </li>
                   </ol>
                 </li>
                 <li>Else if <var>options</var>.{{ClientQueryOptions/type}} is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.{{ClientQueryOptions/type}} is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
@@ -1443,19 +1454,29 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
                         <li>Let <var>browsingContext</var> be <var>client</var>'s <a>global object</a>'s <a>browsing context</a>.</li>
-                        <li>Let <var>visibilityState</var> be null.</li>
-                        <li>Let <var>focusState</var> be null.</li>
-                        <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
+                        <li>Let <var>isClientEnumerable</var> be false.</li>
+                        <li>Let <var>visibilityState</var> be the empty string.</li>
+                        <li>Let <var>focusState</var> be false.</li>
+                        <li><a>Queue a task</a> <var>task</var> to run the following substep on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                           <ol>
-                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
-                            <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                            <li>If <var>browsingContext</var> has not been <a lt="a browsing context is discarded">discarded</a> and <var>client</var>'s <a>responsible document</a> is <var>browsingContext</var>'s <a>active document</a>, then:
+                              <ol>
+                                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
+                                <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                                <li>Set <var>isClientEnumerable</var> to true.</li>
+                              </ol>
+                            </li>
                           </ol>
                         </li>
                         <li>Wait for <var>task</var> to have executed.
                           <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
                         </li>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                        <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                        <li>If <var>isClientEnumerable</var> is true, then:
+                          <ol>
+                            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm, or its <a href="#dfn-processing-equivalence">equivalent</a>, with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                            <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
+                          </ol>
+                        </li>
                       </ol>
                     </li>
                     <li>Else:
