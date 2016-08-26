@@ -30,7 +30,7 @@ Markup Shorthands: css no
     "publisher": "W3C TAG"
   },
   "unsanctioned-tracking": {
-    "href": "https://www.w3.org/2001/tag/doc/unsanctioned-tracking",
+    "href": "https://www.w3.org/2001/tag/doc/unsanctioned-tracking/",
     "title": "Unsanctioned Web Tracking",
     "date": "17 July 2015",
     "status": "Finding of the W3C TAG",
@@ -131,7 +131,7 @@ spec: csp2; urlPrefix: https://w3c.github.io/webappsec-csp/2/
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
         text: basic filtered response; url: concept-filtered-response-basic
-        text: cancel a reader; url: concept-cancel-stream-reader
+        text: cancel a ReadableStream; url: concept-cancel-readablestream
         text: close ReadableStream; url: concept-close-readablestream
         text: construct a ReadableStream; url: concept-construct-readablestream
         text: CORS filtered response; url: concept-filtered-response-cors
@@ -156,7 +156,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: potential-navigation-or-subresource request
         text: process response
         text: process response end-of-file
-        text: read a chunk from a reader; url: concept-read-chunk-from-reader
+        text: read a chunk from a ReadableStream; url: concept-read-chunk-from-readablestream
         text: read all bytes; url: concept-read-all-bytes-from-readablestream
         text: ReadableStream; url: concept-readablestream
         text: request; for: fetch; url: concept-request
@@ -399,7 +399,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <dd>This <a>task source</a> is used for <a>dispatching</a> <a href="#service-worker-global-scope-fetch-event">fetch</a> events to <a href="#dfn-service-worker">service workers</a>.</dd>
       <dt>The <dfn id="dfn-handle-functional-event-task-source">handle functional event task source</dfn></dt>
       <dd>This <a>task source</a> is used for features that <a>dispatch</a> other <a href="#dfn-functional-events">functional</a> events, e.g. <a href="https://w3c.github.io/push-api/#the-push-event">push</a> events, to <a href="#dfn-service-worker">service workers</a>.
-        <p class="note">A user agent may use a separate task source for each functional event type in order to avoid a head-of-line blocking phenomenon for certain functional events. For instance, a user agent may use a different task source for <a href="http://www.w3.org/2012/sysapps/web-alarms/#firing-task-event-to-service-worker">task</a> events from other task sources.</p>
+        <p class="note">A user agent may use a separate task source for each functional event type in order to avoid a head-of-line blocking phenomenon for certain functional events. For instance, a user agent may use a different task source for <a href="http://web-alarms.sysapps.org/#firing-task-event-to-service-worker">task</a> events from other task sources.</p>
       </dd>
     </dl>
   </section>
@@ -1746,13 +1746,13 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                             <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.</li>
                             <li>Let <var>pull</var> be an action that runs these subsubsteps:
                               <ol>
-                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a reader">reading</a> a chunk from <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a ReadableStream">reading</a> a chunk from <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
                                 <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.</li>
                                 <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.</li>
                                 <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a lt="error ReadableStream">error</a> <var>newStream</var> with a <code>TypeError</code>.</li>
                               </ol>
                             </li>
-                            <li>Let <var>cancel</var> be an action that <a lt="cancel a reader">cancels</a> <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                            <li>Let <var>cancel</var> be an action that <a lt="cancel a ReadableStream">cancels</a> <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
                             <li>Let <var>newStream</var> be the result of <a lt="construct a ReadableStream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.</li>
                             <li>Set <var>potentialResponse</var>'s <a>body</a> to a new <a>body</a> whose <a>stream</a> is <var>newStream</var>.</li>
                             <li>Run these subsubsteps repeatedly <a>in parallel</a> while <var>done</var> is false:</li>
@@ -2964,7 +2964,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <li>Asynchronously complete these steps with a <a>network error</a>.</li>
             </ol>
           </li>
-          <li>If <var>response</var>'s <a for="response">cache state</a> is not "<code>local</code>", set <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> to the current time.</li>
+          <li>If <var>response</var>'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> to the current time.
+            <p class="issue">The response's cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.</p>
+          </li>
           <li>Return true.</li>
         </ol>
         <p>If the algorithm asynchronously completes with null, then:
