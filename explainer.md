@@ -19,7 +19,7 @@ The service worker is like a [shared worker](https://html.spec.whatwg.org/multip
 Unlike a shared worker, it:
 
 * Can run without any page at all
-* Can terminate when it isn’t in use, and run again when needed (e.g., it’s event-driven)
+* Can terminate when it isn’t in use, and run again when needed (i.e., it’s event-driven)
 * Has a defined upgrade model
 * Is HTTPS only (more on that in a bit)
 
