@@ -92,13 +92,13 @@ spec: html; type: dfn
     text: structured clone
     text: task sources
     text: tasks
-    text: the environment settings object's global object
     text: the global object's realm
+    text: the Realm's global object
     text: the worker's documents
     text: top-level browsing context
     text: triggered by user activation
     text: trusted event
-    text: unicode serialisation of an origin
+    text: Unicode serialization of an origin
     text: unload a document
     text: user interaction task source
     text: utf-8 decode
@@ -527,7 +527,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <ol>
             <li>Create an event <var>e</var> that uses the {{ExtendableMessageEvent}} interface, with the event type <a href="#service-worker-global-scope-message-event">message</a>, which does not bubble and is not cancelable.</li>
             <li>Let the {{ExtendableMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
-            <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="unicode serialisation of an origin">Unicode serialisation</a> of <var>incumbentSettings</var>'s <a for="resource">origin</a>.</li>
+            <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>incumbentSettings</var>'s <a for="resource">origin</a>.</li>
             <li>If <var>incumbentGlobal</var> is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{ServiceWorker}} object that represents <var>incumbentGlobal</var>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
             <li>Else if <var>incumbentGlobal</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>incumbentGlobal</var>'s <a>browsing context</a>.</li>
             <li>Else, let it be initialized to a new {{Client}} object that represents the worker associated with <var>incumbentGlobal</var>.</li>
@@ -1231,7 +1231,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <ol>
             <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble and is not cancelable.</li>
             <li>Let the {{ServiceWorkerMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="unicode serialisation of an origin">Unicode serialisation</a> of <var>sourceSettings</var>'s <a for="resource">origin</a>.</li>
+            <li>Let the {{ServiceWorkerMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>sourceSettings</var>'s <a for="resource">origin</a>.</li>
             <li>Let the {{ServiceWorkerMessageEvent/source}} attribute of <var>e</var> be initialized to a {{ServiceWorker}} object, which represents the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a> associated with <var>sourceSettings</var>'s <a for="environment settings object">global object</a>.</li>
             <li>Let the {{ServiceWorkerMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
@@ -2669,7 +2669,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <p>The user agent <em class="rfc2119" title="MUST">must</em> create a {{CacheStorage}} object when a {{Window}} object or a {{WorkerGlobalScope}} object is created and associate it with that object.</p>
 
-    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a>global object</a>'s <a>environment settings object</a>'s <a for="resource">origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across documents and workers can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
+    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a for=/>global object</a>'s <a>environment settings object</a>'s <a for="resource">origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across documents and workers can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
 
     <section algorithm="cache-storage-match">
       <h4 id="cache-storage-match">{{CacheStorage/match(request, options)}}</h4>
@@ -2929,7 +2929,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         // e.g. define an API namespace
         readonly attribute APISpaceType APISpace;
         // e.g. define a method
-        Promise&lt;T&gt; methodName(<em>list of arguments</em>);
+        Promise&lt;T&gt; methodName(/* list of arguments */);
       };
     </pre>
   </section>
@@ -3510,7 +3510,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ul>
       </li>
       <li>Let <var>workerEventLoop</var> be a newly created <a>event loop</a>.</li>
-      <li>Let <var>workerGlobalScope</var> be <var>realmExecutionContext</var>'s <a for="environment settings object">global object</a>.</li>
+      <li>Let <var>workerGlobalScope</var> be <var>realmExecutionContext</var>'s <a lt="the Realm's global object">global object</a>.</li>
       <li>Let <var>settingsObject</var> be a new <a>environment settings object</a> whose algorithms are defined as follows:
         <dl>
           <dt>The <a>realm execution context</a></dt>
@@ -3710,7 +3710,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <ol>
           <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ForeignFetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>, which does not bubble.</li>
           <li>Let the {{ForeignFetchEvent/request}} attribute of <var>e</var> be initialized to <var>r</var>.</li>
-          <li>Let the {{ForeignFetchEvent/origin}} attribute of <var>e</var> be initialized to the  <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for=request>origin</a>.</li>
+          <li>Let the {{ForeignFetchEvent/origin}} attribute of <var>e</var> be initialized to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>request</var>'s <a for=request>origin</a>.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
           <li>If <var>e</var>'s <a>respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
           <li>If <var>e</var>'s <a>wait to respond flag</a> is set, wait until <var>e</var>'s <a>wait to respond flag</a> is unset.</li>
@@ -3724,7 +3724,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <li>Else set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
             </ol>
           </li>
-          <li>Else if <var>e</var>'s <a>origin</a> is not equal to the <a lt="Unicode serialisation of an origin">Unicode serialization</a> of <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
+          <li>Else if <var>e</var>'s <a>origin</a> is not equal to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>request</var>'s <a for="request">origin</a>, set <var>handleFetchFailed</var> to true.</li>
           <li>Else if <var>e</var>'s <a>potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set <var>response</var> to <var>e</var>'s <a>potential response</a>.</li>
           <li>Else if <var>request</var>'s <a>response tainting</a> is <code>"opaque"</code>, set <var>response</var> to an <a>opaque filtered response</a> of <var>internalResponse</var>.</li>
           <li>Else:
