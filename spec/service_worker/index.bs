@@ -61,8 +61,6 @@ spec: html; type: dfn
     text: browsing context
     text: discard a document
     text: document base url
-    text: effective script origin
-    text: entry settings object
     text: environment settings object
     text: event handler
     text: event handler event type
@@ -212,7 +210,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: origin; for: resource; url: origin-2
             text: browsing context is discarded
         urlPrefix: infrastructure.html
-            text: read only array; url: dfn-read-only-array
+            text: inserted into a document; url: insert-an-element-into-a-document
             text: StructuredCloneWithTransfer
         urlPrefix: interaction.html
             text: has focus steps
@@ -784,9 +782,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <ol>
         <li>Let <var>p</var> be a <a>promise</a>.</li>
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
-        <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> <var>scriptURL</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
+        <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> <var>scriptURL</var> with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.</li>
         <li>Let <var>scopeURL</var> be null.</li>
-        <li>If <var>options</var>.{{RegistrationOptions/scope}} is <a>present</a>, set <var>scopeURL</var> to <var>options</var>.{{RegistrationOptions/scope}}.</li>
+        <li>If <var>options</var>.{{RegistrationOptions/scope}} is <a>present</a>, set <var>scopeURL</var> to the result of <a for="url">parsing</a> <var>options</var>.{{RegistrationOptions/scope}} with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.</li>
         <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, <var>client</var>, <var>client</var>'s <a>creation URL</a> and <var>options</var>.{{RegistrationOptions/type}}.</li>
         <li>Return <var>p</var>.</li>
       </ol>
@@ -799,7 +797,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
       <ol>
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
-        <li>Let <var>clientURL</var> be the result of <a for="url">parsing</a> <var>clientURL</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
+        <li>Let <var>clientURL</var> be the result of <a for="url">parsing</a> <var>clientURL</var> with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.</li>
         <li>If <var>clientURL</var> is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
         <li>If the <a for="resource">origin</a> of <var>clientURL</var> is not <var>client</var>'s <a for="resource">origin</a>, return a <var>promise</var> rejected with a "{{SecurityError}}" exception.</li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
@@ -2125,20 +2123,22 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Let <var>request</var> be the <a for="fetch">request</a> for which this header was received in the response.</li>
       <li>If <var>request</var>'s <a for="request">client</a> is not a <a>secure context</a>, abort these steps.</li>
       <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <a>target IRI</a> of the <code>Link</code> header.</li>
-      <li>Let <var>scopeURL</var> be the "<code>scope</code>" <a>target attribute</a> of the <code>Link</code> header, or null if no such attribute is present.</li>
+      <li>Let <var>scopeURL</var> be null.
+      <li>If the "<code>scope</code>" <a>target attribute</a> of the <code>Link</code> header is present, set <var>scopeURL</var> to the result of <a for="url">parsing</a> the "<code>scope</code>" <a>target attribute</a> with <var>scriptURL</var>.</li>
       <li>Let <var>workerType</var> be the "<code>workertype</code>" <a>target attribute</a> of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.</li>
       <li>If <var>workerType</var> is not a valid {{WorkerType}} value, abort these steps.</li>
       <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, a new <a>promise</a>, null, <var>contextURL</var> and <var>workerType</var>.</li>
     </ol>
 
-    <p>When a <a>serviceworker link</a>'s <{link}> element is <a lt="in a document">inserted into a document</a>, a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a Document</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent <em class="rfc2119" title="SHOULD">should</em> run these steps:</p>
+    <p>When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent <em class="rfc2119" title="SHOULD">should</em> run these steps:</p>
 
     <ol>
       <li>If the <{link/href}> attribute is the empty string, abort these steps.</li>
       <li>Let <var>client</var> be the document's <a for="ServiceWorkerContainer">service worker client</a>.</li>
       <li>If <var>client</var> is not a <a>secure context</a>, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
-      <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <{link/href}> attribute with document's <a>document base URL</a>.</li>
-      <li>Let <var>scopeURL</var> be the <{link/scope}> attribute, or null if the <{link/scope}> attribute is omitted.</li>
+      <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.</li>
+      <li>Let <var>scopeURL</var> null.
+      <li>If the <{link/scope}> attribute is present, set <var>scopeURL</var> to the result of <a for="url">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.</li>
       <li>Let <var>workerType</var> be the <{link/workertype}> attribute, or "<code>classic</code>" if the <{link/workertype}> attribute is omitted.</li>
       <li>If <var>workerType</var> is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
       <li>Let <var>promise</var> be a new <a>promise</a>.</li>
@@ -3141,8 +3141,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
 
     <dl>
       <dt>Input</dt>
-        <dd><var>scopeURLString</var>, a string</dd>
-        <dd><var>scriptURL</var>, a <a for="url">URL</a></dd>
+        <dd><var>scopeURL</var>, a <a for="url">URL</a> or failure or null</dd>
+        <dd><var>scriptURL</var>, a <a for="url">URL</a> or failure</dd>
         <dd><var>promise</var>, a <a>promise</a></dd>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
         <dd><var>referrer</var>, a <a for=url>URL</a></dd>
@@ -3154,11 +3154,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>If <var>scriptURL</var> is failure, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>If <var>scriptURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>If any of the strings in <var>scriptURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-      <li>Let <var>scopeURL</var> be null.</li>
-      <li>If <var>scopeURLString</var> is null, set <var>scopeURL</var> to the result of <a for="url">parsing</a> a string "<code>./</code>" with <var>scriptURL</var>.
+      <li>If <var>scopeURL</var> is null, set <var>scopeURL</var> to the result of <a for="url">parsing</a> the string "<code>./</code>" with <var>scriptURL</var>.
         <p class="note">The scope url for the registration is set to the location of the service worker script by default.</p>
       </li>
-      <li>Else, set <var>scopeURL</var> to the result of <a for="url">parsing</a> <var>scopeURLString</var> with <a>entry settings object</a>'s <a>API base URL</a>.</li>
       <li>If <var>scopeURL</var> is failure, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>If <var>scopeURL</var>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
       <li>If any of the strings in <var>scopeURL</var>'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
