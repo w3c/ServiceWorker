@@ -14,7 +14,7 @@ To edit the spec locally, you’ll need a copy of [the Web Components-based fram
 git submodule update --init --recursive
 ```
 
-To make edits to the design, please send pull requests against the spec (`spec/service_worker/index.html`).
+To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change `spec/service_worker/index.bs` and submit it with the corresponding bikesheded `index.html`.
 
 Contributions to this repository are intended to become part of Recommendation-track documents 
 governed by the [W3C Patent Policy](http://www.w3.org/Consortium/Patent-Policy-20040205/) and
