@@ -10,19 +10,13 @@ To understand the design and how you might build apps with service workers, see 
 
 ## Spec and API development
 
-For the nitty-gritty of the API, the [draft W3C specification](https://w3c.github.io/ServiceWorker/spec/service_worker/) is authoritative. For implementers and developers who seek a more stable version, [Service Workers 1](https://w3c.github.io/ServiceWorker/spec/service_worker_1/) is a right document with which the contributors only focus on fixing bugs and resolving compatibility issues.
+For the nitty-gritty of the API, the [draft W3C specification](https://w3c.github.io/ServiceWorker/) is authoritative. For implementers and developers who seek a more stable version, [Service Workers 1](https://w3c.github.io/ServiceWorker/) is a right document with which the contributors only focus on fixing bugs and resolving compatibility issues.
 
 Spec development happens via [issues in this repository](https://github.com/w3c/ServiceWorker/issues). For general discussion, please use the [public-webapps@w3.org mailing list](http://lists.w3.org/Archives/Public/public-webapps/) with a `Subject:` prefix of `[service-workers]`.
 
 Updates to the spec must reference [resolved issues marked `needs spec`](https://github.com/w3c/ServiceWorker/issues?q=is%3Aclosed+label%3A%22needs+spec%22).
 
-To edit the spec locally, you’ll need a copy of [the Web Components-based framework which it is built with](https://github.com/slightlyoff/web-spec-framework). To fetch it, clone the repo and run:
-
-```sh
-git submodule update --init --recursive
-```
-
-To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change `spec/service_worker/index.bs` and submit it with the corresponding bikesheded `index.html`.
+To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change `docs/index.bs` and submit it with the corresponding bikesheded `index.html`.
 
 ## Examples
 

@@ -90,7 +90,7 @@ If you refresh the document, it’ll be under the service worker’s control. Yo
 
 If you shift+reload a document it’ll always load without a controller, which is handy for testing quick CSS & JS changes.
 
-Documents tend to live their whole life with a particular service worker, or none at all. However, a service worker can call `self.skipWaiting()` ([spec](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting)) to do an immediate takeover of all pages within scope.
+Documents tend to live their whole life with a particular service worker, or none at all. However, a service worker can call `self.skipWaiting()` ([spec](https://w3c.github.io/ServiceWorker/#service-worker-global-scope-skipwaiting)) to do an immediate takeover of all pages within scope.
 
 ## Network intercepting
 
@@ -187,7 +187,7 @@ The easiest way at the moment is to close & reopen the tab (cmd+w, then cmd+shif
 
 ## The cache
 
-service worker comes with a [caching API](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#cache-objects), letting you create stores of responses keyed by request.
+service worker comes with a [caching API](https://slightlyoff.github.io/ServiceWorker/#cache-objects), letting you create stores of responses keyed by request.
 
 ```js
 self.addEventListener('install', function(event) {
@@ -215,7 +215,7 @@ self.addEventListener('fetch', function(event) {
 
 Matching within the cache is similar to the browser cache. Method, URL and vary headers are taken into account, but freshness headers are ignored. Things are only removed from caches when you remove them.
 
-You can add individual items to the cache with `cache.put(request, response)`, including ones you’ve created yourself. You can also control matching, [discounting things](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
+You can add individual items to the cache with `cache.put(request, response)`, including ones you’ve created yourself. You can also control matching, [discounting things](https://slightlyoff.github.io/ServiceWorker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
 
 ## Other service worker–related specifications
 

@@ -6,7 +6,7 @@ Or
 
 So you’ve got a browser engine, are looking into this whole "Service Workers" thing and have some questions. Take heart, dear reader! Your friendly spec designers/authors are here to answer your (anticipated) questions. Want more answers? [File a bug](issues) and tag it `implementation-concern`.
 
-This doc looks first at key concepts then outlines the [areas of helpful built-in ambiguity ](https://w3c.github.io/ServiceWorker/spec/service_worker/) that provide opportunities to go fast. Each opportunity includes a list of strategies that implementations might explore to improve service worker performance.
+This doc looks first at key concepts then outlines the [areas of helpful built-in ambiguity ](https://w3c.github.io/ServiceWorker/) that provide opportunities to go fast. Each opportunity includes a list of strategies that implementations might explore to improve service worker performance.
 
 ## Key concepts
 
