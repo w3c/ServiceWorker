@@ -8,12 +8,6 @@ Spec development happens via [issues in this repository](https://github.com/w3c/
 
 Updates to the spec must reference [resolved issues marked `needs spec`](https://github.com/w3c/ServiceWorker/issues?q=is%3Aclosed+label%3A%22needs+spec%22).
 
-To edit the spec locally, you’ll need a copy of [the Web Components-based framework which it is built with](https://github.com/slightlyoff/web-spec-framework). To fetch it, clone the repo and run:
-
-```sh
-git submodule update --init --recursive
-```
-
 To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change `spec/service_worker/index.bs` and submit it with the corresponding bikesheded `index.html`.
 
 Contributions to this repository are intended to become part of Recommendation-track documents 
