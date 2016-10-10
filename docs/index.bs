@@ -145,6 +145,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: get a reader; url: concept-get-reader
         text: header; url: concept-header
         text: http fetch; url: concept-http-fetch
+        text: HTTPS state value; url: concept-https-state-value
         text: internal response; url: concept-internal-response
         text: locked; url: concept-body-locked
         text: navigation request
@@ -187,6 +188,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
             text: cache state
             text: CORS-exposed header-name list
             text: header list
+            text: https state
             text: response
             text: status
             text: termination reason
@@ -222,6 +224,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: https state; for: environment settings object
             text: module script
             text: realm execution context
+            text: referrer policy; for: environment settings object; url: concept-settings-object-referrer-policy
             text: relevant Realm; url: concept-relevant-realm
             text: relevant global object; url: concept-relevant-global
             text: report the error
@@ -243,6 +246,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: web worker; url: workers
             for: workerglobalscope; urlPrefix: #concept-workerglobalscope-
                 text: https state
+                text: referrer policy
                 text: type
                 text: url
     type: event
@@ -333,7 +337,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (an opaque string), which uniquely identifies itself during the lifetime of its <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn id="dfn-functional-events">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
-    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> which is "<code>none</code>", "<code>deprecated</code>", or "<code>modern</code>". Unless stated otherwise, it is "<code>none</code>".</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> (an <a>HTTPS state value</a>). It is initially "<code>none</code>". A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-referrer-policy">referrer policy</dfn> (a <a href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy">referrer policy</a>). It is initially the empty string.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource-map">script resource map</dfn> which is a <a>List</a> of the <a>Record</a> {\[[key]], \[[value]]} where \[[key]] is a <a for="url">URL</a> and \[[value]] is a <a for="response">response</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.</p>
@@ -3241,6 +3245,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
+      <li>Let <var>httpsState</var> be "<code>none</code>".</li>
+      <li>Let <var>referrerPolicy</var> be the empty string.</li>
       <li>Switching on <var>job</var>'s <a>worker type</a>, run these substeps with the following options:
         <dl>
         <dt><em>"<code>classic</code>"</em></dt>
@@ -3270,6 +3276,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Let <var>serviceWorkerAllowed</var> be the result of <a for="header">parsing</a> `<code>Service-Worker-Allowed</code>` in <var>response</var>'s <a for="response">header list</a>.
             <p class="note">See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.</p>
           </li>
+          <li>Set <var>httpsState</var> to <var>response</var>'s <a for="response">HTTPS state</a>.</li>
+          <li>Set <var>referrerPolicy</var> to the result of <a href="https://w3c.github.io/webappsec-referrer-policy/#parse-referrer-policy-from-header">parsing the `<code>Referrer-Policy</code>` header</a> of <var>response</var>.</li>
           <li>If <var>serviceWorkerAllowed</var> is failure, then:
             <ol>
               <li>Asynchronously complete these steps with a <a>network error</a>.</li>
@@ -3325,6 +3333,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <li>Let <var>worker</var> be a new <a href="#dfn-service-worker">service worker</a>.</li>
           <li>Generate a unique opaque string and set <var>worker</var>'s <a href="#dfn-service-worker-id">id</a> to the value.</li>
           <li>Set <var>worker</var>'s <a href="#dfn-script-url">script url</a> to <var>job</var>'s <a href="#dfn-job-script-url">script url</a>, <var>worker</var>'s <a href="#dfn-script-resource">script resource</a> to <var>script</var>, and <var>worker</var>'s <a href="#dfn-type">type</a> to <var>job</var>'s <a>worker type</a>.</li>
+          <li>Set <var>worker</var>'s <a href="#dfn-script-resource">script resource</a>'s <a href="#dfn-https-state">HTTPS state</a> to <var>httpsState</var>.</li>
+          <li>Set <var>worker</var>'s <a href="#dfn-script-resource">script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a> to <var>referrerPolicy</var>.</li>
           <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>worker</var> as the argument.</li>
           <li>If an uncaught runtime script error occurs during the above step, then:
             <ol>
@@ -3517,9 +3527,8 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <dd>Return <var>workerGlobalScope</var>.</dd>
           <dt>The <a>responsible event loop</a></dt>
           <dd>Return <var>workerEventLoop</var>.</dd>
-          <dt>The <a>referrer source</a></dt>
-          <dd>Return <var>serviceWorker</var>'s <a href="#dfn-script-url">script url</a>.</dd>
-          <p class="issue">Remove this definition after sorting out the referencing sites.</p>
+          <dt>The <a for="environment settings object">referrer policy</a></dt>
+          <dd>Return <var>workerGlobalScope</var>'s <a for="workerglobalscope">referrer policy</a>.</dd>
           <dt>The <a>API URL character encoding</a></dt>
           <dd>Return UTF-8.</dd>
           <dt>The <a>API base URL</a></dt>
@@ -3534,6 +3543,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       </li>
       <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">url</a> to <var>serviceWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
       <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">HTTPS state</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-https-state">HTTPS state</a>.</li>
+      <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">referrer policy</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a>.</li>
       <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">type</a> to <var>serviceWorker</var>'s <a href="#dfn-type">type</a>.</li>
       <li>Create a new {{WorkerLocation}} object and associate it with <var>workerGlobalScope</var>.</li>
       <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> in the same order using their original <a>task sources</a>.</li>
