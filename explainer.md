@@ -187,7 +187,7 @@ The easiest way at the moment is to close & reopen the tab (cmd+w, then cmd+shif
 
 ## The cache
 
-service worker comes with a [caching API](https://slightlyoff.github.io/ServiceWorker/#cache-objects), letting you create stores of responses keyed by request.
+service worker comes with a [caching API](https://w3c.github.io/ServiceWorker/#cache-objects), letting you create stores of responses keyed by request.
 
 ```js
 self.addEventListener('install', function(event) {
