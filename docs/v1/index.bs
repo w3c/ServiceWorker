@@ -449,7 +449,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       interface ServiceWorker : EventTarget {
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
-        void postMessage(any message, optional sequence&lt;object&gt; transfer);
+        void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
 
         // event
         attribute EventHandler onstatechange;
@@ -880,19 +880,19 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       [Constructor(DOMString type, optional ServiceWorkerMessageEventInit eventInitDict), Exposed=(Window,Worker)]
       interface ServiceWorkerMessageEvent : Event {
         readonly attribute any data;
-        readonly attribute DOMString origin;
+        readonly attribute USVString origin;
         readonly attribute DOMString lastEventId;
         [SameObject] readonly attribute (ServiceWorker or MessagePort)? source;
-        readonly attribute FrozenArray&lt;MessagePort&gt;? ports;
+        readonly attribute FrozenArray&lt;MessagePort&gt; ports;
       };
     </pre>
     <pre class="idl" id="serviceworkermessage-event-init-dictionary">
       dictionary ServiceWorkerMessageEventInit : EventInit {
-        any data;
-        DOMString origin;
-        DOMString lastEventId;
-        (ServiceWorker or MessagePort)? source;
-        sequence&lt;MessagePort&gt;? ports;
+        any data = null;
+        USVString origin = "";
+        DOMString lastEventId = "";
+        (ServiceWorker or MessagePort)? source = null;
+        sequence&lt;MessagePort&gt; ports = [];
       };
     </pre>
 
@@ -925,7 +925,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section>
       <h4 id="serviceworkermessage-event-ports">{{ServiceWorkerMessageEvent/ports|event.ports}}</h4>
 
-      <p>The <dfn attribute id="serviceworkermessage-event-ports-attribute">ports</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the {{MessagePort}} array being sent, if any.</p>
+      <p>The <dfn attribute id="serviceworkermessage-event-ports-attribute">ports</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty array. It represents the {{MessagePort}} array being sent.</p>
     </section>
   </section>
 
@@ -1800,19 +1800,19 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       [Constructor(DOMString type, optional ExtendableMessageEventInit eventInitDict), Exposed=ServiceWorker]
       interface ExtendableMessageEvent : ExtendableEvent {
         readonly attribute any data;
-        readonly attribute DOMString origin;
+        readonly attribute USVString origin;
         readonly attribute DOMString lastEventId;
         [SameObject] readonly attribute (Client or ServiceWorker or MessagePort)? source;
-        readonly attribute FrozenArray&lt;MessagePort&gt;? ports;
+        readonly attribute FrozenArray&lt;MessagePort&gt; ports;
       };
     </pre>
     <pre class="idl" id="extendablemessage-event-init-dictionary">
       dictionary ExtendableMessageEventInit : ExtendableEventInit {
-        any data;
-        DOMString origin;
-        DOMString lastEventId;
-        (Client or ServiceWorker or MessagePort)? source;
-        sequence&lt;MessagePort&gt;? ports;
+        any data = null;
+        USVString origin = "";
+        DOMString lastEventId = "";
+        (Client or ServiceWorker or MessagePort)? source = null;
+        sequence&lt;MessagePort&gt; ports = [];
       };
     </pre>
 
@@ -1845,7 +1845,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <section>
       <h4 id="extendablemessage-event-ports">{{ExtendableMessageEvent/ports|event.ports}}</h4>
 
-      <p>The <dfn attribute id="extendablemessage-event-ports-attribute">ports</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the {{MessagePort}} array being sent, if any.</p>
+      <p>The <dfn attribute id="extendablemessage-event-ports-attribute">ports</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty array. It represents the {{MessagePort}} array being sent.</p>
     </section>
   </section>
 
