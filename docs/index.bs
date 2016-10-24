@@ -42,7 +42,12 @@ Markup Shorthands: css no
 
 <pre class=link-defaults>
 spec: dom; type: interface; text: Document
+
 spec: html; type: element; text: link
+spec: html; type: dfn; text: origin; for: /
+spec: html; type: dfn; text: task queue; for: /
+spec: html; type: dfn; text: browsing context; for: /
+
 spec: url; type: dfn; text: is local
 </pre>
 
@@ -148,8 +153,6 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
 
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: dfn
-        urlPrefix: browsers.html
-            text: origin; for: resource; url: origin-2
         urlPrefix: infrastructure.html
             text: inserted into a document; url: insert-an-element-into-a-document
         urlPrefix: interaction.html
@@ -157,15 +160,8 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
         urlPrefix: semantics.html
             text: external resource link
         urlPrefix: webappapis.html
-            text: dom manipulation task source
-            text: environment
             text: run a classic script
             text: run a module script
-            text: task queue; for: event loop
-            for: environment; urlPrefix: #concept-environment-
-                text: active service worker
-                text: creation URL
-                text: id
         urlPrefix: workers.html
             text: shared workers
             text: web worker; url: workers
@@ -234,7 +230,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section dfn-for="service worker" export>
     <h3 id="service-worker-concept">Service Worker</h3>
 
-    <p>A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A <a href="#dfn-service-worker">service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a for="resource">origin</a>.</p>
+    <p>A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A <a href="#dfn-service-worker">service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a>origin</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-state">state</dfn>, which is one of <em>parsed</em>, <em>installing</em>, <em>installed</em>, <em>activating</em>, <em>activated</em>, and <em>redundant</em>. It is initially <em>parsed</em>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-url">script url</dfn> (a <a for="/">URL</a>).</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-type">type</dfn> which is either "<code>classic</code>" or "<code>module</code>". Unless stated otherwise, it is "<code>classic</code>".</p>
@@ -272,7 +268,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn export id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a> or null) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a>task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a>task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a>task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -429,9 +425,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <ol>
             <li>Create an event <var>e</var> that uses the {{ExtendableMessageEvent}} interface, with the event type <a href="#service-worker-global-scope-message-event">message</a>, which does not bubble and is not cancelable.</li>
             <li>Let the {{ExtendableMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
-            <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>incumbentSettings</var>'s <a for="resource">origin</a>.</li>
+            <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>incumbentSettings</var>'s <a>origin</a>.</li>
             <li>If <var>incumbentGlobal</var> is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{ServiceWorker}} object that represents <var>incumbentGlobal</var>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
-            <li>Else if <var>incumbentGlobal</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>incumbentGlobal</var>'s <a for="/">browsing context</a>.</li>
+            <li>Else if <var>incumbentGlobal</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>incumbentGlobal</var>'s <a>browsing context</a>.</li>
             <li>Else, let it be initialized to a new {{Client}} object that represents the worker associated with <var>incumbentGlobal</var>.</li>
             <li>Let the {{ExtendableMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
@@ -703,7 +699,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
         <li>Let <var>clientURL</var> be the result of <a lt="URL parser">parsing</a> <var>clientURL</var> with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.</li>
         <li>If <var>clientURL</var> is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
-        <li>If the <a for="resource">origin</a> of <var>clientURL</var> is not <var>client</var>'s <a for="resource">origin</a>, return a <var>promise</var> rejected with a "{{SecurityError}}" exception.</li>
+        <li>If the <a>origin</a> of <var>clientURL</var> is not <var>client</var>'s <a>origin</a>, return a <var>promise</var> rejected with a "{{SecurityError}}" exception.</li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
@@ -737,7 +733,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             <li>Let <var>array</var> be an empty array.</li>
             <li>For each <a>Record</a> {\[[key]], \[[value]]} <var>entry</var> of <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
               <ol>
-                <li>If the <a for="resource">origin</a> of the result of <a lt="URL parser">parsing</a> <var>entry</var>.\[[key]] is the <a lt="same origin">same</a> as <var>client</var>'s <a for="resource">origin</a>, and <var>entry</var>.\[[value]]'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is unset, add the {{ServiceWorkerRegistration}} object associated with <var>entry</var>.\[[value]] to the <var>array</var>.</li>
+                <li>If the <a>origin</a> of the result of <a lt="URL parser">parsing</a> <var>entry</var>.\[[key]] is the <a lt="same origin">same</a> as <var>client</var>'s <a>origin</a>, and <var>entry</var>.\[[value]]'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is unset, add the {{ServiceWorkerRegistration}} object associated with <var>entry</var>.\[[value]] to the <var>array</var>.</li>
               </ol>
             </li>
             <li>Resolve <var>promise</var> with <var>array</var>.</li>
@@ -815,7 +811,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <section>
       <h4 id="serviceworkermessage-event-origin">{{ServiceWorkerMessageEvent/origin|event.origin}}</h4>
 
-      <p>The <dfn attribute id="serviceworkermessage-event-origin-attribute">origin</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string. It represents the <a for="resource">origin</a> of the <a href="#dfn-service-worker">service worker</a>'s <a>environment settings object</a> from which the message is sent.</p>
+      <p>The <dfn attribute id="serviceworkermessage-event-origin-attribute">origin</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string. It represents the <a>origin</a> of the <a href="#dfn-service-worker">service worker</a>'s <a>environment settings object</a> from which the message is sent.</p>
     </section>
 
     <section>
@@ -1095,15 +1091,15 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <dl>
         <dt><em>auxiliary</em></dt>
         <dd>"<code>auxiliary</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is an <a>auxiliary browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is an <a>auxiliary browsing context</a>.</p></dd>
 
         <dt><em>top-level</em></dt>
         <dd>"<code>top-level</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>top-level browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is a <a>top-level browsing context</a>.</p></dd>
 
         <dt><em>nested</em></dt>
         <dd>"<code>nested</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>nested browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is a <a>nested browsing context</a>.</p></dd>
 
         <dt><em>none</em></dt>
         <dd>"<code>none</code>"</dd>
@@ -1133,7 +1129,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <ol>
             <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble and is not cancelable.</li>
             <li>Let the {{ServiceWorkerMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>sourceSettings</var>'s <a for="resource">origin</a>.</li>
+            <li>Let the {{ServiceWorkerMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>sourceSettings</var>'s <a>origin</a>.</li>
             <li>Let the {{ServiceWorkerMessageEvent/source}} attribute of <var>e</var> be initialized to a {{ServiceWorker}} object, which represents the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a> associated with <var>sourceSettings</var>'s <a for="environment settings object">global object</a>.</li>
             <li>Let the {{ServiceWorkerMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
@@ -1164,7 +1160,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
-            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
             <li>Let <var>visibilityState</var> be null.</li>
             <li>Let <var>focusState</var> be null.</li>
             <li><a>Queue a task</a> <var>task</var> to run the following substeps on the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
@@ -1197,7 +1193,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
-            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
             <li>If <var>browsingContext</var> has <a lt="discard a document">discarded</a> its {{Document}}, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
             <li>Let <var>navigateFailed</var> to false.</li>
             <li>Let <var>visibilityState</var> be null.</li>
@@ -1212,7 +1208,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
             <li>If <var>navigateFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-            <li>If <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
+            <li>If <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a>origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a>origin</a>, then:
               <ol>
                 <li>Resolve <var>promise</var> with null.</li>
                 <li>Abort these steps.</li>
@@ -1266,7 +1262,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
-            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a>origin</a>:
               <p class="issue">For environment type clients, the environment's creation URL's origin should be used for the origin check instead of the client's origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment's origin algorithm.</p>
               <ol>
                 <li>If <var>client</var>'s <a for="environment">id</a> is not <var>id</var>, continue to the next iteration of the loop.</li>
@@ -1323,7 +1319,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Run these substeps <a>in parallel</a>:
           <ol>
             <li>Let <var>targetClients</var> be an empty array.</li>
-            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a>origin</a>:
               <ol>
                 <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
                 <li>If <var>options</var>.{{ClientQueryOptions/includeUncontrolled}} is false, then:
@@ -1343,7 +1339,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
               <ol>
                 <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
-                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
                     <li>Let <var>isClientEnumerable</var> be false.</li>
                     <li>Let <var>visibilityState</var> be the empty string.</li>
                     <li>Let <var>focusState</var> be false.</li>
@@ -1379,7 +1375,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                   <ol>
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
                         <li>Let <var>isClientEnumerable</var> be false.</li>
                         <li>Let <var>visibilityState</var> be the empty string.</li>
                         <li>Let <var>focusState</var> be false.</li>
@@ -1448,7 +1444,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
             <li>If <var>openWindowFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-            <li>If <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
+            <li>If <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a>origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a>origin</a>, then:
               <ol>
                 <li>Resolve <var>promise</var> with null.</li>
                 <li>Abort these steps.</li>
@@ -1472,7 +1468,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
-            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>origin</a> is the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a>origin</a>:
               <ol>
                 <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
                 <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a>creation URL</a> as the argument.</li>
@@ -1970,7 +1966,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <section>
       <h4 id="extendablemessage-event-origin">{{ExtendableMessageEvent/origin|event.origin}}</h4>
 
-      <p>The <dfn attribute id="extendablemessage-event-origin-attribute">origin</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string. It represents the <a for="resource">origin</a> of the <a href="#dfn-service-worker-client">service worker client</a> that sent the message.</p>
+      <p>The <dfn attribute id="extendablemessage-event-origin-attribute">origin</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string. It represents the <a>origin</a> of the <a href="#dfn-service-worker-client">service worker client</a> that sent the message.</p>
     </section>
 
     <section>
@@ -2048,7 +2044,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <ol>
       <li>If the <code>Link</code> header has an "<code>anchor</code>" parameter, abort these steps.</li>
       <li>Let <var>contextURL</var> be the result of <a lt="URL parser">parsing</a> the <a>context IRI</a> of the <code>Link</code> header.</li>
-      <li>If the result of running <a>Is origin potentially trustworthy</a> with the <a for="resource">origin</a> of <var>contextURL</var> is <code>Not Trusted</code>, abort these steps.</li>
+      <li>If the result of running <a>Is origin potentially trustworthy</a> with the <a>origin</a> of <var>contextURL</var> is <code>Not Trusted</code>, abort these steps.</li>
       <li>Let <var>request</var> be the <a for="fetch">request</a> for which this header was received in the response.</li>
       <li>If <var>request</var>'s <a for="request">client</a> is not a <a>secure context</a>, abort these steps.</li>
       <li>Let <var>scriptURL</var> be the result of <a lt="URL parser">parsing</a> the <a>target IRI</a> of the <code>Link</code> header.</li>
@@ -2118,7 +2114,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 <section>
   <h2 id="cache-objects">Caches</h2>
 
-  <p>To allow authors to fully manage their content caches for offline use, the {{Window}} and the {{WorkerGlobalScope}} provide the asynchronous caching methods that open and manipulate {{Cache}} objects. An <a for="resource">origin</a> can have multiple, named {{Cache}} objects, whose contents are entirely under the control of scripts. Caches are not shared across <a for="resource">origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
+  <p>To allow authors to fully manage their content caches for offline use, the {{Window}} and the {{WorkerGlobalScope}} provide the asynchronous caching methods that open and manipulate {{Cache}} objects. An <a>origin</a> can have multiple, named {{Cache}} objects, whose contents are entirely under the control of scripts. Caches are not shared across <a>origins</a>, and they are completely isolated from the browser's HTTP cache.</p>
 
   <section>
     <h3 id="cache-constructs">Constructs</h3>
@@ -2129,7 +2125,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <p>A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is a <a>List</a> of the <a>Record</a> {\[[key]], \[[value]]} where \[[key]] is a string that represents a name of the {{Cache}} object and \[[value]] is a {{Cache}} object.</p>
 
-    <p>Each <a for="resource">origin</a> has an associated <a href="#dfn-name-to-cache-map">name to cache map</a>.</p>
+    <p>Each <a>origin</a> has an associated <a href="#dfn-name-to-cache-map">name to cache map</a>.</p>
   </section>
 
   <section>
@@ -2598,7 +2594,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <p>The user agent <em class="rfc2119" title="MUST">must</em> create a {{CacheStorage}} object when a {{Window}} object or a {{WorkerGlobalScope}} object is created and associate it with that <dfn for=CacheStorage>global object</dfn>.</p>
 
-    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a for=CacheStorage>global object</a>'s <a>environment settings object</a>'s <a for="resource">origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across documents and workers can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
+    <p>A <code><dfn interface id="cache-storage-interface">CacheStorage</dfn></code> object represents a <a href="#dfn-name-to-cache-map">name to cache map</a> of its associated <a for=CacheStorage>global object</a>'s <a>environment settings object</a>'s <a>origin</a>. Multiple separate objects implementing the {{CacheStorage}} interface across documents and workers can all be associated with the same <a href="#dfn-name-to-cache-map">name to cache map</a> simultaneously.</p>
 
     <section algorithm="cache-storage-match">
       <h4 id="cache-storage-match">{{CacheStorage/match(request, options)}}</h4>
@@ -2775,7 +2771,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       <em>This section is non-normative.</em>
 
-      <p>A <a href="#dfn-service-worker">Service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a for="resource">origin</a>. One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a for="resource">origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="#importscripts-method">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
+      <p>A <a href="#dfn-service-worker">Service worker</a> executes in the registering <a href="#dfn-service-worker-client">service worker client</a>'s <a>origin</a>. One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other <a>origins</a>. Therefore, <a href="#dfn-service-worker">service workers</a> cannot be hosted on CDNs. But they can include resources via <a href="#importscripts-method">importScripts()</a>. The reason for this restriction is that <a href="#dfn-service-worker">service workers</a> create the opportunity for a bad actor to turn a bad day into a bad eternity.</p>
     </section>
 
     <section>
@@ -2812,7 +2808,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <em>This section is non-normative.</em>
 
-    <p>Applications tend to cache items that come from a CDN or other <a for="resource">origin</a>. It is possible to request many of them directly using <code>&lt;script&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;video&gt;</code> and <code>&lt;link&gt;</code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a>fetch</a> many sorts of off-<a for="resource">origin</a> resources when appropriate CORS headers are set.</p>
+    <p>Applications tend to cache items that come from a CDN or other <a>origin</a>. It is possible to request many of them directly using <code>&lt;script&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;video&gt;</code> and <code>&lt;link&gt;</code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a>fetch</a> many sorts of off-<a>origin</a> resources when appropriate CORS headers are set.</p>
     <p><a href="#dfn-service-worker">Service workers</a> enable this by allowing {{Cache|Caches}} to <a>fetch</a> and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the {{Cache}} as {{Response}} objects whose corresponding <a for="response">responses</a> are <a>basic filtered response</a>, the objects stored are {{Response}} objects whose corresponding <a for="response">responses</a> are either <a>CORS filtered responses</a> or <a>opaque filtered responses</a>. They can be passed to {{FetchEvent/respondWith(r)|event.respondWith(r)}} method in the same manner as the {{Response}} objects whose corresponding <a for="response">responses</a> are <a>basic filtered responses</a>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing {{Cache|Caches}} to store them allows applications to avoid re-architecting in most cases.</p>
   </section>
 
@@ -3106,19 +3102,19 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <dd><var>promise</var>, a <a>promise</a></dd>
     </dl>
     <ol>
-      <li>If the result of running <a>Is origin potentially trustworthy</a> with the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> as the argument is <code>Not Trusted</code>, then:
+      <li>If the result of running <a>Is origin potentially trustworthy</a> with the <a>origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> as the argument is <code>Not Trusted</code>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a for="job">referrer</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a>origin</a> of <var>job</var>'s <a href="#dfn-job-script-url">script url</a> is not <var>job</var>'s <a for="job">referrer</a>'s <a for="url">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
         </ol>
       </li>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a for="job">referrer</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a>origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a for="job">referrer</a>'s <a for="url">origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
@@ -3457,8 +3453,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <dd>Return UTF-8.</dd>
           <dt>The <a>API base URL</a></dt>
           <dd>Return <var>serviceWorker</var>'s <a href="#dfn-script-url">script url</a>.</dd>
-          <dt>The <a for="resource">origin</a></dt>
-          <dd>Return its registering <a href="#dfn-service-worker-client">service worker client</a>'s <a for="resource">origin</a>.</dd>
+          <dt>The <a>origin</a></dt>
+          <dd>Return its registering <a href="#dfn-service-worker-client">service worker client</a>'s <a>origin</a>.</dd>
           <dt>The <a>creation URL</a></dt>
           <dd>Return <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">url</a>.</dd>
           <dt>The <a for="environment settings object">HTTPS state</a></dt>
@@ -3470,7 +3466,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">referrer policy</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a>.</li>
       <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">type</a> to <var>serviceWorker</var>'s <a href="#dfn-type">type</a>.</li>
       <li>Create a new {{WorkerLocation}} object and associate it with <var>workerGlobalScope</var>.</li>
-      <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> in the same order using their original <a>task sources</a>.</li>
+      <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a>event loop</a>'s <a>task queues</a> in the same order using their original <a>task sources</a>.</li>
       <li>If <var>script</var> is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> <var>script</var>. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> <var>script</var>.
         <p class="note">In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.</p>
       </li>
@@ -3500,7 +3496,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>If <var>serviceWorker</var> is not running, abort these steps.</li>
       <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
       <li>Set <var>serviceWorkerGlobalScope</var>'s closing flag to true.</li>
-      <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> without processing them.
+      <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a>task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a>task queues</a> without processing them.
         <p class="note">This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.</p>
       </li>
       <li>Abort the script currently running in <var>serviceWorker</var>.</li>
@@ -3639,7 +3635,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <li>Wait for <var>activeWorker</var>'s <a href="#dfn-state">state</a> to become <em>activated</em>.</li>
         </ol>
       </li>
-      <li>If <var>activeWorker</var>'s <a for="resource">origin</a> is the same as <var>request</var>'s <a for="request">origin</a>, return null.</li>
+      <li>If <var>activeWorker</var>'s <a>origin</a> is the same as <var>request</var>'s <a for="request">origin</a>, return null.</li>
       <li>Let <var>originMatches</var> be false.</li>
       <li>If <var>activeWorker</var>'s <a>list of foreign fetch origins</a> is empty, set <var>originMatches</var> to true.</li>
       <li>For each <var>origin</var> in <var>activeWorker</var>'s <a>list of foreign fetch origins</a>:
@@ -3799,7 +3795,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <dd>none</dd>
     </dl>
     <ol>
-      <li>If the <a for="resource">origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
+      <li>If the <a>origin</a> of <var>job</var>'s <a href="#dfn-job-scope-url">scope url</a> is not <var>job</var>'s <a href="#dfn-job-client">client</a>'s <a>origin</a>, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a "{{SecurityError}}" exception.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
