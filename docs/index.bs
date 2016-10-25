@@ -41,78 +41,16 @@ Markup Shorthands: css no
 </pre>
 
 <pre class=link-defaults>
-spec: dom
-    type: dfn
-        text: invoke
-    type: interface
-        text: Document
-        text: Event
-        text: EventTarget
-
+spec: dom; type: interface; text: Document
 spec: html; type: element; text: link
-spec: html; type: dfn
-    text: a browsing context is discarded
-    text: about:blank
-    text: active document
-    text: api base url
-    text: api url character encoding
-    text: application cache
-    text: auxiliary browsing context
-    text: browsing context
-    text: discard a document
-    text: document base url
-    text: environment settings object
-    text: event handler
-    text: event handler event type
-    text: event handler idl attributes
-    text: event loop
-    text: exceptions enabled flag
-    text: focusing steps
-    text: global object
-    text: incumbent settings object
-    text: in parallel
-    text: kill a worker
-    text: list of active timers
-    text: navigate
-    text: nested browsing context
-    text: neutered
-    text: parent browsing context
-    text: queue a task
-    text: relevant settings object
-    text: replacement enabled
-    text: responsible browsing context
-    text: responsible document
-    text: responsible event loop
-    text: same origin
-    text: script
-    text: settings object
-    text: source browsing context
-    text: structured clone
-    text: task sources
-    text: tasks
-    text: the worker's documents
-    text: top-level browsing context
-    text: triggered by user activation
-    text: trusted event
-    text: Unicode serialization of an origin
-    text: unload a document
-    text: user interaction task source
-    text: utf-8 decode
-
-spec: url; type: dfn
-    text: is local
-
-spec: webidl; type: dfn;
-    text: exception
-    text: partial interface
-    text: present
+spec: url; type: dfn; text: is local
 </pre>
 
 <pre class=anchors>
 spec: dom-ls; urlPrefix: https://dom.spec.whatwg.org/
     type: dfn; text: ASCII case-insensitive; url: ascii-case-insensitive
 
-spec: ecma-262; urlPrefix: http://www.ecma-international.org/ecma-262/6.0/
+spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
     type: dfn
         text: Assert; url: sec-algorithm-conventions
         text: [[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
@@ -208,47 +146,20 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: dfn
         urlPrefix: browsers.html
             text: origin; for: resource; url: origin-2
-            text: browsing context is discarded
         urlPrefix: infrastructure.html
             text: inserted into a document; url: insert-an-element-into-a-document
-            text: StructuredCloneWithTransfer
         urlPrefix: interaction.html
             text: has focus steps
         urlPrefix: semantics.html
             text: external resource link
         urlPrefix: webappapis.html
-            text: classic script
-            text: creation url
             text: dom manipulation task source
-            text: fire a simple event
-            text: https state; for: environment settings object
-            text: module script
-            text: realm execution context
-            text: referrer policy; for: environment settings object; url: concept-settings-object-referrer-policy
-            text: relevant Realm; url: concept-relevant-realm
-            text: relevant global object; url: concept-relevant-global
-            text: report the error
             text: run a classic script
             text: run a module script
-            text: script; url: concept-script
             text: task queue; for: event loop
-            text: the global object's Realm; url: concept-global-object-realm
-            text: the Realm's global object; url: concept-realm-global
         urlPrefix: workers.html
-            text: get a fetch result
-            text: import scripts into worker global scope
-            text: kill a worker
-            text: postprocess the fetch result
-            text: runtime script errors handling; url: runtime-script-errors-2
             text: shared workers
-            text: terminate a worker
-            text: validate the state
             text: web worker; url: workers
-            for: workerglobalscope; urlPrefix: #concept-workerglobalscope-
-                text: https state
-                text: referrer policy
-                text: type
-                text: url
     type: event
         urlPrefix: indices.html
             text: DOMContentLoaded; for: Document; url: event-domcontentloaded
@@ -292,18 +203,6 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
     type: dfn
         text: parsing; for: url; url: concept-url-parser
         text: serialized; for: url; url: concept-url-serializer
-
-spec: webidl; urlPrefix: https://heycam.github.io/webidl/
-    type: dfn
-        text: throw; url: dfn-throw
-    type: exception
-        text: DataCloneError
-        text: InvalidAccessError
-        text: InvalidStateError
-        text: NetworkError
-        text: NotFoundError
-        text: QuotaExceededError
-        text: SecurityError
 </pre>
 
 <section>
@@ -368,7 +267,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-active-worker">active worker</dfn> (a <a href="#dfn-service-worker">service worker</a> or null) whose <a href="#dfn-state">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
     <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has an associated <dfn id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
-    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
+    <p>A <a href="#dfn-service-worker-registration">service worker registration</a> has one or more <dfn id="dfn-service-worker-registration-task-queue" for="service worker registration">task queues</dfn> that back up the <a>tasks</a> from its <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a>. (The target task sources for this back up operation are the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.) The user agent dumps the <a href="#dfn-active-worker">active worker</a>'s <a>tasks</a> to the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> when the <a href="#dfn-active-worker">active worker</a> is <a href="#terminate-service-worker-algorithm">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a href="#dfn-active-worker">active worker</a>'s <a>event loop</a>'s corresponding <a for="event loop">task queues</a> when the <a href="#dfn-active-worker">active worker</a> spins off. Unlike the <a for="event loop">task queues</a> owned by <a>event loops</a>, the <a href="#dfn-service-worker-registration">service worker registration</a>'s <a for="service worker registration">task queues</a> are not processed by any <a>event loops</a> in and of itself.</p>
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -520,9 +419,9 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>serviceWorker</var> be the <a href="#dfn-service-worker">service worker</a> represented by the <a>context object</a>.</li>
         <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>serviceWorker</var> as the argument.</li>
         <li>Let <var>destination</var> be the {{ServiceWorkerGlobalScope}} object associated with <var>serviceWorker</var>.</li>
-        <li>Let <var>targetRealm</var> be <var>destination</var>'s <a lt="the global object's Realm">Realm</a>.</li>
+        <li>Let <var>targetRealm</var> be <var>destination</var>'s <a for="global object">Realm</a>.</li>
         <li>Let <var>incumbentSettings</var> be the <a>incumbent settings object</a>, and <var>incumbentGlobal</var> its <a for="environment settings object">global object</a>.</li>
-        <li>Let <var>cloneRecord</var> be <a>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
+        <li>Let <var>cloneRecord</var> be <a abstract-op>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li><a>Queue a task</a> that runs the following steps:
@@ -531,7 +430,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
             <li>Let the {{ExtendableMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
             <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>incumbentSettings</var>'s <a for="resource">origin</a>.</li>
             <li>If <var>incumbentGlobal</var> is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{ServiceWorker}} object that represents <var>incumbentGlobal</var>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
-            <li>Else if <var>incumbentGlobal</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>incumbentGlobal</var>'s <a>browsing context</a>.</li>
+            <li>Else if <var>incumbentGlobal</var> is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{WindowClient}} object that represents <var>incumbentGlobal</var>'s <a for="/">browsing context</a>.</li>
             <li>Else, let it be initialized to a new {{Client}} object that represents the worker associated with <var>incumbentGlobal</var>.</li>
             <li>Let the {{ExtendableMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
@@ -1195,15 +1094,15 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <dl>
         <dt><em>auxiliary</em></dt>
         <dd>"<code>auxiliary</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is an <a>auxiliary browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is an <a>auxiliary browsing context</a>.</p></dd>
 
         <dt><em>top-level</em></dt>
         <dd>"<code>top-level</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is a <a>top-level browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>top-level browsing context</a>.</p></dd>
 
         <dt><em>nested</em></dt>
         <dd>"<code>nested</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a> is a <a>nested browsing context</a>.</p></dd>
+        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>nested browsing context</a>.</p></dd>
 
         <dt><em>none</em></dt>
         <dd>"<code>none</code>"</dd>
@@ -1226,7 +1125,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>destination</var> be the {{ServiceWorkerContainer}} object whose <a href="#dfn-service-worker-container-interface-client">service worker client</a> is the <a>context object</a>'s <a href="#dfn-service-worker-client-client">service worker client</a>.</li>
         <li>If <var>destination</var> is null, <a>throw</a> an "{{InvalidStateError}}" exception.</li>
         <li>Let <var>targetRealm</var> be <var>destination</var>'s <a>relevant Realm</a>.</li>
-        <li>Let <var>cloneRecord</var> be <a>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
+        <li>Let <var>cloneRecord</var> be <a abstract-op>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li>Add a <a>task</a> that runs the following steps to <var>destination</var>'s <a>client message queue</a>:
@@ -1264,7 +1163,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
-            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
+            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
             <li>Let <var>visibilityState</var> be null.</li>
             <li>Let <var>focusState</var> be null.</li>
             <li><a>Queue a task</a> <var>task</var> to run the following substeps on the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
@@ -1297,7 +1196,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
-            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
+            <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
             <li>If <var>browsingContext</var> has <a lt="discard a document">discarded</a> its {{Document}}, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
             <li>Let <var>navigateFailed</var> to false.</li>
             <li>Let <var>visibilityState</var> be null.</li>
@@ -1373,7 +1272,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                     <li>If <var>client</var> is not a <a>secure context</a>, reject <var>promise</var> with a "{{SecurityError}}" exception and abort these steps.</li>
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
+                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
                         <li>Let <var>visibilityState</var> be null.</li>
                         <li>Let <var>focusState</var> be null.</li>
                         <li><a>Queue a task</a> <var>task</var> to run the following substeps:
@@ -1434,7 +1333,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
               <ol>
                 <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
-                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
+                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
                     <li>Let <var>isClientEnumerable</var> be false.</li>
                     <li>Let <var>visibilityState</var> be the empty string.</li>
                     <li>Let <var>focusState</var> be false.</li>
@@ -1470,7 +1369,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <ol>
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
                       <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a>browsing context</a>.</li>
+                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
                         <li>Let <var>isClientEnumerable</var> be false.</li>
                         <li>Let <var>visibilityState</var> be the empty string.</li>
                         <li>Let <var>focusState</var> be false.</li>
@@ -2139,19 +2038,19 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     <ol>
       <li>If the <{link/href}> attribute is the empty string, abort these steps.</li>
       <li>Let <var>client</var> be the document's <a for="ServiceWorkerContainer">service worker client</a>.</li>
-      <li>If <var>client</var> is not a <a>secure context</a>, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
+      <li>If <var>client</var> is not a <a>secure context</a>, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
       <li>Let <var>scriptURL</var> be the result of <a for="url">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.</li>
       <li>Let <var>scopeURL</var> be null.
       <li>If the <{link/scope}> attribute is present, set <var>scopeURL</var> to the result of <a for="url">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.</li>
       <li>Let <var>workerType</var> be the <{link/workertype}> attribute, or "<code>classic</code>" if the <{link/workertype}> attribute is omitted.</li>
-      <li>If <var>workerType</var> is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
+      <li>If <var>workerType</var> is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.</li>
       <li>Let <var>promise</var> be a new <a>promise</a>.</li>
       <li>Invoke [[#start-register-algorithm]] with <var>scopeURL</var>, <var>scriptURL</var>, <var>promise</var>, <var>client</var>, <var>client</var>'s <a>creation URL</a> and <var>workerType</var>.</li>
       <li>Run the following substeps <a>in parallel</a>:
         <ol>
           <li>Wait until <var>promise</var> settles.</li>
-          <li>If <var>promise</var> rejected, <a>queue a task</a> to <a>fire a simple event</a> named <code>error</code> at the <{link}> element.</li>
-          <li>If <var>promise</var> resolved, <a>queue a task</a> to <a>fire a simple event</a> named <code>load</code> at the <{link}> element.</li>
+          <li>If <var>promise</var> rejected, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element.</li>
+          <li>If <var>promise</var> resolved, <a>queue a task</a> to <a>fire an event</a> named <code>load</code> at the <{link}> element.</li>
         </ol>
       </li>
     </ol>
@@ -3391,12 +3290,12 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
       <li><a>Assert</a>: <var>job</var>'s <a href="#dfn-job-promise">promise</a> is not null.</li>
       <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the {{ServiceWorkerRegistration}} object which represents <var>registration</var>.</li>
-      <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> and all the <a href="#dfn-service-worker">service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is <var>registration</var>.</li>
+      <li><a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> and all the <a href="#dfn-service-worker">service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is <var>registration</var>.</li>
       <li>Let <var>installingWorker</var> be <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li>Create a <a>trusted event</a> <var>e</var> that uses the {{InstallEvent}} interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble and is not cancelable.</li>
+          <li>Create a trusted event <var>e</var> that uses the {{InstallEvent}} interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble and is not cancelable.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> <var>globalObject</var>.</li>
           <li><em>WaitForAsynchronousExtensions</em>: Run the following substeps <a>in parallel</a>:
             <ol>
@@ -3486,7 +3385,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble and is not cancelable.</li>
+          <li>Create a trusted event <var>e</var> that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble and is not cancelable.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
           <li><em>WaitForAsynchronousExtensions</em>: Wait, <a>in parallel</a>, until <var>e</var>'s <a>extensions allowed flag</a> is unset.</li>
         </ol>
@@ -3518,17 +3417,17 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
         </ul>
       </li>
       <li>Let <var>workerEventLoop</var> be a newly created <a>event loop</a>.</li>
-      <li>Let <var>workerGlobalScope</var> be <var>realmExecutionContext</var>'s <a lt="the Realm's global object">global object</a>.</li>
+      <li>Let <var>workerGlobalScope</var> be <var>realmExecutionContext</var>'s <a for="Realm">global object</a>.</li>
       <li>Let <var>settingsObject</var> be a new <a>environment settings object</a> whose algorithms are defined as follows:
         <dl>
-          <dt>The <a>realm execution context</a></dt>
+          <dt>The <a for="environment settings object">realm execution context</a></dt>
           <dd>Return <var>realmExecutionContext</var>.</dd>
           <dt>The <a for="environment settings object">global object</a></dt>
           <dd>Return <var>workerGlobalScope</var>.</dd>
           <dt>The <a>responsible event loop</a></dt>
           <dd>Return <var>workerEventLoop</var>.</dd>
           <dt>The <a for="environment settings object">referrer policy</a></dt>
-          <dd>Return <var>workerGlobalScope</var>'s <a for="workerglobalscope">referrer policy</a>.</dd>
+          <dd>Return <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">referrer policy</a>.</dd>
           <dt>The <a>API URL character encoding</a></dt>
           <dd>Return UTF-8.</dd>
           <dt>The <a>API base URL</a></dt>
@@ -3536,17 +3435,17 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
           <dt>The <a for="resource">origin</a></dt>
           <dd>Return its registering <a href="#dfn-service-worker-client">service worker client</a>'s <a for="resource">origin</a>.</dd>
           <dt>The <a>creation URL</a></dt>
-          <dd>Return <var>workerGlobalScope</var>'s <a for="workerglobalscope">url</a>.</dd>
+          <dd>Return <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">url</a>.</dd>
           <dt>The <a for="environment settings object">HTTPS state</a></dt>
-          <dd>Return <var>workerGlobalScope</var>'s <a for="workerglobalscope">HTTPS state</a>.</dd>
+          <dd>Return <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">HTTPS state</a>.</dd>
         </dl>
       </li>
-      <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">url</a> to <var>serviceWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
-      <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">HTTPS state</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-https-state">HTTPS state</a>.</li>
-      <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">referrer policy</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a>.</li>
-      <li>Set <var>workerGlobalScope</var>'s <a for="workerglobalscope">type</a> to <var>serviceWorker</var>'s <a href="#dfn-type">type</a>.</li>
+      <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">url</a> to <var>serviceWorker</var>'s <a href="#dfn-script-url">script url</a>.</li>
+      <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">HTTPS state</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-https-state">HTTPS state</a>.</li>
+      <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">referrer policy</a> to <var>serviceWorker</var>'s <a>script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a>.</li>
+      <li>Set <var>workerGlobalScope</var>'s <a for="WorkerGlobalScope">type</a> to <var>serviceWorker</var>'s <a href="#dfn-type">type</a>.</li>
       <li>Create a new {{WorkerLocation}} object and associate it with <var>workerGlobalScope</var>.</li>
-      <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a href="#dfn-service-worker-registration-task-queue">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> in the same order using their original <a>task sources</a>.</li>
+      <li>If <var>serviceWorker</var> is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> in the same order using their original <a>task sources</a>.</li>
       <li>If <var>script</var> is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> <var>script</var>. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> <var>script</var>.
         <p class="note">In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.</p>
       </li>
@@ -3576,7 +3475,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>If <var>serviceWorker</var> is not running, abort these steps.</li>
       <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
       <li>Set <var>serviceWorkerGlobalScope</var>'s closing flag to true.</li>
-      <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a href="#dfn-service-worker-registration-task-queue">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> without processing them.
+      <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="event loop">task queues</a> without processing them.
         <p class="note">This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.</p>
       </li>
       <li>Abort the script currently running in <var>serviceWorker</var>.</li>
@@ -3635,7 +3534,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li>Create a <a>trusted event</a> <var>e</var> that uses the {{FetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble.</li>
+          <li>Create a trusted event <var>e</var> that uses the {{FetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble.</li>
           <li>Let the <a href="#fetch-event-request-attribute">request</a> attribute of <var>e</var> be initialized to <var>r</var>.</li>
           <li>Let the <a href="#fetch-event-clientid-attribute">clientId</a> attribute of <var>e</var> be initialized to <var>client</var>'s <a href="#dfn-service-worker-client-id">id</a> if <var>request</var> is not a <a>non-subresource request</a>, and to null otherwise.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
@@ -3716,7 +3615,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
       <li>Invoke [[#run-service-worker-algorithm]] algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li>Create a <a>trusted event</a> <var>e</var> that uses the {{ForeignFetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>, which does not bubble.</li>
+          <li>Create a trusted event <var>e</var> that uses the {{ForeignFetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>, which does not bubble.</li>
           <li>Let the {{ForeignFetchEvent/request}} attribute of <var>e</var> be initialized to <var>r</var>.</li>
           <li>Let the {{ForeignFetchEvent/origin}} attribute of <var>e</var> be initialized to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>request</var>'s <a for=request>origin</a>.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
@@ -4033,7 +3932,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
                   <p class="note">A new <a href="#dfn-service-worker">service worker</a> is replacing the current <a href="#dfn-service-worker">service worker</a>, or the current <a href="#dfn-service-worker">service worker</a> is being discarded due to an install failure.</p></dd>
                 </dl>
               </li>
-              <li><a>Fire a simple event</a> named <code>statechange</code> at <var>workerObject</var>.</li>
+              <li><a>Fire an event</a> named <code>statechange</code> at <var>workerObject</var>.</li>
             </ol>
           </li>
         </ol>
@@ -4053,7 +3952,7 @@ spec: webidl; urlPrefix: https://heycam.github.io/webidl/
     </dl>
     <ol>
       <li><a>Assert</a>: <var>client</var> is not null.</li>
-      <li><a>Queue a task</a> to <a>fire a simple event</a> named <code>controllerchange</code> at the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object <var>client</var> is <a href="#dfn-service-worker-container-interface-client">associated</a> with.</li>
+      <li><a>Queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the <code><a href="#service-worker-container-interface">ServiceWorkerContainer</a></code> object <var>client</var> is <a href="#dfn-service-worker-container-interface-client">associated</a> with.</li>
     </ol>
     <p>The <a>task</a> <em class="rfc2119" title="MUST">must</em> use <var>client</var>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.</p>
   </section>
