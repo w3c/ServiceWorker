@@ -158,6 +158,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: active service worker; for: environment
             text: dom manipulation task source
             text: environment
+            text: id; for: environment
             text: run a classic script
             text: run a module script
             text: task queue; for: event loop
@@ -1113,7 +1114,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
     <section>
       <h4 id="client-id">{{Client/id}}</h4>
 
-      <p>The <dfn attribute for="Client" id="client-id-attribute"><code>id</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return its associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>id</a>.</p>
+      <p>The <dfn attribute for="Client" id="client-id-attribute"><code>id</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return its associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment">id</a>.</p>
     </section>
 
     <section algorithm="client-postmessage">
@@ -1268,7 +1269,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
           <ol>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
               <ol>
-                <li>If <var>client</var>'s <a>id</a> is <var>id</var>, then:
+                <li>If <var>client</var>'s <a for="environment">id</a> is <var>id</var>, then:
                   <ol>
                     <li>If <var>client</var> is not a <a>secure context</a>, reject <var>promise</var> with a "{{SecurityError}}" exception and abort these steps.</li>
                     <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
@@ -3563,8 +3564,8 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <ol>
           <li>Create a trusted event <var>e</var> that uses the {{FetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble.</li>
           <li>Let the <a href="#fetch-event-request-attribute">request</a> attribute of <var>e</var> be initialized to <var>r</var>.</li>
-          <li>Initialize <var>e</var>'s {{FetchEvent/clientId}} attribute to <var>client</var>'s <a>id</a>.</li>
-          <li>If <var>request</var> is a <a>non-subresource request</a> and <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", initialize <var>e</var>'s {{FetchEvent/reservedClientId}} attribute to <var>reservedClient</var>'s <a>id</a>, and to the empty string otherwise.</li>
+          <li>Initialize <var>e</var>'s {{FetchEvent/clientId}} attribute to <var>client</var>'s <a for="environment">id</a>.</li>
+          <li>If <var>request</var> is a <a>non-subresource request</a> and <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", initialize <var>e</var>'s {{FetchEvent/reservedClientId}} attribute to <var>reservedClient</var>'s <a for="environment">id</a>, and to the empty string otherwise.</li>
           <li>If <var>request</var> is a <a>navigation request</a>, initialize <var>e</var>'s {{FetchEvent/targetClientId}} attribute to <var>request</var>'s <a for="request">target client id</a>, and to the empty string otherwise.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
