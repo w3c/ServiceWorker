@@ -155,13 +155,15 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
         urlPrefix: semantics.html
             text: external resource link
         urlPrefix: webappapis.html
-            text: active service worker; for: environment
             text: dom manipulation task source
             text: environment
-            text: id; for: environment
             text: run a classic script
             text: run a module script
             text: task queue; for: event loop
+            for: environment; urlPrefix: #concept-environment-
+                text: active service worker
+                text: creation URL
+                text: id
         urlPrefix: workers.html
             text: shared workers
             text: web worker; url: workers
@@ -302,7 +304,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
 
     <p>A <a href="#dfn-service-worker-client">service worker client</a> independently <a href="#dfn-service-worker-registration-selection">selects</a> and <a href="#dfn-use">uses</a> a <a href="#dfn-service-worker-registration">service worker registration</a> for its own loading and its subresources. The <dfn id="dfn-service-worker-registration-selection">selection</dfn> of a <a href="#dfn-service-worker-registration">service worker registration</a>, upon a <a>non-subresource request</a>, is a process of either <a href="#scope-match-algorithm">matching</a> a <a href="#dfn-service-worker-registration">service worker registration</a> from <a href="#dfn-scope-to-registration-map">scope to registration map</a> or inheriting an existing <a href="#dfn-service-worker-registration">service worker registration</a> from its parent or owner context depending on the request's <a for="request">url</a>.</p>
 
-    <p>When the request's <a for="request">url</a> is not <a lt="is local">local</a>, a <a href="#dfn-service-worker-client">service worker client</a> <a href="#scope-match-algorithm">matches</a> a <a href="#dfn-service-worker-registration">service worker registration</a> from <a href="#dfn-scope-to-registration-map">scope to registration map</a>. That is, the <a href="#dfn-service-worker-client">service worker client</a> attempts to consult a <a href="#dfn-service-worker-registration">service worker registration</a> whose <a href="#dfn-scope-url">scope url</a> <a href="#scope-match-algorithm">matches</a> its <a>creation url</a>.</p>
+    <p>When the request's <a for="request">url</a> is not <a lt="is local">local</a>, a <a href="#dfn-service-worker-client">service worker client</a> <a href="#scope-match-algorithm">matches</a> a <a href="#dfn-service-worker-registration">service worker registration</a> from <a href="#dfn-scope-to-registration-map">scope to registration map</a>. That is, the <a href="#dfn-service-worker-client">service worker client</a> attempts to consult a <a href="#dfn-service-worker-registration">service worker registration</a> whose <a href="#dfn-scope-url">scope url</a> <a href="#scope-match-algorithm">matches</a> its <a>creation URL</a>.</p>
 
     <p>When the request's <a for="request">url</a> <a>is local</a>, if the <a href="#dfn-service-worker-client">service worker client</a>'s <a>responsible browsing context</a> is a <a>nested browsing context</a> or the <a href="#dfn-service-worker-client">service worker client</a> is a <a href="#dfn-worker-client">worker client</a>, the <a href="#dfn-service-worker-client">service worker client</a> inherits the <a href="#dfn-service-worker-registration">service worker registration</a> from its <a>parent browsing context</a>'s environment or one of <a>the worker's Documents</a>' environment, respectively, if it exists.</p>
 
@@ -539,7 +541,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
     <section algorithm="navigator-service-worker-unregister">
       <h4 id="navigator-service-worker-unregister">{{ServiceWorkerRegistration/unregister()}}</h4>
 
-      <p class="note">The {{ServiceWorkerRegistration/unregister()}} method unregisters the <a href="#dfn-service-worker-registration">service worker registration</a>. It is important to note that the currently <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>'s <a for="environment">active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is effective until all the <a href="#dfn-service-worker-client">service worker clients</a> (including itself) using this <a href="#dfn-service-worker-registration">service worker registration</a> unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.</p>
+      <p class="note">The {{ServiceWorkerRegistration/unregister()}} method unregisters the <a href="#dfn-service-worker-registration">service worker registration</a>. It is important to note that the currently <a href="#dfn-control">controlled</a> <a href="#dfn-service-worker-client">service worker client</a>'s <a>active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is effective until all the <a href="#dfn-service-worker-client">service worker clients</a> (including itself) using this <a href="#dfn-service-worker-registration">service worker registration</a> unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.</p>
 
       <p><dfn method id="service-worker-registration-unregister-method"><code>unregister()</code></dfn> method <em class="rfc2119" title="MUST">must</em> run these steps:</p>
 
@@ -635,7 +637,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
 
       <ol>
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
-        <li>Return the {{ServiceWorker}} object that represents <var>client</var>'s <a for="environment">active service worker</a>.</li>
+        <li>Return the {{ServiceWorker}} object that represents <var>client</var>'s <a>active service worker</a>.</li>
       </ol>
 
       <p class="note">{{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} returns <code>null</code> if the request is a force refresh (shift+refresh). The {{ServiceWorker}} objects returned from this attribute getter that represent the same <a href="#dfn-service-worker">service worker</a> are the same objects.</p>
@@ -651,7 +653,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <li>If the <a>context object</a>'s <a href="#dfn-ready-promise">ready promise</a> is settled, return the <a>context object</a>'s <a href="#dfn-ready-promise">ready promise</a>.</li>
         <li>Let <var>client</var> be the <a>context object</a>'s <a href="#dfn-service-worker-container-interface-client">service worker client</a>.</li>
         <li>Let <var>registration</var> be null.</li>
-        <li>Let <var>clientURL</var> be <var>client</var>'s <a>creation url</a>.</li>
+        <li>Let <var>clientURL</var> be <var>client</var>'s <a>creation URL</a>.</li>
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
             <li><em>CheckRegistration</em>: If the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm with <var>clientURL</var> as its argument is not null, then:
@@ -893,7 +895,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <tr>
           <td><dfn event id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td>{{Event}}</td>
-          <td>The <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a for="environment">active service worker</a> changes. (See step 9.2 of the <a href="#activation-algorithm">Activate</a> algorithm. The <a href="#dfn-skip-waiting-flag">skip waiting flag</a> of a <a href="#dfn-service-worker">service worker</a> causes <a href="#activation-algorithm">activation</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> to occur while <a href="#dfn-service-worker-client">service worker clients</a> are <a href="#dfn-use">using</a> the <a href="#dfn-service-worker-registration">service worker registration</a>, {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} immediately reflects the <a href="#dfn-active-worker">active worker</a> as the <a href="#dfn-service-worker">service worker</a> that <a href="#dfn-control">controls</a> the <a href="#dfn-service-worker-client">service worker client</a>.)</td>
+          <td>The <a href="#dfn-service-worker-container-interface-client">service worker client</a>'s <a>active service worker</a> changes. (See step 9.2 of the <a href="#activation-algorithm">Activate</a> algorithm. The <a href="#dfn-skip-waiting-flag">skip waiting flag</a> of a <a href="#dfn-service-worker">service worker</a> causes <a href="#activation-algorithm">activation</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> to occur while <a href="#dfn-service-worker-client">service worker clients</a> are <a href="#dfn-use">using</a> the <a href="#dfn-service-worker-registration">service worker registration</a>, {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} immediately reflects the <a href="#dfn-active-worker">active worker</a> as the <a href="#dfn-service-worker">service worker</a> that <a href="#dfn-control">controls</a> the <a href="#dfn-service-worker-client">service worker client</a>.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-container-message-event"><code>message</code></dfn></td>
@@ -1085,7 +1087,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
 
-      <p>The <dfn attribute for="Client" id="client-url-attribute"><code>url</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="url">serialized</a> <a>creation url</a>.</p>
+      <p>The <dfn attribute for="Client" id="client-url-attribute"><code>url</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="url">serialized</a> <a>creation URL</a>.</p>
     </section>
 
     <section>
@@ -1194,7 +1196,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <li>Let <var>url</var> be the result of <a for="url">parsing</a> <var>url</var> with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.</li>
         <li>If <var>url</var> is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
         <li>If <var>url</var> is <code><a>about:blank</a></code>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
-        <li>If the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment">active service worker</a> is not the <a>context object</a>'s <a>relevant global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
+        <li>If the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>active service worker</a> is not the <a>context object</a>'s <a>relevant global object</a>'s <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, return a <a>promise</a> rejected with a <code>TypeError</code>.</li>
         <li>Let <var>promise</var> be a new <a>promise</a>.</li>
         <li>Run these substeps <a>in parallel</a>:
           <ol>
@@ -1213,7 +1215,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
             <li>If <var>navigateFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-            <li>If <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation url</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
+            <li>If <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
               <ol>
                 <li>Resolve <var>promise</var> with null.</li>
                 <li>Abort these steps.</li>
@@ -1320,7 +1322,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                 <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
                 <li>If <var>options</var>.{{ClientQueryOptions/includeUncontrolled}} is false, then:
                   <ol>
-                    <li>If <var>client</var>'s <a for="environment">active service worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
+                    <li>If <var>client</var>'s <a>active service worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
                   </ol>
                 </li>
                 <li>Else:
@@ -1440,7 +1442,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
             <li>If <var>openWindowFailed</var> is true, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
-            <li>If <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation url</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
+            <li>If <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>, then:
               <ol>
                 <li>Resolve <var>promise</var> with null.</li>
                 <li>Abort these steps.</li>
@@ -1467,7 +1469,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
               <ol>
                 <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
-                <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a>creation url</a> as the argument.</li>
+                <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a>creation URL</a> as the argument.</li>
                 <li>If <var>registration</var> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>, continue to the next iteration of the loop.</li>
                 <li>If <var>client</var>'s <a href="#dfn-active-worker">active worker</a> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, then:
                   <ol>
@@ -3308,7 +3310,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
       <li>Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a> and <em>installing</em> as the arguments.</li>
       <li><a>Assert</a>: <var>job</var>'s <a href="#dfn-job-promise">promise</a> is not null.</li>
       <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the {{ServiceWorkerRegistration}} object which represents <var>registration</var>.</li>
-      <li><a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> and all the <a href="#dfn-service-worker">service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is <var>registration</var>.</li>
+      <li><a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a href="#dfn-service-worker-client">service worker clients</a> whose <a>creation URL</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a> and all the <a href="#dfn-service-worker">service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is <var>registration</var>.</li>
       <li>Let <var>installingWorker</var> be <var>registration</var>'s <a href="#dfn-installing-worker">installing worker</a>.</li>
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
@@ -3386,7 +3388,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <p class="note">Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.</p>
       </li>
       <li>If <var>redundantWorker</var> is not null, run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing <var>redundantWorker</var> and <em>redundant</em> as the arguments.</li>
-      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>creation url</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
+      <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a>creation URL</a> <a href="#scope-match-algorithm">matches</a> <var>registration</var>'s <a href="#dfn-scope-url">scope url</a>:
         <ol>
           <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, unassociate <var>client</var>'s <a>responsible document</a> from its <a>application cache</a>, if it has one.</li>
           <li>Else if <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, unassociate <var>client</var>'s <a for="environment settings object">global object</a> from its <a>application cache</a>, if it has one.</li>
@@ -3544,13 +3546,13 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
           <li>If <var>request</var> is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.</li>
           <li>Set <var>registration</var> to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>request</var>'s <a for="request">url</a> as the argument.</li>
           <li>If <var>registration</var> is null or <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is null, return null.</li>
-          <li>If <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", set <var>reservedClient</var>'s <a for="environment">active service worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
+          <li>If <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", set <var>reservedClient</var>'s <a>active service worker</a> to <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
         </ol>
-        <p class="note">From this point, the <a href="#dfn-service-worker-client">service worker client</a> starts to <a href="#dfn-use">use</a> its <a for="environment">active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
+        <p class="note">From this point, the <a href="#dfn-service-worker-client">service worker client</a> starts to <a href="#dfn-use">use</a> its <a>active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
       </li>
       <li>Else if <var>request</var> is a <a>subresource request</a>, then:
         <ol>
-          <li>If <var>client</var>'s <a for="environment">active service worker</a> is non-null, set <var>registration</var> to <var>client</var>'s <a for="environment">active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</li>
+          <li>If <var>client</var>'s <a>active service worker</a> is non-null, set <var>registration</var> to <var>client</var>'s <a>active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</li>
           <li>Else, return null.</li>
         </ol>
       </li>
