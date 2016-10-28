@@ -187,7 +187,7 @@ The easiest way at the moment is to close & reopen the tab (cmd+w, then cmd+shif
 
 ## The cache
 
-service worker comes with a [caching API](https://slightlyoff.github.io/ServiceWorker/#cache-objects), letting you create stores of responses keyed by request.
+service worker comes with a [caching API](https://w3c.github.io/ServiceWorker/#cache-objects), letting you create stores of responses keyed by request.
 
 ```js
 self.addEventListener('install', function(event) {
@@ -215,7 +215,7 @@ self.addEventListener('fetch', function(event) {
 
 Matching within the cache is similar to the browser cache. Method, URL and vary headers are taken into account, but freshness headers are ignored. Things are only removed from caches when you remove them.
 
-You can add individual items to the cache with `cache.put(request, response)`, including ones you’ve created yourself. You can also control matching, [discounting things](https://slightlyoff.github.io/ServiceWorker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
+You can add individual items to the cache with `cache.put(request, response)`, including ones you’ve created yourself. You can also control matching, [discounting things](https://w3c.github.io/ServiceWorker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
 
 ## Other service worker–related specifications
 
@@ -232,4 +232,3 @@ This document only scratches the surface of what service workers enable, and are
 ## Acknowledgments
 
 Many thanks to [Web Personality of the Year nominee](http://www.ubelly.com/thecritters/) Jake (“B.J.”) Archibald, David Barrett-Kahn, Anne van Kesteren, Michael Nordman, Darin Fisher, Alec Flett, Andrew Betts, Chris Wilson, Aaron Boodman, Dave Herman, Jonas Sicking, and Greg Billock for their comments and contributions to this document and to the discussions that have informed it.
-
