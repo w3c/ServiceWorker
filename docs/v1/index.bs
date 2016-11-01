@@ -104,6 +104,8 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: synchronous flag
         text: terminate; url: concept-fetch-terminate
         text: guard; for: headers; url: concept-headers-guard
+        for: Body; urlPrefix: #concept-body-
+            text: body
         for: header; urlPrefix: #concept-header-
             text: name
             text: parsing; url: parse
@@ -611,7 +613,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
 
   <p>A {{ServiceWorkerContainer}} object has an associated <dfn id="dfn-ready-promise">ready promise</dfn> (a <a>promise</a>). It is initially set to a new <a>promise</a>.</p>
 
-  <p>A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn id="dfn-client-message-queue">client message queue</dfn>, initially empty. A <a>client message queue</a> can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's <a>client message queue</a> is enabled, the <a>event loop</a> <em class="rfc2119" title="MUST">must</em> use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its <a>client message queue</a> <em class="rfc2119" title="MUST">must</em> be associated with its <a>relevant settings object</a>'s <a>responsible document</a>.</p>
+  <p>A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn id="dfn-client-message-queue" for="ServiceWorkerContainer">client message queue</dfn>, initially empty. A <a for="ServiceWorkerContainer">client message queue</a> can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's <a for="ServiceWorkerContainer">client message queue</a> is enabled, the <a>event loop</a> <em class="rfc2119" title="MUST">must</em> use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its <a for="ServiceWorkerContainer">client message queue</a> <em class="rfc2119" title="MUST">must</em> be associated with its <a>relevant settings object</a>'s <a>responsible document</a>.</p>
 
     <section algorithm="navigator-service-worker-controller">
       <h4 id="navigator-service-worker-controller">{{ServiceWorkerContainer/controller}}</h4>
@@ -746,7 +748,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
     <section algorithm="navigator-service-worker-startMessages">
       <h4 id="navigator-service-worker-startMessages">{{ServiceWorkerContainer/startMessages()}}</h4>
 
-      <p><dfn method id="service-worker-container-startMessages-method"><code>startMessages()</code></dfn> method <em class="rfc2119" title="MUST">must</em> enable the <a>context object</a>'s <a>client message queue</a> if it is not enabled.</p>
+      <p><dfn method id="service-worker-container-startMessages-method"><code>startMessages()</code></dfn> method <em class="rfc2119" title="MUST">must</em> enable the <a>context object</a>'s <a for="ServiceWorkerContainer">client message queue</a> if it is not enabled.</p>
     </section>
 
     <section>
@@ -773,7 +775,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         </tbody>
       </table>
 
-      <p>The first time the <a>context object</a>'s <a href="#service-worker-container-onmessage-attribute">onmessage</a> IDL attribute is set, its <a>client message queue</a> <em class="rfc2119" title="MUST">must</em> be enabled.</p>
+      <p>The first time the <a>context object</a>'s <a href="#service-worker-container-onmessage-attribute">onmessage</a> IDL attribute is set, its <a for="ServiceWorkerContainer">client message queue</a> <em class="rfc2119" title="MUST">must</em> be enabled.</p>
     </section>
   </section>
 
@@ -1120,7 +1122,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <li>Let <var>cloneRecord</var> be <a abstract-op>StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.</li>
         <li>Let <var>clonedMessage</var> be <var>cloneRecord</var>.\[[Clone]].</li>
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
-        <li>Add a <a>task</a> that runs the following steps to <var>destination</var>'s <a>client message queue</a>:
+        <li>Add a <a>task</a> that runs the following steps to <var>destination</var>'s <a for="ServiceWorkerContainer">client message queue</a>:
           <ol>
             <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble and is not cancelable.</li>
             <li>Let the {{ServiceWorkerMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
@@ -1660,22 +1662,22 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                         <li>Let <var>bytes</var> be an empty byte sequence.
                         <li>Let <var>end-of-body</var> be false.
                         <li>Let <var>done</var> be false.
-                        <li>Let <var>potentialResponse</var> be a copy of <var>response</var>'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a>, except for its <a>body</a>.</li>
-                        <li>If <var>response</var>'s body is non-null, run these substeps:
+                        <li>Let <var>potentialResponse</var> be a copy of <var>response</var>'s associated <a for="response">response</a>, except for its <a for="response">body</a>.</li>
+                        <li>If <var>response</var>'s <a for="Body">body</a> is non-null, run these substeps:
                           <ol>
-                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>response</var>'s <a>body</a>'s <a>stream</a>.</li>
+                            <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>response</var>'s <a for="Body">body</a>'s <a>stream</a>.</li>
                             <li>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.</li>
                             <li>Let <var>pull</var> be an action that runs these subsubsteps:
                               <ol>
-                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a ReadableStream">reading</a> a chunk from <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                                <li>Let <var>promise</var> be the result of <a lt="read a chunk from a ReadableStream">reading</a> a chunk from <var>response</var>'s <a for="Body">body</a>'s <a>stream</a> with <var>reader</var>.</li>
                                 <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to <var>bytes</var> and perform ! <a href="https://tc39.github.io/ecma262/#sec-detacharraybuffer">DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.</li>
                                 <li>When <var>promise</var> is fulfilled with an object whose <code>done</code> property is true, set <var>end-of-body</var> to true.</li>
                                 <li>When <var>promise</var> is fulfilled with a value that matches with neither of the above patterns, or <var>promise</var> is rejected, <a lt="error ReadableStream">error</a> <var>newStream</var> with a <code>TypeError</code>.</li>
                               </ol>
                             </li>
-                            <li>Let <var>cancel</var> be an action that <a lt="cancel a ReadableStream">cancels</a> <var>response</var>'s <a>body</a>'s <a>stream</a> with <var>reader</var>.</li>
+                            <li>Let <var>cancel</var> be an action that <a lt="cancel a ReadableStream">cancels</a> <var>response</var>'s <a for="Body">body</a>'s <a>stream</a> with <var>reader</var>.</li>
                             <li>Let <var>newStream</var> be the result of <a lt="construct a ReadableStream">constructing</a> a ReadableStream object with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.</li>
-                            <li>Set <var>potentialResponse</var>'s <a>body</a> to a new <a>body</a> whose <a>stream</a> is <var>newStream</var>.</li>
+                            <li>Set <var>potentialResponse</var>'s <a for="response">body</a> to a new <a for="/">body</a> whose <a>stream</a> is <var>newStream</var>.</li>
                             <li>Run these subsubsteps repeatedly <a>in parallel</a> while <var>done</var> is false:</li>
                               <ol>
                                 <li>If <var>newStream</var> is <a>errored</a>, then set <var>done</var> to true.</li>
@@ -1691,7 +1693,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                               </ol>
                             </li>
                           </ol>
-                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a>'s <a>stream</a> into <var>potentialResponse</var>.</p>
+                          <p class="note">These substeps are meant to produce the observable equivalent of "piping" <var>response</var>'s <a for="Body">body</a>'s <a>stream</a> into <var>potentialResponse</var>.</p>
                         </li>
                         <li>Set the <a>potential response</a> to <var>potentialResponse</var>.</li>
                       </ol>
@@ -2020,7 +2022,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                 <li><a>Fetch</a> <var>r</var>.</li>
                 <li>To <a>process response</a> for <var>response</var>, run these substeps:
                   <ol>
-                    <li>If <var>response</var>'s <a for="response">type</a> is <em>error</em>, or <var>response</var>'s <a>status</a> is not an <a>ok status</a>, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
+                    <li>If <var>response</var>'s <a for="response">type</a> is "<code>error</code>", or <var>response</var>'s <a for="response">status</a> is not an <a>ok status</a>, reject <var>responsePromise</var> with a <code>TypeError</code>.</li>
                     <li>Else if <var>response</var>'s <a for="response">header list</a> contains a <a>header</a> <a for="header">named</a> `<code>Vary</code>`, then:
                       <ol>
                         <li>Let <var>varyHeaders</var> be the array containing the elements corresponding to the <a for="http">field-values</a> of the <a>Vary</a> header.</li>
@@ -2143,7 +2145,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <li>If <var>response</var>'s body is non-null, run these substeps:
           <ol>
             <li>Let <var>dummyStream</var> be an <a>empty</a> <a>ReadableStream</a> object.</li>
-            <li>Set <var>response</var>'s <a href="https://fetch.spec.whatwg.org/#concept-body-body">body</a> to a new <a>body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
+            <li>Set <var>response</var>'s <a for="Body">body</a> to a new <a for="/">body</a> whose <a>stream</a> is <var>dummyStream</var>.</li>
             <li>Let <var>reader</var> be the result of <a lt="get a reader">getting a reader</a> from <var>dummyStream</var>.</li>
             <li><a>Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</li>
           </ol>
@@ -2844,10 +2846,10 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
           <li>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>request</var>'s <a for="request">header list</a>.
             <p class="note">See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.</p>
           </li>
-          <li>Set <var>request</var>'s <a>skip service worker flag</a> and <var>request</var>'s <a>redirect mode</a> to "<code>error</code>".</li>
+          <li>Set <var>request</var>'s <a>skip service worker flag</a> and <var>request</var>'s <a for="request">redirect mode</a> to "<code>error</code>".</li>
           <li>If <var>newestWorker</var> is not null and <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is not null, then:
             <ol>
-              <li>If the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, or <em>force bypass cache flag</em> is set, set <var>request</var>'s <a>cache mode</a> to "<code>reload</code>".</li>
+              <li>If the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, or <em>force bypass cache flag</em> is set, set <var>request</var>'s <a for="request">cache mode</a> to "<code>reload</code>".</li>
             </ol>
             <p class="note">Even if the cache mode is not set to "reload", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.</p>
           </li>
@@ -3103,7 +3105,6 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         </ul>
       </li>
       <li>Let <var>workerEventLoop</var> be a newly created <a>event loop</a>.</li>
-      <li>Let <var>workerGlobalScope</var> be <var>realmExecutionContext</var>'s <a for="Realm">global object</a>.</li>
       <li>Let <var>settingsObject</var> be a new <a>environment settings object</a> whose algorithms are defined as follows:
         <dl>
           <dt>The <a for="environment settings object">realm execution context</a></dt>
@@ -3169,7 +3170,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
   </section>
 
   <section algorithm="on-fetch-request-algorithm">
-    <h3 id="on-fetch-request-algorithm">Handle Fetch</h3>
+    <h3 id="on-fetch-request-algorithm" dfn export>Handle Fetch</h3>
 
     <p>The <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm is the entry point for the <a>fetch</a> handling handed to the <a href="#dfn-service-worker">service worker</a> context.</p>
 
@@ -3234,7 +3235,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
           <li>Let the <a href="#fetch-event-request-attribute">request</a> attribute of <var>e</var> be initialized to <var>r</var>.</li>
           <li>Initialize <var>e</var>'s {{FetchEvent/clientId}} attribute to <var>client</var>'s <a for="environment">id</a>.</li>
           <li>If <var>request</var> is a <a>non-subresource request</a> and <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", initialize <var>e</var>'s {{FetchEvent/reservedClientId}} attribute to <var>reservedClient</var>'s <a for="environment">id</a>, and to the empty string otherwise.</li>
-          <li>If <var>request</var> is a <a>navigation request</a>, initialize <var>e</var>'s {{FetchEvent/targetClientId}} attribute to <var>request</var>'s <a>target client id</a>, and to the empty string otherwise.</li>
+          <li>If <var>request</var> is a <a>navigation request</a>, initialize <var>e</var>'s {{FetchEvent/targetClientId}} attribute to <var>request</var>'s <a for="request">target client id</a>, and to the empty string otherwise.</li>
           <li>Let the <a href="#fetch-event-isreload-attribute">isReload</a> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
           <li>If <var>e</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
