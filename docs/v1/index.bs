@@ -1260,32 +1260,41 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <li>Run these substeps <a>in parallel</a>:
           <ol>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+              <p class="issue">For environment type clients, the environment's creation URL's origin should be used for the origin check instead of the client's origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment's origin algorithm.</p>
               <ol>
-                <li>If <var>client</var>'s <a for="environment">id</a> is <var>id</var>, then:
+                <li>If <var>client</var>'s <a for="environment">id</a> is not <var>id</var>, continue to the next iteration of the loop.</li>
+                <li>If <var>client</var> is a type of <a>environment</a>, then:
+                  <ol>
+                    <li>If <var>client</var>’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject <var>promise</var> with a "{{SecurityError}}" exception and abort these steps.</li>
+                  </ol>
+                </li>
+                <li>Else:
                   <ol>
                     <li>If <var>client</var> is not a <a>secure context</a>, reject <var>promise</var> with a "{{SecurityError}}" exception and abort these steps.</li>
-                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                  </ol>
+                </li>
+                <li>If <var>client</var> is a type of <a>environment</a> or is a <a href="#dfn-window-client">window client</a>, then:
+                  <ol>
+                    <li>Let <var>browsingContext</var> be null.</li>
+                    <li>Let <var>visibilityState</var> be null.</li>
+                    <li>Let <var>focusState</var> be null.</li>
+                    <li>If <var>client</var> is a type of <a>environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a for="environment">target browsing context</a>.</li>
+                    <li>Else, set <var>browsingContext</var> to <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+                    <li><a>Queue a task</a> <var>task</var> to run the following substeps:
                       <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
-                        <li>Let <var>visibilityState</var> be null.</li>
-                        <li>Let <var>focusState</var> be null.</li>
-                        <li><a>Queue a task</a> <var>task</var> to run the following substeps:
-                          <ol>
-                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
-                            <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
-                          </ol>
-                        </li>
-                        <li>Wait for <var>task</var> to have executed.</li>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                        <li>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.</li>
+                        <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
+                        <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
                       </ol>
                     </li>
-                    <li>Else:
-                      <ol>
-                        <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.</li>
-                        <li>Resolve <var>promise</var> with <var>clientObject</var> and abort these steps.</li>
-                      </ol>
-                    </li>
+                    <li>Wait for <var>task</var> to have executed.</li>
+                    <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                    <li>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.</li>
+                    <li>Resolve <var>promise</var> with <var>clientObject</var> and abort these steps.</li>
                   </ol>
                 </li>
               </ol>

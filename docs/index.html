@@ -2564,33 +2564,42 @@ pre.idl.highlight { color: #708090; }
         <ol>
          <li>
           For each <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-24">service worker client</a> <var>client</var> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a> is the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#same-origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker" id="ref-for-dfn-service-worker-global-scope-service-worker-7">service worker</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#origin-2">origin</a>: 
+          <p class="issue" id="issue-eb16f4c7"><a class="self-link" href="#issue-eb16f4c7"></a>For environment type clients, the environment’s creation URL’s origin should be used for the origin check instead of the client’s origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment’s origin algorithm.</p>
           <ol>
+           <li>If <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-id">id</a> is not <var>id</var>, continue to the next iteration of the loop.
            <li>
-            If <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-id">id</a> is <var>id</var>, then: 
+            If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a>, then: 
+            <ol>
+             <li>If <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> is not a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-secure-contexts/#potentially-trustworthy-url">potentially trustworthy URL</a>, reject <var>promise</var> with a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception and abort these steps.
+            </ol>
+           <li>
+            Else: 
             <ol>
              <li>If <var>client</var> is not a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-secure-contexts/#secure-context">secure context</a>, reject <var>promise</var> with a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#securityerror">SecurityError</a></code>" exception and abort these steps.
+            </ol>
+           <li>
+            If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a> or is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-4">window client</a>, then: 
+            <ol>
+             <li>Let <var>browsingContext</var> be null.
+             <li>Let <var>visibilityState</var> be null.
+             <li>Let <var>focusState</var> be null.
+             <li>If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-target-browsing-context">target browsing context</a>.
+             <li>Else, set <var>browsingContext</var> to <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.
              <li>
-              If <var>client</var> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-4">window client</a>, then: 
+              <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps: 
               <ol>
-               <li>Let <var>browsingContext</var> be <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.
-               <li>Let <var>visibilityState</var> be null.
-               <li>Let <var>focusState</var> be null.
-               <li>
-                <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps: 
-                <ol>
-                 <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
-                 <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
-                </ol>
-               <li>Wait for <var>task</var> to have executed.
-               <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
-               <li>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.
+               <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
+               <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
               </ol>
-             <li>
-              Else: 
-              <ol>
-               <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.
-               <li>Resolve <var>promise</var> with <var>clientObject</var> and abort these steps.
-              </ol>
+             <li>Wait for <var>task</var> to have executed.
+             <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.
+             <li>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.
+            </ol>
+           <li>
+            Else: 
+            <ol>
+             <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.
+             <li>Resolve <var>promise</var> with <var>clientObject</var> and abort these steps.
             </ol>
           </ol>
          <li>Resolve <var>promise</var> with undefined.
@@ -5997,6 +6006,7 @@ pre.idl.highlight { color: #708090; }
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-script">script</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#shared-workers">shared workers</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#source-browsing-context">source browsing context</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-target-browsing-context">target browsing context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queue</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task source</a>
@@ -6396,6 +6406,7 @@ pre.idl.highlight { color: #708090; }
 </pre>
   <h2 class="no-num no-ref heading settled" id="issues-index"><span class="content">Issues Index</span><a class="self-link" href="#issues-index"></a></h2>
   <div style="counter-reset:issue">
+   <div class="issue">For environment type clients, the environment’s creation URL’s origin should be used for the origin check instead of the client’s origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment’s origin algorithm.<a href="#issue-eb16f4c7"> ↵ </a></div>
    <div class="issue">The response’s cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.<a href="#issue-3c7457a0"> ↵ </a></div>
   </div>
   <aside class="dfn-panel" data-for="dfn-service-worker">
