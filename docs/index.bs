@@ -208,12 +208,6 @@ spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
 spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     type: dfn
         text: Vary; url: section-7.1.4
-
-spec: url; urlPrefix: https://url.spec.whatwg.org/
-    type: dfn
-        text: equals; url: concept-url-equals
-        text: URL parser; url: concept-url-parser
-        text: URL serializer; url: concept-url-serializer
 </pre>
 
 <section>
@@ -1602,7 +1596,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
           <ol>
             <li>For each <var>origin</var> in <var>options</var>.<var>origins</var>:
               <ol>
-                <li>If the value of <var>origin</var> is not an <a>absolute URL</a>, <a>throw</a> a <code>TypeError</code> and abort these steps.</li>
+                <li>If the value of <var>origin</var> is not an <a>absolute-URL string</a>, <a>throw</a> a <code>TypeError</code> and abort these steps.</li>
                 <li>Add the result of <a lt="URL parser">parsing</a> <var>origin</var> to <var>originURLs</var>.</li>
               </ol>
             </li>
@@ -2924,7 +2918,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-client">client</dfn> (a <a href="#dfn-service-worker-client">service worker client</a>). It is initially null.</P>
 
-  <P>A <a>job</a> has a <dfn for="job">referrer</dfn> (a <a for=url>URL</a> or null).</p>
+  <P>A <a>job</a> has a <dfn for="job">referrer</dfn> (a <a for="/">URL</a> or null).</p>
 
   <P>A <a href="#dfn-job">job</a> has a <dfn id="dfn-job-promise" lt="job promise">promise</dfn> (a <a>promise</a>). It is initially null.</P>
 
@@ -3080,7 +3074,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <dd><var>scriptURL</var>, a <a for="/">URL</a> or failure</dd>
         <dd><var>promise</var>, a <a>promise</a></dd>
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
-        <dd><var>referrer</var>, a <a for=url>URL</a></dd>
+        <dd><var>referrer</var>, a <a for="/">URL</a></dd>
         <dd><var>workerType</var>, a <a>worker type</a></dd>
       <dt>Output</dt>
         <dd>none</dd>
@@ -3135,7 +3129,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         <ol>
           <li>If <var>registration</var>'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, unset it.</li>
           <li>Let <var>newestWorker</var> be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-          <li>If <var>newestWorker</var> is not null and <var>job</var>'s <a href="#dfn-job-script-url">script url</a> <a spec="url">equals</a> <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
+          <li>If <var>newestWorker</var> is not null and <var>job</var>'s <a href="#dfn-job-script-url">script url</a> <a for="url">equals</a> <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
             <ol>
               <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the {{ServiceWorkerRegistration}} object which represents <var>registration</var>.</li>
               <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
@@ -3170,7 +3164,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         </ol>
       </li>
       <li>Let <var>newestWorker</var> be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</li>
-      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> does not <a spec="url">equal</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
+      <li>If <var>job</var>'s <a href="#dfn-job-type">job type</a> is <em>update</em>, and <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> does not <a for="url">equal</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, then:
         <ol>
           <li>Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
@@ -3253,7 +3247,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
         </p>
         <p>Else, continue the rest of these steps after the algorithm's asynchronous completion, with <var>script</var> being the asynchronous completion value.</p>
       </li>
-      <li>If <var>newestWorker</var> is not null, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> <a spec="url">equals</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, and <var>script</var> is a byte-for-byte match with <var>newestWorker</var>'s <a href="#dfn-script-resource">script resource</a>, then:
+      <li>If <var>newestWorker</var> is not null, <var>newestWorker</var>'s <a href="#dfn-script-url">script url</a> <a for="url">equals</a> <var>job</var>'s <a href="#dfn-job-script-url">script url</a> with the <em>exclude fragments flag</em> set, and <var>script</var> is a byte-for-byte match with <var>newestWorker</var>'s <a href="#dfn-script-resource">script resource</a>, then:
         <ol>
           <li>Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with <var>job</var> and the {{ServiceWorkerRegistration}} object which represents <var>registration</var>.</li>
           <li>Invoke <a href="#finish-job-algorithm">Finish Job</a> with <var>job</var> and abort these steps.</li>
@@ -4157,7 +4151,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                   <li>Set <var>requestURL</var>'s <a for="url">query</a> to the empty string.</li>
                 </ol>
               </li>
-              <li>If <var>cachedURL</var> <a spec="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
+              <li>If <var>cachedURL</var> <a for="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
                 <ol>
                   <li>Add a copy of <var>entry</var>.\[[key]] to <var>requestArray</var>.</li>
                   <li>Add a copy of <var>entry</var>.\[[value]] to <var>responseArray</var>.</li>
@@ -4179,7 +4173,7 @@ spec: url; urlPrefix: https://url.spec.whatwg.org/
                   <li>Set <var>requestURL</var>'s <a for="url">query</a> to the empty string.</li>
                 </ol>
               </li>
-              <li>If <var>cachedURL</var> <a spec="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
+              <li>If <var>cachedURL</var> <a for="url">equals</a> <var>requestURL</var> with the <em>exclude fragments flag</em> set, then:
                 <ol>
                   <li>Add <var>record</var>[0] to <var>requestArray</var>.</li>
                   <li>Add <var>record</var>[1] to <var>responseArray</var>.</li>
