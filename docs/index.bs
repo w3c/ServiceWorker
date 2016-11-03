@@ -1447,14 +1447,24 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Run the following substeps <a>in parallel</a>:
           <ol>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+              <p class="issue">For environment type clients, the environment's creation URL's origin should be used for the origin check instead of the client's origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment's origin algorithm.</p>
               <ol>
-                <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
+                <li>If <var>client</var> is a type of <a>environment</a>, then:
+                  <ol>
+                    <li>If <var>client</var>’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.</li>
+                  </ol>
+                </li>
+                <li>Else:
+                  <ol>
+                    <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
+                  </ol>
+                </li>
                 <li>Let <var>registration</var> be the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing <var>client</var>'s <a>creation URL</a> as the argument.</li>
                 <li>If <var>registration</var> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>, continue to the next iteration of the loop.</li>
-                <li>If <var>client</var>'s <a href="#dfn-active-worker">active worker</a> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, then:
+                <li>If <var>client</var>'s <a>active service worker</a> is not the <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, then:
                   <ol>
                     <li>Invoke <a href="#on-client-unload-algorithm">Handle Service Worker Client Unload</a> with <var>client</var> as the argument.</li>
-                    <li>Set <var>client</var>'s <a href="#dfn-active-worker">active worker</a> to <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
+                    <li>Set <var>client</var>'s <a>active service worker</a> to <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>.</li>
                     <li>Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with <var>client</var> as the argument.</li>
                   </ol>
                 </li>
