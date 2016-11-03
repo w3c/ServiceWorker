@@ -1231,6 +1231,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <pre class="idl" id="serviceworker-client-query-options-dictionary">
       dictionary ClientQueryOptions {
         boolean includeUncontrolled = false;
+        boolean includeReserved = false;
         ClientType type = "window";
       };
     </pre>
@@ -1275,7 +1276,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                     <li>Let <var>focusState</var> be null.</li>
                     <li>If <var>client</var> is a type of <a>environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a for="environment">target browsing context</a>.</li>
                     <li>Else, set <var>browsingContext</var> to <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
-                    <li><a>Queue a task</a> <var>task</var> to run the following substeps:
+                    <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>browsingContext</var>'s <a>event loop</a> using the <a>user interaction task source</a>:
                       <ol>
                         <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                         <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
@@ -1312,38 +1313,48 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <ol>
             <li>Let <var>targetClients</var> be an empty array.</li>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> whose <a for="resource">origin</a> is the <a lt="same origin">same</a> as the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>'s <a for="resource">origin</a>:
+              <p class="issue">For environment type clients, the environment's creation URL's origin should be used for the origin check instead of the client's origin. See <a href="https://github.com/whatwg/html/issues/1992">the issue</a> to define the environment's origin algorithm.</p>
               <ol>
-                <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
-                <li>If <var>options</var>.{{ClientQueryOptions/includeUncontrolled}} is false, then:
+                <li>If <var>client</var> is a type of <a>environment</a>, then:
                   <ol>
-                    <li>If <var>client</var>'s <a>active service worker</a> is the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, add <var>client</var> to <var>targetClients</var>.</li>
+                    <li>If <var>client</var>’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.</li>
                   </ol>
                 </li>
                 <li>Else:
                   <ol>
-                    <li>Add <var>client</var> to <var>targetClients</var>.</li>
+                    <li>If <var>client</var> is not a <a>secure context</a>, continue to the next iteration of the loop.</li>
                   </ol>
                 </li>
+                <li>If <var>options</var>.{{ClientQueryOptions/includeUncontrolled}} is false, then:
+                  <ol>
+                    <li>If <var>client</var>'s <a>active service worker</a> is not the associated <a href="#dfn-service-worker-global-scope-service-worker">service worker</a>, continue to the next iteration of the loop.</li>
+                  </ol>
+                </li>
+                <li>If <var>options</var>.{{ClientQueryOptions/includeReserved}} is false, then:
+                  <ol>
+                    <li>If <var>client</var>'s <a>execution ready flag</a> is unset, continue to the next iteration of the loop.</li>
+                  </ol>
+                </li>
+                <li>Add <var>client</var> to <var>targetClients</var>.</li>
               </ol>
             </li>
             <li>Let <var>matchedClients</var> be an empty array.</li>
             <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a lt="focusing steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
               <ol>
-                <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>", and <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
+                <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>" or "<code>all</code>", and <var>client</var> is a type of <a>environment</a> or is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
-                    <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
-                    <li>Let <var>isClientEnumerable</var> be false.</li>
+                    <li>Let <var>browsingContext</var> be null.</li>
+                    <li>Let <var>isClientEnumerable</var> be true.</li>
                     <li>Let <var>visibilityState</var> be the empty string.</li>
                     <li>Let <var>focusState</var> be false.</li>
-                    <li><a>Queue a task</a> <var>task</var> to run the following substep on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
+                    <li>If <var>client</var> is a type of <a>environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a for="environment">target browsing context</a>.</li>
+                    <li>Else, set <var>browsingContext</var> to <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
+                    <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>browsingContext</var>'s <a>event loop</a> using the <a>user interaction task source</a>:
                       <ol>
-                        <li>If <var>browsingContext</var> has not been <a lt="a browsing context is discarded">discarded</a> and <var>client</var>'s <a>responsible document</a> is <var>browsingContext</var>'s <a>active document</a>, then:
-                          <ol>
-                            <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
-                            <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
-                            <li>Set <var>isClientEnumerable</var> to true.</li>
-                          </ol>
-                        </li>
+                        <li>If <var>browsingContext</var> has been <a lt="a browsing context is discarded">discarded</a>, set <var>isClientEnumerable</var> to false and abort these steps.</li>
+                        <li>If <var>client</var> is a window client and <var>client</var>'s <a>responsible document</a> is not <var>browsingContext</var>'s <a>active document</a>,  set <var>isClientEnumerable</var> to false and abort these steps.</li>
+                        <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
+                        <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
                       </ol>
                     </li>
                     <li>Wait for <var>task</var> to have executed.
@@ -1357,49 +1368,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                     </li>
                   </ol>
                 </li>
-                <li>Else if <var>options</var>.{{ClientQueryOptions/type}} is "<code>worker</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.{{ClientQueryOptions/type}} is "<code>sharedworker</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
+                <li>Else if <var>options</var>.{{ClientQueryOptions/type}} is "<code>worker</code>" or "<code>all</code>" and <var>client</var> is a <a href="#dfn-dedicatedworker-client">dedicated worker client</a>, or <var>options</var>.{{ClientQueryOptions/type}} is "<code>sharedworker</code>" or "<code>all</code>" and <var>client</var> is a <a href="#dfn-sharedworker-client">shared worker client</a>, then:
                   <ol>
                     <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.</li>
                     <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
                   </ol>
                 </li>
-                <li>Else if <var>options</var>.{{ClientQueryOptions/type}} is "<code>all</code>", then:
-                  <ol>
-                    <li>If <var>client</var> is a <a href="#dfn-window-client">window client</a>, then:
-                      <ol>
-                        <li>Let <var>browsingContext</var> be <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
-                        <li>Let <var>isClientEnumerable</var> be false.</li>
-                        <li>Let <var>visibilityState</var> be the empty string.</li>
-                        <li>Let <var>focusState</var> be false.</li>
-                        <li><a>Queue a task</a> <var>task</var> to run the following substep on <var>client</var>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
-                          <ol>
-                            <li>If <var>browsingContext</var> has not been <a lt="a browsing context is discarded">discarded</a> and <var>client</var>'s <a>responsible document</a> is <var>browsingContext</var>'s <a>active document</a>, then:
-                              <ol>
-                                <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
-                                <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
-                                <li>Set <var>isClientEnumerable</var> to true.</li>
-                              </ol>
-                            </li>
-                          </ol>
-                        </li>
-                        <li>Wait for <var>task</var> to have executed.
-                          <p class="note">Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.</p>
-                        </li>
-                        <li>If <var>isClientEnumerable</var> is true, then:
-                          <ol>
-                            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
-                            <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
-                          </ol>
-                        </li>
-                      </ol>
-                    </li>
-                    <li>Else:
-                      <ol>
-                        <li>Let <var>clientObject</var> be the result of running <a href="#create-client-algorithm">Create Client</a> algorithm with <var>client</var> as the argument.</li>
-                        <li>Add <var>clientObject</var> to <var>matchedClients</var>.</li>
-                      </ol>
-                    </li>
-                  </ol>
               </ol>
             </li>
             <li>Resolve <var>promise</var> with <var>matchedClients</var>.</li>
