@@ -149,6 +149,7 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: dfn
         urlPrefix: browsers.html
+            text: ancestor origins array; for: Location; url: concept-location-ancestor-origins-array
             text: origin; for: resource; url: origin-2
         urlPrefix: infrastructure.html
             text: inserted into a document; url: insert-an-element-into-a-document
@@ -284,8 +285,6 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section dfn-for="service worker client">
     <h3 id="service-worker-client-concept">Service Worker Client</h3>
     <p>A <dfn export id="dfn-service-worker-client" for="">service worker client</dfn> is a type of <a>environment</a> or <a>environment settings object</a>.</p>
-
-    <p>A <a href="#dfn-service-worker-client">service worker client</a> has an associated <dfn id="dfn-service-worker-client-frame-type">frame type</dfn>, which is one of <em>auxiliary</em>, <em>top-level</em>, <em>nested</em>, and <em>none</em>. Unless stated otherwise it is <em>none</em>.
 
     <p>A <a for="/">service worker client</a> has an algorithm defined as the <dfn for="service worker client">origin</dfn> that returns the <a for="/">service worker client</a>'s <a>creation URL</a>'s <a for="url">origin</a> if the <a for="/">service worker client</a> is a type of <a>environment</a>, and the <a for="/">service worker client</a>'s <a for="environment settings object">origin</a> otherwise.</p>
 
@@ -1056,7 +1055,6 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       [Exposed=ServiceWorker]
       interface Client {
         readonly attribute USVString url;
-        readonly attribute FrameType frameType;
         readonly attribute DOMString id;
         readonly attribute boolean reserved;
         void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
@@ -1066,15 +1064,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       interface WindowClient : Client {
         readonly attribute VisibilityState visibilityState;
         readonly attribute boolean focused;
+        [SameObject] readonly attribute FrozenArray&lt;USVString&gt; ancestorOrigins;
         [NewObject] Promise&lt;WindowClient&gt; focus();
         [NewObject] Promise&lt;WindowClient&gt; navigate(USVString url);
-      };
-
-      enum FrameType {
-        "auxiliary",
-        "top-level",
-        "nested",
-        "none"
       };
     </pre>
 
@@ -1084,33 +1076,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <p>A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-focusstate">focus state</dfn>, which is either true or false (initially false).</p>
 
+    <p>A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins array</dfn>.</p>
+
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
 
       <p>The <dfn attribute for="Client" id="client-url-attribute"><code>url</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a lt="URL serializer">serialized</a> <a>creation URL</a>.</p>
-    </section>
-
-    <section>
-      <h4 id="client-frametype">{{Client/frameType}}</h4>
-
-      <p>The <dfn attribute for="Client" id="client-frametype-attribute"><code>frameType</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value (in <dfn enum id="contextframetype-enum"><code>FrameType</code></dfn> enumeration) corresponding to the first matching statement, switching on <a href="#dfn-service-worker-client-client">service worker client</a>'s <a href="#dfn-service-worker-client-frame-type">frame type</a>:</p>
-
-      <dl>
-        <dt><em>auxiliary</em></dt>
-        <dd>"<code>auxiliary</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is an <a>auxiliary browsing context</a>.</p></dd>
-
-        <dt><em>top-level</em></dt>
-        <dd>"<code>top-level</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>top-level browsing context</a>.</p></dd>
-
-        <dt><em>nested</em></dt>
-        <dd>"<code>nested</code>"
-        <p class="note">The <a href="#dfn-window-client">window client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a> is a <a>nested browsing context</a>.</p></dd>
-
-        <dt><em>none</em></dt>
-        <dd>"<code>none</code>"</dd>
-      </dl>
     </section>
 
     <section>
@@ -1165,6 +1136,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <p>The <dfn attribute for="WindowClient" id="client-focused-attribute"><code>focused</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <a>context object</a>'s <a href="#dfn-service-worker-client-focusstate">focus state</a>.</p>
     </section>
 
+    <section>
+      <h4 id="client-ancestororigins">{{WindowClient/ancestorOrigins}}</h4>
+
+      <p>The <dfn attribute for="WindowClient" id="client-ancestororigins-attribute"><code>ancestorOrigins</code></dfn> attribute <em class="rfc2119" title="MUST">must</em> return the <a>context object</a>'s associated <a for="Client">service worker client</a>'s <a for="WindowClient">ancestor origins array</a>.</p>
+    </section>
+
     <section algorithm="client-focus">
       <h4 id="client-focus">{{WindowClient/focus()}}</h4>
 
@@ -1177,16 +1154,18 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <ol>
             <li>Let <var>browsingContext</var> be the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
             <li>Let <var>visibilityState</var> be null.</li>
-            <li>Let <var>focusState</var> be null.</li>
+            <li>Let <var>focusState</var> be false.</li>
+            <li>Let <var>ancestorOrigins</var> be the empty array.</li>
             <li><a>Queue a task</a> <var>task</var> to run the following substeps on the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
               <ol>
                 <li>Run the <a>focusing steps</a> with <var>browsingContext</var>.</li>
                 <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                 <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                <li>Set <var>ancestorOrigins</var> to <var>browsingContext</var>'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.</li>
               </ol>
             </li>
             <li>Wait for <var>task</var> to have executed.</li>
-            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</li>
             <li>If <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</li>
             <li>Else, reject <var>promise</var> with a <code>TypeError</code>.</li>
           </ol>
@@ -1212,13 +1191,15 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             <li>If <var>browsingContext</var> has <a lt="discard a document">discarded</a> its {{Document}}, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</li>
             <li>Let <var>navigateFailed</var> to false.</li>
             <li>Let <var>visibilityState</var> be null.</li>
-            <li>Let <var>focusState</var> be null.</li>
+            <li>Let <var>focusState</var> be false.</li>
+            <li>Let <var>ancestorOrigins</var> be the empty array.</li>
             <li><a>Queue a task</a> <var>task</var> to run the following substeps on the <a>context object</a>'s associated <a href="#dfn-service-worker-client-client">service worker client</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
               <ol>
                 <li><em>HandleNavigate</em>: <a>Navigate</a> <var>browsingContext</var> to <var>url</var> with <a lt="exceptions enabled flag">exceptions enabled</a>. The <a>source browsing context</a> must be <var>browsingContext</var>.</li>
                 <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <a>throws</a> an exception, set <var>navigateFailed</var> to true.</li>
                 <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                 <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                <li>Set <var>ancestorOrigins</var> to <var>browsingContext</var>'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.</li>
               </ol>
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
@@ -1229,7 +1210,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                 <li>Abort these steps.</li>
               </ol>
             </li>
-            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>browsingContext</var>'s {{Window}} object's <a>environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</li>
             <li>Resolve <var>promise</var> with <var>windowClient</var>.</li>
           </ol>
         </li>
@@ -1295,17 +1276,19 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                   <ol>
                     <li>Let <var>browsingContext</var> be null.</li>
                     <li>Let <var>visibilityState</var> be null.</li>
-                    <li>Let <var>focusState</var> be null.</li>
+                    <li>Let <var>focusState</var> be false.</li>
+                    <li>Let <var>ancestorOrigins</var> be the empty array.</li>
                     <li>If <var>client</var> is a type of <a>environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a for="environment">target browsing context</a>.</li>
                     <li>Else, set <var>browsingContext</var> to <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
                     <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>browsingContext</var>'s <a>event loop</a> using the <a>user interaction task source</a>:
                       <ol>
                         <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                         <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                        <li>If <var>client</var> is a <a>window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.</li>
                       </ol>
                     </li>
                     <li>Wait for <var>task</var> to have executed.</li>
-                    <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                    <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</li>
                     <li>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.</li>
                   </ol>
                 </li>
@@ -1368,6 +1351,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                     <li>Let <var>isClientEnumerable</var> be true.</li>
                     <li>Let <var>visibilityState</var> be the empty string.</li>
                     <li>Let <var>focusState</var> be false.</li>
+                    <li>Let <var>ancestorOrigins</var> be the empty array.</li>
                     <li>If <var>client</var> is a type of <a>environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a for="environment">target browsing context</a>.</li>
                     <li>Else, set <var>browsingContext</var> to <var>client</var>'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.</li>
                     <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>browsingContext</var>'s <a>event loop</a> using the <a>user interaction task source</a>:
@@ -1376,6 +1360,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                         <li>If <var>client</var> is a window client and <var>client</var>'s <a>responsible document</a> is not <var>browsingContext</var>'s <a>active document</a>,  set <var>isClientEnumerable</var> to false and abort these steps.</li>
                         <li>Set <var>visibilityState</var> to <var>browsingContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                         <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>browsingContext</var>'s <a>active document</a> as the argument.</li>
+                        <li>It <var>client</var> is a <a>window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.</li>
                       </ol>
                     </li>
                     <li>Wait for <var>task</var> to have executed.
@@ -1383,7 +1368,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                     </li>
                     <li>If <var>isClientEnumerable</var> is true, then:
                       <ol>
-                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+                        <li>Let <var>windowClient</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</li>
                         <li>Add <var>windowClient</var> to <var>matchedClients</var>.</li>
                       </ol>
                     </li>
@@ -1420,13 +1405,15 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             <li>Let <var>newContext</var> be a new <a>top-level browsing context</a>.</li>
             <li>Let <var>openWindowFailed</var> to false.</li>
             <li>Let <var>visibilityState</var> be null.</li>
-            <li>Let <var>focusState</var> be null.</li>
+            <li>Let <var>focusState</var> be false.</li>
+            <li>Let <var>ancestorOrigins</var> be the empty array.</li>
             <li><a>Queue a task</a> <var>task</var> to run the following substeps on <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
               <ol>
                 <li><em>HandleNavigate</em>: <a>Navigate</a> <var>newContext</var> to <var>url</var> with <a lt="exceptions enabled flag">exceptions enabled</a> and <a>replacement enabled</a>.</li>
                 <li>If the algorithm steps invoked in the step labeled <em>HandleNavigate</em> <a>throws</a> an exception, set <var>openWindowFailed</var> to true.</li>
                 <li>Set <var>visibilityState</var> to <var>newContext</var>'s <a>active document</a>'s {{Document/visibilityState}} attribute value.</li>
                 <li>Set <var>focusState</var> to the result of running the <a>has focus steps</a> with <var>newContext</var>'s <a>active document</a> as the argument.</li>
+                <li>Set <var>ancestorOrigins</var> to <var>newContext</var>'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.</li>
               </ol>
             </li>
             <li>Wait for <var>task</var> to have executed (including its asynchronous steps).</li>
@@ -1437,7 +1424,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                 <li>Abort these steps.</li>
               </ol>
             </li>
-            <li>Let <var>client</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>, <var>visibilityState</var> and <var>focusState</var> as the arguments.</li>
+            <li>Let <var>client</var> be the result of running <a href="#create-windowclient-algorithm">Create Window Client</a> algorithm with <var>newContext</var>'s {{Window}} object's <a>environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</li>
             <li>Resolve <var>promise</var> with <var>client</var>.</li>
           </ol>
         </li>
@@ -4102,6 +4089,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <dd><var>client</var>, a <a href="#dfn-service-worker-client">service worker client</a></dd>
         <dd><var>visibilityState</var>, a string</dd>
         <dd><var>focusState</var>, a boolean</dd>
+        <dd><var>ancestorOrigins</var>, an array</dd>
       <dt>Output</dt>
         <dd><var>windowClient</var>, a {{WindowClient}} object</dd>
     </dl>
@@ -4110,6 +4098,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-client">service worker client</a> to <var>client</var>.</li>
       <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-visibilitystate">visibility state</a> to <var>visibilityState</var>.</li>
       <li>Set <var>windowClient</var>'s <a href="#dfn-service-worker-client-focusstate">focus state</a> to <var>focusState</var>.</li>
+      <li>Set <var>windowClient</var>'s <a for="WindowClient">ancestor origins array</a> to <var>ancestorOrigins</var>.</li>
       <li>Return <var>windowClient</var>.</li>
     </ol>
   </section>
