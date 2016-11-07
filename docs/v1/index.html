@@ -2616,10 +2616,10 @@ pre.idl.highlight { color: #708090; }
           </ol>
          <li>Let <var>matchedClients</var> be an empty array.
          <li>
-          For each <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-29">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order for <a href="#dfn-window-client" id="ref-for-dfn-window-client-3">window clients</a>: 
+          For each <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-29">service worker client</a> <var>client</var> in <var>targetClients</var>: 
           <ol>
            <li>
-            If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-clientqueryoptions-type" id="ref-for-dom-clientqueryoptions-type-1">type</a></code> is "<code>window</code>" or "<code>all</code>", and <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a> or is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-4">window client</a>, then: 
+            If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-clientqueryoptions-type" id="ref-for-dom-clientqueryoptions-type-1">type</a></code> is "<code>window</code>" or "<code>all</code>", and <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a> or is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-3">window client</a>, then: 
             <ol>
              <li>Let <var>browsingContext</var> be null.
              <li>Let <var>isClientEnumerable</var> be true.
@@ -2635,7 +2635,7 @@ pre.idl.highlight { color: #708090; }
                <li>If <var>client</var> is a window client and <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> is not <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>,  set <var>isClientEnumerable</var> to false and abort these steps.
                <li>Set <var>visibilityState</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <code class="idl"><a data-link-type="idl" href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">visibilityState</a></code> attribute value.
                <li>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.
-               <li>It <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-5">window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.
+               <li>It <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-4">window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.
               </ol>
              <li>
               Wait for <var>task</var> to have executed. 
@@ -2654,6 +2654,13 @@ pre.idl.highlight { color: #708090; }
              <li>Add <var>clientObject</var> to <var>matchedClients</var>.
             </ol>
           </ol>
+         <li>
+          Sort <var>matchedClients</var> such that: 
+          <ul>
+           <li><code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-8">WindowClient</a></code> objects are always placed before <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-6">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-12">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-2">worker clients</a>.
+           <li><code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-9">WindowClient</a></code> objects that have been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed first sorted in the most recently <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order, and <code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-10">WindowClient</a></code> objects that have never been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-13">service worker clients</a>' creation order.
+           <li><code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-7">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-14">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-3">worker clients</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-15">service worker clients</a>' creation order.
+          </ul>
          <li>Resolve <var>promise</var> with <var>matchedClients</var>.
         </ol>
        <li>Return <var>promise</var>.
@@ -2941,7 +2948,7 @@ pre.idl.highlight { color: #708090; }
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">any</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="any" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-2">data</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-extendablemessageevent-origin" id="ref-for-dom-extendablemessageevent-origin-2">origin</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">DOMString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString" href="#dom-extendablemessageevent-lasteventid" id="ref-for-dom-extendablemessageevent-lasteventid-1">lastEventId</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-6">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-27">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="(Client or ServiceWorker or MessagePort)?" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-3">source</a>;
+  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-8">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-27">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="(Client or ServiceWorker or MessagePort)?" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-3">source</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">FrozenArray</span>&lt;<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="FrozenArray<MessagePort>" href="#dom-extendablemessageevent-ports" id="ref-for-dom-extendablemessageevent-ports-2">ports</a>;
 };
 </pre>
@@ -2949,7 +2956,7 @@ pre.idl.highlight { color: #708090; }
   <span class="kt">any</span> <dfn class="nv idl-code" data-default="null" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="any " id="dom-extendablemessageeventinit-data">data<a class="self-link" href="#dom-extendablemessageeventinit-data"></a></dfn> = <span class="kt">null</span>;
   <span class="kt">USVString</span> <dfn class="nv idl-code" data-default="&quot;&quot;" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="USVString " id="dom-extendablemessageeventinit-origin">origin<a class="self-link" href="#dom-extendablemessageeventinit-origin"></a></dfn> = "";
   <span class="kt">DOMString</span> <dfn class="nv idl-code" data-default="&quot;&quot;" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="DOMString " id="dom-extendablemessageeventinit-lasteventid">lastEventId<a class="self-link" href="#dom-extendablemessageeventinit-lasteventid"></a></dfn> = "";
-  (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-7">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-28">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <dfn class="nv idl-code" data-default="null" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="(Client or ServiceWorker or MessagePort)? " id="dom-extendablemessageeventinit-source">source<a class="self-link" href="#dom-extendablemessageeventinit-source"></a></dfn> = <span class="kt">null</span>;
+  (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-9">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-28">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <dfn class="nv idl-code" data-default="null" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="(Client or ServiceWorker or MessagePort)? " id="dom-extendablemessageeventinit-source">source<a class="self-link" href="#dom-extendablemessageeventinit-source"></a></dfn> = <span class="kt">null</span>;
   <span class="kt">sequence</span>&lt;<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>> <dfn class="nv idl-code" data-default="None" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="sequence<MessagePort> " id="dom-extendablemessageeventinit-ports">ports<a class="self-link" href="#dom-extendablemessageeventinit-ports"></a></dfn> = [];
 };
 </pre>
@@ -2968,7 +2975,7 @@ pre.idl.highlight { color: #708090; }
      </section>
      <section>
       <h4 class="heading settled" data-level="4.6.4" id="extendablemessage-event-source"><span class="secno">4.6.4. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-4">event.source</a></code></span><a class="self-link" href="#extendablemessage-event-source"></a></h4>
-      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="attribute" data-export="" id="dom-extendablemessageevent-source">source</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-8">Client</a></code> object from which the message is sent.</p>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="attribute" data-export="" id="dom-extendablemessageevent-source">source</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-10">Client</a></code> object from which the message is sent.</p>
      </section>
      <section>
       <h4 class="heading settled" data-level="4.6.5" id="extendablemessage-event-ports"><span class="secno">4.6.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-ports" id="ref-for-dom-extendablemessageevent-ports-3">event.ports</a></code></span><a class="self-link" href="#extendablemessage-event-ports"></a></h4>
@@ -4110,7 +4117,7 @@ pre.idl.highlight { color: #708090; }
        <li>
         For each <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-39">service worker client</a> <var>client</var> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> <a href="#scope-match-algorithm" id="ref-for-scope-match-algorithm-8">matches</a> <var>registration</var>’s <a href="#dfn-scope-url" id="ref-for-dfn-scope-url-16">scope url</a>: 
         <ol>
-         <li>If <var>client</var> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-6">window client</a>, unassociate <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.
+         <li>If <var>client</var> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-5">window client</a>, unassociate <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.
          <li>Else if <var>client</var> is a <a href="#dfn-sharedworker-client" id="ref-for-dfn-sharedworker-client-3">shared worker client</a>, unassociate <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a> from its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>, if it has one.
         </ol>
         <p class="note" role="note">Resources will now use the service worker registration instead of the existing application cache.</p>
@@ -4281,7 +4288,7 @@ pre.idl.highlight { color: #708090; }
          <li>Initialize <var>e</var>’s <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-clientid" id="ref-for-dom-fetchevent-clientid-3">clientId</a></code> attribute to <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-id">id</a>.
          <li>If <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#non-subresource-request">non-subresource request</a> and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a> is not "<code>report</code>", initialize <var>e</var>’s <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-reservedclientid" id="ref-for-dom-fetchevent-reservedclientid-3">reservedClientId</a></code> attribute to <var>reservedClient</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-id">id</a>, and to the empty string otherwise.
          <li>If <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#navigation-request">navigation request</a>, initialize <var>e</var>’s <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-targetclientid" id="ref-for-dom-fetchevent-targetclientid-3">targetClientId</a></code> attribute to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-target-client-id">target client id</a>, and to the empty string otherwise.
-         <li>Let the <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-isreload" id="ref-for-dom-fetchevent-isreload-3">isReload</a></code> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-7">window client</a> and the event was dispatched with the user’s intention for the page reload, and <code>false</code> otherwise.
+         <li>Let the <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-isreload" id="ref-for-dom-fetchevent-isreload-3">isReload</a></code> attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a> is a <a href="#dfn-window-client" id="ref-for-dfn-window-client-6">window client</a> and the event was dispatched with the user’s intention for the page reload, and <code>false</code> otherwise.
          <li><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>activeWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.
          <li>If <var>e</var>’s <a href="#respond-with-entered-flag" id="ref-for-respond-with-entered-flag-3">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.
          <li>
@@ -4648,11 +4655,11 @@ pre.idl.highlight { color: #708090; }
        <dt>Input
        <dd><var>client</var>, a <a href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-48">service worker client</a>
        <dt>Output
-       <dd><var>clientObject</var>, a <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-9">Client</a></code> object
+       <dd><var>clientObject</var>, a <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-11">Client</a></code> object
       </dl>
       <ol>
-       <li>Let <var>clientObject</var> be a new <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-10">Client</a></code> object.
-       <li>Set <var>clientObject</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-12">service worker client</a> to <var>client</var>.
+       <li>Let <var>clientObject</var> be a new <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-12">Client</a></code> object.
+       <li>Set <var>clientObject</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-16">service worker client</a> to <var>client</var>.
        <li>Return <var>clientObject</var>.
       </ol>
      </section>
@@ -4665,11 +4672,11 @@ pre.idl.highlight { color: #708090; }
        <dd><var>focusState</var>, a boolean
        <dd><var>ancestorOrigins</var>, an array
        <dt>Output
-       <dd><var>windowClient</var>, a <code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-8">WindowClient</a></code> object
+       <dd><var>windowClient</var>, a <code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-11">WindowClient</a></code> object
       </dl>
       <ol>
-       <li>Let <var>windowClient</var> be a new <code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-9">WindowClient</a></code> object.
-       <li>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-13">service worker client</a> to <var>client</var>.
+       <li>Let <var>windowClient</var> be a new <code class="idl"><a data-link-type="idl" href="#window-client-interface" id="ref-for-window-client-interface-12">WindowClient</a></code> object.
+       <li>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-17">service worker client</a> to <var>client</var>.
        <li>Set <var>windowClient</var>’s <a href="#dfn-service-worker-client-visibilitystate" id="ref-for-dfn-service-worker-client-visibilitystate-2">visibility state</a> to <var>visibilityState</var>.
        <li>Set <var>windowClient</var>’s <a href="#dfn-service-worker-client-focusstate" id="ref-for-dfn-service-worker-client-focusstate-3">focus state</a> to <var>focusState</var>.
        <li>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array-2">ancestor origins array</a> to <var>ancestorOrigins</var>.
@@ -6200,9 +6207,9 @@ pre.idl.highlight { color: #708090; }
    <b><a href="#dfn-window-client">#dfn-window-client</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-window-client-1">4.3.1. get(id)</a> <a href="#ref-for-dfn-window-client-2">(2)</a>
-    <li><a href="#ref-for-dfn-window-client-3">4.3.2. matchAll(options)</a> <a href="#ref-for-dfn-window-client-4">(2)</a> <a href="#ref-for-dfn-window-client-5">(3)</a>
-    <li><a href="#ref-for-dfn-window-client-6">Activate</a>
-    <li><a href="#ref-for-dfn-window-client-7">Handle Fetch</a>
+    <li><a href="#ref-for-dfn-window-client-3">4.3.2. matchAll(options)</a> <a href="#ref-for-dfn-window-client-4">(2)</a>
+    <li><a href="#ref-for-dfn-window-client-5">Activate</a>
+    <li><a href="#ref-for-dfn-window-client-6">Handle Fetch</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-dedicatedworker-client">
@@ -6224,6 +6231,7 @@ pre.idl.highlight { color: #708090; }
    <b><a href="#dfn-worker-client">#dfn-worker-client</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-worker-client-1">2.4. Selection and Use</a>
+    <li><a href="#ref-for-dfn-worker-client-2">4.3.2. matchAll(options)</a> <a href="#ref-for-dfn-worker-client-3">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-service-worker-registration-selection">
@@ -6688,9 +6696,10 @@ pre.idl.highlight { color: #708090; }
     <li><a href="#ref-for-client-1">3.1.3. postMessage(message, transfer)</a>
     <li><a href="#ref-for-client-2">4.2. Client</a> <a href="#ref-for-client-3">(2)</a> <a href="#ref-for-client-4">(3)</a>
     <li><a href="#ref-for-client-5">4.3. Clients</a>
-    <li><a href="#ref-for-client-6">4.6. ExtendableMessageEvent</a> <a href="#ref-for-client-7">(2)</a>
-    <li><a href="#ref-for-client-8">4.6.4. event.source</a>
-    <li><a href="#ref-for-client-9">Create Client</a> <a href="#ref-for-client-10">(2)</a>
+    <li><a href="#ref-for-client-6">4.3.2. matchAll(options)</a> <a href="#ref-for-client-7">(2)</a>
+    <li><a href="#ref-for-client-8">4.6. ExtendableMessageEvent</a> <a href="#ref-for-client-9">(2)</a>
+    <li><a href="#ref-for-client-10">4.6.4. event.source</a>
+    <li><a href="#ref-for-client-11">Create Client</a> <a href="#ref-for-client-12">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="client-service-worker-client">
@@ -6703,8 +6712,9 @@ pre.idl.highlight { color: #708090; }
     <li><a href="#ref-for-client-service-worker-client-5">4.2.7. ancestorOrigins</a>
     <li><a href="#ref-for-client-service-worker-client-6">4.2.8. focus()</a> <a href="#ref-for-client-service-worker-client-7">(2)</a> <a href="#ref-for-client-service-worker-client-8">(3)</a>
     <li><a href="#ref-for-client-service-worker-client-9">4.2.9. navigate(url)</a> <a href="#ref-for-client-service-worker-client-10">(2)</a> <a href="#ref-for-client-service-worker-client-11">(3)</a>
-    <li><a href="#ref-for-client-service-worker-client-12">Create Client</a>
-    <li><a href="#ref-for-client-service-worker-client-13">Create Window Client</a>
+    <li><a href="#ref-for-client-service-worker-client-12">4.3.2. matchAll(options)</a> <a href="#ref-for-client-service-worker-client-13">(2)</a> <a href="#ref-for-client-service-worker-client-14">(3)</a> <a href="#ref-for-client-service-worker-client-15">(4)</a>
+    <li><a href="#ref-for-client-service-worker-client-16">Create Client</a>
+    <li><a href="#ref-for-client-service-worker-client-17">Create Window Client</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="window-client-interface">
@@ -6713,7 +6723,8 @@ pre.idl.highlight { color: #708090; }
     <li><a href="#ref-for-window-client-interface-1">3.1.3. postMessage(message, transfer)</a>
     <li><a href="#ref-for-window-client-interface-2">4.2. Client</a> <a href="#ref-for-window-client-interface-3">(2)</a> <a href="#ref-for-window-client-interface-4">(3)</a> <a href="#ref-for-window-client-interface-5">(4)</a> <a href="#ref-for-window-client-interface-6">(5)</a>
     <li><a href="#ref-for-window-client-interface-7">4.3. Clients</a>
-    <li><a href="#ref-for-window-client-interface-8">Create Window Client</a> <a href="#ref-for-window-client-interface-9">(2)</a>
+    <li><a href="#ref-for-window-client-interface-8">4.3.2. matchAll(options)</a> <a href="#ref-for-window-client-interface-9">(2)</a> <a href="#ref-for-window-client-interface-10">(3)</a>
+    <li><a href="#ref-for-window-client-interface-11">Create Window Client</a> <a href="#ref-for-window-client-interface-12">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-service-worker-client-visibilitystate">

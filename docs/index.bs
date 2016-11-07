@@ -1270,7 +1270,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
               </ol>
             </li>
             <li>Let <var>matchedClients</var> be an empty array.</li>
-            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>, in the most recently <a lt="focusing steps">focused</a> order for <a href="#dfn-window-client">window clients</a>:
+            <li>For each <a href="#dfn-service-worker-client">service worker client</a> <var>client</var> in <var>targetClients</var>:
               <ol>
                 <li>If <var>options</var>.{{ClientQueryOptions/type}} is "<code>window</code>" or "<code>all</code>", and <var>client</var> is a type of <a>environment</a> or is a <a href="#dfn-window-client">window client</a>, then:
                   <ol>
@@ -1308,6 +1308,13 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                   </ol>
                 </li>
               </ol>
+            </li>
+            <li>Sort <var>matchedClients</var> such that:
+              <ul>
+                <li>{{WindowClient}} objects are always placed before {{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a>.</li>
+                <li>{{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.</li>
+                <li>{{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.</li>
+              </ul>
             </li>
             <li>Resolve <var>promise</var> with <var>matchedClients</var>.</li>
           </ol>
