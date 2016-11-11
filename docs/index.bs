@@ -355,7 +355,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li><a>Queue a task</a> that runs the following steps:
           <ol>
-            <li>Create an event <var>e</var> that uses the {{ExtendableMessageEvent}} interface, with the event type <a href="#service-worker-global-scope-message-event">message</a>, which does not bubble and is not cancelable.</li>
+            <li>Create an event <var>e</var> that uses the {{ExtendableMessageEvent}} interface, with the event type {{message!!event}}, which does not bubble and is not cancelable.</li>
             <li>Let the {{ExtendableMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
             <li>Let the {{ExtendableMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>incumbentSettings</var>'s <a for="resource">origin</a>.</li>
             <li>If <var>incumbentGlobal</var> is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of <var>e</var> be initialized to a new {{ServiceWorker}} object that represents <var>incumbentGlobal</var>'s <a for="ServiceWorkerGlobalScope">service worker</a>.</li>
@@ -700,68 +700,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerContainer"><code>onmessage</code></dfn></td>
-            <td><code><a href="#service-worker-container-message-event">message</a></code></td>
+            <td><code><a href="https://html.spec.whatwg.org/#event-message">message</a></code></td>
           </tr>
         </tbody>
       </table>
 
       <p>The first time the <a>context object</a>'s {{ServiceWorkerContainer/onmessage}} IDL attribute is set, its <a for="ServiceWorkerContainer">client message queue</a> <em class="rfc2119" title="MUST">must</em> be enabled.</p>
-    </section>
-  </section>
-
-  <section>
-    <h3 id="serviceworkermessageevent-interface">{{ServiceWorkerMessageEvent}}</h3>
-
-    <pre class="idl">
-      [Constructor(DOMString type, optional ServiceWorkerMessageEventInit eventInitDict), Exposed=(Window,Worker)]
-      interface ServiceWorkerMessageEvent : Event {
-        readonly attribute any data;
-        readonly attribute USVString origin;
-        readonly attribute DOMString lastEventId;
-        [SameObject] readonly attribute (ServiceWorker or MessagePort)? source;
-        readonly attribute FrozenArray&lt;MessagePort&gt; ports;
-      };
-    </pre>
-    <pre class="idl" id="serviceworkermessage-event-init-dictionary">
-      dictionary ServiceWorkerMessageEventInit : EventInit {
-        any data = null;
-        USVString origin = "";
-        DOMString lastEventId = "";
-        (ServiceWorker or MessagePort)? source = null;
-        sequence&lt;MessagePort&gt; ports = [];
-      };
-    </pre>
-
-    <p><a href="#dfn-service-worker">Service workers</a> define the <a href="#service-worker-container-message-event">message</a> event that extends the {{Window/message}} event defined in [[!HTML]] to allow setting a {{ServiceWorker}} object as the source of the message. For the <a href="#service-worker-container-message-event">message</a> event, <a href="#dfn-service-worker">service workers</a> use the {{ServiceWorkerMessageEvent}} interface.</p>
-
-    <section>
-      <h4 id="serviceworkermessage-event-data">{{ServiceWorkerMessageEvent/data|event.data}}</h4>
-
-      <p>The <dfn attribute for="ServiceWorkerMessageEvent">data</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the message being sent.</p>
-    </section>
-
-    <section>
-      <h4 id="serviceworkermessage-event-origin">{{ServiceWorkerMessageEvent/origin|event.origin}}</h4>
-
-      <p>The <dfn attribute for="ServiceWorkerMessageEvent">origin</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string. It represents the <a for="resource">origin</a> of the <a href="#dfn-service-worker">service worker</a>'s <a>environment settings object</a> from which the message is sent.</p>
-    </section>
-
-    <section>
-      <h4 id="serviceworkermessage-event-lasteventid">{{ServiceWorkerMessageEvent/lastEventId|event.lastEventId}}</h4>
-
-      <p>The <dfn attribute for="ServiceWorkerMessageEvent">lastEventId</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty string.</p>
-    </section>
-
-    <section>
-      <h4 id="serviceworkermessage-event-source">{{ServiceWorkerMessageEvent/source|event.source}}</h4>
-
-      <p>The <dfn attribute for="ServiceWorkerMessageEvent">source</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to null. It represents the {{ServiceWorker}} object whose associated <a href="#dfn-service-worker">service worker</a> the message is sent from.</p>
-    </section>
-
-    <section>
-      <h4 id="serviceworkermessage-event-ports">{{ServiceWorkerMessageEvent/ports|event.ports}}</h4>
-
-      <p>The <dfn attribute for="ServiceWorkerMessageEvent">ports</dfn> attribute <em class="rfc2119" title="MUST">must</em> return the value it was initialized to. When the object is created, this attribute <em class="rfc2119" title="MUST">must</em> be initialized to the empty array. It represents the {{MessagePort}} array being sent.</p>
     </section>
   </section>
 
@@ -821,11 +765,6 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <td><dfn event id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td>{{Event}}</td>
           <td>The <a for="ServiceWorkerContainer">service worker client</a>'s <a>active service worker</a> changes. (See step 9.2 of the <a href="#activation-algorithm">Activate</a> algorithm. The <a href="#dfn-skip-waiting-flag">skip waiting flag</a> of a <a href="#dfn-service-worker">service worker</a> causes <a href="#activation-algorithm">activation</a> of the <a href="#dfn-service-worker-registration">service worker registration</a> to occur while <a href="#dfn-service-worker-client">service worker clients</a> are <a href="#dfn-use">using</a> the <a href="#dfn-service-worker-registration">service worker registration</a>, {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} immediately reflects the <a href="#dfn-active-worker">active worker</a> as the <a href="#dfn-service-worker">service worker</a> that <a href="#dfn-control">controls</a> the <a href="#dfn-service-worker-client">service worker client</a>.)</td>
-        </tr>
-        <tr>
-          <td><dfn event id="service-worker-container-message-event"><code>message</code></dfn></td>
-          <td>{{ServiceWorkerMessageEvent}}</td>
-          <td>When it receives a message.</td>
         </tr>
       </tbody>
     </table>
@@ -968,7 +907,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessage</code></dfn></td>
-            <td><code><a href="#service-worker-global-scope-message-event">message</a></code></td>
+            <td>{{message!!event}}</td>
           </tr>
         </tbody>
       </table>
@@ -1040,11 +979,11 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <li>Let <var>newPorts</var> be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in <var>cloneRecord</var>.\[[TransferList]], if any, maintaining their relative order.</li>
         <li>Add a <a>task</a> that runs the following steps to <var>destination</var>'s <a for="ServiceWorkerContainer">client message queue</a>:
           <ol>
-            <li>Create an event <var>e</var> that uses the {{ServiceWorkerMessageEvent}} interface, with the event type <a href="#service-worker-container-message-event">message</a>, which does not bubble and is not cancelable.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/data}} attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/origin}} attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>sourceSettings</var>'s <a for="resource">origin</a>.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/source}} attribute of <var>e</var> be initialized to a {{ServiceWorker}} object, which represents the <a for="ServiceWorkerGlobalScope">service worker</a> associated with <var>sourceSettings</var>'s <a for="environment settings object">global object</a>.</li>
-            <li>Let the {{ServiceWorkerMessageEvent/ports}} attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
+            <li>Create an event <var>e</var> that uses the {{MessageEvent}} interface, with the event type <a href="https://html.spec.whatwg.org/#event-message">message</a>, which does not bubble and is not cancelable.</li>
+            <li>Let the <a href="https://html.spec.whatwg.org/#dom-messageevent-data">data</a> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</li>
+            <li>Let the <a href="https://html.spec.whatwg.org/#dom-messageevent-origin">origin</a> attribute of <var>e</var> be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of <var>sourceSettings</var>'s <a for="resource">origin</a>.</li>
+            <li>Let the <a href="https://html.spec.whatwg.org/#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a {{ServiceWorker}} object, which represents the <a for="ServiceWorkerGlobalScope">service worker</a> associated with <var>sourceSettings</var>'s <a for="environment settings object">global object</a>.</li>
+            <li>Let the <a href="https://html.spec.whatwg.org/#dom-messageevent-ports">ports</a> attribute of <var>e</var> be initialized to <var>newPorts</var>.</li>
             <li><a>Dispatch</a> <var>e</var> at <var>destination</var>.</li>
           </ol>
         </li>
@@ -1872,7 +1811,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       };
     </pre>
 
-    <p><a href="#dfn-service-worker">Service workers</a> define the <a href="#dom-extendableevent-waituntil">extendable</a> <a href="#service-worker-global-scope-message-event">message</a> event that extends the {{Window/message}} event defined in [[!HTML]] to allow extending the lifetime of the event. For the <a href="#service-worker-global-scope-message-event">message</a> event, <a href="#dfn-service-worker">service workers</a> use the {{ExtendableMessageEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> define the <a href="#dom-extendableevent-waituntil">extendable</a> {{message!!event}} event to allow extending the lifetime of the event. For the {{message!!event}} event, <a href="#dfn-service-worker">service workers</a> use the {{ExtendableMessageEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
 
     <section>
       <h4 id="extendablemessage-event-data">{{ExtendableMessageEvent/data|event.data}}</h4>
@@ -1940,7 +1879,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <td>[<a href="#dfn-functional-events">Functional event</a>] The <a>http fetch</a> invokes [[#on-foreign-fetch-request-algorithm]] with <var>request</var>. As a result of performing [[#on-foreign-fetch-request-algorithm]], the <a for="ServiceWorkerGlobalScope">service worker</a> returns a <a for="fetch">response</a> to the <a>http fetch</a>. The <a for="fetch">response</a>, represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
         </tr>
         <tr>
-          <td><dfn event id="service-worker-global-scope-message-event"><code>message</code></dfn></td>
+          <td><dfn event><code>message</code></dfn></td>
           <td>{{ExtendableMessageEvent}}</td>
           <td>When it receives a message.</td>
         </tr>
