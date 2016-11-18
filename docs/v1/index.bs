@@ -3087,7 +3087,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         </ol>
       </li>
       <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-      <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain <code>fetch</code>, return null.
+      <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain <code>fetch</code>, then:
+        <ol>
+          <li>Return null and continue running these steps <a>in parallel</a>.</li>
+          <li>If <var>request</var> is a <a>non-subresource request</a>, or <var>request</var> is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with <var>registration</var>.</li>
+          <li>Abort these steps.</li>
+        </ol>
         <p class="note">To avoid unnecessary delays, the Handle Fetch enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.</p>
       </li>
       <li>If <var>activeWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, wait for <var>activeWorker</var>'s <a href="#dfn-state">state</a> to become <em>activated</em>.</li>
@@ -3117,21 +3122,21 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Wait for <var>task</var> to have executed or been discarded.</li>
       <li>If <var>respondWithEntered</var> is false, then:
         <ol>
-          <li>If <var>eventCanceled</var> is true, return a <a>network error</a> and continue running these substeps <a>in parallel</a>.</li>
-          <li>Else, return null and continue running these substeps <a>in parallel</a>.</li>
+          <li>If <var>eventCanceled</var> is true, return a <a>network error</a> and continue running these steps <a>in parallel</a>.</li>
+          <li>Else, return null and continue running these steps <a>in parallel</a>.</li>
           <li>If <var>request</var> is a <a>non-subresource request</a>, or <var>request</var> is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with <var>registration</var>.</li>
           <li>Abort these steps.</li>
         </ol>
       </li>
       <li>If <var>handleFetchFailed</var> is true, then:
         <ol>
-          <li>Return a <a>network error</a> and continue running these substeps <a>in parallel</a>.</li>
+          <li>Return a <a>network error</a> and continue running these steps <a>in parallel</a>.</li>
           <li>If <var>request</var> is a <a>non-subresource request</a>, or <var>request</var> is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with <var>registration</var>.</li>
         </ol>
       </li>
       <li>Else:
         <ol>
-          <li>Return <var>response</var> and continue running these substeps <a>in parallel</a>.</li>
+          <li>Return <var>response</var> and continue running these steps <a>in parallel</a>.</li>
           <li>If <var>request</var> is a <a>non-subresource request</a>, or <var>request</var> is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with <var>registration</var>.</li>
         </ol>
       </li>
@@ -3152,7 +3157,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li><a>Assert</a>: a <a>Record</a> with the \[[value]] equals to <var>registration</var> is contained in <a href="#dfn-scope-to-registration-map">scope to registration map</a>.</li>
       <li><a>Assert</a>: <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is not null.</li>
       <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
-      <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain the event type for this functional event, return.
+      <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain the event type for this functional event, then:
+        <ol>
+          <li>Return and continue running these steps <a>in parallel</a>.</li>
+          <li>If the time difference in seconds calculated by the current time minus <var>registration</var>'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with <var>registration</var>.</li>
+          <li>Abort these steps.</li>
+        </ol>
         <p class="note">To avoid unnecessary delays, the Handle Functional Event enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.</p>
       </li>
       <li>If <var>activeWorker</var>'s <a href="#dfn-state">state</a> is <em>activating</em>, wait for <var>activeWorker</var>'s <a href="#dfn-state">state</a> to become <em>activated</em>.</li>
