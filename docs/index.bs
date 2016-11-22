@@ -168,7 +168,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-type">type</dfn> which is either "<code>classic</code>" or "<code>module</code>". Unless stated otherwise, it is "<code>classic</code>".</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (an opaque string), which uniquely identifies itself during the lifetime of its <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
-    <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn id="dfn-functional-events" for="">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn export>functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn export id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn export id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> (an <a>HTTPS state value</a>). It is initially "<code>none</code>". A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-referrer-policy">referrer policy</dfn> (a <a href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy">referrer policy</a>). It is initially the empty string.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource-map">script resource map</dfn> which is a <a>List</a> of the <a>Record</a> {\[[key]], \[[value]]} where \[[key]] is a <a for="/">URL</a> and \[[value]] is a <a for="response">response</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
@@ -245,7 +245,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <dt>The <dfn id="dfn-handle-fetch-task-source">handle fetch task source</dfn></dt>
       <dd>This <a>task source</a> is used for <a>dispatching</a> <a href="#service-worker-global-scope-fetch-event">fetch</a> events to <a href="#dfn-service-worker">service workers</a>.</dd>
       <dt>The <dfn id="dfn-handle-functional-event-task-source">handle functional event task source</dfn></dt>
-      <dd>This <a>task source</a> is used for features that <a>dispatch</a> other <a href="#dfn-functional-events">functional</a> events, e.g. <a href="https://w3c.github.io/push-api/#h-the-push-event">push</a> events, to <a href="#dfn-service-worker">service workers</a>.
+      <dd>This <a>task source</a> is used for features that <a>dispatch</a> other <a>functional events</a>, e.g. <a href="https://w3c.github.io/push-api/#h-the-push-event">push</a> events, to <a href="#dfn-service-worker">service workers</a>.
         <p class="note">A user agent may use a separate task source for each functional event type in order to avoid a head-of-line blocking phenomenon for certain functional events. For instance, a user agent may use a different task source for <a href="http://web-alarms.sysapps.org/#firing-task-event-to-service-worker">task</a> events from other task sources.</p>
       </dd>
     </dl>
@@ -1395,7 +1395,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <ul>
       <li>Adding a <a>promise</a> <var>f</var> to the event's <a>extend lifetime promises</a> delays treating the <a href="#dfn-installing-worker">installing worker</a> as <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all the <a>promises</a> in the <a>extend lifetime promises</a> resolve successfully. (See step 11.3.1 of <a href="#installation-algorithm">Install</a> algorithm.) If <var>f</var> rejects, the installation fails. This is primarily used to ensure that a <a href="#dfn-service-worker">service worker</a> is not considered <em><a href="#dfn-state">installed</a></em> (i.e. a <a href="#dfn-waiting-worker">waiting worker</a>) until all of the core caches it depends on are populated.</li>
-      <li>Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a href="#dfn-functional-events">functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
+      <li>Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a href="#dfn-active-worker">active worker</a> as <em><a href="#dfn-state">activated</a></em> until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a href="#activation-algorithm">Activate</a> algorithm.) This is primarily used to ensure that any <a>functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a href="#dfn-service-worker">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.</li>
     </ul>
   </section>
 
@@ -1482,7 +1482,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       };
     </pre>
 
-    <p><a href="#dfn-service-worker">Service workers</a> have an essential <a href="#dfn-functional-events">functional event</a> <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">service workers</a> use the {{FetchEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> have an essential <a>functional event</a> <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>. For <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code> event, <a href="#dfn-service-worker">service workers</a> use the {{FetchEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
 
     <p>Each event using {{FetchEvent}} interface has an associated <dfn for="FetchEvent">potential response</dfn> (a <a for="fetch">response</a>), initially set to null, and the following associated flags that are initially unset:
       <ul>
@@ -1650,7 +1650,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       };
     </pre>
 
-    <p><a href="#dfn-service-worker">Service workers</a> have a <a href="#dfn-functional-events">functional event</a> <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>. For <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code> events, <a href="#dfn-service-worker">service workers</a> use the {{ForeignFetchEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
+    <p><a href="#dfn-service-worker">Service workers</a> have a <a>functional event</a> <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>. For <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code> events, <a href="#dfn-service-worker">service workers</a> use the {{ForeignFetchEvent}} interface which extends the {{ExtendableEvent}} interface.</p>
 
     <p>Each event using {{ForeignFetchEvent}} interface has an associated <dfn for="ForeignFetchEvent">potential response</dfn> (a <a for="fetch">response</a>), initially set to null, an associated <dfn for="ForeignFetchEvent">origin</dfn> (a {{USVString}} or null), initially set to null, an associated <dfn>list of exposed headers</dfn> (whose element type is a byte string), initially set to an empty list, and the following associated flags that are initially unset:
       <ul>
@@ -1856,12 +1856,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <tr>
           <td><dfn event id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
           <td>{{FetchEvent}}</td>
-          <td>[<a href="#dfn-functional-events">Functional event</a>] The <a>http fetch</a> invokes <a href="#on-fetch-request-algorithm">Handle Fetch</a> with <var>request</var>. As a result of performing <a href="#on-fetch-request-algorithm">Handle Fetch</a>, the <a for="ServiceWorkerGlobalScope">service worker</a> returns a <a for="fetch">response</a> to the <a>http fetch</a>. The <a for="fetch">response</a>, represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
+          <td>[<a>Functional event</a>] The <a>http fetch</a> invokes <a href="#on-fetch-request-algorithm">Handle Fetch</a> with <var>request</var>. As a result of performing <a href="#on-fetch-request-algorithm">Handle Fetch</a>, the <a for="ServiceWorkerGlobalScope">service worker</a> returns a <a for="fetch">response</a> to the <a>http fetch</a>. The <a for="fetch">response</a>, represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-global-scope-foreignfetch-event"><code>foreignfetch</code></dfn></td>
           <td>{{FetchEvent}}</td>
-          <td>[<a href="#dfn-functional-events">Functional event</a>] The <a>http fetch</a> invokes [[#on-foreign-fetch-request-algorithm]] with <var>request</var>. As a result of performing [[#on-foreign-fetch-request-algorithm]], the <a for="ServiceWorkerGlobalScope">service worker</a> returns a <a for="fetch">response</a> to the <a>http fetch</a>. The <a for="fetch">response</a>, represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
+          <td>[<a>Functional event</a>] The <a>http fetch</a> invokes [[#on-foreign-fetch-request-algorithm]] with <var>request</var>. As a result of performing [[#on-foreign-fetch-request-algorithm]], the <a for="ServiceWorkerGlobalScope">service worker</a> returns a <a for="fetch">response</a> to the <a>http fetch</a>. The <a for="fetch">response</a>, represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
         </tr>
         <tr>
           <td><dfn event><code>message</code></dfn></td>
@@ -2703,7 +2703,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section>
     <h3 id="extension-to-extendable-event">Define Functional Event</h3>
 
-    <p>Specifications <em class="rfc2119" title="MAY">may</em> define a <a href="#dfn-functional-events">functional event</a> by extending {{ExtendableEvent}} interface:</p>
+    <p>Specifications <em class="rfc2119" title="MAY">may</em> define a <a>functional event</a> by extending {{ExtendableEvent}} interface:</p>
 
     <pre class="example idl" data-no-idl>
       // e.g. define FunctionalEvent interface
@@ -2716,7 +2716,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section>
     <h3 id="extension-to-service-worker-global-scope">Define Event Handler</h3>
 
-    <p>Specifications <em class="rfc2119" title="MAY">may</em> define an event handler attribute for the corresponding <a href="#dfn-functional-events">functional event</a> using <a>partial interface</a> definition to the {{ServiceWorkerGlobalScope}} interface:</p>
+    <p>Specifications <em class="rfc2119" title="MAY">may</em> define an event handler attribute for the corresponding <a>functional event</a> using <a>partial interface</a> definition to the {{ServiceWorkerGlobalScope}} interface:</p>
 
     <pre class="example idl" data-no-idl>
       partial interface ServiceWorkerGlobalScope {
@@ -2728,9 +2728,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section>
     <h3 id="request-functional-event-dispatch">Request Functional Event Dispatch</h3>
 
-    <p>To request a <a href="#dfn-functional-events">functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications <em class="rfc2119" title="MAY">may</em> invoke <a>Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
+    <p>To request a <a>functional event</a> dispatch to a <a href="#dfn-service-worker">service worker</a>, specifications <em class="rfc2119" title="MAY">may</em> invoke <a>Handle Functional Event</a> algorithm with its <a href="#dfn-service-worker-registration">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
 
-    <p>Specifications <em class="rfc2119" title="MAY">may</em> define an algorithm <var>callbackSteps</var> where the corresponding <a href="#dfn-functional-events">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a {{ServiceWorkerGlobalScope}} object) at which it <em class="rfc2119" title="MAY">may</em> fire its <a href="#dfn-functional-events">functional events</a>. This algorithm is called on a <a>task</a> <a lt="queue a task">queued</a> by <a>Handle Functional Event</a> algorithm.</p>
+    <p>Specifications <em class="rfc2119" title="MAY">may</em> define an algorithm <var>callbackSteps</var> where the corresponding <a>functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a {{ServiceWorkerGlobalScope}} object) at which it <em class="rfc2119" title="MAY">may</em> fire its <a>functional events</a>. This algorithm is called on a <a>task</a> <a lt="queue a task">queued</a> by <a>Handle Functional Event</a> algorithm.</p>
 
     <p class="note">See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a biblio data-biblio-type="informative" lt="notifications">Notifications API</a>.</p>
   </section>
@@ -3158,7 +3158,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>installingWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li><a>Create an event</a> <var>e</var> with the {{InstallEvent}} interface.</li>
+          <li>Let <var>e</var> be the result of <a>creating an event</a> with {{InstallEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>install</code>".</li>
           <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> <var>globalObject</var>.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>e</var>.</li>
@@ -3250,7 +3250,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li><a>Create an event</a> <var>e</var> with the {{ExtendableEvent}} interface.</li>
+          <li>Let <var>e</var> be the result of <a>creating an event</a> with {{ExtendableEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>activate</code>".</li>
           <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>e</var>.</li>
@@ -3440,7 +3440,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li><a>Create an event</a> <var>e</var> with the {{FetchEvent}} interface.</li>
+          <li>Let <var>e</var> be the result of <a>creating an event</a> with {{FetchEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>fetch</code>".</li>
           <li>Initialize <var>e</var>’s {{Event/cancelable}} attribute to true.</li>
           <li>Initialize <var>e</var>’s {{FetchEvent/request}} attribute to <var>r</var>.</li>
@@ -3526,7 +3526,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Invoke [[#run-service-worker-algorithm]] algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run the following substeps:
         <ol>
-          <li><a>Create an event</a> <var>e</var> with the {{ForeignFetchEvent}} interface.</li>
+          <li>Let <var>e</var> be the result of <a>creating an event</a> with {{ForeignFetchEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>foreignfetch</code>".</li>
           <li>Initialize <var>e</var>’s {{Event/cancelable}} attribute to true.</li>
           <li>Initialize <var>e</var>’s {{ForeignFetchEvent/request}} attribute to <var>r</var>.</li>
@@ -3602,7 +3602,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <ol>
       <li><a>Assert</a>: a <a>Record</a> with the \[[value]] equals to <var>registration</var> is contained in <a href="#dfn-scope-to-registration-map">scope to registration map</a>.</li>
       <li><a>Assert</a>: <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is not null.</li>
-      <li>Let <var>event</var> be the <a for="/">functional event</a> for which this algorithm was invoked.</li>
+      <li>Let <var>event</var> be the <a>functional event</a> for which this algorithm was invoked.</li>
       <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
       <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain <var>event</var>'s {{Event/type}}, then:
         <ol>
@@ -3845,11 +3845,11 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
                   <dt><em>activating</em></dt>
                   <dd>"<code>activating</code>"
-                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a>. During this state, <code><a href="#dom-extendableevent-waituntil">event.waitUntil(<var>f</var>)</a></code> can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a href="#dfn-active-worker">active worker</a> until the passed <a>promise</a> resolves successfully. No <a href="#dfn-functional-events">functional events</a> are dispatched until the state becomes <em>activated</em>.</p></dd>
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a>. During this state, <code><a href="#dom-extendableevent-waituntil">event.waitUntil(<var>f</var>)</a></code> can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a href="#dfn-active-worker">active worker</a> until the passed <a>promise</a> resolves successfully. No <a>functional events</a> are dispatched until the state becomes <em>activated</em>.</p></dd>
 
                   <dt><em>activated</em></dt>
                   <dd>"<code>activated</code>"
-                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a> ready to handle <a href="#dfn-functional-events">functional events</a>.</p></dd>
+                  <p class="note">The <a href="#dfn-service-worker">service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a> ready to handle <a>functional events</a>.</p></dd>
 
                   <dt><em>redundant</em></dt>
                   <dd>"<code>redundant</code>"
