@@ -160,7 +160,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-type">type</dfn> which is either "<code>classic</code>" or "<code>module</code>". Unless stated otherwise, it is "<code>classic</code>".</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-containing-service-worker-registration">containing service worker registration</dfn> (a <a href="#dfn-service-worker-registration">service worker registration</a>), which contains itself.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-service-worker-id">id</dfn> (an opaque string), which uniquely identifies itself during the lifetime of its <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.</p>
-    <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn export>functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
+    <p>A <a for="/">service worker</a> has an associated <dfn export for="service worker">global object</dfn> (a {{ServiceWorkerGlobalScope}} object or null).</p>
+    <p>A <a href="#dfn-service-worker">service worker</a> is dispatched a set of <dfn id="dfn-lifecycle-events">lifecycle events</dfn>, <a href="#service-worker-global-scope-install-event">install</a> and <a href="#service-worker-global-scope-activate-event">activate</a>, and <dfn export id="dfn-functional-events">functional events</dfn> including <a href="#service-worker-global-scope-fetch-event">fetch</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn export id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn export id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset. A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-https-state">HTTPS state</dfn> (an <a>HTTPS state value</a>). It is initially "<code>none</code>". A <a href="#dfn-script-resource">script resource</a> has an associated <dfn id="dfn-referrer-policy">referrer policy</dfn> (a <a href="https://w3c.github.io/webappsec-referrer-policy/#referrer-policy">referrer policy</a>). It is initially the empty string.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-script-resource-map">script resource map</dfn> which is a <a>List</a> of the <a>Record</a> {\[[key]], \[[value]]} where \[[key]] is a <a for="/">URL</a> and \[[value]] is a <a for="response">response</a>.</p>
     <p>A <a href="#dfn-service-worker">service worker</a> has an associated <dfn id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
@@ -2833,7 +2834,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <ol>
           <li>Let <var>e</var> be the result of <a>creating an event</a> with {{ExtendableEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>install</code>".</li>
-          <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> <var>globalObject</var>.</li>
+          <li><a>Dispatch</a> <var>e</var> at <var>installingWorker</var>'s <a for="service worker">global object</a>.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>e</var>.</li>
           <li><em>WaitForAsynchronousExtensions</em>: Run the following substeps <a>in parallel</a>:
             <ol>
@@ -2925,7 +2926,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         <ol>
           <li>Let <var>e</var> be the result of <a>creating an event</a> with {{ExtendableEvent}}.</li>
           <li>Initialize <var>e</var>’s {{Event/type}} attribute to "<code>activate</code>".</li>
-          <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
+          <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a for="service worker">global object</a>.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>e</var>.</li>
           <li><em>WaitForAsynchronousExtensions</em>: Wait, <a>in parallel</a>, until <var>e</var>'s <a>extensions allowed flag</a> is unset.</li>
         </ol>
@@ -2956,6 +2957,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <li>Let <var>realmExecutionContext</var> be the created <a href="https://tc39.github.io/ecma262/#sec-execution-contexts">JavaScript execution context</a>.</li>
         </ul>
       </li>
+      <li>Set <var>serviceWorker</var>'s <a for="service worker">global object</a> to <var>workerGlobalScope</var>.</li>
       <li>Let <var>workerEventLoop</var> be a newly created <a>event loop</a>.</li>
       <li>Let <var>settingsObject</var> be a new <a>environment settings object</a> whose algorithms are defined as follows:
         <dl>
@@ -3012,12 +3014,13 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     </dl>
     <ol>
       <li>If <var>serviceWorker</var> is not running, abort these steps.</li>
-      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
+      <li>Let <var>serviceWorkerGlobalScope</var> be <var>serviceWorker</var>'s <a for="service worker">global object</a>.</li>
       <li>Set <var>serviceWorkerGlobalScope</var>'s closing flag to true.</li>
       <li>If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="/">task queues</a>, <a lt="queue a task">queue</a> them to <var>serviceWorker</var>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from <var>serviceWorkerGlobalScope</var>'s <a>event loop</a>'s <a for="/">task queues</a> without processing them.
         <p class="note">This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.</p>
       </li>
       <li>Abort the script currently running in <var>serviceWorker</var>.</li>
+      <li>Set <var>serviceWorker</var>'s <a for="service worker">global object</a> to null.</li>
     </ol>
   </section>
 
@@ -3121,7 +3124,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           <li>If <var>request</var> is a <a>non-subresource request</a> and <var>request</var>'s <a for="request">destination</a> is not "<code>report</code>", initialize <var>e</var>'s {{FetchEvent/reservedClientId}} attribute to <var>reservedClient</var>'s <a for="environment">id</a>, and to the empty string otherwise.</li>
           <li>If <var>request</var> is a <a>navigation request</a>, initialize <var>e</var>'s {{FetchEvent/targetClientId}} attribute to <var>request</var>'s <a for="request">target client id</a>, and to the empty string otherwise.</li>
           <li>Let the {{FetchEvent/isReload}} attribute of <var>e</var> be initialized to <code>true</code> if <var>request</var>'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.</li>
-          <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.</li>
+          <li><a>Dispatch</a> <var>e</var> at <var>activeWorker</var>'s <a for="service worker">global object</a>.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>e</var>.</li>
           <li>If <var>e</var>'s <a href="#respond-with-entered-flag">respond-with entered flag</a> is set, set <var>respondWithEntered</var> to true.</li>
           <li>If <var>e</var>'s <a href="#wait-to-respond-flag">wait to respond flag</a> is set, then:
@@ -3165,6 +3168,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     <dl>
     <dt>Input</dt>
+        <dd><var>event</var>, an {{ExtendableEvent}} object</dd>
         <dd><var>registration</var>, a <a for="/">service worker registration</a></dd>
         <dd><var>callbackSteps</var>, an algorithm</dd>
     <dt>Output</dt>
@@ -3173,7 +3177,6 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <ol>
       <li><a>Assert</a>: a <a>Record</a> with the \[[value]] equals to <var>registration</var> is contained in <a href="#dfn-scope-to-registration-map">scope to registration map</a>.</li>
       <li><a>Assert</a>: <var>registration</var>'s <a href="#dfn-active-worker">active worker</a> is not null.</li>
-      <li>Let <var>event</var> be the <a>functional event</a> for which this algorithm was invoked.</li>
       <li>Let <var>activeWorker</var> be <var>registration</var>'s <a href="#dfn-active-worker">active worker</a>.</li>
       <li>If <var>activeWorker</var>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain <var>event</var>'s {{Event/type}}, then:
         <ol>
@@ -3187,7 +3190,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <li>Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with <var>activeWorker</var> as the argument.</li>
       <li><a>Queue a task</a> <var>task</var> to run these substeps:
         <ol>
-          <li>Invoke <var>callbackSteps</var> with <var>activeWorker</var>'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> as its argument.</li>
+          <li>Invoke <var>callbackSteps</var> with <var>activeWorker</var>'s <a for="service worker">global object</a> as its argument.</li>
           <li>Invoke <a>Extend Service Worker Lifetime</a> with <var>event</var>.</li>
         </ol>
         <p>The <var>task</var> <em class="rfc2119" title="MUST">must</em> use <var>activeWorker</var>'s <a>event loop</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.</p>
