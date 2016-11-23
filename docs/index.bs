@@ -16,7 +16,7 @@ Abstract: This specification describes a method that enables applications to tak
 Abstract:
 Abstract: The core of this system is an event-driven <a>Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.
 Abstract:
-Abstract: The service worker is a generic entry point for event-driven background processing in the Web Platform that is <!--<a href="#extensibility">extensible by other specifications</a>-->.
+Abstract: The service worker is a generic entry point for event-driven background processing in the Web Platform that is <a>extensible by other specifications</a>.
 Markup Shorthands: css no, markdown yes
 </pre>
 
@@ -168,9 +168,9 @@ Markup Shorthands: css no, markdown yes
       : The <dfn export id="dfn-handle-fetch-task-source">handle fetch task source</dfn>
       :: This <a>task source</a> is used for <a>dispatching</a> <a>fetch</a> events to <a>service workers</a>.
       : The <dfn export id="dfn-handle-functional-event-task-source">handle functional event task source</dfn>
-      :: This <a>task source</a> is used for features that <a>dispatch</a> other <a>functional</a> events, e.g. <a href="https://w3c.github.io/push-api/#h-the-push-event">push</a> events, to <a>service workers</a>.
+      :: This <a>task source</a> is used for features that <a>dispatch</a> other <a>functional</a> events, e.g. <a>push</a> events, to <a>service workers</a>.
         
-        Note: A user agent may use a separate task source for each functional event type in order to avoid a head-of-line blocking phenomenon for certain functional events. For instance, a user agent may use a different task source for <a href="http://web-alarms.sysapps.org/#firing-task-event-to-service-worker">task</a> events from other task sources.
+        Note: A user agent may use a separate task source for each functional event type in order to avoid a head-of-line blocking phenomenon for certain functional events. For instance, a user agent may use a different task source for <a>task</a> events from other task sources.
   </section>
 
   <section>
@@ -482,7 +482,6 @@ Markup Shorthands: css no, markdown yes
 
       <dfn attribute for="ServiceWorkerContainer"><code>ready</code></dfn> attribute *must* run these steps:
 
-      
         1. If the <a>context object</a>'s <a for="ServiceWorkerContainer">ready promise</a> is settled, return the <a>context object</a>'s <a for="ServiceWorkerContainer">ready promise</a>.
         1. Let |client| be the <a>context object</a>'s <a for="ServiceWorkerContainer">service worker client</a>.
         1. Let |registration| be null.
@@ -500,7 +499,6 @@ Markup Shorthands: css no, markdown yes
           1. Resolve <a>context object</a>'s <a for="ServiceWorkerContainer">ready promise</a> with the {{ServiceWorkerRegistration}} object which represents |registration|.
         1. Return <a>context object</a>'s <a for="ServiceWorkerContainer">ready promise</a>.
       
-
       Note: When the {{ServiceWorkerContainer/ready}} attribute is accessed, the returned <a>promise</a> will never reject. Instead, it waits until the <a>promise</a> resolves with a <a>service worker registration</a> that has an <a>active worker</a>.
     </section>
 
@@ -548,8 +546,8 @@ Markup Shorthands: css no, markdown yes
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
           1. Let |array| be an empty array.
-          1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of <a>scope to registration map</a>:
-            1. If the <a for="resource">origin</a> of the result of <a lt="URL parser">parsing</a> |entry|.\[[key]] is the <a lt="same origin">same</a> as |client|'s <a for="resource">origin</a>, and |entry|.\[[value]]'s <a>uninstalling flag</a> is unset, add the {{ServiceWorkerRegistration}} object associated with |entry|.\[[value]] to the |array|.
+          1. <a for="ordered map">For each</a> |key| → |value| of <a>scope to registration map</a>:
+            1. If the <a for="resource">origin</a> of the result of <a lt="URL parser">parsing</a> |key| is the <a lt="same origin">same</a> as |client|'s <a for="resource">origin</a>, and |value|'s <a>uninstalling flag</a> is unset, add the {{ServiceWorkerRegistration}} object associated with |value| to the |array|.
           1. Resolve |promise| with |array|.
         1. Return |promise|.
     </section>
@@ -1031,7 +1029,9 @@ Markup Shorthands: css no, markdown yes
                 1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
                 1. It |client| is a <a>window client</a>, set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.
               1. Wait for |task| to have executed.
+                
                 Note: Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.
+              
               1. If |isClientEnumerable| is true, then:
                 1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
                 1. Add |windowClient| to |matchedClients|.
@@ -1122,7 +1122,7 @@ Markup Shorthands: css no, markdown yes
 
     <a>Service workers</a> have two <a>lifecycle events</a>, <code><a>install</a></code> and <code><a>activate</a></code>. <a>Service workers</a> use the {{ExtendableEvent}} interface for <code><a>activate</a></code> event and <code><a>install</a></code> event.
 
-    <a href="#extensibility">Service worker extensions</a> that <a>define event handlers</a> *may* also use or extend the {{ExtendableEvent}} interface.
+    <a>Service worker extensions</a> that <a>define event handlers</a> *may* also use or extend the {{ExtendableEvent}} interface.
 
     Note: To extend the lifetime of a <a>service worker</a>, algorithms that <a>dispatch</a> events using the {{ExtendableEvent}} interface run <a>Extend Service Worker Lifetime</a> algorithm after <a>dispatching</a> the event. See <a>Handle Fetch</a>, <a>Handle Foreign Fetch</a>, and <a>Handle Functional Event</a>.
 
@@ -1139,7 +1139,7 @@ Markup Shorthands: css no, markdown yes
         1. Add |f| to the <a for="ExtendableEvent">extend lifetime promises</a>.
     </section>
 
-    <a>Service workers</a> and <a href="#extensibility">extensions</a> that <a>define event handlers</a> *may* define their own behaviors, allowing the <a for="ExtendableEvent">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a for="ExtendableEvent">extend lifetime promises</a> to suggest operation failure.
+    <a>Service workers</a> and <a>extensions</a> that <a>define event handlers</a> *may* define their own behaviors, allowing the <a for="ExtendableEvent">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a>promise</a> in <a for="ExtendableEvent">extend lifetime promises</a> to suggest operation failure.
 
     <a>Service workers</a> define the following behaviors for <code><a>install</a></code> event and <code><a>activate</a></code> event, respectively:
 
@@ -1836,7 +1836,7 @@ Markup Shorthands: css no, markdown yes
           1. For each |f| in |varyHeaders|:
             1. If |f| matches "<code>*</code>", return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |response| is <a>disturbed</a> or <a>locked</a>, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. Let |newResponse| be a new {{Response}} object associated with |response|'s associated <a href="https://fetch.spec.whatwg.org/#concept-response-response">response</a> and a new {{Headers}} object whose <a>guard</a> is |response|'s {{Headers}}' <a>guard</a>.
+        1. Let |newResponse| be a new {{Response}} object associated with |response|'s associated <a>response</a> and a new {{Headers}} object whose <a>guard</a> is |response|'s {{Headers}}' <a>guard</a>.
         1. If |response|'s body is non-null, run these substeps:
           1. Let |dummyStream| be an <a>empty</a> <a>ReadableStream</a> object.
           1. Set |response|'s <a for="Body">body</a> to a new <a for="/">body</a> whose <a>stream</a> is |dummyStream|.
@@ -2060,11 +2060,10 @@ Markup Shorthands: css no, markdown yes
         1. If |serviceWorker|'s <a>imported scripts updated flag</a> is unset, then:
           1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
           1. If |response|'s <a>unsafe response</a>'s <a for="response">type</a> is not "<code>error</code>", and |response|'s <a for="response">status</a> is an <a>ok status</a>, then:
-            1. If there exists a corresponding Record |record| for |request|'s <a for="request">url</a> in |serviceWorker|'s <a>script resource map</a>, set |record|.\[[value]] to |response|.
-            1. Else, set a newly-created Record {\[[key]]: |url|, \[[value]]: |response|} to |serviceWorker|'s <a>script resource map</a>.
+            1. <a for="ordered map">Set</a> <a>script resource map</a>[|request|'s <a for="request">url</a>] to |response|
           1. Return |response|.
         1. Else:
-          1. If there exists a corresponding Record |record| for |url| in |serviceWorker|'s <a>script resource map</a>, return |record|.\[[value]].
+          1. If <a>script resource map</a>[|url|] <a for="ordered map">exists</a>, return <a>script resource map</a>[|url|].
           1. Else, return a <a>network error</a>.
     </section>
   </section>
@@ -2454,7 +2453,9 @@ Markup Shorthands: css no, markdown yes
       : Input
       :: |registration|, a <a>service worker registration</a>
       :: *force bypass cache flag*, an optional flag unset by default
+        
         Note: Implementers may use the *force bypass cache flag* to aid debugging (e.g. invocations from developer tools), and other specifications that extend service workers may also use the flag on their own needs.
+      
       : Output
       :: None
     
@@ -2606,6 +2607,7 @@ Markup Shorthands: css no, markdown yes
       1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
       1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s <a for="/">task queues</a> in the same order using their original <a>task sources</a>.
       1. If |script| is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> |script|. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> |script|.
+        
         Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.
       
       1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
@@ -2661,7 +2663,9 @@ Markup Shorthands: css no, markdown yes
       1. If |request| is a <a>potential-navigation-or-subresource request</a>, then:
         1. Return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
+        
         Note: If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.
+        
         1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
           1. If |reservedClient| is not a <a>secure context</a>, return null.
         1. Else:
@@ -2802,7 +2806,7 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: None
     
-      1. <a>Assert</a>: a <a>Record</a> with the \[[value]] equals to |registration| is contained in <a>scope to registration map</a>.
+      1. <a>Assert</a>: <a>scope to registration map</a> contains a value equal to |registration|.
       1. <a>Assert</a>: |registration|'s <a>active worker</a> is not null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. If |activeWorker|'s <a>set of event types to handle</a> does not contain the event type for this functional event, then:
@@ -2848,8 +2852,7 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: None
     
-      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a>scope to registration map</a>:
-        1. Let |registration| be |entry|.\[[value]].
+      1. <a>For each</a> |scope| → |registration| of <a>scope to registration map</a>:
         1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
           1. If the result of running <a>Get Newest Worker</a> with |registration| is |installingWorker|, invoke <a>Clear Registration</a> with |registration| and continue to the next iteration of the loop.
           1. Else, set |registration|'s <a>installing worker</a> to null.
@@ -2892,7 +2895,7 @@ Markup Shorthands: css no, markdown yes
       1. Run the following steps atomically.
       1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
       1. Let |registration| be a new <a>service worker registration</a> whose <a>scope url</a> is set to |scope|.
-      1. Set a newly-created <a>Record</a> {\[[key]]: |scopeString|, \[[value]]: |registration|} to <a>scope to registration map</a>.
+      1. <a for="ordered map">Set</a> <a>scope to registration map</a>[|scopeString|] to |registration|.
       1. Return |registration|.
   </section>
 
@@ -2924,7 +2927,8 @@ Markup Shorthands: css no, markdown yes
         1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
         1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
         1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      1. Delete a <a>Record</a> {\[[key]], \[[value]]} |entry| from <a>scope to registration map</a> where |registration|'s <a>scope url</a> is the result of <a lt="URL parser">parsing</a> |entry|.\[[key]].
+      1. Let |scopeString| be <a lt="URL serializer">serialized</a> |registration|'s <a>scope url</a> with the *exclude fragment flag* set.  
+      1. <a for="ordered map">Remove</a> <a>scope to registration map</a>[scopeString].
   </section>
 
   <section algorithm="update-registration-state-algorithm">
@@ -3022,7 +3026,8 @@ Markup Shorthands: css no, markdown yes
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
       1. Let |matchingScope| be the empty string.
-      1. Set |matchingScope| to the longest \[[key]] in <a>scope to registration map</a> which the value of |clientURLString| starts with, if it exists.
+      1. Let |allScopes| be the result of <a for="ordered map">getting the keys</a> from <a>scope to registration map</a>.
+      1. Set |matchingScope| to the longest value in |allScopes| which the value of |clientURLString| starts with, if it exists.
         
         Note: The URL string matching in this step is prefix-based rather than path-structural (e.g. a client URL string with "/prefix-of/resource.html" will match a registration for a scope with "/prefix").
       
@@ -3065,8 +3070,8 @@ Markup Shorthands: css no, markdown yes
       1. Let |scopeString| be the empty string.
       1. If |scope| is not null, set |scopeString| to <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
       1. Let |registration| be null.
-      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a>scope to registration map</a>:
-        1. If |scopeString| matches |entry|.\[[key]], set |registration| to |entry|.\[[value]].
+      1. <a for="ordered map">For each</a> |key| → |value| of <a>scope to registration map</a>:
+        1. If |scopeString| matches |key|, set |registration| to |value|.
       1. Return |registration|.
   </section>
 
