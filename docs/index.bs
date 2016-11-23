@@ -923,8 +923,8 @@ Markup Shorthands: css no, markdown yes
           1. Wait for |task| to have executed (including its asynchronous steps).
           1. If |navigateFailed| is true, reject |promise| with a <code>TypeError</code> and abort these steps.
           1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="resource">origin</a> is not the <a lt="same origin">same</a> as the <a for="ServiceWorkerGlobalScope">service worker</a>'s <a for="resource">origin</a>, then:
-              1. Resolve |promise| with null.
-              1. Abort these steps.
+            1. Resolve |promise| with null.
+            1. Abort these steps.
           1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |browsingContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
           1. Resolve |promise| with |windowClient|.
         1. Return |promise|.
@@ -983,9 +983,9 @@ Markup Shorthands: css no, markdown yes
               1. If |client| is a type of <a>environment</a>, set |browsingContext| to |client|’s <a for="environment">target browsing context</a>.
               1. Else, set |browsingContext| to |client|'s <a for="environment settings object">global object</a>'s <a for="/">browsing context</a>.
               1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
-                  1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
-                  1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                  1. If |client| is a <a>window client</a>, set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.
+                1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
+                1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
+                1. If |client| is a <a>window client</a>, set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.
               1. Wait for |task| to have executed.
               1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
               1. Resolve |promise| with |windowClient| and abort these steps.
@@ -1036,12 +1036,12 @@ Markup Shorthands: css no, markdown yes
                 1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
                 1. Add |windowClient| to |matchedClients|.
             1. Else if |options|.{{ClientQueryOptions/type}} is "<code>worker</code>" or "<code>all</code>" and |client| is a <a>dedicated worker client</a>, or |options|.{{ClientQueryOptions/type}} is "<code>sharedworker</code>" or "<code>all</code>" and |client| is a <a>shared worker client</a>, then:
-                1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
-                1. Add |clientObject| to |matchedClients|.
+              1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
+              1. Add |clientObject| to |matchedClients|.
           1. Sort |matchedClients| such that:
-              * {{WindowClient}} objects are always placed before {{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a>.
-              * {{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.
-              * {{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.
+            * {{WindowClient}} objects are always placed before {{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a>.
+            * {{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.
+            * {{Client}} objects whose associated <a for="Client">service worker clients</a> are <a>worker clients</a> are placed next sorted in their <a for="Client">service worker clients</a>' creation order.
           1. Resolve |promise| with |matchedClients|.
         1. Return |promise|.
     </section>
@@ -2212,8 +2212,8 @@ Markup Shorthands: css no, markdown yes
       1. Set |job|'s <a>job type</a> to |jobType|.
       1. Set |job|'s <a>scope url</a> to |scopeURL|.
       1. Set |job|'s <a>script url</a> to |scriptURL|.
-      1. Set |job|'s <a href="#dfn-job-promise">promise</a> to |promise|.
-      1. Set |job|'s <a href="#dfn-job-client">client</a> to |client|.
+      1. Set |job|'s <a for="job">promise</a> to |promise|.
+      1. Set |job|'s <a for="job">client</a> to |client|.
       1. If |client| is not null, set |job|'s <a for="job">referrer</a> to |client|'s <a>creation URL</a>.
       1. Return |job|.
   </section>
@@ -2227,12 +2227,11 @@ Markup Shorthands: css no, markdown yes
       :: none
     
       1. If the <a>job queue</a> is empty, then:
-          1. Push |job| to the <a>job queue</a> and invoke <a href="#run-job-algorithm">Run Job</a>.
+        1. Push |job| to the <a>job queue</a> and invoke <a>Run Job</a>.
       1. Else:
-          1. Let |lastJob| be the element at the back of the <a>job queue</a>.
-          1. If |job| is <a href="#dfn-job-equivalent">equivalent</a> to |lastJob| and |lastJob|'s <a href="#dfn-job-promise">promise</a> has not settled, append |job| to |lastJob|'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>.
-          1. Else, push |job| to the <a>job queue</a>.
-      
+        1. Let |lastJob| be the element at the back of the <a>job queue</a>.
+        1. If |job| is <a>equivalent</a> to |lastJob| and |lastJob|'s <a for="job">promise</a> has not settled, append |job| to |lastJob|'s <a>list of equivalent jobs</a>.
+        1. Else, push |job| to the <a>job queue</a>.
   </section>
 
   <section algorithm="run-job-algorithm">
@@ -2245,13 +2244,13 @@ Markup Shorthands: css no, markdown yes
     
       1. <a>Assert</a>: the <a>job queue</a> is not empty.
       1. <a>Queue a task</a> to run these steps:
-          1. Let |job| be the element in the front of the <a>job queue</a>.
-          1. If |job|'s <a>job type</a> is *register*, run <a href="#register-algorithm">Register</a> with |job| <a>in parallel</a>.
-          1. Else if |job|'s <a>job type</a> is *update*, run <a href="#update-algorithm">Update</a> with |job| <a>in parallel</a>.
-            Note: For a register job and an update job, the user agent delays queuing a task for running the job until after the document initiated the job has been dispatched {{Document/DOMContentLoaded}} event.
+        1. Let |job| be the element in the front of the <a>job queue</a>.
+        1. If |job|'s <a>job type</a> is *register*, run <a>Register</a> with |job| <a>in parallel</a>.
+        1. Else if |job|'s <a>job type</a> is *update*, run <a>Update</a> with |job| <a>in parallel</a>.
+
+          Note: For a register job and an update job, the user agent delays queuing a task for running the job until after the document initiated the job has been dispatched {{Document/DOMContentLoaded}} event.
           
-          1. Else if |job|'s <a>job type</a> is *unregister*, run <a href="#unregister-algorithm">Unregister</a> with |job| <a>in parallel</a>.
-      
+        1. Else if |job|'s <a>job type</a> is *unregister*, run <a>Unregister</a> with |job| <a>in parallel</a>.
   </section>
 
   <section algorithm="finish-job-algorithm">
@@ -2264,7 +2263,7 @@ Markup Shorthands: css no, markdown yes
     
       1. <a>Assert</a>: the top element in the <a>job queue</a> is |job|.
       1. Pop the top element from the <a>job queue</a>.
-      1. If the <a>job queue</a> is not empty, invoke <a href="#run-job-algorithm">Run Job</a> with the top element of the <a>job queue</a>.
+      1. If the <a>job queue</a> is not empty, invoke <a>Run Job</a> with the top element of the <a>job queue</a>.
   </section>
 
   <section algorithm="resolve-job-promise-algorithm">
@@ -2276,10 +2275,9 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: none
     
-      1. If |job|'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to resolve |job|'s <a href="#dfn-job-promise">promise</a> with |value| on |job|'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
-      1. For each |equivalentJob| in |job|'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>:
-          1. If |equivalentJob|'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to resolve |equivalentJob|'s <a href="#dfn-job-promise">promise</a> with |value| on |equivalentJob|'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
-      
+      1. If |job|'s <a for="job">client</a> is not null, <a>queue a task</a> to resolve |job|'s <a for="job">promise</a> with |value| on |job|'s <a for="job">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
+      1. For each |equivalentJob| in |job|'s <a>list of equivalent jobs</a>:
+        1. If |equivalentJob|'s <a for="job">client</a> is not null, <a>queue a task</a> to resolve |equivalentJob|'s <a lfor="job">promise</a> with |value| on |equivalentJob|'s <a for="job">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
   </section>
 
   <section algorithm="reject-job-promise-algorithm">
@@ -2291,10 +2289,9 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: none
     
-      1. If |job|'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to reject |job|'s <a href="#dfn-job-promise">promise</a> with |reason| on |job|'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
-      1. For each |equivalentJob| in |job|'s <a href="#dfn-job-list-of-equivalent-jobs">list of equivalent jobs</a>:
-          1. If |equivalentJob|'s <a href="#dfn-job-client">client</a> is not null, <a>queue a task</a> to reject |equivalentJob|'s <a href="#dfn-job-promise">promise</a> with |reason| on |equivalentJob|'s <a href="#dfn-job-client">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
-      
+      1. If |job|'s <a for="job">client</a> is not null, <a>queue a task</a> to reject |job|'s <a for="job">promise</a> with |reason| on |job|'s <a for="job">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
+      1. For each |equivalentJob| in |job|'s <a>list of equivalent jobs</a>:
+        1. If |equivalentJob|'s <a for="job">client</a> is not null, <a>queue a task</a> to reject |equivalentJob|'s <a lfor="job">promise</a> with |reason| on |equivalentJob|'s <a for="job">client</a>'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
   </section>
 
   <section algorithm="start-register-algorithm">
@@ -2314,6 +2311,7 @@ Markup Shorthands: css no, markdown yes
       1. If |scriptURL|'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scriptURL|'s <a for="url">path</a> contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If |scopeURL| is null, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the string "<code>./</code>" with |scriptURL|.
+
         Note: The scope url for the registration is set to the location of the service worker script by default.
       
       1. If |scopeURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
@@ -2334,30 +2332,24 @@ Markup Shorthands: css no, markdown yes
       :: |promise|, a <a>promise</a>
     
       1. If the result of running <a>Is origin potentially trustworthy</a> with the <a for="resource">origin</a> of |job|'s <a>script url</a> as the argument is <code>Not Trusted</code>, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
+        1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the <a for="resource">origin</a> of |job|'s <a>script url</a> is not |job|'s <a for="job">referrer</a>'s <a for="resource">origin</a>, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
+        1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the <a for="resource">origin</a> of |job|'s <a>scope url</a> is not |job|'s <a for="job">referrer</a>'s <a for="resource">origin</a>, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Let |registration| be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
+        1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
       1. If |registration| is not null, then:
-          1. If |registration|'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, unset it.
-          1. Let |newestWorker| be the result of running the <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null and |job|'s <a>script url</a> <a for="url">equals</a> |newestWorker|'s <a href="#dfn-script-url">script url</a> with the *exclude fragments flag* set, then:
-              1. Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
-              1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-          
-      
+        1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
+        1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
+        1. If |newestWorker| is not null and |job|'s <a>script url</a> <a for="url">equals</a> |newestWorker|'s <a>script url</a> with the *exclude fragments flag* set, then:
+          1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+          1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a href="#set-registration-algorithm">Set Registration</a> algorithm passing |job|'s <a>scope url</a> as its argument.
-      
-      1. Invoke <a href="#update-algorithm">Update</a> algorithm passing |job| as the argument.
+        1. Invoke <a>Set Registration</a> algorithm passing |job|'s <a>scope url</a> as its argument.
+      1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
   <section algorithm="update-algorithm">
@@ -2368,95 +2360,90 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: none
     
-      1. Let |registration| be the result of running the <a href="#get-registration-algorithm">Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
-      1. If |registration| is null or |registration|'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a <code>TypeError</code>.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Let |newestWorker| be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing |registration| as the argument.
-      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s <a href="#dfn-script-url">script url</a> does not <a for="url">equal</a> |job|'s <a>script url</a> with the *exclude fragments flag* set, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a <code>TypeError</code>.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
+      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
+      1. If |registration| is null or |registration|'s <a>uninstalling flag</a> is set, then:
+        1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
+      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s <a>script url</a> does not <a for="url">equal</a> |job|'s <a>script url</a> with the *exclude fragments flag* set, then:
+        1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
       1. Switching on |job|'s <a>worker type</a>, run these substeps with the following options:
-        
         : *"<code>classic</code>"*
-      :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> <a>script url</a>, |job|’s <a href="#dfn-job-client">client</a>, and "<code>serviceworker</code>".
+        :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> <a>script url</a>, |job|’s <a for="job">client</a>, and "<code>serviceworker</code>".
         : *"<code>module</code>"*
-      :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> <a>script url</a>, |job|’s <a href="#dfn-job-client">client</a>, "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker. <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
+        :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> <a>script url</a>, |job|’s <a for="job">client</a>, "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker. <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
         
         To <a for="fetching scripts">perform the fetch</a> given |request|, run the following steps if the <a for="fetching scripts">is top-level</a> flag is set:
-          1. Append `<code>Service-Worker</code>`/`<code>script</code>` to |request|'s <a for="request">header list</a>.
-            Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
-          
-          1. Set |request|'s <a>skip service worker flag</a> and |request|'s <a for="request">redirect mode</a> to "<code>error</code>".
-          1. If |newestWorker| is not null and |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is not null, then:
-              1. If the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, or *force bypass cache flag* is set, set |request|'s <a for="request">cache mode</a> to "<code>reload</code>".
-            Note: Even if the cache mode is not set to "reload", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
-          
-          1. <a>Fetch</a> |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the <a for="fetch">response</a> |response|.
-          1. <a>Extract a MIME type</a> from the |response|'s <a for="response">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
-              1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-              1. Asynchronously complete these steps with a <a>network error</a>.
-          
-          1. Let |serviceWorkerAllowed| be the result of <a for="header">parsing</a> `<code>Service-Worker-Allowed</code>` in |response|'s <a for="response">header list</a>.
-            Note: See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.
-          
-          1. Set |httpsState| to |response|'s <a for="response">HTTPS state</a>.
-          1. Set |referrerPolicy| to the result of <a href="https://w3c.github.io/webappsec-referrer-policy/#parse-referrer-policy-from-header">parsing the `<code>Referrer-Policy</code>` header</a> of |response|.
-          1. If |serviceWorkerAllowed| is failure, then:
-              1. Asynchronously complete these steps with a <a>network error</a>.
-          
-          1. Let |scopeURL| be |registration|'s <a>scope url</a>.
-          1. Let |maxScopeString| be null.
-          1. If |serviceWorkerAllowed| is null, then:
-              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s <a>script url</a>'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
-          
-          1. Else:
-              1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s <a>script url</a>.
-              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
-          
-          1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
-          1. If |scopeString| starts with |maxScopeString|, do nothing.
-          1. Else:
-              1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-              1. Asynchronously complete these steps with a <a>network error</a>.
-          
-          1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> to the current time.
-            <p class="issue">The response's cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.
-          
-          1. Return true.
-        If the algorithm asynchronously completes with null, then:
-            1. 
-                Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a <code>TypeError</code>.
 
-                Note: This will do nothing if <a href="#reject-job-promise-algorithm">Reject Job Promise</a> was previously invoked with a "{{SecurityError}}" exception.
+        1. Append `<code>Service-Worker</code>`/`<code>script</code>` to |request|'s <a for="request">header list</a>.
             
-            1. If |newestWorker| is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing |registration| as its argument.
-            1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
+          Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
+          
+        1. Set |request|'s <a>skip service worker flag</a> and |request|'s <a for="request">redirect mode</a> to "<code>error</code>".
+        1. If |newestWorker| is not null and |registration|'s <a>last update check time</a> is not null, then:
+          1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, or *force bypass cache flag* is set, set |request|'s <a for="request">cache mode</a> to "<code>reload</code>".
+            
+          Note: Even if the cache mode is not set to "reload", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
+          
+        1. <a>Fetch</a> |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the <a for="fetch">response</a> |response|.
+        1. <a>Extract a MIME type</a> from the |response|'s <a for="response">header list</a>. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
+          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Asynchronously complete these steps with a <a>network error</a>.
+        1. Let |serviceWorkerAllowed| be the result of <a for="header">parsing</a> `<code>Service-Worker-Allowed</code>` in |response|'s <a for="response">header list</a>.
+
+          Note: See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.
+          
+        1. Set |httpsState| to |response|'s <a for="response">HTTPS state</a>.
+        1. Set |referrerPolicy| to the result of <a>parsing the `<code>Referrer-Policy</code>` header</a> of |response|.
+        1. If |serviceWorkerAllowed| is failure, then:
+          1. Asynchronously complete these steps with a <a>network error</a>.
+        1. Let |scopeURL| be |registration|'s <a>scope url</a>.
+        1. Let |maxScopeString| be null.
+        1. If |serviceWorkerAllowed| is null, then:
+          1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s <a>script url</a>'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
+        1. Else:
+          1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s <a>script url</a>.
+          1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
+        1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s <a for="url">path</a> (including empty strings), separated from each other by "<code>/</code>".
+        1. If |scopeString| starts with |maxScopeString|, do nothing.
+        1. Else:
+          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Asynchronously complete these steps with a <a>network error</a>.
+        1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a>last update check time</a> to the current time.
+            
+          Issue: The response's cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.
+          
+        1. Return true.
+        
+        If the algorithm asynchronously completes with null, then:
+
+          1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+
+            Note: This will do nothing if <a>Reject Job Promise</a> was previously invoked with a "{{SecurityError}}" exception.
+            
+          1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+          1. Invoke <a>Finish Job</a> with |job| and abort these steps.
         
         Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
       
-      1. If |newestWorker| is not null, |newestWorker|'s <a href="#dfn-script-url">script url</a> <a for="url">equals</a> |job|'s <a>script url</a> with the *exclude fragments flag* set, and |script| is a byte-for-byte match with |newestWorker|'s <a href="#dfn-script-resource">script resource</a>, then:
-          1. Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
+      1. If |newestWorker| is not null, |newestWorker|'s <a>script url</a> <a for="url">equals</a> |job|'s <a>script url</a> with the *exclude fragments flag* set, and |script| is a byte-for-byte match with |newestWorker|'s <a>script resource</a>, then:
+        1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Let |worker| be a new <a>service worker</a>.
-          1. Generate a unique opaque string and set |worker|'s <a href="#dfn-service-worker-id">id</a> to the value.
-          1. Set |worker|'s <a href="#dfn-script-url">script url</a> to |job|'s <a>script url</a>, |worker|'s <a href="#dfn-script-resource">script resource</a> to |script|, and |worker|'s <a href="#dfn-type">type</a> to |job|'s <a>worker type</a>.
-          1. Set |worker|'s <a href="#dfn-script-resource">script resource</a>'s <a href="#dfn-https-state">HTTPS state</a> to |httpsState|.
-          1. Set |worker|'s <a href="#dfn-script-resource">script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a> to |referrerPolicy|.
-          1. Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with |worker| as the argument.
-          1. If an uncaught runtime script error occurs during the above step, then:
-              1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a <code>TypeError</code>.
-              1. If |newestWorker| is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing |registration| as its argument.
-              1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-          
-      
-      1. Invoke <a href="#installation-algorithm">Install</a> algorithm with |job|, |worker|, and |registration| as its arguments.
+        1. Let |worker| be a new <a>service worker</a>.
+        1. Generate a unique opaque string and set |worker|'s <a>id</a> to the value.
+        1. Set |worker|'s <a>script url</a> to |job|'s <a>script url</a>, |worker|'s <a>script resource</a> to |script|, and |worker|'s <a>type</a> to |job|'s <a>worker type</a>.
+        1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
+        1. Set |worker|'s <a>script resource</a>'s <a>referrer policy</a> to |referrerPolicy|.
+        1. Invoke <a>Run Service Worker</a> algorithm with |worker| as the argument.
+        1. If an uncaught runtime script error occurs during the above step, then:
+          1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+          1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+          1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Invoke <a>Install</a> algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
 
   <section algorithm="soft-update-algorithm">
@@ -2464,7 +2451,6 @@ Markup Shorthands: css no, markdown yes
 
     The user agent *may* call this as often as it likes to check for updates.
 
-    
       : Input
       :: |registration|, a <a>service worker registration</a>
       :: *force bypass cache flag*, an optional flag unset by default
@@ -2472,12 +2458,12 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: None
     
-      1. Let |newestWorker| be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing |registration| as its argument.
+      1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
       1. If |newestWorker| is null, abort these steps.
-      1. Let |job| be the result of running <a href="#create-job-algorithm">Create Job</a> with *update*, |registration|'s <a>scope url</a>, |newestWorker|'s <a href="#dfn-script-url">script url</a>, null, and null.
+      1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s <a>scope url</a>, |newestWorker|'s <a>script url</a>, null, and null.
       1. Set |job|'s <a>worker type</a> to |newestWorker|'s <a for="service worker">type</a>.
-      1. Set |job|'s <a href="#dfn-job-force-bypass-cache-flag">force bypass cache flag</a> if its *force bypass cache flag* is set.
-      1. Invoke <a href="#schedule-job-algorithm">Schedule Job</a> with |job|.
+      1. Set |job|'s <a>force bypass cache flag</a> if its *force bypass cache flag* is set.
+      1. Invoke <a>Schedule Job</a> with |job|.
   </section>
 
   <section algorithm="installation-algorithm">
@@ -2491,51 +2477,48 @@ Markup Shorthands: css no, markdown yes
       :: none
     
       1. Let |installFailed| be false.
-      1. Let |newestWorker| be the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> algorithm passing |registration| as its argument.
+      1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
       1. Let |redundantWorker| be null.
-      1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
-      1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |registration|'s <a href="#dfn-installing-worker">installing worker</a> and *installing* as the arguments.
-      1. <a>Assert</a>: |job|'s <a href="#dfn-job-promise">promise</a> is not null.
-      1. Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
-      1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a>service worker clients</a> whose <a>creation URL</a> <a href="#scope-match-algorithm">matches</a> |registration|'s <a>scope url</a> and all the <a>service workers</a> whose <a href="#dfn-containing-service-worker-registration">containing service worker registration</a> is |registration|.
-      1. Let |installingWorker| be |registration|'s <a href="#dfn-installing-worker">installing worker</a>.
-      1. Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with |installingWorker| as the argument.
+      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
+      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
+      1. <a>Assert</a>: |job|'s <a for="job">promise</a> is not null.
+      1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+      1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the <a>service worker clients</a> whose <a>creation URL</a> <a>matches</a> |registration|'s <a>scope url</a> and all the <a>service workers</a> whose <a>containing service worker registration</a> is |registration|.
+      1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
+      1. Invoke <a>Run Service Worker</a> algorithm with |installingWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{InstallEvent}} interface, with the event type <code><a href="#service-worker-global-scope-install-event">install</a></code>, which does not bubble and is not cancelable.
-          1. <a>Dispatch</a> |e| at |installingWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> |globalObject|.
-          1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
-              1. Wait until |e|'s <a>extensions allowed flag</a> is unset.
-              1. If the result of <a>waiting for all</a> of |e|'s <a>extend lifetime promises</a> rejected, set |installFailed| to true.
-          
+        1. Create a trusted event |e| that uses the {{InstallEvent}} interface, with the event type <code><a>install</a></code>, which does not bubble and is not cancelable.
+        1. <a>Dispatch</a> |e| at |installingWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> |globalObject|.
+        1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
+          1. Wait until |e|'s <a>extensions allowed flag</a> is unset.
+          1. If the result of <a>waiting for all</a> of |e|'s <a>extend lifetime promises</a> rejected, set |installFailed| to true.
       
-      If |task| is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of |installingWorker|, set |installFailed| to true.
+        If |task| is discarded or the script has been aborted by the <a>termination</a> of |installingWorker|, set |installFailed| to true.
+      
       1. Wait for |task| to have executed or been discarded.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. If |installFailed| is true, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-installing-worker">installing worker</a>.
-          1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-          1. If |newestWorker| is null, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing |registration| as its argument.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Set |registration|'s <a href="#dfn-installing-worker">installing worker</a>'s <a href="#dfn-imported-scripts-updated-flag">imported scripts updated flag</a>.
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-waiting-worker">waiting worker</a>.
-          1. <a href="#terminate-service-worker-algorithm">Terminate</a> |redundantWorker|.
-          1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
-      
-      1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and |registration|'s <a href="#dfn-installing-worker">installing worker</a> as the arguments.
-      1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-      1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> and *installed* as the arguments.
-      1. If |redundantWorker| is not null, run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set, then:
-          1. Run <a href="#activation-algorithm">Activate</a> algorithm passing |registration| as the argument.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job|.
-      1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a href="#update-state-algorithm">Update Worker State</a> invoked in this algorithm have executed.
-      1. Wait until no <a>service worker client</a> is <a href="#dfn-use">using</a> |registration| or |registration|'s <a href="#dfn-waiting-worker">waiting worker</a>'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is set.
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> |waitingWorker| is not null and |waitingWorker|'s <a href="#dfn-skip-waiting-flag">skip waiting flag</a> is not set, invoke <a href="#activation-algorithm">Activate</a> algorithm with |registration| as its argument.
+        1. Set |redundantWorker| to |registration|'s <a>installing worker</a>.
+        1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
+        1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+        1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Set |registration|'s <a>installing worker</a>'s <a>imported scripts updated flag</a>.
+      1. If |registration|'s <a>waiting worker</a> is not null, then:
+        1. Set |redundantWorker| to |registration|'s <a>waiting worker</a>.
+        1. <a>Terminate</a> |redundantWorker|.
+        1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
+      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and |registration|'s <a>installing worker</a> as the arguments.
+      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
+      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>waiting worker</a> and *installed* as the arguments.
+      1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+      1. If |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set, then:
+        1. Run <a>Activate</a> algorithm passing |registration| as the argument.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Invoke <a>Finish Job</a> with |job|.
+      1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm have executed.
+      1. Wait until no <a>service worker client</a> is <a>using</a> |registration| or |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set.
+      1. If |registration|'s <a>waiting worker</a> |waitingWorker| is not null and |waitingWorker|'s <a>skip waiting flag</a> is not set, invoke <a>Activate</a> algorithm with |registration| as its argument.
   </section>
 
   <section algorithm="activation-algorithm">
@@ -2546,39 +2529,37 @@ Markup Shorthands: css no, markdown yes
       : Output
       :: None
     
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> is null, abort these steps.
+      1. If |registration|'s <a>waiting worker</a> is null, abort these steps.
       1. Let |redundantWorker| be null.
-      1. If |registration|'s <a href="#dfn-active-worker">active worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-active-worker">active worker</a>.
-          1. Wait for |redundantWorker| to finish handling any in-progress requests.
-          
-          1. <a href="#terminate-service-worker-algorithm">Terminate</a> |redundantWorker|.
-      
-      1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> as the arguments.
-      1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-      1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |registration|'s <a href="#dfn-active-worker">active worker</a> and *activating* as the arguments.
+      1. If |registration|'s <a>active worker</a> is not null, then:
+        1. Set |redundantWorker| to |registration|'s <a>active worker</a>.
+        1. Wait for |redundantWorker| to finish handling any in-progress requests.
+        1. <a>Terminate</a> |redundantWorker|.
+      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and |registration|'s <a>waiting worker</a> as the arguments.
+      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
+      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activating* as the arguments.
+        
         Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
       
-      1. If |redundantWorker| is not null, run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      1. For each <a>service worker client</a> |client| whose <a>creation URL</a> <a href="#scope-match-algorithm">matches</a> |registration|'s <a>scope url</a>:
-          1. If |client| is a <a href="#dfn-window-client">window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
-          1. Else if |client| is a <a href="#dfn-sharedworker-client">shared worker client</a>, unassociate |client|'s <a for="environment settings object">global object</a> from its <a>application cache</a>, if it has one.
+      1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+      1. For each <a>service worker client</a> |client| whose <a>creation URL</a> <a>matches</a> |registration|'s <a>scope url</a>:
+        1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
+        1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s <a for="environment settings object">global object</a> from its <a>application cache</a>, if it has one.
+        
         Note: Resources will now use the service worker registration instead of the existing application cache.
       
-      1. For each <a>service worker client</a> |client| who is <a href="#dfn-use">using</a> |registration|:
-          1. Set |client|'s <a href="#dfn-active-worker">active worker</a> to |registration|'s <a href="#dfn-active-worker">active worker</a>.
-          1. Invoke <a href="#notify-controller-change-algorithm">Notify Controller Change</a> algorithm with |client| as the argument.
-      
-      1. Let |activeWorker| be |registration|'s <a href="#dfn-active-worker">active worker</a>.
-      1. Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with |activeWorker| as the argument.
+      1. For each <a>service worker client</a> |client| who is <a>using</a> |registration|:
+        1. Set |client|'s <a>active worker</a> to |registration|'s <a>active worker</a>.
+        1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{ExtendableEvent}} interface, with the event type <code><a href="#service-worker-global-scope-activate-event">activate</a></code>, which does not bubble and is not cancelable.
-          1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
-          1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s <a>extensions allowed flag</a> is unset.
-      
-      1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of |activeWorker|.
+        1. Create a trusted event |e| that uses the {{ExtendableEvent}} interface, with the event type <code><a>activate</a></code>, which does not bubble and is not cancelable.
+        1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
+        1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s <a>extensions allowed flag</a> is unset.
+      1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a>termination</a> of |activeWorker|.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
-      1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |registration|'s <a href="#dfn-active-worker">active worker</a> and *activated* as the arguments.
+      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
   </section>
 
   <section algorithm="run-service-worker-algorithm">
@@ -2593,50 +2574,46 @@ Markup Shorthands: css no, markdown yes
       1. Assert: |script| is not null.
       1. If |serviceWorker| is already running, abort these steps.
       1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the rest of these steps in that context.
-      1. Call the JavaScript <a href="https://tc39.github.io/ecma262/#sec-initializehostdefinedrealm">InitializeHostDefinedRealm()</a> abstract operation with the following customizations:
-        <ul>
-          1. For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
-          1. Let |realmExecutionContext| be the created <a href="https://tc39.github.io/ecma262/#sec-execution-contexts">JavaScript execution context</a>.
-        </ul>
-      
+      1. Call the JavaScript <a>InitializeHostDefinedRealm()</a> abstract operation with the following customizations:
+        * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
+        * Let |realmExecutionContext| be the created <a>JavaScript execution context</a>.
       1. Let |workerEventLoop| be a newly created <a>event loop</a>.
       1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
         
-          : The <a for="environment settings object">realm execution context</a>
+        : The <a for="environment settings object">realm execution context</a>
         :: Return |realmExecutionContext|.
-          : The <a for="environment settings object">global object</a>
+        : The <a for="environment settings object">global object</a>
         :: Return |workerGlobalScope|.
-          : The <a>responsible event loop</a>
+        : The <a>responsible event loop</a>
         :: Return |workerEventLoop|.
-          : The <a for="environment settings object">referrer policy</a>
+        : The <a for="environment settings object">referrer policy</a>
         :: Return |workerGlobalScope|'s <a for="WorkerGlobalScope">referrer policy</a>.
-          : The <a>API URL character encoding</a>
+        : The <a>API URL character encoding</a>
         :: Return UTF-8.
-          : The <a>API base URL</a>
-        :: Return |serviceWorker|'s <a href="#dfn-script-url">script url</a>.
-          : The <a for="resource">origin</a>
+        : The <a>API base URL</a>
+        :: Return |serviceWorker|'s <a>script url</a>.
+        : The <a for="resource">origin</a>
         :: Return its registering <a>service worker client</a>'s <a for="resource">origin</a>.
-          : The <a>creation URL</a>
+        : The <a>creation URL</a>
         :: Return |workerGlobalScope|'s <a for="WorkerGlobalScope">url</a>.
-          : The <a for="environment settings object">HTTPS state</a>
+        : The <a for="environment settings object">HTTPS state</a>
         :: Return |workerGlobalScope|'s <a for="WorkerGlobalScope">HTTPS state</a>.
-        
       
-      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">url</a> to |serviceWorker|'s <a href="#dfn-script-url">script url</a>.
-      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">HTTPS state</a> to |serviceWorker|'s <a>script resource</a>'s <a href="#dfn-https-state">HTTPS state</a>.
-      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">referrer policy</a> to |serviceWorker|'s <a>script resource</a>'s <a href="#dfn-referrer-policy">referrer policy</a>.
-      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">type</a> to |serviceWorker|'s <a href="#dfn-type">type</a>.
+      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">url</a> to |serviceWorker|'s <a>script url</a>.
+      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">HTTPS state</a> to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
+      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">referrer policy</a> to |serviceWorker|'s <a>script resource</a>'s <a>referrer policy</a>.
+      1. Set |workerGlobalScope|'s <a for="WorkerGlobalScope">type</a> to |serviceWorker|'s <a>type</a>.
       1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
-      1. If |serviceWorker| is an <a href="#dfn-active-worker">active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s <a for="/">task queues</a> in the same order using their original <a>task sources</a>.
+      1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s <a for="service worker registration">task queues</a>, <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s <a for="/">task queues</a> in the same order using their original <a>task sources</a>.
       1. If |script| is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> |script|. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> |script|.
         Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.
       
-      1. If |script|'s <a href="#dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</a> is unset, then:
-          1. Set |workerGlobalScope|'s associated <a for="ServiceWorkerGlobalScope">service worker</a>'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> to the set of event types created from |settingsObject|'s <a for="environment settings object">global object</a>'s associated list of <a>event listeners</a>' event types.
-            Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle is set to an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
+      1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
+        1. Set |workerGlobalScope|'s associated <a for="ServiceWorkerGlobalScope">service worker</a>'s <a>set of event types to handle</a> to the set of event types created from |settingsObject|'s <a for="environment settings object">global object</a>'s associated list of <a>event listeners</a>' event types.
+
+          Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle is set to an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
           
-          1. Set |script|'s <a href="#dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</a>.
-      
+        1. Set |script|'s <a>has ever been evaluated flag</a>.
       1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
       1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
   </section>
@@ -2652,7 +2629,8 @@ Markup Shorthands: css no, markdown yes
       1. If |serviceWorker| is not running, abort these steps.
       1. Let |serviceWorkerGlobalScope| be |serviceWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
       1. Set |serviceWorkerGlobalScope|'s closing flag to true.
-      1. If there are any <a>tasks</a>, whose <a>task source</a> is either the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> or the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>, queued in |serviceWorkerGlobalScope|'s <a>event loop</a>'s <a for="/">task queues</a>, <a lt="queue a task">queue</a> them to |serviceWorker|'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a> nor the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>) from |serviceWorkerGlobalScope|'s <a>event loop</a>'s <a for="/">task queues</a> without processing them.
+      1. If there are any <a>tasks</a>, whose <a>task source</a> is either the <a>handle fetch task source</a> or the <a>handle functional event task source</a>, queued in |serviceWorkerGlobalScope|'s <a>event loop</a>'s <a for="/">task queues</a>, <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>containing service worker registration</a>'s corresponding <a for="service worker registration">task queues</a> in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a>handle fetch task source</a> nor the <a>handle functional event task source</a>) from |serviceWorkerGlobalScope|'s <a>event loop</a>'s <a for="/">task queues</a> without processing them.
+
         Note: This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.
       
       1. Abort the script currently running in |serviceWorker|.
@@ -2661,15 +2639,14 @@ Markup Shorthands: css no, markdown yes
   <section algorithm="on-fetch-request-algorithm">
     <h3 id="on-fetch-request-algorithm" dfn export>Handle Fetch</h3>
 
-    The <a href="#on-fetch-request-algorithm">Handle Fetch</a> algorithm is the entry point for the <a>fetch</a> handling handed to the <a>service worker</a> context.
+    The <a>Handle Fetch</a> algorithm is the entry point for the <a>fetch</a> handling handed to the <a>service worker</a> context.
 
-    
       : Input
       :: |request|, a <a for="fetch">request</a>
       : Output
       :: |response|, a <a for="fetch">response</a>
     
-    <ol link-for-hint="FetchEvent">
+    <div link-for-hint="FetchEvent">
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
       1. Let |eventCanceled| be false.
@@ -2682,68 +2659,65 @@ Markup Shorthands: css no, markdown yes
       1. Let |reservedClient| be |request|'s <a for="request">reserved client</a>.
       1. Assert: |request|'s <a for="request">destination</a> is not "<code>serviceworker</code>".
       1. If |request| is a <a>potential-navigation-or-subresource request</a>, then:
-          1. Return null.
-      
+        1. Return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
         Note: If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.
-          1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
-              1. If |reservedClient| is not a <a>secure context</a>, return null.
-          
-          1. Else:
-              1. If |request|'s <a for="request">url</a> is not a <a>potentially trustworthy URL</a>, return null.
-          
-          1. If |request| is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.
-          1. Set |registration| to the result of running <a href="#scope-match-algorithm">Match Service Worker Registration</a> algorithm passing |request|'s <a for="request">url</a> as the argument.
-          1. If |registration| is null or |registration|'s <a href="#dfn-active-worker">active worker</a> is null, return null.
-          1. If |request|'s <a for="request">destination</a> is not "<code>report</code>", set |reservedClient|'s <a>active service worker</a> to |registration|'s <a href="#dfn-active-worker">active worker</a>.
-        Note: From this point, the <a>service worker client</a> starts to <a href="#dfn-use">use</a> its <a>active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.
+        1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
+          1. If |reservedClient| is not a <a>secure context</a>, return null.
+        1. Else:
+          1. If |request|'s <a for="request">url</a> is not a <a>potentially trustworthy URL</a>, return null.
+        1. If |request| is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.
+        1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s <a for="request">url</a> as the argument.
+        1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
+        1. If |request|'s <a for="request">destination</a> is not "<code>report</code>", set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
+        
+        Note: From this point, the <a>service worker client</a> starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
       
       1. Else if |request| is a <a>subresource request</a>, then:
-          1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a href="#dfn-containing-service-worker-registration">containing service worker registration</a>.
-          1. Else, return null.
-      
-      1. Let |activeWorker| be |registration|'s <a href="#dfn-active-worker">active worker</a>.
-      1. If |activeWorker|'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain <code>fetch</code>, then:
-          1. Return null and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
-          1. Abort these steps.
+        1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
+        1. Else, return null.
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. If |activeWorker|'s <a>set of event types to handle</a> does not contain <code>fetch</code>, then:
+        1. Return null and continue running these steps <a>in parallel</a>.
+        1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+        1. Abort these steps.
+        
         Note: To avoid unnecessary delays, the Handle Fetch enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.
       
-      1. If |activeWorker|'s <a href="#dfn-state">state</a> is *activating*, wait for |activeWorker|'s <a href="#dfn-state">state</a> to become *activated*.
-      1. Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with |activeWorker| as the argument.
+      1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
+      1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{FetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-fetch-event">fetch</a></code>, which does not bubble.
-          1. Let the {{FetchEvent/request}} attribute of |e| be initialized to |r|.
-          1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s <a for="environment">id</a>.
-          1. If |request| is a <a>non-subresource request</a> and |request|'s <a for="request">destination</a> is not "<code>report</code>", initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s <a for="environment">id</a>, and to the empty string otherwise.
-          1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s <a for="request">target client id</a>, and to the empty string otherwise.
-          1. Let the {{FetchEvent/isReload}} attribute of |e| be initialized to <code>true</code> if |request|'s <a for="request">client</a> is a <a href="#dfn-window-client">window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.
-          1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
-          1. If |e|'s <a for="FetchEvent">respond-with entered flag</a> is set, set |respondWithEntered| to true.
-          1. If |e|'s <a for="FetchEvent">wait to respond flag</a> is set, then:
-              1. Wait until |e|'s <a for="FetchEvent">wait to respond flag</a> is unset.
-              1. If |e|'s <a for="FetchEvent">respond-with error flag</a> is set, set |handleFetchFailed| to true.
-              1. Else, set |response| to |e|'s <a for="FetchEvent">potential response</a>.
-          
-          1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-        If |task| is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of |activeWorker|, set |handleFetchFailed| to true.
-        The |task| *ust* use |activeWorker|'s <a>event loop</a> and the <a href="#dfn-handle-fetch-task-source">handle fetch task source</a>.
+        1. Create a trusted event |e| that uses the {{FetchEvent}} interface, with the event type <code><a>fetch</a></code>, which does not bubble.
+        1. Let the {{FetchEvent/request}} attribute of |e| be initialized to |r|.
+        1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s <a for="environment">id</a>.
+        1. If |request| is a <a>non-subresource request</a> and |request|'s <a for="request">destination</a> is not "<code>report</code>", initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s <a for="environment">id</a>, and to the empty string otherwise.
+        1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s <a for="request">target client id</a>, and to the empty string otherwise.
+        1. Let the {{FetchEvent/isReload}} attribute of |e| be initialized to <code>true</code> if |request|'s <a for="request">client</a> is a <a>window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.
+        1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
+        1. If |e|'s <a for="FetchEvent">respond-with entered flag</a> is set, set |respondWithEntered| to true.
+        1. If |e|'s <a for="FetchEvent">wait to respond flag</a> is set, then:
+          1. Wait until |e|'s <a for="FetchEvent">wait to respond flag</a> is unset.
+          1. If |e|'s <a for="FetchEvent">respond-with error flag</a> is set, set |handleFetchFailed| to true.
+          1. Else, set |response| to |e|'s <a for="FetchEvent">potential response</a>.
+        1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
+        
+        If |task| is discarded or the script has been aborted by the <a>termination</a> of |activeWorker|, set |handleFetchFailed| to true.
+        
+        The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
       
       1. Wait for |task| to have executed or been discarded.
       1. If |respondWithEntered| is false, then:
-          1. If |eventCanceled| is true, return a <a>network error</a> and continue running these steps <a>in parallel</a>.
-          1. Else, return null and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
-          1. Abort these steps.
-      
+        1. If |eventCanceled| is true, return a <a>network error</a> and continue running these steps <a>in parallel</a>.
+        1. Else, return null and continue running these steps <a>in parallel</a>.
+        1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+        1. Abort these steps.
       1. If |handleFetchFailed| is true, then:
-          1. Return a <a>network error</a> and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
-      
+        1. Return a <a>network error</a> and continue running these steps <a>in parallel</a>.
+        1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
       1. Else:
-          1. Return |response| and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
-      
+        1. Return |response| and continue running these steps <a>in parallel</a>.
+        1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+    </div>
   </section>
 
   <section algorithm="on-foreign-fetch-request-algorithm">
@@ -2751,167 +2725,160 @@ Markup Shorthands: css no, markdown yes
 
     The [[#on-foreign-fetch-request-algorithm]] algorithm is the entry point for the <a>fetch</a> handling handed to the <a>service worker</a> context to handle foreign fetch requests.
 
-    
       : Input
       :: |request|, a  <a for="fetch">request</a>
       : Output
       :: |response|, a <a for="fetch">response</a>
     
-    <ol link-for-hint="ForeignFetchEvent">
+    <div link-for-hint="ForeignFetchEvent">
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
       1. Let |eventCanceled| be false.
       1. If |request| is not a <a>subresource request</a>, return null and abort these steps.
+        
         Note: Foreign fetch only allows intercepting of subresource requests. Navigation requests can be intercepted by the regular fetch event anyway, so there is no benefit to supporting those requests here as well.
       
       1. If |request|'s <a for="request">client</a> is not a <a>secure context</a>, return null and abort these steps.
       1. Let |activeWorker| be the result of running the [[#foreign-fetch-scope-match-algorithm]] algorithm passing |request|'s <a for="request">url</a> as the argument.
       1. If |activeWorker| is null, return null.
-      1. If |activeWorker|'s <a href="#dfn-state">state</a> is *activating*, then:
-          1. Wait for |activeWorker|'s <a href="#dfn-state">state</a> to become *activated*.
-      
+      1. If |activeWorker|'s <a>state</a> is *activating*, then:
+        1. Wait for |activeWorker|'s <a>state</a> to become *activated*.
       1. If |activeWorker|'s <a for="resource">origin</a> is the same as |request|'s <a for="request">origin</a>, return null.
       1. Let |originMatches| be false.
       1. If |activeWorker|'s <a>list of foreign fetch origins</a> is empty, set |originMatches| to true.
       1. For each |origin| in |activeWorker|'s <a>list of foreign fetch origins</a>:
-          1. If |origin| is equal to |request|'s <a for="request">origin</a>, set |originMatches| to true.
+        1. If |origin| is equal to |request|'s <a for="request">origin</a>, set |originMatches| to true.
       
       1. If |originMatches| is false, return null.
       1. Let |r| be a new {{Request}} object associated with |request|.
       1. Invoke [[#run-service-worker-algorithm]] algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{ForeignFetchEvent}} interface, with the event type <code><a href="#service-worker-global-scope-foreignfetch-event">foreignfetch</a></code>, which does not bubble.
-          1. Let the {{ForeignFetchEvent/request}} attribute of |e| be initialized to |r|.
-          1. Let the {{ForeignFetchEvent/origin}} attribute of |e| be initialized to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s <a for=request>origin</a>.
-          1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
-          1. If |e|'s <a for="ForeignFetchEvent">respond-with entered flag</a> is set, set |respondWithEntered| to true.
-          1. If |e|'s <a>wait to respond flag</a> is set, wait until |e|'s <a>wait to respond flag</a> is unset.
-          1. Let |internalResponse| be |e|'s <a for="ForeignFetchEvent">potential response</a>.
-          1. If |internalResponse| is a <a>filtered response</a>, set |internalResponse| to |internalResponse|'s <a>internal response</a>.
-          1. If |e|'s <a>respond-with error flag</a> is set, set |handleFetchFailed| to true.
-          1. Else if |e|'s <a for="ForeignFetchEvent">origin</a> is null:
-              1. If |e|'s <a>list of exposed headers</a> is not empty, set |handleFetchFailed| to true.
-              1. Else if |e|'s <a for="ForeignFetchEvent">potential response</a> is a <a>opaque-redirect filtered response</a>, set |response| to |e|'s <a for="ForeignFetchEvent">potential response</a>.
-              1. Else set |response| to an <a>opaque filtered response</a> of |internalResponse|.
-          
-          1. Else if |e|'s <a for="ForeignFetchEvent">origin</a> is not equal to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s <a for="request">origin</a>, set |handleFetchFailed| to true.
-          1. Else if |e|'s <a for="ForeignFetchEvent">potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set |response| to |e|'s <a for="ForeignFetchEvent">potential response</a>.
-          1. Else if |request|'s <a>response tainting</a> is <code>"opaque"</code>, set |response| to an <a>opaque filtered response</a> of |internalResponse|.
-          1. Else:
-              1. Let |headers| be |e|'s <a>list of exposed headers</a>.
-              1. If |response| is a <a>CORS filtered response</a>, remove from |internalResponse|'s <a>CORS-exposed header-name list</a> all values not in |headers|.
-              1. Else set |internalResponse|'s <a>CORS-exposed header-name list</a> to |headers|.
-              1. Set |response| to a <a>CORS filtered response</a> of |internalResponse|.
-          
-          1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-        If |task| is discarded or the script has been aborted by the <a href="#terminate-service-worker-algorithm">termination</a> of |activeWorker|, set |handleFetchFailed| to true.
-        The |task| *ust* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
+        1. Create a trusted event |e| that uses the {{ForeignFetchEvent}} interface, with the event type <code><a>foreignfetch</a></code>, which does not bubble.
+        1. Let the {{ForeignFetchEvent/request}} attribute of |e| be initialized to |r|.
+        1. Let the {{ForeignFetchEvent/origin}} attribute of |e| be initialized to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s <a for=request>origin</a>.
+        1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
+        1. If |e|'s <a for="ForeignFetchEvent">respond-with entered flag</a> is set, set |respondWithEntered| to true.
+        1. If |e|'s <a>wait to respond flag</a> is set, wait until |e|'s <a>wait to respond flag</a> is unset.
+        1. Let |internalResponse| be |e|'s <a for="ForeignFetchEvent">potential response</a>.
+        1. If |internalResponse| is a <a>filtered response</a>, set |internalResponse| to |internalResponse|'s <a>internal response</a>.
+        1. If |e|'s <a>respond-with error flag</a> is set, set |handleFetchFailed| to true.
+        1. Else if |e|'s <a for="ForeignFetchEvent">origin</a> is null:
+          1. If |e|'s <a>list of exposed headers</a> is not empty, set |handleFetchFailed| to true.
+          1. Else if |e|'s <a for="ForeignFetchEvent">potential response</a> is a <a>opaque-redirect filtered response</a>, set |response| to |e|'s <a for="ForeignFetchEvent">potential response</a>.
+          1. Else set |response| to an <a>opaque filtered response</a> of |internalResponse|.
+        1. Else if |e|'s <a for="ForeignFetchEvent">origin</a> is not equal to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s <a for="request">origin</a>, set |handleFetchFailed| to true.
+        1. Else if |e|'s <a for="ForeignFetchEvent">potential response</a> is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set |response| to |e|'s <a for="ForeignFetchEvent">potential response</a>.
+        1. Else if |request|'s <a>response tainting</a> is <code>"opaque"</code>, set |response| to an <a>opaque filtered response</a> of |internalResponse|.
+        1. Else:
+          1. Let |headers| be |e|'s <a>list of exposed headers</a>.
+          1. If |response| is a <a>CORS filtered response</a>, remove from |internalResponse|'s <a>CORS-exposed header-name list</a> all values not in |headers|.
+          1. Else set |internalResponse|'s <a>CORS-exposed header-name list</a> to |headers|.
+          1. Set |response| to a <a>CORS filtered response</a> of |internalResponse|.
+        1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
+        
+        If |task| is discarded or the script has been aborted by the <a>termination</a> of |activeWorker|, set |handleFetchFailed| to true.
+        
+        The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
       
       1. Wait for |task| to have executed or been discarded.
       1. If |respondWithEntered| is false, then:
-          1. If |eventCanceled| is true, then:
-              1. Return a <a>network error</a>.
-          
-          1. Else:
-              1. Return null.
-          
-      
-      1. If |handleFetchFailed| is true, then:
+        1. If |eventCanceled| is true, then:
           1. Return a <a>network error</a>.
-      
+        1. Else:
+          1. Return null.
+      1. If |handleFetchFailed| is true, then:
+        1. Return a <a>network error</a>.
       1. Else:
-          1. Return |response|.
-      
+        1. Return |response|.
+    </div>
   </section>
 
   <section algorithm="handle-functional-event-algorithm">
     <h3 id="handle-functional-event-algorithm" dfn export>Handle Functional Event</h3>
 
-    : Input
+      : Input
       :: |registration|, a <a for="/">service worker registration</a>
       :: |callbackSteps|, an algorithm
-    : Output
+      : Output
       :: None
     
-      1. <a>Assert</a>: a <a>Record</a> with the \[[value]] equals to |registration| is contained in <a href="#dfn-scope-to-registration-map">scope to registration map</a>.
-      1. <a>Assert</a>: |registration|'s <a href="#dfn-active-worker">active worker</a> is not null.
-      1. Let |activeWorker| be |registration|'s <a href="#dfn-active-worker">active worker</a>.
-      1. If |activeWorker|'s <a href="#dfn-set-of-event-types-to-handle">set of event types to handle</a> does not contain the event type for this functional event, then:
-          1. Return and continue running these steps <a>in parallel</a>.
-          1. If the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
-          1. Abort these steps.
+      1. <a>Assert</a>: a <a>Record</a> with the \[[value]] equals to |registration| is contained in <a>scope to registration map</a>.
+      1. <a>Assert</a>: |registration|'s <a>active worker</a> is not null.
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. If |activeWorker|'s <a>set of event types to handle</a> does not contain the event type for this functional event, then:
+        1. Return and continue running these steps <a>in parallel</a>.
+        1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+        1. Abort these steps.
+        
         Note: To avoid unnecessary delays, the Handle Functional Event enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.
       
-      1. If |activeWorker|'s <a href="#dfn-state">state</a> is *activating*, wait for |activeWorker|'s <a href="#dfn-state">state</a> to become *activated*.
-      1. Invoke <a href="#run-service-worker-algorithm">Run Service Worker</a> algorithm with |activeWorker| as the argument.
+      1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
+      1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to invoke |callbackSteps| with |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a> as its argument.
-        The |task| *ust* use |activeWorker|'s <a>event loop</a> and the <a href="#dfn-handle-functional-event-task-source">handle functional event task source</a>.
+        
+        The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle functional event task source</a>.
       
       1. Wait for |task| to have executed or been discarded.
-      1. If the time difference in seconds calculated by the current time minus |registration|'s <a href="#dfn-last-update-check-time">last update check time</a> is greater than 86400, invoke <a href="#soft-update-algorithm">Soft Update</a> algorithm with |registration|.
+      1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
   </section>
 
   <section algorithm="on-client-unload-algorithm">
     <h3 id="on-client-unload-algorithm">Handle Service Worker Client Unload</h3>
 
-    The user agent *ust* run these steps when a <a>service worker client</a> unloads by <a lt="unload a document">unloading</a>, <a lt="kill a worker">being killed</a>, or <a href="#terminate-service-worker-algorithm">terminating</a>.
-
+    The user agent *must* run these steps when a <a>service worker client</a> unloads by <a lt="unload a document">unloading</a>, <a lt="kill a worker">being killed</a>, or <a>terminating</a>.
     
-    : Input
+      : Input
       :: |client|, a <a>service worker client</a>
-    : Output
+      : Output
       :: None
     
       1. Run the following steps atomically.
-      1. Let |registration| be the <a>service worker registration</a> <a href="#dfn-use">used</a> by |client|.
+      1. Let |registration| be the <a>service worker registration</a> <a>used</a> by |client|.
       1. If |registration| is null, abort these steps.
-      1. If any other <a>service worker client</a> is <a href="#dfn-use">using</a> |registration|, abort these steps.
-      1. If |registration|'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing |registration| as its argument and abort these steps.
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, run <a href="#activation-algorithm">Activate</a> algorithm with |registration| as the argument.
+      1. If any other <a>service worker client</a> is <a>using</a> |registration|, abort these steps.
+      1. If |registration|'s <a>uninstalling flag</a> is set, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument and abort these steps.
+      1. If |registration|'s <a>waiting worker</a> is not null, run <a>Activate</a> algorithm with |registration| as the argument.
   </section>
 
   <section algorithm="on-user-agent-shutdown-algorithm">
     <h3 id="on-user-agent-shutdown-algorithm">Handle User Agent Shutdown</h3>
 
-    : Input
+      : Input
       :: None
-    : Output
+      : Output
       :: None
     
-      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
-          1. Let |registration| be |entry|.\[[value]].
-          1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
-              1. If the result of running <a href="#get-newest-worker-algorithm">Get Newest Worker</a> with |registration| is |installingWorker|, invoke <a href="#clear-registration-algorithm">Clear Registration</a> with |registration| and continue to the next iteration of the loop.
-              1. Else, set |registration|'s <a>installing worker</a> to null.
-          
-          1. If |registration|'s <a>waiting worker</a> is not null, run the following substep <a>in parallel</a>:
-              1. Invoke <a href="#activation-algorithm">Activate</a> with |registration|.
-          
+      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a>scope to registration map</a>:
+        1. Let |registration| be |entry|.\[[value]].
+        1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
+          1. If the result of running <a>Get Newest Worker</a> with |registration| is |installingWorker|, invoke <a>Clear Registration</a> with |registration| and continue to the next iteration of the loop.
+          1. Else, set |registration|'s <a>installing worker</a> to null.
+        1. If |registration|'s <a>waiting worker</a> is not null, run the following substep <a>in parallel</a>:
+          1. Invoke <a>Activate</a> with |registration|.
   </section>
 
   <section algorithm="unregister-algorithm">
     <h3 id="unregister-algorithm">Unregister</h3>
 
-     : Input
+      : Input
       :: |job|, a <a>job</a>
       : Output
       :: none
     
-      1. If the <a for="resource">origin</a> of |job|'s <a>scope url</a> is not |job|'s <a href="#dfn-job-client">client</a>'s <a for="resource">origin</a>, then:
-          1. Invoke <a href="#reject-job-promise-algorithm">Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Let |registration| be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
+      1. If the <a for="resource">origin</a> of |job|'s <a>scope url</a> is not |job|'s <a for="job">client</a>'s <a for="resource">origin</a>, then:
+        1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s <a>scope url</a> as the argument.
       1. If |registration| is null, then:
-          1. Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with |job| and false.
-          1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job| and abort these steps.
-      
-      1. Set |registration|'s <a href="#dfn-uninstalling-flag">uninstalling flag</a>.
-      1. Invoke <a href="#resolve-job-promise-algorithm">Resolve Job Promise</a> with |job| and true.
-      1. If no <a>service worker client</a> is <a href="#dfn-use">using</a> |registration|, invoke <a href="#clear-registration-algorithm">Clear Registration</a> algorithm passing |registration| as its argument.
+        1. Invoke <a>Resolve Job Promise</a> with |job| and false.
+        1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Set |registration|'s <a>uninstalling flag</a>.
+      1. Invoke <a>Resolve Job Promise</a> with |job| and true.
+      1. If no <a>service worker client</a> is <a>using</a> |registration|, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+        
         Note: When the registration is being used for a client, the deletion of the registration is handled by the Handle Service Worker Client Unload algorithm.
       
-      1. Invoke <a href="#finish-job-algorithm">Finish Job</a> with |job|.
+      1. Invoke <a>Finish Job</a> with |job|.
   </section>
 
   <section algorithm="set-registration-algorithm">
@@ -2925,7 +2892,7 @@ Markup Shorthands: css no, markdown yes
       1. Run the following steps atomically.
       1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
       1. Let |registration| be a new <a>service worker registration</a> whose <a>scope url</a> is set to |scope|.
-      1. Set a newly-created <a>Record</a> {\[[key]]: |scopeString|, \[[value]]: |registration|} to <a href="#dfn-scope-to-registration-map">scope to registration map</a>.
+      1. Set a newly-created <a>Record</a> {\[[key]]: |scopeString|, \[[value]]: |registration|} to <a>scope to registration map</a>.
       1. Return |registration|.
   </section>
 
@@ -2939,28 +2906,25 @@ Markup Shorthands: css no, markdown yes
     
       1. Run the following steps atomically.
       1. Let |redundantWorker| be null.
-      1. If |registration|'s <a href="#dfn-installing-worker">installing worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-installing-worker">installing worker</a>.
-          1. <a href="#terminate-service-worker-algorithm">Terminate</a> |redundantWorker|.
-          1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
-          1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      
-      1. If |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-waiting-worker">waiting worker</a>.
-          1. <a href="#terminate-service-worker-algorithm">Terminate</a> |redundantWorker|.
-          1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
-          1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-          1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      
-      1. If |registration|'s <a href="#dfn-active-worker">active worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a href="#dfn-active-worker">active worker</a>.
-          1. <a href="#terminate-service-worker-algorithm">Terminate</a> |redundantWorker|.
-          1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
-          1. Run the <a href="#update-registration-state-algorithm">Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
-          1. Run the <a href="#update-state-algorithm">Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      
-      1. Delete a <a>Record</a> {\[[key]], \[[value]]} |entry| from <a href="#dfn-scope-to-registration-map">scope to registration map</a> where |registration|'s <a>scope url</a> is the result of <a lt="URL parser">parsing</a> |entry|.\[[key]].
+      1. If |registration|'s <a>installing worker</a> is not null, then:
+        1. Set |redundantWorker| to |registration|'s <a>installing worker</a>.
+        1. <a>Terminate</a> |redundantWorker|.
+        1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
+        1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
+        1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+      1. If |registration|'s <a>waiting worker</a> is not null, then:
+        1. Set |redundantWorker| to |registration|'s <a>waiting worker</a>.
+        1. <a>Terminate</a> |redundantWorker|.
+        1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
+        1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
+        1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+      1. If |registration|'s <a>active worker</a> is not null, then:
+        1. Set |redundantWorker| to |registration|'s <a>active worker</a>.
+        1. <a>Terminate</a> |redundantWorker|.
+        1. The user agent *may* abort in-flight requests triggered by |redundantWorker|.
+        1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
+        1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
+      1. Delete a <a>Record</a> {\[[key]], \[[value]]} |entry| from <a>scope to registration map</a> where |registration|'s <a>scope url</a> is the result of <a lt="URL parser">parsing</a> |entry|.\[[key]].
   </section>
 
   <section algorithm="update-registration-state-algorithm">
@@ -2975,24 +2939,19 @@ Markup Shorthands: css no, markdown yes
     
       1. Let |registrationObjects| be an array containing all the {{ServiceWorkerRegistration}} objects associated with |registration|.
       1. If |target| is "<code>installing</code>", then:
-          1. Set |registration|'s <a>installing worker</a> to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/installing}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>installing worker</a>, or null if |registration|’s <a>installing worker</a> is null.
-          
-      
+        1. Set |registration|'s <a>installing worker</a> to |source|.
+        1. For each |registrationObject| in |registrationObjects|:
+          1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/installing}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>installing worker</a>, or null if |registration|’s <a>installing worker</a> is null.
       1. Else if |target| is "<code>waiting</code>", then:
-          1. Set |registration|'s <a>waiting worker</a> to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/waiting}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>waiting worker</a>, or null if |registration|’s <a>waiting worker</a> is null.
-          
-      
+        1. Set |registration|'s <a>waiting worker</a> to |source|.
+        1. For each |registrationObject| in |registrationObjects|:
+          1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/waiting}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>waiting worker</a>, or null if |registration|’s <a>waiting worker</a> is null.
       1. Else if |target| is "<code>active</code>", then:
-          1. Set |registration|'s <a for="service worker registration">active worker</a> to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/active}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a for="service worker registration">active worker</a>, or null if |registration|’s <a for="service worker registration">active worker</a> is null.
+        1. Set |registration|'s <a for="service worker registration">active worker</a> to |source|.
+        1. For each |registrationObject| in |registrationObjects|:
+          1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/active}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a for="service worker registration">active worker</a>, or null if |registration|’s <a for="service worker registration">active worker</a> is null.
           
-        The <a>task</a> *ust* use |registrationObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
-      
+        The <a>task</a> *must* use |registrationObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
   </section>
 
   <section algorithm="update-state-algorithm">
@@ -3000,41 +2959,43 @@ Markup Shorthands: css no, markdown yes
 
       : Input
       :: |worker|, a <a>service worker</a>
-      :: |state|, a <a>service worker</a>'s <a href="#dfn-state">state</a>
+      :: |state|, a <a>service worker</a>'s <a>state</a>
       : Output
       :: None
     
-      1. Set |worker|'s <a href="#dfn-state">state</a> to |state|.
+      1. Set |worker|'s <a>state</a> to |state|.
       1. Let |workerObjects| be an array containing all the {{ServiceWorker}} objects associated with |worker|.
       1. For each |workerObject| in |workerObjects|:
-          1. <a>Queue a task</a> to run these substeps:
-              1. Set the {{ServiceWorker/state}} attribute of |workerObject| to the value (in {{ServiceWorkerState}} enumeration) corresponding to the first matching statement, switching on |worker|'s <a href="#dfn-state">state</a>:
-                
-                  : *installing*
-                :: "<code>installing</code>"
-                  Note: The <a>service worker</a> in this state is considered an <a href="#dfn-installing-worker">installing worker</a>. During this state, <code><a href="#dom-extendableevent-waituntil">event.waitUntil(|f|)</a></code> can be called inside the {{ServiceWorkerGlobalScope/oninstall}} <a>event handler</a> to extend the life of the <a href="#dfn-installing-worker">installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the <a>service worker</a> is not active until all of the core caches are populated.
-
-                  : *installed*
-                :: "<code>installed</code>"
-                  Note: The <a>service worker</a> in this state is considered a <a href="#dfn-waiting-worker">waiting worker</a>.
-
-                  : *activating*
-                :: "<code>activating</code>"
-                  Note: The <a>service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a>. During this state, <code><a href="#dom-extendableevent-waituntil">event.waitUntil(|f|)</a></code> can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a href="#dfn-active-worker">active worker</a> until the passed <a>promise</a> resolves successfully. No <a>functional events</a> are dispatched until the state becomes *activated*.
-
-                  : *activated*
-                :: "<code>activated</code>"
-                  Note: The <a>service worker</a> in this state is considered an <a href="#dfn-active-worker">active worker</a> ready to handle <a>functional events</a>.
-
-                  : *redundant*
-                :: "<code>redundant</code>"
-                  Note: A new <a>service worker</a> is replacing the current <a>service worker</a>, or the current <a>service worker</a> is being discarded due to an install failure.
-                
+        1. <a>Queue a task</a> to run these substeps:
+          1. Set the {{ServiceWorker/state}} attribute of |workerObject| to the value (in {{ServiceWorkerState}} enumeration) corresponding to the first matching statement, switching on |worker|'s <a>state</a>:
+            : *installing*
+            :: "<code>installing</code>"
               
-              1. <a>Fire an event</a> named <code>statechange</code> at |workerObject|.
+              Note: The <a>service worker</a> in this state is considered an <a>installing worker</a>. During this state, <code><a>event.waitUntil(|f|)</a></code> can be called inside the {{ServiceWorkerGlobalScope/oninstall}} <a>event handler</a> to extend the life of the <a>installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the <a>service worker</a> is not active until all of the core caches are populated.
+
+            : *installed*
+            :: "<code>installed</code>"
+                  
+              Note: The <a>service worker</a> in this state is considered a <a>waiting worker</a>.
+
+            : *activating*
+            :: "<code>activating</code>"
+              
+              Note: The <a>service worker</a> in this state is considered an <a>active worker</a>. During this state, <code><a>event.waitUntil(|f|)</a></code> can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a>active worker</a> until the passed <a>promise</a> resolves successfully. No <a>functional events</a> are dispatched until the state becomes *activated*.
+
+            : *activated*
+            :: "<code>activated</code>"
+                  
+              Note: The <a>service worker</a> in this state is considered an <a>active worker</a> ready to handle <a>functional events</a>.
+
+            : *redundant*
+            :: "<code>redundant</code>"
+
+              Note: A new <a>service worker</a> is replacing the current <a>service worker</a>, or the current <a>service worker</a> is being discarded due to an install failure.
+
+          1. <a>Fire an event</a> named <code>statechange</code> at |workerObject|.
           
-        The <a>task</a> *ust* use |workerObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
-      
+        The <a>task</a> *must* use |workerObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
   </section>
 
   <section algorithm="notify-controller-change-algorithm">
@@ -3047,7 +3008,7 @@ Markup Shorthands: css no, markdown yes
     
       1. <a>Assert</a>: |client| is not null.
       1. If |client| is a type of <a>environment settings object</a>, <a>queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object |client| is <a for="ServiceWorkerContainer" lt="service worker client">associated</a> with.
-    The <a>task</a> *ust* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
+    The <a>task</a> *must* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
   </section>
 
   <section algorithm="scope-match-algorithm">
@@ -3061,13 +3022,14 @@ Markup Shorthands: css no, markdown yes
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
       1. Let |matchingScope| be the empty string.
-      1. Set |matchingScope| to the longest \[[key]] in <a href="#dfn-scope-to-registration-map">scope to registration map</a> which the value of |clientURLString| starts with, if it exists.
+      1. Set |matchingScope| to the longest \[[key]] in <a>scope to registration map</a> which the value of |clientURLString| starts with, if it exists.
+        
         Note: The URL string matching in this step is prefix-based rather than path-structural (e.g. a client URL string with "/prefix-of/resource.html" will match a registration for a scope with "/prefix").
       
       1. Let |parsedMatchingScope| be null.
       1. If |matchingScope| is not the empty string, set |parsedMatchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScope|.
-      1. Let |registration| be the result of running <a href="#get-registration-algorithm">Get Registration</a> algorithm passing |parsedMatchingScope| as the argument.
-      1. If |registration| is not null and |registration|'s <a href="#dfn-uninstalling-flag">uninstalling flag</a> is set, return null.
+      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |parsedMatchingScope| as the argument.
+      1. If |registration| is not null and |registration|'s <a>uninstalling flag</a> is set, return null.
       1. Return |registration|.
   </section>
 
@@ -3086,9 +3048,8 @@ Markup Shorthands: css no, markdown yes
       1. If |worker| is null, return null.
       1. Let |requestURLString| be the <a lt="URL serializer">serialized</a> |requestURL|.
       1. For each <a for="/">URL</a> |scope| in |worker|'s <a>list of foreign fetch scopes</a>:
-          1. Let |scopeString| be the <a lt="URL serializer">serialized</a> |scope|.
-          1. If |requestString| starts with |scopeString| return |worker|.
-      
+        1. Let |scopeString| be the <a lt="URL serializer">serialized</a> |scope|.
+        1. If |requestString| starts with |scopeString| return |worker|.
       1. Return null.
   </section>
 
@@ -3104,9 +3065,8 @@ Markup Shorthands: css no, markdown yes
       1. Let |scopeString| be the empty string.
       1. If |scope| is not null, set |scopeString| to <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
       1. Let |registration| be null.
-      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a href="#dfn-scope-to-registration-map">scope to registration map</a>:
-          1. If |scopeString| matches |entry|.\[[key]], set |registration| to |entry|.\[[value]].
-      
+      1. For each <a>Record</a> {\[[key]], \[[value]]} |entry| of its <a>scope to registration map</a>:
+        1. If |scopeString| matches |entry|.\[[key]], set |registration| to |entry|.\[[value]].
       1. Return |registration|.
   </section>
 
@@ -3120,9 +3080,9 @@ Markup Shorthands: css no, markdown yes
     
       1. Run the following steps atomically.
       1. Let |newestWorker| be null.
-      1. If |registration|'s <a href="#dfn-installing-worker">installing worker</a> is not null, set |newestWorker| to |registration|'s <a href="#dfn-installing-worker">installing worker</a>.
-      1. Else if |registration|'s <a href="#dfn-waiting-worker">waiting worker</a> is not null, set |newestWorker| to |registration|'s <a href="#dfn-waiting-worker">waiting worker</a>.
-      1. Else if |registration|'s <a href="#dfn-active-worker">active worker</a> is not null, set |newestWorker| to |registration|'s <a href="#dfn-active-worker">active worker</a>.
+      1. If |registration|'s <a>installing worker</a> is not null, set |newestWorker| to |registration|'s <a>installing worker</a>.
+      1. Else if |registration|'s <a>waiting worker</a> is not null, set |newestWorker| to |registration|'s <a>waiting worker</a>.
+      1. Else if |registration|'s <a>active worker</a> is not null, set |newestWorker| to |registration|'s <a>active worker</a>.
       1. Return |newestWorker|.
   </section>
 
@@ -3153,8 +3113,8 @@ Markup Shorthands: css no, markdown yes
     
       1. Let |windowClient| be a new {{WindowClient}} object.
       1. Set |windowClient|'s <a for="Client">service worker client</a> to |client|.
-      1. Set |windowClient|'s <a href="#dfn-service-worker-client-visibilitystate">visibility state</a> to |visibilityState|.
-      1. Set |windowClient|'s <a href="#dfn-service-worker-client-focusstate">focus state</a> to |focusState|.
+      1. Set |windowClient|'s <a>visibility state</a> to |visibilityState|.
+      1. Set |windowClient|'s <a>focus state</a> to |focusState|.
       1. Set |windowClient|'s <a for="WindowClient">ancestor origins array</a> to |ancestorOrigins|.
       1. Return |windowClient|.
   </section>
@@ -3175,49 +3135,37 @@ Markup Shorthands: css no, markdown yes
       1. If |options|.{{CacheQueryOptions/ignoreMethod}} is false and |request|.|method| is not `<code>GET</code>`, return |resultArray|.
       1. Let |cachedURL| and |requestURL| be null.
       1. If the optional argument |targetStorage| is omitted, then:
-          1. For each <a href="#dfn-fetching-record">fetching record</a> |entry| of its <a href="#dfn-request-to-response-map">request to response map</a>, in key insertion order:
-              1. Set |cachedURL| to |entry|.\[[key]]'s associated <a for="request">request</a>'s <a for="request">url</a>.
-              1. Set |requestURL| to |request|'s associated <a for="request">request</a>'s <a for="request">url</a>.
-              1. If |options|.|ignoreSearch| is true, then:
-                  1. Set |cachedURL|'s <a for="url">query</a> to the empty string.
-                  1. Set |requestURL|'s <a for="url">query</a> to the empty string.
-              
-              1. If |cachedURL| <a for="url">equals</a> |requestURL| with the *exclude fragments flag* set, then:
-                  1. Add a copy of |entry|.\[[key]] to |requestArray|.
-                  1. Add a copy of |entry|.\[[value]] to |responseArray|.
-              
-          
-      
+        1. For each <a>fetching record</a> |entry| of its <a>request to response map</a>, in key insertion order:
+          1. Set |cachedURL| to |entry|.\[[key]]'s associated <a for="request">request</a>'s <a for="request">url</a>.
+          1. Set |requestURL| to |request|'s associated <a for="request">request</a>'s <a for="request">url</a>.
+          1. If |options|.|ignoreSearch| is true, then:
+            1. Set |cachedURL|'s <a for="url">query</a> to the empty string.
+            1. Set |requestURL|'s <a for="url">query</a> to the empty string.
+          1. If |cachedURL| <a for="url">equals</a> |requestURL| with the *exclude fragments flag* set, then:
+            1. Add a copy of |entry|.\[[key]] to |requestArray|.
+            1. Add a copy of |entry|.\[[value]] to |responseArray|.
       1. Else:
-          1. For each |record| in |targetStorage|:
-              1. Set |cachedURL| to |record|[0]'s associated <a for="request">request</a>'s <a for="request">url</a>.
-              1. Set |requestURL| to |request|'s associated <a for="request">request</a>'s <a for="request">url</a>.
-              1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
-                  1. Set |cachedURL|'s <a for="url">query</a> to the empty string.
-                  1. Set |requestURL|'s <a for="url">query</a> to the empty string.
-              
-              1. If |cachedURL| <a for="url">equals</a> |requestURL| with the *exclude fragments flag* set, then:
-                  1. Add |record|[0] to |requestArray|.
-                  1. Add |record|[1] to |responseArray|.
-              
-          
-      
+        1. For each |record| in |targetStorage|:
+          1. Set |cachedURL| to |record|[0]'s associated <a for="request">request</a>'s <a for="request">url</a>.
+          1. Set |requestURL| to |request|'s associated <a for="request">request</a>'s <a for="request">url</a>.
+          1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
+            1. Set |cachedURL|'s <a for="url">query</a> to the empty string.
+            1. Set |requestURL|'s <a for="url">query</a> to the empty string.
+          1. If |cachedURL| <a for="url">equals</a> |requestURL| with the *exclude fragments flag* set, then:
+            1. Add |record|[0] to |requestArray|.
+            1. Add |record|[1] to |responseArray|.
       1. For each |cachedResponse| in |responseArray| with the index |index|:
-          1. Let |cachedRequest| be the |index|th element in |requestArray|.
-          1. If |cachedResponse|'s <a for="response">response</a>'s <a for="response">header list</a> contains no <a>header</a> <a for="header">named</a> `<code>Vary</code>`, or |options|.{{CacheQueryOptions/ignoreVary}} is true, then:
-              1. Add an array [|cachedRequest|, |cachedResponse|] to |resultArray|.
-              1. Continue to the next iteration of the loop.
-          
-          1. Let |varyHeaders| be the array containing the elements corresponding to the <a for="http">field-values</a> of the <a>Vary</a> header.
-          1. Let |matchFailed| be false.
-          1. For each |f| in |varyHeaders|:
-              1. If |f| matches "<code>*</code>", or the result of running |cachedRequest|.{{Request/headers}} object's {{Headers/get(name)}} method with |f| as the argument does not match the result of running |request|.{{Request/headers}} object's {{Headers/get(name)}} method with |f| as the argument, then:
-                  1. Set |matchFailed| to true.
-                  1. Break the loop.
-              
-          
-          1. If |matchFailed| is false, add an array [|cachedRequest|, |cachedResponse|] to |resultArray|.
-      
+        1. Let |cachedRequest| be the |index|th element in |requestArray|.
+        1. If |cachedResponse|'s <a for="response">response</a>'s <a for="response">header list</a> contains no <a>header</a> <a for="header">named</a> `<code>Vary</code>`, or |options|.{{CacheQueryOptions/ignoreVary}} is true, then:
+          1. Add an array [|cachedRequest|, |cachedResponse|] to |resultArray|.
+          1. Continue to the next iteration of the loop.
+        1. Let |varyHeaders| be the array containing the elements corresponding to the <a for="http">field-values</a> of the <a>Vary</a> header.
+        1. Let |matchFailed| be false.
+        1. For each |f| in |varyHeaders|:
+          1. If |f| matches "<code>*</code>", or the result of running |cachedRequest|.{{Request/headers}} object's {{Headers/get(name)}} method with |f| as the argument does not match the result of running |request|.{{Request/headers}} object's {{Headers/get(name)}} method with |f| as the argument, then:
+            1. Set |matchFailed| to true.
+            1. Break the loop.
+        1. If |matchFailed| is false, add an array [|cachedRequest|, |cachedResponse|] to |resultArray|.
       1. Return |resultArray|.
   </section>
 
@@ -3231,45 +3179,40 @@ Markup Shorthands: css no, markdown yes
     
       1. Let |p| be a <a>promise</a> resolved with no value.
       1. Return the result of <a>transforming</a> |p| with a fulfillment handler that performs the following substeps <a>in parallel</a>:
-          1. Let |itemsCopy| be a new <a href="#dfn-request-to-response-map">request to response map</a> that is a copy of its <a>context object</a>'s <a href="#dfn-request-to-response-map">request to response map</a>.
-          1. Let |addedRecords| be an empty array.
-          1. Try running the following substeps atomically:
-              1. Let |resultArray| be an empty array.
-              1. For each |operation| in |operations| with the index |index|:
-                  1. If |operation|.{{CacheBatchOperation/type}} matches neither "delete" nor "put", <a>throw</a> a <code>TypeError</code>.
-                  1. If |operation|.{{CacheBatchOperation/type}} matches "delete" and |operation|.{{CacheBatchOperation/response}} is not null, <a>throw</a> a <code>TypeError</code>.
-                  1. If the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}, |operation|.{{CacheBatchOperation/options}}, and |addedRecords| as the arguments is not an empty array, <a>throw</a> an "{{InvalidStateError}}" exception.
-                  1. Let |requestResponseArray| be the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}} and |operation|.{{CacheBatchOperation/options}} as the arguments.
-                  1. For each |requestResponse| in |requestResponseArray|:
-                      1. If |operation|.{{CacheBatchOperation/type}} matches "delete", remove the corresponding <a href="#dfn-fetching-record">fetching record</a> from <a href="#dfn-request-to-response-map">request to response map</a>.
-                  
-                  1. If |operation|.{{CacheBatchOperation/type}} matches "put", then:
-                      1. If |operation|.{{CacheBatchOperation/response}} is null, <a>throw</a> a <code>TypeError</code>.
-                      1. Let |r| be |operation|.{{CacheBatchOperation/request}}'s associated <a for="request">request</a>.
-                      1. If |r|'s <a for="request">url</a>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", <a>throw</a> a <code>TypeError</code>.
-                      1. If |r|'s <a for="request">method</a> is not `<code>GET</code>`, <a>throw</a> a <code>TypeError</code>.
-                      1. If |operation|.{{CacheBatchOperation/options}} is not null, <a>throw</a> a <code>TypeError</code>.
-                      1. Set |requestResponseArray| to the result of running <a href="#query-cache-algorithm">Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}.
-                      1. If |requestResponseArray| is not an empty array, then:
-                          1. Let |requestResponse| be |requestResponseArray|[0].
-                          1. Let |fetchingRecord| be the corresponding <a href="#dfn-fetching-record">fetching record</a> for |requestResponse|[0] and |requestResponse|[1] in <a href="#dfn-request-to-response-map">request to response map</a>.
-                          1. Set |fetchingRecord|.\[[key]] to |operation|.{{CacheBatchOperation/request}} and |fetchingRecord|.\[[value]] to |operation|.{{CacheBatchOperation/response}}.
-                      
-                      1. Else:
-                          1. Set a newly-created <a href="#dfn-fetching-record">fetching record</a> {\[[key]]: |operation|.{{CacheBatchOperation/request}}, \[[value]]: |operation|.{{CacheBatchOperation/response}}} to <a href="#dfn-request-to-response-map">request to response map</a>.
-                        Note: The cache commit is allowed as long as the response's headers are available.
-                      
-                      1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" exception.
-                      1. Add an array [|operation|.|request|, |operation|.|response|] to |addedRecords|.
-                  
-                  1. Add |operation|.|response| to |resultArray|.
-              
-              1. Return |resultArray|.
-          
-          1. And then, if an exception was <a lt="throw">thrown</a>, then:
-              1. Set the <a>context object</a>'s <a href="#dfn-request-to-response-map">request to response map</a> to |itemsCopy|.
-              1. <a>Throw</a> the exception
-          
+        1. Let |itemsCopy| be a new <a>request to response map</a> that is a copy of its <a>context object</a>'s <a>request to response map</a>.
+        1. Let |addedRecords| be an empty array.
+        1. Try running the following substeps atomically:
+          1. Let |resultArray| be an empty array.
+          1. For each |operation| in |operations| with the index |index|:
+            1. If |operation|.{{CacheBatchOperation/type}} matches neither "delete" nor "put", <a>throw</a> a <code>TypeError</code>.
+            1. If |operation|.{{CacheBatchOperation/type}} matches "delete" and |operation|.{{CacheBatchOperation/response}} is not null, <a>throw</a> a <code>TypeError</code>.
+            1. If the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}, |operation|.{{CacheBatchOperation/options}}, and |addedRecords| as the arguments is not an empty array, <a>throw</a> an "{{InvalidStateError}}" exception.
+            1. Let |requestResponseArray| be the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}} and |operation|.{{CacheBatchOperation/options}} as the arguments.
+            1. For each |requestResponse| in |requestResponseArray|:
+              1. If |operation|.{{CacheBatchOperation/type}} matches "delete", remove the corresponding <a>fetching record</a> from <a>request to response map</a>.
+            1. If |operation|.{{CacheBatchOperation/type}} matches "put", then:
+              1. If |operation|.{{CacheBatchOperation/response}} is null, <a>throw</a> a <code>TypeError</code>.
+              1. Let |r| be |operation|.{{CacheBatchOperation/request}}'s associated <a for="request">request</a>.
+              1. If |r|'s <a for="request">url</a>'s <a for="url">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", <a>throw</a> a <code>TypeError</code>.
+              1. If |r|'s <a for="request">method</a> is not `<code>GET</code>`, <a>throw</a> a <code>TypeError</code>.
+              1. If |operation|.{{CacheBatchOperation/options}} is not null, <a>throw</a> a <code>TypeError</code>.
+              1. Set |requestResponseArray| to the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}.
+              1. If |requestResponseArray| is not an empty array, then:
+                1. Let |requestResponse| be |requestResponseArray|[0].
+                1. Let |fetchingRecord| be the corresponding <a>fetching record</a> for |requestResponse|[0] and |requestResponse|[1] in <a>request to response map</a>.
+                1. Set |fetchingRecord|.\[[key]] to |operation|.{{CacheBatchOperation/request}} and |fetchingRecord|.\[[value]] to |operation|.{{CacheBatchOperation/response}}.
+              1. Else:
+                1. Set a newly-created <a>fetching record</a> {\[[key]]: |operation|.{{CacheBatchOperation/request}}, \[[value]]: |operation|.{{CacheBatchOperation/response}}} to <a>request to response map</a>.
+
+                  Note: The cache commit is allowed as long as the response's headers are available.
+
+              1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" exception.
+              1. Add an array [|operation|.|request|, |operation|.|response|] to |addedRecords|.
+            1. Add |operation|.|response| to |resultArray|.
+          1. Return |resultArray|.
+        1. And then, if an exception was <a lt="throw">thrown</a>, then:
+          1. Set the <a>context object</a>'s <a>request to response map</a> to |itemsCopy|.
+          1. <a>Throw</a> the exception
   </section>
 </section>
 
@@ -3279,70 +3222,69 @@ Markup Shorthands: css no, markdown yes
   <section>
     <h3 id="service-worker-script-request">Service Worker Script Request</h3>
 
-    An HTTP request to <a>fetch</a> a <a>service worker</a>'s <a href="#dfn-script-resource">script resource</a> will include the following <a>header</a>:
+    An HTTP request to <a>fetch</a> a <a>service worker</a>'s <a>script resource</a> will include the following <a>header</a>:
 
-    
       : `<dfn><code>Service-Worker</code></dfn>`
-    :: Indicates this request is a <a>service worker</a>'s <a href="#dfn-script-resource">script resource</a> request.
+      :: Indicates this request is a <a>service worker</a>'s <a>script resource</a> request.
+
         Note: This header helps administrators log the requests and detect threats.
-      
   </section>
 
   <section>
     <h3 id="service-worker-script-response">Service Worker Script Response</h3>
 
-    An HTTP response to a <a>service worker</a>'s <a href="#dfn-script-resource">script resource</a> request can include the following <a>header</a>:
+    An HTTP response to a <a>service worker</a>'s <a>script resource</a> request can include the following <a>header</a>:
 
-    
       : `<dfn><code>Service-Worker-Allowed</code></dfn>`
-    :: Indicates the user agent will override the path restriction, which limits the maximum allowed <a>scope url</a> that the script can <a href="#dfn-control">control</a>, to the given value.
+      :: Indicates the user agent will override the path restriction, which limits the maximum allowed <a>scope url</a> that the script can <a>control</a>, to the given value.
+      
         Note: The value is a URL. If a relative URL is given, it is parsed against the script's URL.
 
     <div class="example">
       Default scope:
 
-      <pre class="lang-js">
-// Maximum allowed scope defaults to the path the script sits in
-// "/js" in this example
-navigator.serviceWorker.register("/js/sw.js").then(function() {
-  console.log("Install succeeded with the default scope '/js'.");
-});
+      <pre highlight="js">
+        // Maximum allowed scope defaults to the path the script sits in
+        // "/js" in this example
+        navigator.serviceWorker.register("/js/sw.js").then(() => {
+          console.log("Install succeeded with the default scope '/js'.");
+        });
       </pre>
     </div>
 
     <div class="example">
       Upper path without Service-Worker-Allowed header:
 
-      <pre class="lang-js">
-// Set the scope to an upper path of the script location
-// Response has no Service-Worker-Allowed header
-navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).catch(function() {
-  console.error("Install failed due to the path restriction violation.");
-});
+      <pre highlight="js">
+        // Set the scope to an upper path of the script location
+        // Response has no Service-Worker-Allowed header
+        navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).catch(() => {
+          console.error("Install failed due to the path restriction violation.");
+        });
       </pre>
     </div>
 
     <div class="example">
       Upper path with Service-Worker-Allowed header:
 
-      <pre class="lang-js">
-// Set the scope to an upper path of the script location
-// Response included "Service-Worker-Allowed : /"
-navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).then(function() {
-  console.log("Install succeeded as the max allowed scope was overriden to '/'.");
-});
+      <pre highlight="js">
+        // Set the scope to an upper path of the script location
+        // Response included "Service-Worker-Allowed : /"
+        navigator.serviceWorker.register("/js/sw.js", { scope: "/" }).then(() => {
+          console.log("Install succeeded as the max allowed scope was overriden to '/'.");
+        });
       </pre>
     </div>
 
     <div class="example">
       A path restriction voliation even with Service-Worker-Allowed header:
 
-      <pre class="lang-js">
-// Set the scope to an upper path of the script location
-// Response included "Service-Worker-Allowed : /foo"
-navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(function() {
-  console.error("Install failed as the scope is still out of the overriden maximum allowed scope.");
-});
+      <pre highlight="js">
+        // Set the scope to an upper path of the script location
+        // Response included "Service-Worker-Allowed : /foo"
+        navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(() => {
+          console.error("Install failed as the scope is still out of the overriden maximum allowed scope.");
+        });
       </pre>
     </div>
   </section>
@@ -3350,10 +3292,10 @@ navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(functio
   <section>
     <h3 id="syntax">Syntax</h3>
 
-    <a biblio data-biblio-type="normative" lt="rfc5234">ABNF</a> for the values of the headers used by the <a>service worker</a>'s <a href="#dfn-script-resource">script resource</a> requests and responses:
+    <a biblio data-biblio-type="normative" lt="rfc5234">ABNF</a> for the values of the headers used by the <a>service worker</a>'s <a>script resource</a> requests and responses:
 
     <pre>
-    Service-Worker = %x73.63.72.69.70.74 ; "script", case-sensitive
+      Service-Worker = %x73.63.72.69.70.74 ; "script", case-sensitive
     </pre>
 
     Note: The validation of the Service-Worker-Allowed header's values is done by URL parsing algorithm (in Update algorithm) instead of using ABNF.
@@ -3363,6 +3305,7 @@ navigator.serviceWorker.register("/foo/bar/sw.js", { scope: "/" }).catch(functio
 <section>
   <h2 id="acknowledgements">Acknowledgements</h2>
   <!-- FIXME: INCOMPLETE!! Please add collaborators below. -->
+  
   Deep thanks go to Andrew Betts for organizing and hosting a small workshop of like-minded individuals including: Jake Archibald, Jackson Gabbard, Tobie Langel, Robin Berjon, Patrick Lauke, Christian Heilmann. From the clarity of the day's discussions and the use-cases outlined there, much has become possible. Further thanks to Andrew for raising consciousness about the offline problem. His organization of EdgeConf and inclusion of Offline as a persistent topic there has created many opportunities and connections that have enabled this work to progress.
 
   Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the service worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.
