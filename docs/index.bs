@@ -64,6 +64,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: origin; for: MessageEvent; url: dom-messageevent-origin
             text: source; for: MessageEvent; url: dom-messageevent-source
             text: ports; for: MessageEvent; url: dom-messageevent-ports
+            text: data; for: MessageEvent; url: dom-messageevent-data
     type: dfn
         urlPrefix: browsers.html
             text: ancestor origins array; for: Location; url: concept-location-ancestor-origins-array
@@ -834,19 +835,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         <tbody>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>oninstall</code></dfn></td>
-            <td><code><a>install</a></code></td>
+            <td>{{install!!event}}</td>
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onactivate</code></dfn></td>
-            <td><code><a>activate</a></code></td>
+            <td>{{activate!!event}}</td>
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onfetch</code></dfn></td>
-            <td><code><a for="/">fetch</a></code></td>
+            <td>{{fetch!!event}}</td>
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onforeignfetch</code></dfn></td>
-            <td><code><a event>foreignfetch</a></code></td>
+            <td>{{foreignfetch!!event}}</td>
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessage</code></dfn></td>
@@ -920,8 +921,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |clonedMessage| be |cloneRecord|.\[[Clone]].
         1. Let |newPorts| be a new <a lt="frozen array type">frozen array</a> consisting of all {{MessagePort}} objects in |cloneRecord|.\[[TransferList]], if any, maintaining their relative order.
         1. Add a <a>task</a> that runs the following steps to |destination|'s <a for="ServiceWorkerContainer">client message queue</a>:
-            1. Create an event |e| that uses the {{MessageEvent}} interface, with the event type <a>message</a>, which does not bubble and is not cancelable.
-            1. Let the <a>data</a> attribute of |e| be initialized to |clonedMessage|.
+            1. Create an event |e| that uses the {{MessageEvent}} interface, with the event type {{Window/message!!event}}, which does not bubble and is not cancelable.
+            1. Let the <a attribute for="MessageEvent">data</a> attribute of |e| be initialized to |clonedMessage|.
             1. Let the <a attribute for="MessageEvent">origin</a> attribute of |e| be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |sourceSettings|'s <a for="environment settings object">origin</a>.
             1. Let the <a attribute for="MessageEvent">source</a> attribute of |e| be initialized to a {{ServiceWorker}} object, which represents the <a for="ServiceWorkerGlobalScope">service worker</a> associated with |sourceSettings|'s <a for="environment settings object">global object</a>.
             1. Let the <a attribute for="MessageEvent">ports</a> attribute of |e| be initialized to |newPorts|.
@@ -995,7 +996,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's <a for="Location">ancestor origins array</a>.
             1. Wait for |task| to have executed (including its asynchronous steps).
             1. If |navigateFailed| is true, reject |promise| with a <code>TypeError</code> and abort these steps.
-            1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="environment settings object">origin</a> is not the <a lt="same origin">same</a> as the <a for="ServiceWorkerGlobalScope">service worker</a>'s <a for="environment settings object">origin</a>, then:
+            1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s <a for="url">origin</a> is not the <a lt="same origin">same</a> as the <a for="ServiceWorkerGlobalScope">service worker</a>'s <a for="environment settings object">origin</a>, then:
                 1. Resolve |promise| with null.
                 1. Abort these steps.
             1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |browsingContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
@@ -1195,7 +1196,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     An {{ExtendableEvent}} object has an associated <dfn id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.
 
-    <a for="/">Service workers</a> have two <a>lifecycle events</a>, <code><a>install</a></code> and <code><a>activate</a></code>. <a for="/">Service workers</a> use the {{ExtendableEvent}} interface for <code><a>activate</a></code> event and <code><a>install</a></code> event.
+    <a for="/">Service workers</a> have two <a>lifecycle events</a>, {{install!!event}} and {{activate!!event}}. <a for="/">Service workers</a> use the {{ExtendableEvent}} interface for {{activate!!event}} event and {{install!!event}} event.
 
     <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* also use or extend the {{ExtendableEvent}} interface.
 
@@ -1218,8 +1219,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     <a for="/">Service workers</a> define the following behaviors for <code><a>install</a></code> event and <code><a>activate</a></code> event, respectively:
 
-      * Adding a <a>promise</a> |f| to the event's <a>extend lifetime promises</a> delays treating the <a>installing worker</a> as *<a>installed</a>* (i.e. a <a>waiting worker</a>) until all the <a>promises</a> in the <a>extend lifetime promises</a> resolve successfully. (See step 11.3.1 of <a>Install</a> algorithm.) If |f| rejects, the installation fails. This is primarily used to ensure that a <a for="/">service worker</a> is not considered *<a>installed</a>* (i.e. a <a>waiting worker</a>) until all of the core caches it depends on are populated.
-      * Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a>active worker</a> as *<a>activated</a>* until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a>Activate</a> algorithm.) This is primarily used to ensure that any <a>functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a for="/">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.
+      * Adding a <a>promise</a> |f| to the event's <a>extend lifetime promises</a> delays treating the <a>installing worker</a> as *<a for="ServiceWorkerState" enum-value>installed</a>* (i.e. a <a>waiting worker</a>) until all the <a>promises</a> in the <a>extend lifetime promises</a> resolve successfully. (See step 11.3.1 of <a>Install</a> algorithm.) If |f| rejects, the installation fails. This is primarily used to ensure that a <a for="/">service worker</a> is not considered *<a for="ServiceWorkerState" enum-value>installed</a>* (i.e. a <a>waiting worker</a>) until all of the core caches it depends on are populated.
+      * Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a>active worker</a> as *<a for="ServiceWorkerState" enum-value>activated</a>* until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a>Activate</a> algorithm.) This is primarily used to ensure that any <a>functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the <a for="/">service worker</a> until it upgrades database schemas and deletes the outdated cache entries.
   </section>
 
   <section>
@@ -1292,14 +1293,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    <a for="/">Service workers</a> have an essential <a>functional event</a> <code><a for="/">fetch</a></code>. For <code><a for="/">fetch</a></code> event, <a for="/">service workers</a> use the {{FetchEvent}} interface which extends the {{ExtendableEvent}} interface.
+    <a for="/">Service workers</a> have an essential <a>functional event</a> {{fetch!!event}}. For {{fetch!!event}} event, <a for="/">service workers</a> use the {{FetchEvent}} interface which extends the {{ExtendableEvent}} interface.
 
     Each event using {{FetchEvent}} interface has an associated <dfn for="FetchEvent">potential response</dfn> (a <a for="/">response</a>), initially set to null, and the following associated flags that are initially unset:
 
       * <dfn for="FetchEvent">wait to respond flag</dfn>
       * <dfn for="FetchEvent">respond-with entered flag</dfn>
       * <dfn for="FetchEvent">respond-with error flag</dfn>
-
 
     <section>
       <h4 id="fetch-event-request">{{FetchEvent/request|event.request}}</h4>
@@ -2552,7 +2552,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm with |installingWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{InstallEvent}} interface, with the event type <code><a>install</a></code>, which does not bubble and is not cancelable.
+          1. Create a trusted event |e| that uses the {{InstallEvent}} interface, with the event type {{install!!event}}, which does not bubble and is not cancelable.
           1. <a>Dispatch</a> |e| at |installingWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
           1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
               1. Wait until |e|'s <a>extensions allowed flag</a> is unset.
@@ -2619,7 +2619,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{ExtendableEvent}} interface, with the event type <code><a>activate</a></code>, which does not bubble and is not cancelable.
+          1. Create a trusted event |e| that uses the {{ExtendableEvent}} interface, with the event type {{activate!!event}}, which does not bubble and is not cancelable.
           1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
           1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s <a>extensions allowed flag</a> is unset.
       1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
@@ -2755,7 +2755,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
       1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{FetchEvent}} interface, with the event type <code><a for="/">fetch</a></code>, which does not bubble.
+          1. Create a trusted event |e| that uses the {{FetchEvent}} interface, with the event type {{fetch!!event}}, which does not bubble.
           1. Let the {{FetchEvent/request}} attribute of |e| be initialized to |r|.
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s <a for="environment">id</a>.
           1. If |request| is a <a>non-subresource request</a> and |request|'s <a for="request">destination</a> is not "<code>report</code>", initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s <a for="environment">id</a>, and to the empty string otherwise.
@@ -2822,7 +2822,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |r| be a new {{Request}} object associated with |request|.
       1. Invoke [[#run-service-worker-algorithm]] algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Create a trusted event |e| that uses the {{ForeignFetchEvent}} interface, with the event type <code><a event>foreignfetch</a></code>, which does not bubble.
+          1. Create a trusted event |e| that uses the {{ForeignFetchEvent}} interface, with the event type {{foreignfetch!!event}}, which does not bubble.
           1. Let the {{ForeignFetchEvent/request}} attribute of |e| be initialized to |r|.
           1. Let the {{ForeignFetchEvent/origin}} attribute of |e| be initialized to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s <a for=request>origin</a>.
           1. <a>Dispatch</a> |e| at |activeWorker|'s <a>environment settings object</a>'s <a for="environment settings object">global object</a>.
