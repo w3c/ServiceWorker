@@ -2009,10 +2009,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
   Two <a>jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a>job type</a> is the same and:
 
-    * For *register* and *update* <a>jobs</a>, both their [=service worker registration/scope url=] and the [=service worker/script url=] are the same.
-    * For *unregister* <a>jobs</a>, their [=service worker registration/scope url=] is the same.
+    * For *register* and *update* <a>jobs</a>, both their [=job/scope url=] and the [=job/script url=] are the same.
+    * For *unregister* <a>jobs</a>, their [=job/scope url=] is the same.
 
-  A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a>jobs</a>. The <a>job queue</a> contains <a>jobs</a> as its elements. The <a>job queue</a> *should* satisfy the general properties of FIFO queue. A user agent *must* maintain a separate <a>job queue</a> for each [=/service worker registration=] keyed by its [=service worker registration/scope url=]. A <a>job queue</a> is initially empty. Unless stated otherwise, the <a>job queue</a> referenced from the algorithm steps is a <a>job queue</a> for the <a>job</a>'s [=service worker registration/scope url=].
+  A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a>jobs</a>. The <a>job queue</a> contains <a>jobs</a> as its elements. The <a>job queue</a> *should* satisfy the general properties of FIFO queue. A user agent *must* maintain a separate <a>job queue</a> for each [=/service worker registration=] keyed by its [=service worker registration/scope url=]. A <a>job queue</a> is initially empty. Unless stated otherwise, the <a>job queue</a> referenced from the algorithm steps is a <a>job queue</a> for the <a>job</a>'s [=job/scope url=].
 
   <section algorithm>
     <h3 id="create-job-algorithm"><dfn>Create Job</dfn></h3>
@@ -2119,24 +2119,24 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=service worker/script url=] as the argument is <code>Not Trusted</code>, then:
+      1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trusted</code>, then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. If the [=environment settings object/origin=] of |job|'s [=service worker/script url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
+      1. If the [=environment settings object/origin=] of |job|'s [=job/script url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. If the [=environment settings object/origin=] of |job|'s [=service worker registration/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
+      1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=service worker registration/scope url=] as the argument.
+      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is not null, then:
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null and |job|'s [=service worker/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, then:
-            1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
-            1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+          1. If |newestWorker| is not null and |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, then:
+              1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+              1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a>Set Registration</a> algorithm passing |job|'s [=service worker registration/scope url=] as its argument.
+          1. Invoke <a>Set Registration</a> algorithm passing |job|'s [=job/scope url=] as its argument.
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -2148,12 +2148,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=service worker registration/scope url=] as the argument.
+      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null or |registration|'s <a>uninstalling flag</a> is set, then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s [=service worker/script url=] does not [=url/equal=] |job|'s [=service worker/script url=] with the *exclude fragments flag* set, then:
+      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=] with the *exclude fragments flag* set, then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
@@ -2161,9 +2161,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Switching on |job|'s <a>worker type</a>, run these substeps with the following options:
           <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
           : "<code>classic</code>"
-          :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> [=service worker/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", and the to-be-created <a>environment settings object</a> for this service worker.
+          :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", and the to-be-created <a>environment settings object</a> for this service worker.
           : "<code>module</code>"
-          :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> [=service worker/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker.
+          :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker.
 
           To [=fetching scripts/perform the fetch=] given |request|, run the following steps if the [=fetching scripts/is top-level=] flag is set:
 
@@ -2192,9 +2192,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
           1. Let |maxScopeString| be null.
           1. If |serviceWorkerAllowed| is null, then:
-              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s [=service worker/script url=]'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
+              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s [=job/script url=]'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Else:
-              1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s [=service worker/script url=].
+              1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s [=job/script url=].
               1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. If |scopeString| starts with |maxScopeString|, do nothing.
@@ -2218,13 +2218,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
 
-      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=service worker/script url=] with the *exclude fragments flag* set, and |script| is a byte-for-byte match with |newestWorker|'s <a>script resource</a>, then:
+      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=] with the *exclude fragments flag* set, and |script| is a byte-for-byte match with |newestWorker|'s <a>script resource</a>, then:
           1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
           1. Let |worker| be a new [=/service worker=].
           1. Generate a unique opaque string and set |worker|'s <a>id</a> to the value.
-          1. Set |worker|'s [=service worker/script url=] to |job|'s [=service worker/script url=], |worker|'s <a>script resource</a> to |script|, and |worker|'s <a>type</a> to |job|'s <a>worker type</a>.
+          1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s <a>script resource</a> to |script|, and |worker|'s <a>type</a> to |job|'s <a>worker type</a>.
           1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
           1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
           1. Invoke <a>Run Service Worker</a> algorithm with |worker| as the argument.
@@ -2613,10 +2613,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. If the [=environment settings object/origin=] of |job|'s [=service worker registration/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
+      1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
           1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s [=service worker registration/scope url=] as the argument.
+      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null, then:
           1. Invoke <a>Resolve Job Promise</a> with |job| and false.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
