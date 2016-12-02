@@ -205,7 +205,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has an associated <dfn export>navigation preload enabled flag</dfn>. It is initially unset.
 
-    A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a [=DOMString=]. It is initially set to "<code>true</code>".
+    A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a DOMString. It is initially set to "<code>true</code>".
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -435,7 +435,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section algorithm>
-      <h4><dfn>{{ServiceWorkerRegistration/navigationPreload}}</dfn></h4>
+      <h4 id="service-worker-registration-navigationpreload"><dfn>{{ServiceWorkerRegistration/navigationPreload}}</dfn></h4>
 
       The {{navigationPreload}} attribute's getter *must* return the [=/service worker registration's=] {{NavigationPreloadManager}} object.
     </section>
@@ -745,7 +745,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 </section>
 
 <section>
-    <h3>{{NavigationPreloadManager}}</h3>
+    <h3 id="navigation-preload-manager">{{NavigationPreloadManager}}</h3>
 
     <pre class="idl">
       [SecureContext, Exposed=(Window,Worker)]
@@ -763,7 +763,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </pre>
 
     <section algorithm>
-      <h4><dfn>{{NavigationPreloadManager/enable()}}</dfn></h4>
+      <h4 id="navigation-preload-manager-enable"><dfn>{{NavigationPreloadManager/enable()}}</dfn></h4>
 
       The {{NavigationPreloadManager/enable()}} method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
 
@@ -774,7 +774,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section algorithm>
-      <h4><dfn>{{NavigationPreloadManager/disable()}}</dfn></h4>
+      <h4 id="navigation-preload-manager-disable"><dfn>{{NavigationPreloadManager/disable()}}</dfn></h4>
 
       The {{NavigationPreloadManager/disable()}} method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
 
@@ -785,9 +785,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section algorithm>
-      <h4><dfn>{{NavigationPreloadManager/setHeaderValue(value)}}</dfn></h4>
+      <h4 id="navigation-preload-manager-setheadervalue"><dfn>{{NavigationPreloadManager/setHeaderValue(value)}}</dfn></h4>
 
-      The {{NavigationPreloadManager/setHeaderValue(value)}} method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
+      The <a method for="NavigationPreloadManager"><code>setHeaderValue(|value|)</code></a> method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
 
         1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
         1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with a <code>TypeError</code>, and abort these steps.
@@ -796,7 +796,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section algorithm>
-      <h4><dfn>{{NavigationPreloadManager/getState()}}</dfn></h4>
+      <h4 id="navigation-preload-manager-getstate"><dfn>{{NavigationPreloadManager/getState()}}</dfn></h4>
 
       The {{NavigationPreloadManager/getState()}} method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
 
@@ -1405,7 +1405,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section>
-      <h4>{{FetchEvent/preloadResponse|event.preloadResponse}}</h4>
+      <h4 id="fetch-event-preloadresponse">{{FetchEvent/preloadResponse|event.preloadResponse}}</h4>
 
       <dfn attribute for="FetchEvent"><code>preloadResponse</code></dfn> attribute *must* return the value it was initialized to.
     </section>
@@ -2884,18 +2884,18 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=] and |registration|'s [=navigation preload enabled flag=] is set, and |request|'s [=method=] is `<code>GET</code>`, then:
+          1. If |request| is a [=navigation request=] and |registration|'s [=navigation preload enabled flag=] is set, and |request|'s [=request/method=] is "`GET`", then:
               1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|
-              1. Let |preloadRequestHeaders| be |preloadRequest|'s [=header list=]
-              1. Let |preloadResponseObject| be a new {{Response}} object and a new associated {{Headers}} object whose [=guard=] is "<code>immutable</code>"
-              1. [=Append to header list=] |preloadRequestHeaders| a new [=header=] whose [=name=] is `<code>Service-Worker-Navigation-Preload</code>` and [=value=] is |registration|'s [=navigation preload header value=]
+              1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=]
+              1. Let |preloadResponseObject| be a new {{Response}} object and a new associated {{Headers}} object whose [=guard=] is "`immutable`"
+              1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is "`Service-Worker-Navigation-Preload`" and [=header/value=] is |registration|'s [=navigation preload header value=]
               1. Set |preloadRequest|'s [=skip-service-worker flag=]
               1. Run the following substeps [=in parallel=]:
                   1. [=Fetch=] |preloadRequest|.
                     
                       To [=process response=] for |navigationPreloadResponse|, run these substeps:
                       
-                      1. If |navigationPreloadResponse|'s [=response/type=] is "<code>error</code>", reject |navigationPreload| with a <code>TypeError</code> and terminate these substeps.
+                      1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                       1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
                       1. Resolve |preloadResponse| with |navigationPreloadResponse|.
           1. Else, resolve |preloadResponse| with undefined.
