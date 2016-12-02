@@ -866,6 +866,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface Client {
         readonly attribute USVString url;
         readonly attribute DOMString id;
+        readonly attribute ClientType type;
         readonly attribute boolean reserved;
         void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
       };
@@ -900,6 +901,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="client-id">{{Client/id}}</h4>
 
       The <dfn attribute for="Client"><code>id</code></dfn> attribute *must* return its associated [=Client/service worker client=]'s [=environment/id=].
+    </section>
+
+    <section>
+      <h4 id="client-type">{{Client/type}}</h4>
+
+      The <dfn attribute for="Client"><code>type</code></dfn> attribute *must* run these steps:
+
+        1. If the [=context object=]'s [=Client/service worker client=] is a type of [=environment=] or is a [=window client=], return {{ClientType/"window"}}.
+        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=dedicated worker client=], return {{ClientType/"worker"}}.
+        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
     </section>
 
     <section>
