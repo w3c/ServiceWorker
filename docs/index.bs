@@ -814,8 +814,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. Set [=/service worker=]'s <a>skip waiting flag</a>.
-            1. If [=/service worker=]'s <a>state</a> is *installed*, then:
-                1. Run <a>Activate</a> algorithm passing [=/service worker=]'s [=service worker/registration=] as the argument.  
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -2578,13 +2576,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>waiting worker</a> and *installed* as the arguments.
       1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      1. If |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set, then:
-          1. Run <a>Activate</a> algorithm passing |registration| as the argument.
-          1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Invoke <a>Finish Job</a> with |job|.
       1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm have executed.
       1. Wait until no [=/service worker client=] is <a>using</a> |registration| or |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set.
-      1. If |registration|'s <a>waiting worker</a> |waitingWorker| is not null and |waitingWorker|'s <a>skip waiting flag</a> is not set, invoke <a>Activate</a> algorithm with |registration| as its argument.
+      1. If |registration|'s <a>waiting worker</a> is not null, invoke <a>Activate</a> algorithm with |registration| as its argument.
   </section>
 
   <section algorithm>
