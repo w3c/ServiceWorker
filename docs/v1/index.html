@@ -1424,7 +1424,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-12-02">2 December 2016</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2016-12-06">6 December 2016</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1511,9 +1511,10 @@ pre.idl.highlight { color: #708090; }
         <li><a href="#navigator-service-worker-waiting"><span class="secno">3.2.2</span> <span class="content"><code class="idl"><span>waiting</span></code></span></a>
         <li><a href="#navigator-service-worker-active"><span class="secno">3.2.3</span> <span class="content"><code class="idl"><span>active</span></code></span></a>
         <li><a href="#service-worker-registration-scope"><span class="secno">3.2.4</span> <span class="content"><code class="idl"><span>scope</span></code></span></a>
-        <li><a href="#service-worker-registration-update"><span class="secno">3.2.5</span> <span class="content"><code class="idl"><span>update()</span></code></span></a>
-        <li><a href="#navigator-service-worker-unregister"><span class="secno">3.2.6</span> <span class="content"><code class="idl"><span>unregister()</span></code></span></a>
-        <li><a href="#service-worker-registration-event-handler"><span class="secno">3.2.7</span> <span class="content">Event handler</span></a>
+        <li><a href="#service-worker-registration-usecache"><span class="secno">3.2.5</span> <span class="content"><code class="idl"><span>useCache</span></code></span></a>
+        <li><a href="#service-worker-registration-update"><span class="secno">3.2.6</span> <span class="content"><code class="idl"><span>update()</span></code></span></a>
+        <li><a href="#navigator-service-worker-unregister"><span class="secno">3.2.7</span> <span class="content"><code class="idl"><span>unregister()</span></code></span></a>
+        <li><a href="#service-worker-registration-event-handler"><span class="secno">3.2.8</span> <span class="content">Event handler</span></a>
        </ol>
       <li><a href="#navigator-serviceworker"><span class="secno">3.3</span> <span class="content"><code class="idl"><span>navigator.serviceWorker</span></code></span></a>
       <li>
@@ -1754,11 +1755,11 @@ pre.idl.highlight { color: #708090; }
      <h3 class="heading settled" data-level="2.2" id="service-worker-registration-concept"><span class="secno">2.2. </span><span class="content">Service Worker Registration</span><a class="self-link" href="#service-worker-registration-concept"></a></h3>
      <p>A <dfn class="dfn-paneled" data-dfn-for="" data-dfn-type="dfn" data-export="" id="dfn-service-worker-registration">service worker registration</dfn> is a tuple of a <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-1">scope url</a> and a set of <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-30">service workers</a>, an <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-1">installing worker</a>, a <a data-link-type="dfn" href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-1">waiting worker</a>, and an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-1">active worker</a>. A user agent <em>may</em> enable many <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-2">service worker registrations</a> at a single origin so long as the <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-2">scope url</a> of the <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-3">service worker registration</a> differs. A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-4">service worker registration</a> of an identical <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-3">scope url</a> when one already exists in the user agent causes the existing <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-5">service worker registration</a> to be replaced.</p>
      <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-6">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-scope-url">scope url</dfn> (a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-7">service worker registration</a> has an associated <dfn data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-registration-script-url">registering script url<a class="self-link" href="#dfn-registration-script-url"></a></dfn> (a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-8">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-installing-worker">installing worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-31">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-1">state</a> is <em>installing</em>. It is initially set to null.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-9">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-waiting-worker">waiting worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-32">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-2">state</a> is <em>installed</em>. It is initially set to null.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-10">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-active-worker">active worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-33">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-3">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-11">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-7">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-installing-worker">installing worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-31">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-1">state</a> is <em>installing</em>. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-8">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-waiting-worker">waiting worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-32">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-2">state</a> is <em>installed</em>. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-9">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-active-worker">active worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-33">service worker</a> or null) whose <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state-3">state</a> is either <em>activating</em> or <em>activated</em>. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-10">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-11">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-use-cache">use cache</dfn> (a boolean). It is initially set to false.</p>
      <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-12">service worker registration</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.</p>
      <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-13">service worker registration</a> has one or more <dfn class="dfn-paneled" data-dfn-for="service worker registration" data-dfn-type="dfn" data-export="" id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> from its <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-2">active worker</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>’s corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a>. (The target task sources for this back up operation are the <a data-link-type="dfn" href="#dfn-handle-fetch-task-source" id="ref-for-dfn-handle-fetch-task-source-1">handle fetch task source</a> and the <a data-link-type="dfn" href="#dfn-handle-functional-event-task-source" id="ref-for-dfn-handle-functional-event-task-source-1">handle functional event task source</a>.) The user agent dumps the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-3">active worker</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> to the <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-14">service worker registration</a>'s <a data-link-type="dfn" href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue-1">task queues</a> when the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-4">active worker</a> is <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-2">terminated</a> and <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">re-queues those tasks</a> to the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-5">active worker</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>’s corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> when the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-6">active worker</a> spins off. Unlike the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> owned by <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loops</a>, the <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-15">service worker registration</a>'s <a data-link-type="dfn" href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue-2">task queues</a> are not processed by any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loops</a> in and of itself.</p>
      <section>
@@ -1932,6 +1933,7 @@ pre.idl.highlight { color: #708090; }
   <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-12">ServiceWorker</a>? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="ServiceWorker?" href="#dom-serviceworkerregistration-active" id="ref-for-dom-serviceworkerregistration-active-1">active</a>;
 
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-serviceworkerregistration-scope" id="ref-for-dom-serviceworkerregistration-scope-1">scope</a>;
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">boolean</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="boolean" href="#dom-serviceworkerregistration-usecache" id="ref-for-dom-serviceworkerregistration-usecache-1">useCache</a>;
 
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject">NewObject</a>] <span class="kt">Promise</span>&lt;<span class="kt">void</span>> <a class="nv idl-code" data-link-type="method" href="#dom-serviceworkerregistration-update" id="ref-for-dom-serviceworkerregistration-update-1">update</a>();
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject">NewObject</a>] <span class="kt">Promise</span>&lt;<span class="kt">boolean</span>> <a class="nv idl-code" data-link-type="method" href="#dom-serviceworkerregistration-unregister" id="ref-for-dom-serviceworkerregistration-unregister-1">unregister</a>();
@@ -1961,14 +1963,18 @@ pre.idl.highlight { color: #708090; }
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="attribute" data-export="" id="dom-serviceworkerregistration-scope"><code>scope</code></dfn> attribute <em>must</em> return <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-1">service worker registration</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-6">scope url</a>.</p>
       <div class="example" id="example-2dbb4b8b"><a class="self-link" href="#example-2dbb4b8b"></a> In the example in <a href="#service-worker-url">§3.1.1 scriptURL</a>, the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(registration => console.log(registration.scope))</code> for example, will be "<code>https://example.com/</code>". </div>
      </section>
+     <section class="algorithm" data-algorithm="service-worker-registration-usecache">
+      <h4 class="heading settled" data-level="3.2.5" id="service-worker-registration-usecache"><span class="secno">3.2.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-usecache" id="ref-for-dom-serviceworkerregistration-usecache-2">useCache</a></code></span><a class="self-link" href="#service-worker-registration-usecache"></a></h4>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="attribute" data-export="" id="dom-serviceworkerregistration-usecache"><code>useCache</code></dfn> attribute <em>must</em> return <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-2">service worker registration</a>'s <a data-link-type="dfn" href="#dfn-use-cache" id="ref-for-dfn-use-cache-1">use cache</a>.</p>
+     </section>
      <section class="algorithm" data-algorithm="service-worker-registration-update">
-      <h4 class="heading settled" data-level="3.2.5" id="service-worker-registration-update"><span class="secno">3.2.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-update" id="ref-for-dom-serviceworkerregistration-update-2">update()</a></code></span><a class="self-link" href="#service-worker-registration-update"></a></h4>
+      <h4 class="heading settled" data-level="3.2.6" id="service-worker-registration-update"><span class="secno">3.2.6. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-update" id="ref-for-dom-serviceworkerregistration-update-2">update()</a></code></span><a class="self-link" href="#service-worker-registration-update"></a></h4>
       <p><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="method" data-export="" id="dom-serviceworkerregistration-update"><code>update()</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md="">
         <p>Let <var>p</var> be a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>.</p>
        <li data-md="">
-        <p>Let <var>registration</var> be the <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-2">service worker registration</a>.</p>
+        <p>Let <var>registration</var> be the <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-3">service worker registration</a>.</p>
        <li data-md="">
         <p>Let <var>newestWorker</var> be the result of running <a data-link-type="dfn" href="#get-newest-worker" id="ref-for-get-newest-worker-1">Get Newest Worker</a> algorithm passing <var>registration</var> as its argument.</p>
        <li data-md="">
@@ -1986,14 +1992,14 @@ pre.idl.highlight { color: #708090; }
       </ol>
      </section>
      <section class="algorithm" data-algorithm="navigator-service-worker-unregister">
-      <h4 class="heading settled" data-level="3.2.6" id="navigator-service-worker-unregister"><span class="secno">3.2.6. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-unregister" id="ref-for-dom-serviceworkerregistration-unregister-2">unregister()</a></code></span><a class="self-link" href="#navigator-service-worker-unregister"></a></h4>
+      <h4 class="heading settled" data-level="3.2.7" id="navigator-service-worker-unregister"><span class="secno">3.2.7. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-unregister" id="ref-for-dom-serviceworkerregistration-unregister-2">unregister()</a></code></span><a class="self-link" href="#navigator-service-worker-unregister"></a></h4>
       <p class="note" role="note">Note: The <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-unregister" id="ref-for-dom-serviceworkerregistration-unregister-3">unregister()</a></code> method unregisters the <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-34">service worker registration</a>. It is important to note that the currently <a data-link-type="dfn" href="#dfn-control" id="ref-for-dfn-control-2">controlled</a> <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-20">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-active-service-worker">active service worker</a>’s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-3">containing service worker registration</a> is effective until all the <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-21">service worker clients</a> (including itself) using this <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-35">service worker registration</a> unload. That is, the <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerregistration-unregister" id="ref-for-dom-serviceworkerregistration-unregister-4">unregister()</a></code> method only affects subsequent <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigations</a>.</p>
       <p><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="method" data-export="" id="dom-serviceworkerregistration-unregister"><code>unregister()</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md="">
         <p>Let <var>p</var> be a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>.</p>
        <li data-md="">
-        <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-2">Create Job</a> with <em>unregister</em>, the <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-8">scope url</a> of the <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-3">service worker registration</a>, null, <var>p</var>, and the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>.</p>
+        <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-2">Create Job</a> with <em>unregister</em>, the <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-8">scope url</a> of the <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-4">service worker registration</a>, null, <var>p</var>, and the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>.</p>
        <li data-md="">
         <p>Invoke <a data-link-type="dfn" href="#schedule-job" id="ref-for-schedule-job-2">Schedule Job</a> with <var>job</var>.</p>
        <li data-md="">
@@ -2001,7 +2007,7 @@ pre.idl.highlight { color: #708090; }
       </ol>
      </section>
      <section>
-      <h4 class="heading settled" data-level="3.2.7" id="service-worker-registration-event-handler"><span class="secno">3.2.7. </span><span class="content">Event handler</span><a class="self-link" href="#service-worker-registration-event-handler"></a></h4>
+      <h4 class="heading settled" data-level="3.2.8" id="service-worker-registration-event-handler"><span class="secno">3.2.8. </span><span class="content">Event handler</span><a class="self-link" href="#service-worker-registration-event-handler"></a></h4>
       <p>The following is the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> (and its corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type">event handler event type</a>) that <em>must</em> be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-6">ServiceWorkerRegistration</a></code> interface:</p>
       <table class="data">
        <thead>
@@ -2049,7 +2055,8 @@ pre.idl.highlight { color: #708090; }
 </pre>
 <pre class="idl highlight def" id="registration-option-list-dictionary"><span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-registrationoptions">RegistrationOptions</dfn> {
   <span class="kt">USVString</span> <dfn class="nv dfn-paneled idl-code" data-dfn-for="RegistrationOptions" data-dfn-type="dict-member" data-export="" data-type="USVString " id="dom-registrationoptions-scope">scope</dfn>;
-  <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a> <dfn class="nv idl-code" data-default="&quot;classic&quot;" data-dfn-for="RegistrationOptions" data-dfn-type="dict-member" data-export="" data-type="WorkerType " id="dom-registrationoptions-type">type<a class="self-link" href="#dom-registrationoptions-type"></a></dfn> = "classic";
+  <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a> <dfn class="nv dfn-paneled idl-code" data-default="&quot;classic&quot;" data-dfn-for="RegistrationOptions" data-dfn-type="dict-member" data-export="" data-type="WorkerType " id="dom-registrationoptions-type">type</dfn> = "classic";
+  <span class="kt">boolean</span> <dfn class="nv dfn-paneled idl-code" data-default="false" data-dfn-for="RegistrationOptions" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-registrationoptions-usecache">useCache</dfn> = <span class="kt">false</span>;
 };
 </pre>
      <p>The user agent <em>must</em> create a <code class="idl"><a data-link-type="idl" href="#serviceworkercontainer" id="ref-for-serviceworkercontainer-5">ServiceWorkerContainer</a></code> object when a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/webappapis.html#navigator">Navigator</a></code> object or a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workernavigator">WorkerNavigator</a></code> object is created and associate it with that object.</p>
@@ -2140,6 +2147,10 @@ pre.idl.highlight { color: #708090; }
         <p>If any of the strings in <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path">path</a> contains either <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>p</var> with a <code>TypeError</code> and abort these steps.</p>
        <li data-md="">
         <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-3">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>p</var>, and <var>client</var>.</p>
+       <li data-md="">
+        <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-2">worker type</a> to <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-registrationoptions-type" id="ref-for-dom-registrationoptions-type-1">type</a></code>.</p>
+       <li data-md="">
+        <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-use-cache" id="ref-for-dfn-job-use-cache-1">use cache</a> to <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-registrationoptions-usecache" id="ref-for-dom-registrationoptions-usecache-1">useCache</a></code>.</p>
        <li data-md="">
         <p>Invoke <a data-link-type="dfn" href="#schedule-job" id="ref-for-schedule-job-3">Schedule Job</a> with <var>job</var>.</p>
        <li data-md="">
@@ -2257,7 +2268,7 @@ pre.idl.highlight { color: #708090; }
        <tr>
         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerRegistration" data-dfn-type="event" data-export="" id="service-worker-registration-updatefound-event"><code>updatefound</code></dfn>
         <td><code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#event">Event</a></code>
-        <td>The <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-4">service worker registration</a>'s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-4">installing worker</a> changes. (See step 8 of the <a data-link-type="dfn" href="#install" id="ref-for-install-1">Install</a> algorithm.)
+        <td>The <a data-link-type="dfn" href="#serviceworkerregistration-service-worker-registration" id="ref-for-serviceworkerregistration-service-worker-registration-5">service worker registration</a>'s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-4">installing worker</a> changes. (See step 8 of the <a data-link-type="dfn" href="#install" id="ref-for-install-1">Install</a> algorithm.)
      </table>
      <p>The following events are dispatched on <code class="idl"><a data-link-type="idl" href="#serviceworkercontainer" id="ref-for-serviceworkercontainer-14">ServiceWorkerContainer</a></code> object:</p>
      <table class="data">
@@ -4035,19 +4046,20 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-2">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-scope-url">scope url</dfn> (a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
      <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-3">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-script-url">script url</dfn> (a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a>).</p>
      <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-4">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-worker-type">worker type</dfn> ("<code>classic</code>" or "<code>module</code>").</p>
-     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-5">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-client">client</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-36">service worker client</a>). It is initially null.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-6">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-promise">job promise</dfn> (a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>). It is initially null.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-7">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-8">jobs</a>). It is initially the empty list.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-9">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn> It is initially unset.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-5">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-use-cache">use cache</dfn> (a boolean).</p>
+     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-6">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-client">client</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-36">service worker client</a>). It is initially null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-7">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-promise">job promise</dfn> (a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>). It is initially null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-8">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-9">jobs</a>). It is initially the empty list.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-10">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn> It is initially unset.</p>
     </div>
-    <p>Two <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-10">jobs</a> are <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-equivalent">equivalent</dfn> when their <a data-link-type="dfn" href="#dfn-job-type" id="ref-for-dfn-job-type-1">job type</a> is the same and:</p>
+    <p>Two <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-11">jobs</a> are <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-equivalent">equivalent</dfn> when their <a data-link-type="dfn" href="#dfn-job-type" id="ref-for-dfn-job-type-1">job type</a> is the same and:</p>
     <ul>
      <li data-md="">
-      <p>For <em>register</em> and <em>update</em> <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-11">jobs</a>, both their <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-1">scope url</a> and the <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-1">script url</a> are the same.</p>
+      <p>For <em>register</em> and <em>update</em> <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-12">jobs</a>, both their <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-1">scope url</a> and the <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-1">script url</a> are the same.</p>
      <li data-md="">
-      <p>For <em>unregister</em> <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-12">jobs</a>, their <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-2">scope url</a> is the same.</p>
+      <p>For <em>unregister</em> <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-13">jobs</a>, their <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-2">scope url</a> is the same.</p>
     </ul>
-    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-13">jobs</a>. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-14">jobs</a> as its elements. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em>should</em> satisfy the general properties of FIFO queue. A user agent <em>must</em> maintain a separate <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> keyed by its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a>. A <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-15">job</a>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-14">jobs</a>. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-15">jobs</a> as its elements. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em>should</em> satisfy the general properties of FIFO queue. A user agent <em>must</em> maintain a separate <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> keyed by its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a>. A <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-16">job</a>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
     <section class="algorithm" data-algorithm="Create Job">
      <h3 class="heading settled" id="create-job-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="create-job">Create Job</dfn></span><a class="self-link" href="#create-job-algorithm"></a></h3>
      <dl>
@@ -4066,11 +4078,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-16">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-17">job</a></p>
      </dl>
      <ol>
       <li data-md="">
-       <p>Let <var>job</var> be a new <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-17">job</a>.</p>
+       <p>Let <var>job</var> be a new <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-18">job</a>.</p>
       <li data-md="">
        <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-type" id="ref-for-dfn-job-type-3">job type</a> to <var>jobType</var>.</p>
       <li data-md="">
@@ -4091,7 +4103,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-18">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-19">job</a></p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -4130,7 +4142,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </dl>
      <ol>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-11">job queue</a> is not empty.</p>
+       <p class="assertion">Assert: the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-11">job queue</a> is not empty.</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to run these steps:</p>
        <ol>
@@ -4152,7 +4164,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-19">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-20">job</a></p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -4160,7 +4172,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </dl>
      <ol>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: the top element in the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-13">job queue</a> is <var>job</var>.</p>
+       <p class="assertion">Assert: the top element in the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-13">job queue</a> is <var>job</var>.</p>
       <li data-md="">
        <p>Pop the top element from the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-14">job queue</a>.</p>
       <li data-md="">
@@ -4173,7 +4185,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-20">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-21">job</a></p>
       <dd data-md="">
        <p><var>value</var>, any</p>
       <dt data-md="">
@@ -4198,7 +4210,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-21">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-22">job</a></p>
       <dd data-md="">
        <p><var>reason</var>, an <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-exception">exception</a></p>
       <dt data-md="">
@@ -4223,7 +4235,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-22">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-23">job</a></p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -4264,7 +4276,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>Let <var>newestWorker</var> be the result of running the <a data-link-type="dfn" href="#get-newest-worker" id="ref-for-get-newest-worker-2">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</p>
         <li data-md="">
-         <p>If <var>newestWorker</var> is not null and <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-3">script url</a> with the <em>exclude fragments flag</em> set, then:</p>
+         <p>If <var>newestWorker</var> is not null, <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-3">script url</a> with the <em>exclude fragments flag</em> set, and <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-use-cache" id="ref-for-dfn-job-use-cache-2">use cache</a>'s value equals <var>registration</var>’s <a data-link-type="dfn" href="#dfn-use-cache" id="ref-for-dfn-use-cache-2">use cache</a>'s value, then:</p>
          <ol>
           <li data-md="">
            <p>Invoke <a data-link-type="dfn" href="#resolve-job-promise" id="ref-for-resolve-job-promise-1">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-17">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.</p>
@@ -4276,7 +4288,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>Else:</p>
        <ol>
         <li data-md="">
-         <p>Invoke <a data-link-type="dfn" href="#set-registration" id="ref-for-set-registration-1">Set Registration</a> algorithm passing <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-7">scope url</a> as its argument.</p>
+         <p>Invoke <a data-link-type="dfn" href="#set-registration" id="ref-for-set-registration-1">Set Registration</a> algorithm with <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-7">scope url</a> and <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-use-cache" id="ref-for-dfn-job-use-cache-3">use cache</a>.</p>
        </ol>
       <li data-md="">
        <p>Invoke <a data-link-type="dfn" href="#update" id="ref-for-update-2">Update</a> algorithm passing <var>job</var> as the argument.</p>
@@ -4288,7 +4300,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-23">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-24">job</a></p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -4320,7 +4332,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>referrerPolicy</var> be the empty string.</p>
       <li data-md="">
-       <p>Switching on <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-2">worker type</a>, run these substeps with the following options:</p>
+       <p>Switching on <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-3">worker type</a>, run these substeps with the following options:</p>
        <dl>
         <dt data-md="">
          <p>"<code>classic</code>"</p>
@@ -4339,12 +4351,16 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#skip-service-worker-flag">skip-service-worker flag</a> and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-redirect-mode">redirect mode</a> to "<code>error</code>".</p>
         <li data-md="">
-         <p>If <var>newestWorker</var> is not null and <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time-1">last update check time</a> is not null, then:</p>
-         <ol>
+         <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
+         <ul>
           <li data-md="">
-           <p>If the time difference in seconds calculated by the current time minus <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time-2">last update check time</a> is greater than 86400, or <em>force bypass cache flag</em> is set, set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>reload</code>".</p>
-         </ol>
-         <p class="note" role="note">Note: Even if the cache mode is not set to "reload", the user agent obeys Cache-Control header’s max-age value in the network layer to determine if it should bypass the browser cache.</p>
+           <p><var>registration</var>’s <a data-link-type="dfn" href="#dfn-use-cache" id="ref-for-dfn-use-cache-3">use cache</a> is false.</p>
+          <li data-md="">
+           <p><var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-1">force bypass cache flag</a> is set.</p>
+          <li data-md="">
+           <p><var>newestWorker</var> is not null, and <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time-1">last update check time</a> is not null and the time difference in seconds calculated by the current time minus <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time-2">last update check time</a> is greater than 86400.</p>
+         </ul>
+         <p class="note" role="note">Note: Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header’s max-age value in the network layer to determine if it should bypass the browser cache.</p>
         <li data-md="">
          <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch">Fetch</a> <var>request</var>, and asynchronously wait to run the remaining steps as part of fetch’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#process-response">process response</a> for the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a> <var>response</var>.</p>
         <li data-md="">
@@ -4431,7 +4447,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>Generate a unique opaque string and set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-service-worker-id" id="ref-for-dfn-service-worker-id-1">id</a> to the value.</p>
         <li data-md="">
-         <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-6">script url</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-12">script url</a>, <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-7">script resource</a> to <var>script</var>, and <var>worker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-2">type</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-3">worker type</a>.</p>
+         <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-6">script url</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-12">script url</a>, <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-7">script resource</a> to <var>script</var>, and <var>worker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-2">type</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-4">worker type</a>.</p>
         <li data-md="">
          <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-8">script resource</a>’s <a data-link-type="dfn" href="#dfn-https-state" id="ref-for-dfn-https-state-1">HTTPS state</a> to <var>httpsState</var>.</p>
         <li data-md="">
@@ -4477,9 +4493,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-4">Create Job</a> with <em>update</em>, <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-14">scope url</a>, <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-7">script url</a>, null, and null.</p>
       <li data-md="">
-       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-4">worker type</a> to <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-3">type</a>.</p>
+       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-5">worker type</a> to <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-3">type</a>.</p>
       <li data-md="">
-       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-1">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.</p>
+       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-2">force bypass cache flag</a> if its <em>force bypass cache flag</em> is set.</p>
       <li data-md="">
        <p>Invoke <a data-link-type="dfn" href="#schedule-job" id="ref-for-schedule-job-4">Schedule Job</a> with <var>job</var>.</p>
      </ol>
@@ -4490,7 +4506,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-24">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-25">job</a></p>
       <dd data-md="">
        <p><var>worker</var>, a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-88">service worker</a></p>
       <dd data-md="">
@@ -4512,7 +4528,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Run the <a data-link-type="dfn" href="#update-worker-state" id="ref-for-update-worker-state-1">Update Worker State</a> algorithm passing <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-7">installing worker</a> and <em>installing</em> as the arguments.</p>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-promise" id="ref-for-dfn-job-promise-7">job promise</a> is not null.</p>
+       <p class="assertion">Assert: <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-promise" id="ref-for-dfn-job-promise-7">job promise</a> is not null.</p>
       <li data-md="">
        <p>Invoke <a data-link-type="dfn" href="#resolve-job-promise" id="ref-for-resolve-job-promise-3">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-19">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.</p>
       <li data-md="">
@@ -5013,9 +5029,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </dl>
      <ol>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: <a data-link-type="dfn" href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-7">scope to registration map</a> contains a value equal to <var>registration</var>.</p>
+       <p class="assertion">Assert: <a data-link-type="dfn" href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-7">scope to registration map</a> contains a value equal to <var>registration</var>.</p>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-30">active worker</a> is not null.</p>
+       <p class="assertion">Assert: <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-30">active worker</a> is not null.</p>
       <li data-md="">
        <p>Let <var>activeWorker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-31">active worker</a>.</p>
       <li data-md="">
@@ -5115,7 +5131,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-25">job</a></p>
+       <p><var>job</var>, a <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-26">job</a></p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -5158,6 +5174,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>Input</p>
       <dd data-md="">
        <p><var>scope</var>, a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a></p>
+      <dd data-md="">
+       <p><var>useCache</var>, a boolean</p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -5169,7 +5187,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>scopeString</var> be <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</p>
       <li data-md="">
-       <p>Let <var>registration</var> be a new <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-57">service worker registration</a> whose <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-17">scope url</a> is set to <var>scope</var>.</p>
+       <p>Let <var>registration</var> be a new <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-57">service worker registration</a> whose <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-17">scope url</a> is set to <var>scope</var> and <a data-link-type="dfn" href="#dfn-use-cache" id="ref-for-dfn-use-cache-4">use cache</a> is set to <var>useCache</var>.</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set">Set</a> <a data-link-type="dfn" href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-9">scope to registration map</a>[<var>scopeString</var>] to <var>registration</var>.</p>
       <li data-md="">
@@ -5374,7 +5392,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </dl>
      <ol>
       <li data-md="">
-       <p><a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">Assert</a>: <var>client</var> is not null.</p>
+       <p class="assertion">Assert: <var>client</var> is not null.</p>
       <li data-md="">
        <p>If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>controllerchange</code> at the <code class="idl"><a data-link-type="idl" href="#serviceworkercontainer" id="ref-for-serviceworkercontainer-16">ServiceWorkerContainer</a></code> object <var>client</var> is <a data-link-type="dfn" href="#serviceworkercontainer-service-worker-client" id="ref-for-serviceworkercontainer-service-worker-client-8">associated</a> with.</p>
      </ol>
@@ -6050,7 +6068,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="#dom-serviceworkerglobalscope-onmessage">attribute for ServiceWorkerGlobalScope</a><span>, in §4.1.4</span>
     </ul>
    <li><a href="#dom-serviceworker-onstatechange">onstatechange</a><span>, in §3.1.4</span>
-   <li><a href="#dom-serviceworkerregistration-onupdatefound">onupdatefound</a><span>, in §3.2.7</span>
+   <li><a href="#dom-serviceworkerregistration-onupdatefound">onupdatefound</a><span>, in §3.2.8</span>
    <li><a href="#dom-cachestorage-open">open(cacheName)</a><span>, in §5.5.3</span>
    <li><a href="#dom-clients-openwindow">openWindow(url)</a><span>, in §4.3.3</span>
    <li><a href="#dom-cachebatchoperation-options">options</a><span>, in §5.4</span>
@@ -6084,7 +6102,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <li><a href="#dom-serviceworkerstate-redundant">redundant</a><span>, in §3.1</span>
    <li><a href="#dfn-referrer-policy">referrer policy</a><span>, in §2.1</span>
    <li><a href="#register">Register</a><span>, in §Unnumbered section</span>
-   <li><a href="#dfn-registration-script-url">registering script url</a><span>, in §2.2</span>
    <li><a href="#dom-serviceworkercontainer-register">register(scriptURL)</a><span>, in §3.4.3</span>
    <li><a href="#dom-serviceworkercontainer-register">register(scriptURL, options)</a><span>, in §3.4.3</span>
    <li>
@@ -6209,14 +6226,26 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="#dom-cachebatchoperation-type">dict-member for CacheBatchOperation</a><span>, in §5.4</span>
     </ul>
    <li><a href="#dfn-uninstalling-flag">uninstalling flag</a><span>, in §2.2</span>
-   <li><a href="#dom-serviceworkerregistration-unregister">unregister()</a><span>, in §3.2.6</span>
+   <li><a href="#dom-serviceworkerregistration-unregister">unregister()</a><span>, in §3.2.7</span>
    <li><a href="#unregister">Unregister</a><span>, in §Unnumbered section</span>
-   <li><a href="#dom-serviceworkerregistration-update">update()</a><span>, in §3.2.5</span>
+   <li><a href="#dom-serviceworkerregistration-update">update()</a><span>, in §3.2.6</span>
    <li><a href="#update">Update</a><span>, in §Unnumbered section</span>
    <li><a href="#service-worker-registration-updatefound-event">updatefound</a><span>, in §3.5</span>
    <li><a href="#update-registration-state">Update Registration State</a><span>, in §Unnumbered section</span>
    <li><a href="#update-worker-state">Update Worker State</a><span>, in §Unnumbered section</span>
    <li><a href="#dom-client-url">url</a><span>, in §4.2.1</span>
+   <li>
+    use cache
+    <ul>
+     <li><a href="#dfn-use-cache">dfn for service worker registration</a><span>, in §2.2</span>
+     <li><a href="#dfn-job-use-cache">dfn for job</a><span>, in §Unnumbered section</span>
+    </ul>
+   <li>
+    useCache
+    <ul>
+     <li><a href="#dom-serviceworkerregistration-usecache">attribute for ServiceWorkerRegistration</a><span>, in §3.2.5</span>
+     <li><a href="#dom-registrationoptions-usecache">dict-member for RegistrationOptions</a><span>, in §3.4</span>
+    </ul>
    <li><a href="#dfn-use">used</a><span>, in §2.4</span>
    <li><a href="#dfn-use">uses</a><span>, in §2.4</span>
    <li><a href="#dfn-use">using</a><span>, in §2.4</span>
@@ -6267,7 +6296,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
     <ul>
      <li><a href="http://tc39.github.io/ecma262/#sec-ecmascript-function-objects-call-thisargument-argumentslist">[[call]]</a>
-     <li><a href="http://tc39.github.io/ecma262/#sec-algorithm-conventions">assert</a>
      <li><a href="http://tc39.github.io/ecma262/#sec-detacharraybuffer">detacharraybuffer</a>
      <li><a href="http://tc39.github.io/ecma262/#sec-execution-contexts">execution context</a>
      <li><a href="http://tc39.github.io/ecma262/#sec-initializehostdefinedrealm">initializehostdefinedrealm</a>
@@ -6603,6 +6631,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#serviceworker">ServiceWorker</a>? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="ServiceWorker?" href="#dom-serviceworkerregistration-active">active</a>;
 
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-serviceworkerregistration-scope">scope</a>;
+  <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">boolean</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="boolean" href="#dom-serviceworkerregistration-usecache">useCache</a>;
 
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject">NewObject</a>] <span class="kt">Promise</span>&lt;<span class="kt">void</span>> <a class="nv idl-code" data-link-type="method" href="#dom-serviceworkerregistration-update">update</a>();
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject">NewObject</a>] <span class="kt">Promise</span>&lt;<span class="kt">boolean</span>> <a class="nv idl-code" data-link-type="method" href="#dom-serviceworkerregistration-unregister">unregister</a>();
@@ -6640,6 +6669,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 <span class="kt">dictionary</span> <a class="nv" href="#dictdef-registrationoptions">RegistrationOptions</a> {
   <span class="kt">USVString</span> <a class="nv" data-type="USVString " href="#dom-registrationoptions-scope">scope</a>;
   <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a> <a class="nv" data-default="&quot;classic&quot;" data-type="WorkerType " href="#dom-registrationoptions-type">type</a> = "classic";
+  <span class="kt">boolean</span> <a class="nv" data-default="false" data-type="boolean " href="#dom-registrationoptions-usecache">useCache</a> = <span class="kt">false</span>;
 };
 
 [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Global">Global</a>=(<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#worker">Worker</a>,<a class="n" data-link-type="idl-name" href="#serviceworker">ServiceWorker</a>), <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=<span class="n">ServiceWorker</span>]
@@ -6838,7 +6868,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-dfn-state-1">2.2. Service Worker Registration</a> <a href="#ref-for-dfn-state-2">(2)</a> <a href="#ref-for-dfn-state-3">(3)</a>
     <li><a href="#ref-for-dfn-state-4">3.1. ServiceWorker</a>
-    <li><a href="#ref-for-dfn-state-5">3.2.5. update()</a>
+    <li><a href="#ref-for-dfn-state-5">3.2.6. update()</a>
     <li><a href="#ref-for-dfn-state-6">Handle Fetch</a> <a href="#ref-for-dfn-state-7">(2)</a>
     <li><a href="#ref-for-dfn-state-8">Handle Functional Event</a> <a href="#ref-for-dfn-state-9">(2)</a>
     <li><a href="#ref-for-dfn-state-10">Update Worker State</a> <a href="#ref-for-dfn-state-11">(2)</a> <a href="#ref-for-dfn-state-12">(3)</a>
@@ -6848,7 +6878,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dfn-script-url">#dfn-script-url</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-script-url-1">3.1.1. scriptURL</a>
-    <li><a href="#ref-for-dfn-script-url-2">3.2.5. update()</a>
+    <li><a href="#ref-for-dfn-script-url-2">3.2.6. update()</a>
     <li><a href="#ref-for-dfn-script-url-3">Register</a>
     <li><a href="#ref-for-dfn-script-url-4">Update</a> <a href="#ref-for-dfn-script-url-5">(2)</a> <a href="#ref-for-dfn-script-url-6">(3)</a>
     <li><a href="#ref-for-dfn-script-url-7">Soft Update</a>
@@ -6858,7 +6888,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dfn-type">
    <b><a href="#dfn-type">#dfn-type</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-type-1">3.2.5. update()</a>
+    <li><a href="#ref-for-dfn-type-1">3.2.6. update()</a>
     <li><a href="#ref-for-dfn-type-2">Update</a>
     <li><a href="#ref-for-dfn-type-3">Soft Update</a>
     <li><a href="#ref-for-dfn-type-4">Run Service Worker</a>
@@ -6869,7 +6899,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-1">2.1. Service Worker</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-2">2.4. Selection and Use</a>
-    <li><a href="#ref-for-dfn-containing-service-worker-registration-3">3.2.6. unregister()</a>
+    <li><a href="#ref-for-dfn-containing-service-worker-registration-3">3.2.7. unregister()</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-4">4.1.2. registration</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-5">4.1.3. skipWaiting()</a> <a href="#ref-for-dfn-containing-service-worker-registration-6">(2)</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-7">4.3.4. claim()</a>
@@ -6988,7 +7018,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-service-worker-registration-20">2.4. Selection and Use</a> <a href="#ref-for-dfn-service-worker-registration-21">(2)</a> <a href="#ref-for-dfn-service-worker-registration-22">(3)</a> <a href="#ref-for-dfn-service-worker-registration-23">(4)</a> <a href="#ref-for-dfn-service-worker-registration-24">(5)</a> <a href="#ref-for-dfn-service-worker-registration-25">(6)</a> <a href="#ref-for-dfn-service-worker-registration-26">(7)</a> <a href="#ref-for-dfn-service-worker-registration-27">(8)</a>
     <li><a href="#ref-for-dfn-service-worker-registration-28">2.6. User Agent Shutdown</a> <a href="#ref-for-dfn-service-worker-registration-29">(2)</a> <a href="#ref-for-dfn-service-worker-registration-30">(3)</a>
     <li><a href="#ref-for-dfn-service-worker-registration-31">3.2. ServiceWorkerRegistration</a> <a href="#ref-for-dfn-service-worker-registration-32">(2)</a> <a href="#ref-for-dfn-service-worker-registration-33">(3)</a>
-    <li><a href="#ref-for-dfn-service-worker-registration-34">3.2.6. unregister()</a> <a href="#ref-for-dfn-service-worker-registration-35">(2)</a>
+    <li><a href="#ref-for-dfn-service-worker-registration-34">3.2.7. unregister()</a> <a href="#ref-for-dfn-service-worker-registration-35">(2)</a>
     <li><a href="#ref-for-dfn-service-worker-registration-36">3.4. ServiceWorkerContainer</a> <a href="#ref-for-dfn-service-worker-registration-37">(2)</a>
     <li><a href="#ref-for-dfn-service-worker-registration-38">3.4.2. ready</a>
     <li><a href="#ref-for-dfn-service-worker-registration-39">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-dfn-service-worker-registration-40">(2)</a>
@@ -7018,8 +7048,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-scope-url-4">2.2.1. Lifetime</a>
     <li><a href="#ref-for-dfn-scope-url-5">2.4. Selection and Use</a>
     <li><a href="#ref-for-dfn-scope-url-6">3.2.4. scope</a>
-    <li><a href="#ref-for-dfn-scope-url-7">3.2.5. update()</a>
-    <li><a href="#ref-for-dfn-scope-url-8">3.2.6. unregister()</a>
+    <li><a href="#ref-for-dfn-scope-url-7">3.2.6. update()</a>
+    <li><a href="#ref-for-dfn-scope-url-8">3.2.7. unregister()</a>
     <li><a href="#ref-for-dfn-scope-url-9">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-dfn-scope-url-10">(2)</a>
     <li><a href="#ref-for-dfn-scope-url-11">Appendix A: Algorithms</a> <a href="#ref-for-dfn-scope-url-12">(2)</a>
     <li><a href="#ref-for-dfn-scope-url-13">Update</a>
@@ -7094,6 +7124,15 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-last-update-check-time-8">Handle Functional Event</a> <a href="#ref-for-dfn-last-update-check-time-9">(2)</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="dfn-use-cache">
+   <b><a href="#dfn-use-cache">#dfn-use-cache</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dfn-use-cache-1">3.2.5. useCache</a>
+    <li><a href="#ref-for-dfn-use-cache-2">Register</a>
+    <li><a href="#ref-for-dfn-use-cache-3">Update</a>
+    <li><a href="#ref-for-dfn-use-cache-4">Set Registration</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="dfn-uninstalling-flag">
    <b><a href="#dfn-uninstalling-flag">#dfn-uninstalling-flag</a></b><b>Referenced in:</b>
    <ul>
@@ -7121,7 +7160,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-service-worker-client-3">2.2.1. Lifetime</a>
     <li><a href="#ref-for-dfn-service-worker-client-4">2.3. Service Worker Client</a> <a href="#ref-for-dfn-service-worker-client-5">(2)</a> <a href="#ref-for-dfn-service-worker-client-6">(3)</a> <a href="#ref-for-dfn-service-worker-client-7">(4)</a> <a href="#ref-for-dfn-service-worker-client-8">(5)</a> <a href="#ref-for-dfn-service-worker-client-9">(6)</a> <a href="#ref-for-dfn-service-worker-client-10">(7)</a>
     <li><a href="#ref-for-dfn-service-worker-client-11">2.4. Selection and Use</a> <a href="#ref-for-dfn-service-worker-client-12">(2)</a> <a href="#ref-for-dfn-service-worker-client-13">(3)</a> <a href="#ref-for-dfn-service-worker-client-14">(4)</a> <a href="#ref-for-dfn-service-worker-client-15">(5)</a> <a href="#ref-for-dfn-service-worker-client-16">(6)</a> <a href="#ref-for-dfn-service-worker-client-17">(7)</a> <a href="#ref-for-dfn-service-worker-client-18">(8)</a> <a href="#ref-for-dfn-service-worker-client-19">(9)</a>
-    <li><a href="#ref-for-dfn-service-worker-client-20">3.2.6. unregister()</a> <a href="#ref-for-dfn-service-worker-client-21">(2)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-20">3.2.7. unregister()</a> <a href="#ref-for-dfn-service-worker-client-21">(2)</a>
     <li><a href="#ref-for-dfn-service-worker-client-22">3.4. ServiceWorkerContainer</a>
     <li><a href="#ref-for-dfn-service-worker-client-23">3.5. Events</a> <a href="#ref-for-dfn-service-worker-client-24">(2)</a>
     <li><a href="#ref-for-dfn-service-worker-client-25">4.1. ServiceWorkerGlobalScope</a>
@@ -7198,7 +7237,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dfn-control">#dfn-control</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-control-1">2.4. Selection and Use</a>
-    <li><a href="#ref-for-dfn-control-2">3.2.6. unregister()</a>
+    <li><a href="#ref-for-dfn-control-2">3.2.7. unregister()</a>
     <li><a href="#ref-for-dfn-control-3">3.5. Events</a>
     <li><a href="#ref-for-dfn-control-4">Service Worker Script Response</a>
    </ul>
@@ -7327,7 +7366,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-serviceworkerregistration-1">2.2.1. Lifetime</a>
     <li><a href="#ref-for-serviceworkerregistration-2">3.2. ServiceWorkerRegistration</a> <a href="#ref-for-serviceworkerregistration-3">(2)</a> <a href="#ref-for-serviceworkerregistration-4">(3)</a> <a href="#ref-for-serviceworkerregistration-5">(4)</a>
-    <li><a href="#ref-for-serviceworkerregistration-6">3.2.7. Event handler</a>
+    <li><a href="#ref-for-serviceworkerregistration-6">3.2.8. Event handler</a>
     <li><a href="#ref-for-serviceworkerregistration-7">3.4. ServiceWorkerContainer</a> <a href="#ref-for-serviceworkerregistration-8">(2)</a> <a href="#ref-for-serviceworkerregistration-9">(3)</a>
     <li><a href="#ref-for-serviceworkerregistration-10">3.4.2. ready</a>
     <li><a href="#ref-for-serviceworkerregistration-11">3.4.4. getRegistration(clientURL)</a>
@@ -7346,9 +7385,10 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#serviceworkerregistration-service-worker-registration">#serviceworkerregistration-service-worker-registration</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-1">3.2.4. scope</a>
-    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-2">3.2.5. update()</a>
-    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-3">3.2.6. unregister()</a>
-    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-4">3.5. Events</a>
+    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-2">3.2.5. useCache</a>
+    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-3">3.2.6. update()</a>
+    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-4">3.2.7. unregister()</a>
+    <li><a href="#ref-for-serviceworkerregistration-service-worker-registration-5">3.5. Events</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-serviceworkerregistration-installing">
@@ -7382,18 +7422,25 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dom-serviceworkerregistration-scope-2">3.2.4. scope</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="dom-serviceworkerregistration-usecache">
+   <b><a href="#dom-serviceworkerregistration-usecache">#dom-serviceworkerregistration-usecache</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-serviceworkerregistration-usecache-1">3.2. ServiceWorkerRegistration</a>
+    <li><a href="#ref-for-dom-serviceworkerregistration-usecache-2">3.2.5. useCache</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="dom-serviceworkerregistration-update">
    <b><a href="#dom-serviceworkerregistration-update">#dom-serviceworkerregistration-update</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-serviceworkerregistration-update-1">3.2. ServiceWorkerRegistration</a>
-    <li><a href="#ref-for-dom-serviceworkerregistration-update-2">3.2.5. update()</a>
+    <li><a href="#ref-for-dom-serviceworkerregistration-update-2">3.2.6. update()</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-serviceworkerregistration-unregister">
    <b><a href="#dom-serviceworkerregistration-unregister">#dom-serviceworkerregistration-unregister</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-serviceworkerregistration-unregister-1">3.2. ServiceWorkerRegistration</a>
-    <li><a href="#ref-for-dom-serviceworkerregistration-unregister-2">3.2.6. unregister()</a> <a href="#ref-for-dom-serviceworkerregistration-unregister-3">(2)</a> <a href="#ref-for-dom-serviceworkerregistration-unregister-4">(3)</a>
+    <li><a href="#ref-for-dom-serviceworkerregistration-unregister-2">3.2.7. unregister()</a> <a href="#ref-for-dom-serviceworkerregistration-unregister-3">(2)</a> <a href="#ref-for-dom-serviceworkerregistration-unregister-4">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-serviceworkerregistration-onupdatefound">
@@ -7429,6 +7476,18 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dom-registrationoptions-scope">#dom-registrationoptions-scope</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-registrationoptions-scope-1">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-dom-registrationoptions-scope-2">(2)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-registrationoptions-type">
+   <b><a href="#dom-registrationoptions-type">#dom-registrationoptions-type</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-registrationoptions-type-1">3.4.3. register(scriptURL, options)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-registrationoptions-usecache">
+   <b><a href="#dom-registrationoptions-usecache">#dom-registrationoptions-usecache</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-registrationoptions-usecache-1">3.4.3. register(scriptURL, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="serviceworkercontainer-service-worker-client">
@@ -7524,7 +7583,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="service-worker-registration-updatefound-event">
    <b><a href="#service-worker-registration-updatefound-event">#service-worker-registration-updatefound-event</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-service-worker-registration-updatefound-event-1">3.2.7. Event handler</a>
+    <li><a href="#ref-for-service-worker-registration-updatefound-event-1">3.2.8. Event handler</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="service-worker-container-controllerchange-event">
@@ -7538,7 +7597,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-serviceworkerglobalscope-1">2.1. Service Worker</a>
     <li><a href="#ref-for-serviceworkerglobalscope-2">3.1.3. postMessage(message, transfer)</a> <a href="#ref-for-serviceworkerglobalscope-3">(2)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-4">3.2.5. update()</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-4">3.2.6. update()</a>
     <li><a href="#ref-for-serviceworkerglobalscope-5">4.1. ServiceWorkerGlobalScope</a> <a href="#ref-for-serviceworkerglobalscope-6">(2)</a> <a href="#ref-for-serviceworkerglobalscope-7">(3)</a> <a href="#ref-for-serviceworkerglobalscope-8">(4)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-9">4.1.4. Event handlers</a>
     <li><a href="#ref-for-serviceworkerglobalscope-10">4.3. Clients</a>
@@ -7554,7 +7613,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#serviceworkerglobalscope-service-worker">#serviceworkerglobalscope-service-worker</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-1">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-service-worker-2">3.2.5. update()</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-service-worker-2">3.2.6. update()</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-3">4.1.2. registration</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-4">4.2.5. postMessage(message, transfer)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-5">4.2.10. navigate(url)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-6">(2)</a>
@@ -8344,16 +8403,16 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dfn-job">
    <b><a href="#dfn-job">#dfn-job</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-job-1">Appendix A: Algorithms</a> <a href="#ref-for-dfn-job-2">(2)</a> <a href="#ref-for-dfn-job-3">(3)</a> <a href="#ref-for-dfn-job-4">(4)</a> <a href="#ref-for-dfn-job-5">(5)</a> <a href="#ref-for-dfn-job-6">(6)</a> <a href="#ref-for-dfn-job-7">(7)</a> <a href="#ref-for-dfn-job-8">(8)</a> <a href="#ref-for-dfn-job-9">(9)</a> <a href="#ref-for-dfn-job-10">(10)</a> <a href="#ref-for-dfn-job-11">(11)</a> <a href="#ref-for-dfn-job-12">(12)</a> <a href="#ref-for-dfn-job-13">(13)</a> <a href="#ref-for-dfn-job-14">(14)</a> <a href="#ref-for-dfn-job-15">(15)</a>
-    <li><a href="#ref-for-dfn-job-16">Create Job</a> <a href="#ref-for-dfn-job-17">(2)</a>
-    <li><a href="#ref-for-dfn-job-18">Schedule Job</a>
-    <li><a href="#ref-for-dfn-job-19">Finish Job</a>
-    <li><a href="#ref-for-dfn-job-20">Resolve Job Promise</a>
-    <li><a href="#ref-for-dfn-job-21">Reject Job Promise</a>
-    <li><a href="#ref-for-dfn-job-22">Register</a>
-    <li><a href="#ref-for-dfn-job-23">Update</a>
-    <li><a href="#ref-for-dfn-job-24">Install</a>
-    <li><a href="#ref-for-dfn-job-25">Unregister</a>
+    <li><a href="#ref-for-dfn-job-1">Appendix A: Algorithms</a> <a href="#ref-for-dfn-job-2">(2)</a> <a href="#ref-for-dfn-job-3">(3)</a> <a href="#ref-for-dfn-job-4">(4)</a> <a href="#ref-for-dfn-job-5">(5)</a> <a href="#ref-for-dfn-job-6">(6)</a> <a href="#ref-for-dfn-job-7">(7)</a> <a href="#ref-for-dfn-job-8">(8)</a> <a href="#ref-for-dfn-job-9">(9)</a> <a href="#ref-for-dfn-job-10">(10)</a> <a href="#ref-for-dfn-job-11">(11)</a> <a href="#ref-for-dfn-job-12">(12)</a> <a href="#ref-for-dfn-job-13">(13)</a> <a href="#ref-for-dfn-job-14">(14)</a> <a href="#ref-for-dfn-job-15">(15)</a> <a href="#ref-for-dfn-job-16">(16)</a>
+    <li><a href="#ref-for-dfn-job-17">Create Job</a> <a href="#ref-for-dfn-job-18">(2)</a>
+    <li><a href="#ref-for-dfn-job-19">Schedule Job</a>
+    <li><a href="#ref-for-dfn-job-20">Finish Job</a>
+    <li><a href="#ref-for-dfn-job-21">Resolve Job Promise</a>
+    <li><a href="#ref-for-dfn-job-22">Reject Job Promise</a>
+    <li><a href="#ref-for-dfn-job-23">Register</a>
+    <li><a href="#ref-for-dfn-job-24">Update</a>
+    <li><a href="#ref-for-dfn-job-25">Install</a>
+    <li><a href="#ref-for-dfn-job-26">Unregister</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-job-type">
@@ -8387,9 +8446,17 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dfn-job-worker-type">
    <b><a href="#dfn-job-worker-type">#dfn-job-worker-type</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-job-worker-type-1">3.2.5. update()</a>
-    <li><a href="#ref-for-dfn-job-worker-type-2">Update</a> <a href="#ref-for-dfn-job-worker-type-3">(2)</a>
-    <li><a href="#ref-for-dfn-job-worker-type-4">Soft Update</a>
+    <li><a href="#ref-for-dfn-job-worker-type-1">3.2.6. update()</a>
+    <li><a href="#ref-for-dfn-job-worker-type-2">3.4.3. register(scriptURL, options)</a>
+    <li><a href="#ref-for-dfn-job-worker-type-3">Update</a> <a href="#ref-for-dfn-job-worker-type-4">(2)</a>
+    <li><a href="#ref-for-dfn-job-worker-type-5">Soft Update</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dfn-job-use-cache">
+   <b><a href="#dfn-job-use-cache">#dfn-job-use-cache</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dfn-job-use-cache-1">3.4.3. register(scriptURL, options)</a>
+    <li><a href="#ref-for-dfn-job-use-cache-2">Register</a> <a href="#ref-for-dfn-job-use-cache-3">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-job-client">
@@ -8424,7 +8491,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dfn-job-force-bypass-cache-flag">
    <b><a href="#dfn-job-force-bypass-cache-flag">#dfn-job-force-bypass-cache-flag</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-job-force-bypass-cache-flag-1">Soft Update</a>
+    <li><a href="#ref-for-dfn-job-force-bypass-cache-flag-1">Update</a>
+    <li><a href="#ref-for-dfn-job-force-bypass-cache-flag-2">Soft Update</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-job-equivalent">
@@ -8445,8 +8513,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="create-job">
    <b><a href="#create-job">#create-job</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-create-job-1">3.2.5. update()</a>
-    <li><a href="#ref-for-create-job-2">3.2.6. unregister()</a>
+    <li><a href="#ref-for-create-job-1">3.2.6. update()</a>
+    <li><a href="#ref-for-create-job-2">3.2.7. unregister()</a>
     <li><a href="#ref-for-create-job-3">3.4.3. register(scriptURL, options)</a>
     <li><a href="#ref-for-create-job-4">Soft Update</a>
    </ul>
@@ -8454,8 +8522,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="schedule-job">
    <b><a href="#schedule-job">#schedule-job</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-schedule-job-1">3.2.5. update()</a>
-    <li><a href="#ref-for-schedule-job-2">3.2.6. unregister()</a>
+    <li><a href="#ref-for-schedule-job-1">3.2.6. update()</a>
+    <li><a href="#ref-for-schedule-job-2">3.2.7. unregister()</a>
     <li><a href="#ref-for-schedule-job-3">3.4.3. register(scriptURL, options)</a>
     <li><a href="#ref-for-schedule-job-4">Soft Update</a>
    </ul>
@@ -8672,7 +8740,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="get-newest-worker">
    <b><a href="#get-newest-worker">#get-newest-worker</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-get-newest-worker-1">3.2.5. update()</a>
+    <li><a href="#ref-for-get-newest-worker-1">3.2.6. update()</a>
     <li><a href="#ref-for-get-newest-worker-2">Register</a>
     <li><a href="#ref-for-get-newest-worker-3">Update</a>
     <li><a href="#ref-for-get-newest-worker-4">Soft Update</a>

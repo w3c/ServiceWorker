@@ -187,8 +187,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-scope-url">scope url</dfn> (a [=/URL=]).
 
-    A [=/service worker registration=] has an associated <dfn export id="dfn-registration-script-url">registering script url</dfn> (a [=/URL=]).
-
     A [=/service worker registration=] has an associated <dfn export id="dfn-installing-worker">installing worker</dfn> (a [=/service worker=] or null) whose [=service worker/state=] is *installing*. It is initially set to null.
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-waiting-worker">waiting worker</dfn> (a [=/service worker=] or null) whose [=service worker/state=] is *installed*. It is initially set to null.
@@ -196,6 +194,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker registration=] has an associated <dfn export id="dfn-active-worker">active worker</dfn> (a [=/service worker=] or null) whose [=service worker/state=] is either *activating* or *activated*. It is initially set to null.
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.
+
+    A [=/service worker registration=] has an associated <dfn export id="dfn-use-cache">use cache</dfn> (a boolean). It is initially set to false.
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.
 
@@ -391,6 +391,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute ServiceWorker? active;
 
         readonly attribute USVString scope;
+        readonly attribute boolean useCache;
 
         [NewObject] Promise&lt;void&gt; update();
         [NewObject] Promise&lt;boolean&gt; unregister();
@@ -434,6 +435,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <div class="example">
         In the example in [[#service-worker-url]], the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(registration => console.log(registration.scope))</code> for example, will be "<code>https://example.com/</code>".
       </div>
+    </section>
+
+    <section algorithm="service-worker-registration-usecache">
+      <h4 id="service-worker-registration-usecache">{{ServiceWorkerRegistration/useCache}}</h4>
+
+      The <dfn attribute for="ServiceWorkerRegistration"><code>useCache</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/use cache=].
     </section>
 
     <section algorithm="service-worker-registration-update">
@@ -529,6 +536,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       dictionary RegistrationOptions {
         USVString scope;
         WorkerType type = "classic";
+        boolean useCache = false;
       };
     </pre>
 
@@ -590,7 +598,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. Let |scopeURL| be null.
         1. If |options|.{{RegistrationOptions/scope}} is <a>present</a>, set |scopeURL| to the result of <a lt="URL parser">parsing</a> |options|.{{RegistrationOptions/scope}} with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
-        1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |p|, |client|, |client|'s <a>creation URL</a> and |options|.{{RegistrationOptions/type}}.
+        1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |p|, |client|, |client|'s <a>creation URL</a>, |options|.{{RegistrationOptions/type}}, and |options|.{{RegistrationOptions/useCache}}.
         1. Return |p|.
     </section>
 
@@ -1636,7 +1644,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If the "<code>scope</code>" <a>target attribute</a> of the <code>Link</code> header is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the "<code>scope</code>" <a>target attribute</a> with |scriptURL|.
       1. Let |workerType| be the "<code>workertype</code>" <a>target attribute</a> of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.
       1. If |workerType| is not a valid {{WorkerType}} value, abort these steps.
-      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL| and |workerType|.
+      1. Let |useCache| be the "<code>usecache</code>" <a>target attribute</a> of the <code>Link</code> header, or false if no such attribute is present.
+      1. If |useCache| is not a valid boolean value, abort these steps.
+      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL|, |workerType|, and |useCache|.
 
     When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
 
@@ -1648,8 +1658,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If the <{link/scope}> attribute is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
       1. Let |workerType| be the <{link/workertype}> attribute, or "<code>classic</code>" if the <{link/workertype}> attribute is omitted.
       1. If |workerType| is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
+      1. Let |useCache| be the <{link/usecache}> attribute, or false if the <{link/usecache}> attribute is omitted.
+      1. If |useCache| is not a valid boolean value, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
       1. Let |promise| be a new <a>promise</a>.
-      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |promise|, |client|, |client|'s <a>creation URL</a> and |workerType|.
+      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |promise|, |client|, |client|'s <a>creation URL</a>, |workerType|, and |useCache|.
       1. Run the following substeps <a>in parallel</a>:
           1. Wait until |promise| settles.
           1. If |promise| rejected, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element.
@@ -1686,12 +1698,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       partial interface HTMLLinkElement {
         [CEReactions] attribute USVString scope;
         [CEReactions] attribute WorkerType workerType;
+        [CEReactions] attribute boolean useCache;
       };
     </pre>
 
     The <dfn attribute for="HTMLLinkElement" id="link-scope-attribute">scope</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">scope</dfn> content attribute.
 
     The <dfn attribute for="HTMLLinkElement" id="link-workertype-attribute">workerType</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">workertype</dfn> content attribute.
+
+    The <dfn attribute for="HTMLLinkElement" id="link-usecache-attribute">useCache</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">usecache</dfn> content attribute.
   </section>
 </section>
 
@@ -2247,6 +2262,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-worker-type">worker type</dfn> ("<code>classic</code>" or "<code>module</code>").
 
+    A <a>job</a> has a <dfn id="dfn-job-use-cache">use cache</dfn> (a boolean).
+
     A <a>job</a> has a <dfn id="dfn-job-client">client</dfn> (a [=/service worker client=]). It is initially null.
 
     A <a>job</a> has a <dfn>referrer</dfn> (a [=/URL=] or null).
@@ -2312,7 +2329,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. <a>Assert</a>: the <a>job queue</a> is not empty.
+      1. Assert: the <a>job queue</a> is not empty.
       1. <a>Queue a task</a> to run these steps:
           1. Let |job| be the element in the front of the <a>job queue</a>.
           1. If |job|'s <a>job type</a> is *register*, run <a>Register</a> with |job| <a>in parallel</a>.
@@ -2331,7 +2348,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. <a>Assert</a>: the top element in the <a>job queue</a> is |job|.
+      1. Assert: the top element in the <a>job queue</a> is |job|.
       1. Pop the top element from the <a>job queue</a>.
       1. If the <a>job queue</a> is not empty, invoke <a>Run Job</a> with the top element of the <a>job queue</a>.
   </section>
@@ -2374,6 +2391,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |client|, a [=/service worker client=]
       :: |referrer|, a [=/URL=]
       :: |workerType|, a <a>worker type</a>
+      :: |useCache|, a boolean
       : Output
       :: none
 
@@ -2388,7 +2406,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Let |job| be the result of running [=Create Job=] with *register*, |scopeURL|, |scriptURL|, |promise|, and |client|.
-      1. Set |job|'s <a>worker type</a> to |workerType|.
+      1. Set |job|'s [=job/worker type=] to |workerType|.
+      1. Set |job|'s [=job/use cache=] to |useCache|.
       1. Set |job|'s [=job/referrer=] to |referrer|.
       1. Invoke [=Schedule Job=] with |job|.
   </section>
@@ -2414,11 +2433,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |registration| is not null, then:
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null and |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, then:
+          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, and |job|'s [=job/use cache=]'s value equals |registration|'s [=service worker registration/use cache=]'s value, then:
               1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a>Set Registration</a> algorithm passing |job|'s [=job/scope url=] as its argument.
+          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/use cache=].
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -2454,10 +2473,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
 
           1. Set |request|'s <a>skip-service-worker flag</a> and |request|'s [=request/redirect mode=] to "<code>error</code>".
-          1. If |newestWorker| is not null and |registration|'s <a>last update check time</a> is not null, then:
-              1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, or *force bypass cache flag* is set, set |request|'s [=request/cache mode=] to "<code>reload</code>".
+          1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
+              * |registration|'s [=service worker registration/use cache=] is false.
+              * |job|'s [=force bypass cache flag=] is set.
+              * |newestWorker| is not null, and |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
 
-              Note: Even if the cache mode is not set to "reload", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
+              Note: Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
 
           1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
           1. <a>Extract a MIME type</a> from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
@@ -2554,7 +2575,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |redundantWorker| be null.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
-      1. <a>Assert</a>: |job|'s [=job/job promise=] is not null.
+      1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
       1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=] and all the [=/service workers=] whose <a>containing service worker registration</a> is |registration|.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
@@ -2904,8 +2925,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. <a>Assert</a>: <a>scope to registration map</a> contains a value equal to |registration|.
-      1. <a>Assert</a>: |registration|'s <a>active worker</a> is not null.
+      1. Assert: <a>scope to registration map</a> contains a value equal to |registration|.
+      1. Assert: |registration|'s <a>active worker</a> is not null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. If |activeWorker|'s <a>set of event types to handle</a> does not contain |event|'s {{Event/type}}, then:
           1. Return and continue running these steps <a>in parallel</a>.
@@ -2989,12 +3010,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |scope|, a [=/URL=]
+      :: |useCache|, a boolean
       : Output
       :: |registration|, a [=/service worker registration=]
 
       1. Run the following steps atomically.
       1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
-      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope|.
+      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/use cache=] is set to |useCache|.
       1. [=map/Set=] <a>scope to registration map</a>[|scopeString|] to |registration|.
       1. Return |registration|.
   </section>
@@ -3110,7 +3132,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. <a>Assert</a>: |client| is not null.
+      1. Assert: |client| is not null.
       1. If |client| is a type of <a>environment settings object</a>, <a>queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
 
     The <a>task</a> *must* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
