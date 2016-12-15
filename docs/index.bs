@@ -156,7 +156,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-referrer-policy">referrer policy</dfn> (a [=/referrer policy=]). It is initially the empty string.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
+    A [=script resource=] has an associated <dfn export for="script resource" id="dfn-script-resource-map">imported scripts map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
 
     A [=/service worker=] has an associated <dfn export id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.
 
@@ -2159,10 +2159,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
             1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=service worker registration/last update check time=] to the current time.
             1. If |response|'s <a>unsafe response</a>'s [=response/type=] is not "<code>error</code>", and |response|'s [=response/status=] is an <a>ok status</a>, then:
-                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|
+                1. [=map/Set=] |serviceWorker|'s [=script resource=]'s [=script resource/imported scripts map=][|request|'s [=request/url=]] to |response|.
             1. Return |response|.
         1. Else:
-            1. If <a>script resource map</a>[|url|] [=map/exists=], return <a>script resource map</a>[|url|].
+            1. If |serviceWorker|'s [=script resource=]'s [=script resource/imported scripts map=][|url|] [=map/exists=], return |serviceWorker|'s [=script resource=]'s [=script resource/imported scripts map=][|url|].
             1. Else, return a <a>network error</a>.
     </section>
   </section>
@@ -2190,7 +2190,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="privacy">Privacy</h3>
 
-    [=/Service workers=] introduce new persistent storage features including <a>scope to registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), <a>request to response map</a> and <a>name to cache map</a> (for caches), and <a>script resource map</a> (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
+    [=/Service workers=] introduce new persistent storage features including <a>scope to registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), <a>request to response map</a> and <a>name to cache map</a> (for caches), and [=script resource/imported scripts map=] (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
   </section>
 </section>
 
@@ -2529,7 +2529,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
 
-      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=] with the *exclude fragments flag* set, and |script|'s [=source text=] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=source text=], if |script| is a [=classic script=], and |script|'s [=module script/module record=]'s \[[ECMAScriptCode]] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=module script/module record=]'s \[[ECMAScriptCode]] otherwise, then:
+      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=] with the *exclude fragments flag* set, and the result of invoking [=Check If Service Worker Resources Are Identical=] with |newestWorker|'s [=script resource=], |script|, |registration|, and |job| is true, then:
           1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
@@ -3222,6 +3222,37 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Else if |registration|'s <a>waiting worker</a> is not null, set |newestWorker| to |registration|'s <a>waiting worker</a>.
       1. Else if |registration|'s <a>active worker</a> is not null, set |newestWorker| to |registration|'s <a>active worker</a>.
       1. Return |newestWorker|.
+  </section>
+
+  <section algorithm>
+    <h3 id="check-if-service-worker-resources-are-identical-algorithm"><dfn>Check If Service Worker Resources Are Identical</dfn></h3>
+
+      : Input
+      :: |sourceScript|, a [=script=]
+      :: |targetScript|, a [=script=]
+      :: |registration|, a [=/service worker registration=]
+      :: |job|, a [=job=]
+      : Output
+      :: True or false, a boolean
+
+      1. If |sourceScript| and |targetScript| are not both [=classic scripts=] or not both [=module scripts=], return false.
+      1. If |sourceScript| is a [=classic script=], then:
+          1. If |sourceScript|'s [=source text=] is not a byte-for-byte match with |targetScript|'s [=source text=], return false.
+          1. Let |sourceMap| be |sourceScript|'s [=script resource/imported scripts map=].
+          1. [=map/For each=] |url| → |response| of |sourceMap|:
+              1. Let |request| be a new [=/request=] whose [=request/url=] is |url|, [=request/client=] is |job|'s [=job/client=], [=request/type=] is "<code>script</code>", [=request/destination=] is "<code>script</code>", [=request/parser metadata=] is "<code>not parser-inserted</code>", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
+              1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
+                  * |registration|'s [=service worker registration/use cache=] is false.
+                  * |job|'s [=force bypass cache flag=] is set.
+                  * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
+              1. Let |targetResponse| be the result of [=fetch|fetching=] |request|.
+              1. If |targetResponse|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=last update check time=] to the current time.
+              1. Let |targetResponse| be |targetResponse|'s [=unsafe response=].
+              1. If |targetResponse|'s [=response/type=] is "<code>error</code>", or |targetResponse|'s [=response/status=] is not an [=ok status=], return false.
+              1. If the result of [=UTF-8 decoding=] |response|'s [=response/body=] is not a byte-for-byte match with the result of [=UTF-8 decoding=] |targetResponse|'s [=response/body=], return false.
+      1. If |sourceScript| is a [=module script=], then:
+          1. If |sourceScript|’s [=module script/module record=]'s \[[ECMAScriptCode]] is not a byte-for-byte match with |targetScript|’s [=module script/module record=]'s \[[ECMAScriptCode]], return false.
+      1. Return true.
   </section>
 
   <section algorithm>
