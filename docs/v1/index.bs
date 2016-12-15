@@ -2192,13 +2192,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           : "<code>module</code>"
           :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker.
 
-          To [=fetching scripts/perform the fetch=] given |request|, run the following steps if the [=fetching scripts/is top-level=] flag is set:
+          To [=fetching scripts/perform the fetch=] given |request|, run the following steps:
 
-          1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
-
-            Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
-
-          1. Set |request|'s <a>skip-service-worker flag</a> and |request|'s [=request/redirect mode=] to "<code>error</code>".
           1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
               * |registration|'s [=service worker registration/use cache=] is false.
               * |job|'s [=force bypass cache flag=] is set.
@@ -2206,6 +2201,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
               Note: Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
 
+          1. Set |request|'s [=skip-service-worker flag=].
+          1. If the [=fetching scripts/is top-level=] flag is unset, then return the result of [=/fetching=] |request|.
+          1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
+
+            Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
+
+          1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
           1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
           1. <a>Extract a MIME type</a> from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
               1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
