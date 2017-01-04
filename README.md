@@ -4,7 +4,7 @@ Service workers are a new browser feature that provide event-driven scripts that
 
 Service workers also have scriptable caches. Along with the ability to respond to network requests from certain web pages via script, this provides a way for applications to “go offline”.
 
-Service workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](https://html.spec.whatwg.org/multipage/browsers.html#offline). Unlike AppCache, service workers are comprised of scriptable primitives that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
+Service workers are meant to replace the ([oft maligned](http://alistapart.com/article/application-cache-is-a-douchebag)) [HTML5 Application Cache](https://html.spec.whatwg.org/multipage/browsers.html#offline). Unlike AppCache, service workers are comprised of scriptable primitives with an extensive use of [Promises](//developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) that make it possible for application developers to build URL-friendly, always-available applications in a sane and layered way.
 
 To understand the design and how you might build apps with service workers, see the [explainer document](explainer.md).
 
@@ -20,7 +20,7 @@ To make edits to the design, please send pull requests against the Nightly spec 
 
 ## Examples
 
-The W3C Web Mobile Group have defined a [series of use-cases where ServiceWorker is particularly useful](https://github.com/w3c-webmob/ServiceWorkersDemos). You can help by adding more use cases, draft implementation code, or even working examples once browsers support the required APIs.
+The W3C Web Mobile Group have defined a [series of use-cases where service worker is particularly useful](https://github.com/w3c-webmob/ServiceWorkersDemos). You can help by adding more use cases, draft implementation code, or even working examples once browsers support the required APIs.
 
 
 ## About labels and milestones on issues
