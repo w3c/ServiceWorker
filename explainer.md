@@ -42,7 +42,7 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins `/my-app/`.
+In this example, `/my-app/sw.js` is the location of the service worker script, and it controls pages whose URL begins with `/my-app/`.
 
 `.register` returns a promise. If you’re new to promises, check out the [HTML5Rocks article](http://www.html5rocks.com/en/tutorials/es6/promises/).
 
@@ -135,7 +135,7 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-In the above, I’m capturing requests that end `.jpg` and instead responding with a Google doodle. `fetch()` requests are CORS by default, but by setting `no-cors` I can use the response even if it doesn’t have CORS access headers (although I can’t access the content with JavaScript). [Here’s a demo of that](https://jakearchibald.github.io/isserviceworkerready/demos/img-rewrite/).
+In the above, I’m capturing requests that end in `.jpg` and instead responding with a Google doodle. `fetch()` requests are CORS by default, but by setting `no-cors` I can use the response even if it doesn’t have CORS access headers (although I can’t access the content with JavaScript). [Here’s a demo of that](https://jakearchibald.github.io/isserviceworkerready/demos/img-rewrite/).
 
 Promises let you fall back from one method to another:
 
@@ -213,7 +213,7 @@ self.addEventListener('fetch', function(event) {
 });
 ```
 
-Matching within the cache is similar to the browser cache. Method, URL and vary headers are taken into account, but freshness headers are ignored. Things are only removed from caches when you remove them.
+Matching within the cache is similar to the browser cache. Method, URL and `vary` headers are taken into account, but freshness headers are ignored. Things are only removed from caches when you remove them.
 
 You can add individual items to the cache with `cache.put(request, response)`, including ones you’ve created yourself. You can also control matching, [discounting things](https://w3c.github.io/ServiceWorker/#cache-query-options-dictionary) such as query string, methods, and vary headers.
 
