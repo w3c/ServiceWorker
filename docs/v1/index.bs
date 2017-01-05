@@ -1208,7 +1208,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially an empty array.
 
-    An {{ExtendableEvent}} object has an associated <dfn id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.
+    An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent" id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.
+
+    An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">pending promises count</dfn> (the number of pending promises in the [=ExtendableEvent/extend lifetime promises=]). It is initially set to zero.
 
     [=/Service workers=] have two <a>lifecycle events</a>, {{install!!event}} and {{activate!!event}}. [=/Service workers=] use the {{ExtendableEvent}} interface for {{activate!!event}} event and {{install!!event}} event.
 
@@ -1227,6 +1229,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. <a>Throw</a> an "{{InvalidStateError}}" exception.
             1. Abort these steps.
         1. Add |f| to the [=ExtendableEvent/extend lifetime promises=].
+        1. Increase the [=ExtendableEvent/pending promises count=] by one.
+
+            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done within [=Handle Extend Lifetime Promise=] algorithm.
+
+        1. Run [=Handle Extend Lifetime Promise=] with the [=context object=] and |f|.
+        1. Return.
     </section>
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
@@ -1316,6 +1324,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. <a>Throw</a> an "{{InvalidStateError}}" exception.
             1. Abort these steps.
         1. Add |r| to the <a>extend lifetime promises</a>.
+        1. Increase the [=ExtendableEvent/pending promises count=] by one.
+
+            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done within [=Handle Extend Lifetime Promise=] algorithm.
+
+        1. Run [=Handle Extend Lifetime Promise=] with the [=context object=] and |r|.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
@@ -2471,15 +2484,30 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. If |event|'s <a>extend lifetime promises</a> is empty, unset |event|'s <a>extensions allowed flag</a> and abort these steps.
-      1. Let |extendLifetimePromises| be an empty array.
-      1. Run the following substeps <a>in parallel</a>:
-          1. *SetupPromiseArray*: Set |extendLifetimePromises| to a copy of |event|'s <a>extend lifetime promises</a>.
-          1. Wait until all the <a>promises</a> in |extendLifetimePromises| settle.
-          1. If the length of |extendLifetimePromises| does not equal the length of |event|'s <a>extend lifetime promises</a>, jump to the step labeled *SetupPromiseArray*.
-          1. Unset |event|'s <a>extensions allowed flag</a>.
+      1. If |event|'s [=ExtendableEvent/pending promises count=] is zero, unset |event|'s [=ExtendableEvent/extensions allowed flag=] and abort these steps.
 
+          Note: If no lifetime extension promise has been added up to this point (i.e., at the end of the task that called the event handlers), the [=ExtendableEvent/extensions allowed flag=] is immediately unset. Calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
+      
       The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] until |event|'s <a>extensions allowed flag</a> is unset. However, the user agent *may* impose a time limit to this lifetime extension.
+  </section>
+
+  <section algorithm>
+    <h3 id="handle-extend-lifetime-promise-algorithm"><dfn>Handle Extend Lifetime Promise</dfn></h3>
+
+      : Input
+      :: |event|, an {{ExtendableEvent}} object
+      :: |promise|, a [=promise=]
+      : Output
+      :: None
+
+      1. Wait until |promise| is settled [=in parallel=].
+      2. [=Queue a microtask=] to run the following substeps:
+          1. Decrease |event|'s [=ExtendableEvent/pending promises count=] by one.
+          1. For each |reaction| in |promise|.\[[PromiseFulfillReactions]]:
+              1. Append |reaction|.\[[Capability]].\[[Promise]] to |event|'s [=ExtendableEvent/extend lifetime promises=].
+              1. Increase |event|'s [=ExtendableEvent/pending promises count=] by one.
+              1. Invoke [=Handle Extend Lifetime Promise=] with |event| and |reaction|.\[[Capability]].\[[Promise]].
+          1. If |event|'s [=ExtendableEvent/pending promises count=] is zero, unset |event|'s [=ExtendableEvent/extensions allowed flag=].
   </section>
 
   <section algorithm>

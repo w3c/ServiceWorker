@@ -1690,6 +1690,7 @@ pre.idl.highlight { color: #708090; }
       <li><a href="#run-service-worker-algorithm"><span class="secno"></span> <span class="content"><span>Run Service Worker</span></span></a>
       <li><a href="#terminate-service-worker-algorithm"><span class="secno"></span> <span class="content"><span>Terminate Service Worker</span></span></a>
       <li><a href="#extend-service-worker-lifetime-algorithm"><span class="secno"></span> <span class="content"><span>Extend Service Worker Lifetime</span></span></a>
+      <li><a href="#handle-extend-lifetime-promise-algorithm"><span class="secno"></span> <span class="content"><span>Handle Extend Lifetime Promise</span></span></a>
       <li><a href="#on-fetch-request-algorithm"><span class="secno"></span> <span class="content"><span>Handle Fetch</span></span></a>
       <li><a href="#on-foreign-fetch-request-algorithm"><span class="secno"></span> <span class="content"><span>Handle Foreign Fetch</span></span></a>
       <li><a href="#handle-functional-event-algorithm"><span class="secno"></span> <span class="content"><span>Handle Functional Event</span></span></a>
@@ -3037,10 +3038,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 };
 </pre>
      <p>An <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-2">ExtendableEvent</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ExtendableEvent" data-dfn-type="dfn" data-noexport="" id="extendableevent-extend-lifetime-promises">extend lifetime promises</dfn> (an array of <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promises</a>). It is initially an empty array.</p>
-     <p>An <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-3">ExtendableEvent</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.</p>
-     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-59">Service workers</a> have two <a data-link-type="dfn" href="#dfn-lifecycle-events" id="ref-for-dfn-lifecycle-events-1">lifecycle events</a>, <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-install-event" id="ref-for-service-worker-global-scope-install-event-3">install</a></code> and <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-activate-event" id="ref-for-service-worker-global-scope-activate-event-3">activate</a></code>. <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-60">Service workers</a> use the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-4">ExtendableEvent</a></code> interface for <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-activate-event" id="ref-for-service-worker-global-scope-activate-event-4">activate</a></code> event and <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-install-event" id="ref-for-service-worker-global-scope-install-event-4">install</a></code> event.</p>
-     <p><a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em>may</em> also use or extend the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-5">ExtendableEvent</a></code> interface.</p>
-     <p class="note" role="note">Note: To extend the lifetime of a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-61">service worker</a>, algorithms that <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatch</a> events using the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-6">ExtendableEvent</a></code> interface run <a data-link-type="dfn" href="#extend-service-worker-lifetime" id="ref-for-extend-service-worker-lifetime-1">Extend Service Worker Lifetime</a> algorithm after <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatching</a> the event. See <a data-link-type="dfn" href="#handle-fetch" id="ref-for-handle-fetch-2">Handle Fetch</a>, <a data-link-type="dfn" href="#handle-foreign-fetch" id="ref-for-handle-foreign-fetch-1">Handle Foreign Fetch</a>, and <a data-link-type="dfn" href="#handle-functional-event" id="ref-for-handle-functional-event-1">Handle Functional Event</a>.</p>
+     <p>An <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-3">ExtendableEvent</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ExtendableEvent" data-dfn-type="dfn" data-noexport="" id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.</p>
+     <p>An <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-4">ExtendableEvent</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ExtendableEvent" data-dfn-type="dfn" data-noexport="" id="extendableevent-pending-promises-count">pending promises count</dfn> (the number of pending promises in the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-1">extend lifetime promises</a>). It is initially set to zero.</p>
+     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-59">Service workers</a> have two <a data-link-type="dfn" href="#dfn-lifecycle-events" id="ref-for-dfn-lifecycle-events-1">lifecycle events</a>, <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-install-event" id="ref-for-service-worker-global-scope-install-event-3">install</a></code> and <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-activate-event" id="ref-for-service-worker-global-scope-activate-event-3">activate</a></code>. <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-60">Service workers</a> use the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-5">ExtendableEvent</a></code> interface for <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-activate-event" id="ref-for-service-worker-global-scope-activate-event-4">activate</a></code> event and <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-install-event" id="ref-for-service-worker-global-scope-install-event-4">install</a></code> event.</p>
+     <p><a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em>may</em> also use or extend the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-6">ExtendableEvent</a></code> interface.</p>
+     <p class="note" role="note">Note: To extend the lifetime of a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-61">service worker</a>, algorithms that <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatch</a> events using the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-7">ExtendableEvent</a></code> interface run <a data-link-type="dfn" href="#extend-service-worker-lifetime" id="ref-for-extend-service-worker-lifetime-1">Extend Service Worker Lifetime</a> algorithm after <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">dispatching</a> the event. See <a data-link-type="dfn" href="#handle-fetch" id="ref-for-handle-fetch-2">Handle Fetch</a>, <a data-link-type="dfn" href="#handle-foreign-fetch" id="ref-for-handle-foreign-fetch-1">Handle Foreign Fetch</a>, and <a data-link-type="dfn" href="#handle-functional-event" id="ref-for-handle-functional-event-1">Handle Functional Event</a>.</p>
      <section class="algorithm" data-algorithm="wait-until-method">
       <h4 class="heading settled" data-level="4.4.1" id="wait-until-method"><span class="secno">4.4.1. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-2">event.waitUntil(f)</a></code></span><a class="self-link" href="#wait-until-method"></a></h4>
       <p><code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-3">waitUntil()</a></code> method extends the lifetime of the event.</p>
@@ -3055,7 +3057,14 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Abort these steps.</p>
         </ol>
        <li data-md="">
-        <p>Add <var>f</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-1">extend lifetime promises</a>.</p>
+        <p>Add <var>f</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-8">extend lifetime promises</a>.</p>
+       <li data-md="">
+        <p>Increase the <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-1">pending promises count</a> by one.</p>
+        <p class="note" role="note">Note: The <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-2">pending promises count</a> is increased even if the given promise has already been settled. The corresponding count decrease is done within <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-1">Handle Extend Lifetime Promise</a> algorithm.</p>
+       <li data-md="">
+        <p>Run <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-2">Handle Extend Lifetime Promise</a> with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a> and <var>f</var>.</p>
+       <li data-md="">
+        <p>Return.</p>
       </ol>
      </section>
      <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-62">Service workers</a> and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> <em>may</em> define their own behaviors, allowing the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-2">extend lifetime promises</a> to suggest operation length, and the rejected state of any of the <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> in <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-3">extend lifetime promises</a> to suggest operation failure.</p>
@@ -3070,7 +3079,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <section>
      <h3 class="heading settled" data-level="4.5" id="installevent-interface"><span class="secno">4.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#installevent" id="ref-for-installevent-1">InstallEvent</a></code></span><a class="self-link" href="#installevent-interface"></a></h3>
 <pre class="idl highlight def">[<dfn class="nv idl-code" data-dfn-for="InstallEvent" data-dfn-type="constructor" data-export="" data-lt="InstallEvent(type, eventInitDict)|InstallEvent(type)" id="dom-installevent-installevent">Constructor<a class="self-link" href="#dom-installevent-installevent"></a></dfn>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="InstallEvent/InstallEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-installevent-installevent-type-eventinitdict-type">type<a class="self-link" href="#dom-installevent-installevent-type-eventinitdict-type"></a></dfn>, <span class="kt">optional</span> <a class="n" data-link-type="idl-name" href="#dictdef-extendableeventinit" id="ref-for-dictdef-extendableeventinit-2">ExtendableEventInit</a> <dfn class="nv idl-code" data-dfn-for="InstallEvent/InstallEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-installevent-installevent-type-eventinitdict-eventinitdict">eventInitDict<a class="self-link" href="#dom-installevent-installevent-type-eventinitdict-eventinitdict"></a></dfn>), <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=<span class="n">ServiceWorker</span>]
-<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="installevent">InstallEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-7">ExtendableEvent</a> {
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="installevent">InstallEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-8">ExtendableEvent</a> {
   <span class="kt">void</span> <a class="nv idl-code" data-link-type="method" href="#dom-installevent-registerforeignfetch" id="ref-for-dom-installevent-registerforeignfetch-1">registerForeignFetch</a>(<a class="n" data-link-type="idl-name" href="#dictdef-foreignfetchoptions" id="ref-for-dictdef-foreignfetchoptions-1">ForeignFetchOptions</a> <dfn class="nv idl-code" data-dfn-for="InstallEvent/registerForeignFetch(options)" data-dfn-type="argument" data-export="" id="dom-installevent-registerforeignfetch-options-options">options<a class="self-link" href="#dom-installevent-registerforeignfetch-options-options"></a></dfn>);
 };
 
@@ -3138,7 +3147,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <section>
      <h3 class="heading settled" data-level="4.6" id="fetchevent-interface"><span class="secno">4.6. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#fetchevent" id="ref-for-fetchevent-1">FetchEvent</a></code></span><a class="self-link" href="#fetchevent-interface"></a></h3>
 <pre class="idl highlight def">[<dfn class="nv idl-code" data-dfn-for="FetchEvent" data-dfn-type="constructor" data-export="" data-lt="FetchEvent(type, eventInitDict)" id="dom-fetchevent-fetchevent">Constructor<a class="self-link" href="#dom-fetchevent-fetchevent"></a></dfn>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="FetchEvent/FetchEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-fetchevent-fetchevent-type-eventinitdict-type">type<a class="self-link" href="#dom-fetchevent-fetchevent-type-eventinitdict-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-fetcheventinit" id="ref-for-dictdef-fetcheventinit-1">FetchEventInit</a> <dfn class="nv idl-code" data-dfn-for="FetchEvent/FetchEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-fetchevent-fetchevent-type-eventinitdict-eventinitdict">eventInitDict<a class="self-link" href="#dom-fetchevent-fetchevent-type-eventinitdict-eventinitdict"></a></dfn>), <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=<span class="n">ServiceWorker</span>]
-<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="fetchevent">FetchEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-8">ExtendableEvent</a> {
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="fetchevent">FetchEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-9">ExtendableEvent</a> {
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#request">Request</a> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="Request" href="#dom-fetchevent-request" id="ref-for-dom-fetchevent-request-1">request</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">Promise</span>&lt;<span class="kt">any</span>> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="Promise<any>" href="#dom-fetchevent-preloadresponse" id="ref-for-dom-fetchevent-preloadresponse-1">preloadResponse</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">DOMString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString" href="#dom-fetchevent-clientid" id="ref-for-dom-fetchevent-clientid-1">clientId</a>;
@@ -3158,7 +3167,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">boolean</span> <dfn class="nv idl-code" data-default="false" data-dfn-for="FetchEventInit" data-dfn-type="dict-member" data-export="" data-type="boolean " id="dom-fetcheventinit-isreload">isReload<a class="self-link" href="#dom-fetcheventinit-isreload"></a></dfn> = <span class="kt">false</span>;
 };
 </pre>
-     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-68">Service workers</a> have an essential <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-3">functional event</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-4">fetch</a></code>. For <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-5">fetch</a></code> event, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-69">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#fetchevent" id="ref-for-fetchevent-2">FetchEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-9">ExtendableEvent</a></code> interface.</p>
+     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-68">Service workers</a> have an essential <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-3">functional event</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-4">fetch</a></code>. For <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-fetch-event" id="ref-for-service-worker-global-scope-fetch-event-5">fetch</a></code> event, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-69">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#fetchevent" id="ref-for-fetchevent-2">FetchEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-10">ExtendableEvent</a></code> interface.</p>
      <p>Each event using <code class="idl"><a data-link-type="idl" href="#fetchevent" id="ref-for-fetchevent-3">FetchEvent</a></code> interface has an associated <dfn class="dfn-paneled" data-dfn-for="FetchEvent" data-dfn-type="dfn" data-noexport="" id="fetchevent-potential-response">potential response</dfn> (a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a>), initially set to null, and the following associated flags that are initially unset:</p>
      <ul>
       <li data-md="">
@@ -3215,7 +3224,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Abort these steps.</p>
         </ol>
        <li data-md="">
-        <p>Add <var>r</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-8">extend lifetime promises</a>.</p>
+        <p>Add <var>r</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-9">extend lifetime promises</a>.</p>
+       <li data-md="">
+        <p>Increase the <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-3">pending promises count</a> by one.</p>
+        <p class="note" role="note">Note: The <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-4">pending promises count</a> is increased even if the given promise has already been settled. The corresponding count decrease is done within <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-3">Handle Extend Lifetime Promise</a> algorithm.</p>
+       <li data-md="">
+        <p>Run <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-4">Handle Extend Lifetime Promise</a> with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a> and <var>r</var>.</p>
         <p class="note" role="note">Note: <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-respondwith" id="ref-for-dom-fetchevent-respondwith-3">event.respondWith(r)</a></code> extends the lifetime of the event by default as if <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-4">event.waitUntil(r)</a></code> is called.</p>
        <li data-md="">
         <p>Set the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.</p>
@@ -3327,7 +3341,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <section>
      <h3 class="heading settled" data-level="4.7" id="foreignfetchevent-interface"><span class="secno">4.7. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#foreignfetchevent" id="ref-for-foreignfetchevent-1">ForeignFetchEvent</a></code></span><a class="self-link" href="#foreignfetchevent-interface"></a></h3>
 <pre class="idl highlight def">[<dfn class="nv idl-code" data-dfn-for="ForeignFetchEvent" data-dfn-type="constructor" data-export="" data-lt="ForeignFetchEvent(type, eventInitDict)" id="dom-foreignfetchevent-foreignfetchevent">Constructor<a class="self-link" href="#dom-foreignfetchevent-foreignfetchevent"></a></dfn>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="ForeignFetchEvent/ForeignFetchEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-foreignfetchevent-foreignfetchevent-type-eventinitdict-type">type<a class="self-link" href="#dom-foreignfetchevent-foreignfetchevent-type-eventinitdict-type"></a></dfn>, <a class="n" data-link-type="idl-name" href="#dictdef-foreignfetcheventinit" id="ref-for-dictdef-foreignfetcheventinit-1">ForeignFetchEventInit</a> <dfn class="nv idl-code" data-dfn-for="ForeignFetchEvent/ForeignFetchEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-foreignfetchevent-foreignfetchevent-type-eventinitdict-eventinitdict">eventInitDict<a class="self-link" href="#dom-foreignfetchevent-foreignfetchevent-type-eventinitdict-eventinitdict"></a></dfn>), <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=<span class="n">ServiceWorker</span>]
-<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="foreignfetchevent">ForeignFetchEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-10">ExtendableEvent</a> {
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="foreignfetchevent">ForeignFetchEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-11">ExtendableEvent</a> {
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#request">Request</a> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="Request" href="#dom-foreignfetchevent-request" id="ref-for-dom-foreignfetchevent-request-1">request</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-foreignfetchevent-origin" id="ref-for-dom-foreignfetchevent-origin-1">origin</a>;
 
@@ -3345,7 +3359,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">sequence</span>&lt;<span class="kt">ByteString</span>> <dfn class="nv dfn-paneled idl-code" data-dfn-for="ForeignFetchResponse" data-dfn-type="dict-member" data-export="" data-type="sequence<ByteString> " id="dom-foreignfetchresponse-headers">headers</dfn>;
 };
 </pre>
-     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-70">Service workers</a> have a <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-4">functional event</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-foreignfetch-event" id="ref-for-service-worker-global-scope-foreignfetch-event-2">foreignfetch</a></code>. For <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-foreignfetch-event" id="ref-for-service-worker-global-scope-foreignfetch-event-3">foreignfetch</a></code> events, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-71">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#foreignfetchevent" id="ref-for-foreignfetchevent-2">ForeignFetchEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-11">ExtendableEvent</a></code> interface.</p>
+     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-70">Service workers</a> have a <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-4">functional event</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-foreignfetch-event" id="ref-for-service-worker-global-scope-foreignfetch-event-2">foreignfetch</a></code>. For <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-foreignfetch-event" id="ref-for-service-worker-global-scope-foreignfetch-event-3">foreignfetch</a></code> events, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-71">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#foreignfetchevent" id="ref-for-foreignfetchevent-2">ForeignFetchEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-12">ExtendableEvent</a></code> interface.</p>
      <p>Each event using <code class="idl"><a data-link-type="idl" href="#foreignfetchevent" id="ref-for-foreignfetchevent-3">ForeignFetchEvent</a></code> interface has an associated <dfn class="dfn-paneled" data-dfn-for="ForeignFetchEvent" data-dfn-type="dfn" data-noexport="" id="foreignfetchevent-potential-response">potential response</dfn> (a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">response</a>), initially set to null, an associated <dfn class="dfn-paneled" data-dfn-for="ForeignFetchEvent" data-dfn-type="dfn" data-noexport="" id="foreignfetchevent-origin">origin</dfn> (a <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-USVString">USVString</a></code> or null), initially set to null, an associated <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="list-of-exposed-headers">list of exposed headers</dfn> (whose element type is a byte string), initially set to an empty list, and the following associated flags that are initially unset:</p>
      <ul>
       <li data-md="">
@@ -3386,7 +3400,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <p>Abort these steps.</p>
          </ol>
         <li data-md="">
-         <p>Add <var>r</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-9">extend lifetime promises</a>.</p>
+         <p>Add <var>r</var> to the <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-10">extend lifetime promises</a>.</p>
+        <li data-md="">
+         <p>Increase the <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-5">pending promises count</a> by one.</p>
+         <p class="note" role="note">Note: The <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-6">pending promises count</a> is increased even if the given promise has already been settled. The corresponding count decrease is done within <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-5">Handle Extend Lifetime Promise</a> algorithm.</p>
+        <li data-md="">
+         <p>Run <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-6">Handle Extend Lifetime Promise</a> with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a> and <var>r</var>.</p>
         <li data-md="">
          <p>Set the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a> and <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>.</p>
         <li data-md="">
@@ -3501,7 +3520,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <section>
      <h3 class="heading settled" data-level="4.8" id="extendablemessageevent-interface"><span class="secno">4.8. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-2">ExtendableMessageEvent</a></code></span><a class="self-link" href="#extendablemessageevent-interface"></a></h3>
 <pre class="idl highlight def">[<dfn class="nv idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="constructor" data-export="" data-lt="ExtendableMessageEvent(type, eventInitDict)|ExtendableMessageEvent(type)" id="dom-extendablemessageevent-extendablemessageevent">Constructor<a class="self-link" href="#dom-extendablemessageevent-extendablemessageevent"></a></dfn>(<span class="kt">DOMString</span> <dfn class="nv idl-code" data-dfn-for="ExtendableMessageEvent/ExtendableMessageEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-extendablemessageevent-extendablemessageevent-type-eventinitdict-type">type<a class="self-link" href="#dom-extendablemessageevent-extendablemessageevent-type-eventinitdict-type"></a></dfn>, <span class="kt">optional</span> <a class="n" data-link-type="idl-name" href="#dictdef-extendablemessageeventinit" id="ref-for-dictdef-extendablemessageeventinit-1">ExtendableMessageEventInit</a> <dfn class="nv idl-code" data-dfn-for="ExtendableMessageEvent/ExtendableMessageEvent(type, eventInitDict)" data-dfn-type="argument" data-export="" id="dom-extendablemessageevent-extendablemessageevent-type-eventinitdict-eventinitdict">eventInitDict<a class="self-link" href="#dom-extendablemessageevent-extendablemessageevent-type-eventinitdict-eventinitdict"></a></dfn>), <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed">Exposed</a>=<span class="n">ServiceWorker</span>]
-<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="extendablemessageevent">ExtendableMessageEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-12">ExtendableEvent</a> {
+<span class="kt">interface</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="interface" data-export="" id="extendablemessageevent">ExtendableMessageEvent</dfn> : <a class="n" data-link-type="idl-name" href="#extendableevent" id="ref-for-extendableevent-13">ExtendableEvent</a> {
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">any</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="any" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-2">data</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">USVString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-extendablemessageevent-origin" id="ref-for-dom-extendablemessageevent-origin-2">origin</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">DOMString</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString" href="#dom-extendablemessageevent-lasteventid" id="ref-for-dom-extendablemessageevent-lasteventid-1">lastEventId</a>;
@@ -3517,7 +3536,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">sequence</span>&lt;<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>> <dfn class="nv idl-code" data-default="None" data-dfn-for="ExtendableMessageEventInit" data-dfn-type="dict-member" data-export="" data-type="sequence<MessagePort> " id="dom-extendablemessageeventinit-ports">ports<a class="self-link" href="#dom-extendablemessageeventinit-ports"></a></dfn> = [];
 };
 </pre>
-     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-72">Service workers</a> define the <a class="idl-code" data-link-type="method" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-5">extendable</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-3">message</a></code> event to allow extending the lifetime of the event. For the <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-4">message</a></code> event, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-73">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-3">ExtendableMessageEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-13">ExtendableEvent</a></code> interface.</p>
+     <p><a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-72">Service workers</a> define the <a class="idl-code" data-link-type="method" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-5">extendable</a> <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-3">message</a></code> event to allow extending the lifetime of the event. For the <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-4">message</a></code> event, <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-73">service workers</a> use the <code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-3">ExtendableMessageEvent</a></code> interface which extends the <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-14">ExtendableEvent</a></code> interface.</p>
      <section>
       <h4 class="heading settled" data-level="4.8.1" id="extendablemessage-event-data"><span class="secno">4.8.1. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-3">event.data</a></code></span><a class="self-link" href="#extendablemessage-event-data"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="attribute" data-export="" id="dom-extendablemessageevent-data">data</dfn> attribute <em>must</em> return the value it was initialized to. When the object is created, this attribute <em>must</em> be initialized to null. It represents the message being sent.</p>
@@ -3555,7 +3574,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <td>[<a data-link-type="dfn" href="#dfn-lifecycle-events" id="ref-for-dfn-lifecycle-events-2">Lifecycle event</a>] The <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-17">service worker</a>'s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-9">containing service worker registration</a>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-6">installing worker</a> changes. (See step 11.2 of the <a data-link-type="dfn" href="#install" id="ref-for-install-4">Install</a> algorithm.)
        <tr>
         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="event" data-export="" id="service-worker-global-scope-activate-event"><code>activate</code></dfn>
-        <td><code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-14">ExtendableEvent</a></code>
+        <td><code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-15">ExtendableEvent</a></code>
         <td>[<a data-link-type="dfn" href="#dfn-lifecycle-events" id="ref-for-dfn-lifecycle-events-3">Lifecycle event</a>] The <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-18">service worker</a>'s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-10">containing service worker registration</a>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-21">active worker</a> changes. (See step 12.2 of the <a data-link-type="dfn" href="#activate" id="ref-for-activate-6">Activate</a> algorithm.)
        <tr>
         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="event" data-export="" id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn>
@@ -4476,7 +4495,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     </section>
     <section>
      <h3 class="heading settled" data-level="8.2" id="extension-to-extendable-event"><span class="secno">8.2. </span><span class="content">Define Functional Event</span><a class="self-link" href="#extension-to-extendable-event"></a></h3>
-     <p>Specifications <em>may</em> define a <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-7">functional event</a> by extending <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-15">ExtendableEvent</a></code> interface:</p>
+     <p>Specifications <em>may</em> define a <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-7">functional event</a> by extending <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-16">ExtendableEvent</a></code> interface:</p>
 <pre class="example idl highlight def" data-no-idl="" id="example-3de376f0"><a class="self-link" href="#example-3de376f0"></a>// e.g. define FunctionalEvent interface
 <span class="kt">interface</span> <span class="nv">FunctionalEvent</span> : <span class="n">ExtendableEvent</span> {
   // add a functional event’s own attributes and methods
@@ -5075,7 +5094,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <li data-md="">
            <p>Wait until <var>e</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-2">extensions allowed flag</a> is unset.</p>
           <li data-md="">
-           <p>If the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-10">extend lifetime promises</a> rejected, set <var>installFailed</var> to true.</p>
+           <p>If the result of <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#waiting-for-all">waiting for all</a> of <var>e</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-11">extend lifetime promises</a> rejected, set <var>installFailed</var> to true.</p>
          </ol>
        </ol>
        <p>If <var>task</var> is discarded or the script has been aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-3">termination</a> of <var>installingWorker</var>, set <var>installFailed</var> to true.</p>
@@ -5188,7 +5207,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps:</p>
        <ol>
         <li data-md="">
-         <p>Let <var>e</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> with <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-16">ExtendableEvent</a></code>.</p>
+         <p>Let <var>e</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> with <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-17">ExtendableEvent</a></code>.</p>
         <li data-md="">
          <p>Initialize <var>e</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code> attribute to <code class="idl"><a class="idl-code" data-link-type="event" href="#service-worker-global-scope-activate-event" id="ref-for-service-worker-global-scope-activate-event-5">activate</a></code>.</p>
         <li data-md="">
@@ -5345,7 +5364,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>event</var>, an <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-17">ExtendableEvent</a></code> object</p>
+       <p><var>event</var>, an <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-18">ExtendableEvent</a></code> object</p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -5353,23 +5372,47 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </dl>
      <ol>
       <li data-md="">
-       <p>If <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-11">extend lifetime promises</a> is empty, unset <var>event</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-4">extensions allowed flag</a> and abort these steps.</p>
-      <li data-md="">
-       <p>Let <var>extendLifetimePromises</var> be an empty array.</p>
-      <li data-md="">
-       <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
-       <ol>
-        <li data-md="">
-         <p><em>SetupPromiseArray</em>: Set <var>extendLifetimePromises</var> to a copy of <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-12">extend lifetime promises</a>.</p>
-        <li data-md="">
-         <p>Wait until all the <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promises</a> in <var>extendLifetimePromises</var> settle.</p>
-        <li data-md="">
-         <p>If the length of <var>extendLifetimePromises</var> does not equal the length of <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-13">extend lifetime promises</a>, jump to the step labeled <em>SetupPromiseArray</em>.</p>
-        <li data-md="">
-         <p>Unset <var>event</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-5">extensions allowed flag</a>.</p>
-       </ol>
+       <p>If <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-7">pending promises count</a> is zero, unset <var>event</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-4">extensions allowed flag</a> and abort these steps.</p>
+       <p class="note" role="note">Note: If no lifetime extension promise has been added up to this point (i.e., at the end of the task that called the event handlers), the <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-5">extensions allowed flag</a> is immediately unset. Calling <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-6">waitUntil()</a></code> in subsequent asynchronous tasks will throw.</p>
      </ol>
      <p>The user agent <em>should not</em> <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-7">terminate</a> the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-98">service worker</a> associated with <var>event</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a> until <var>event</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-6">extensions allowed flag</a> is unset. However, the user agent <em>may</em> impose a time limit to this lifetime extension.</p>
+    </section>
+    <section class="algorithm" data-algorithm="Handle Extend Lifetime Promise">
+     <h3 class="heading settled" id="handle-extend-lifetime-promise-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="handle-extend-lifetime-promise">Handle Extend Lifetime Promise</dfn></span><a class="self-link" href="#handle-extend-lifetime-promise-algorithm"></a></h3>
+     <dl>
+      <dt data-md="">
+       <p>Input</p>
+      <dd data-md="">
+       <p><var>event</var>, an <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-19">ExtendableEvent</a></code> object</p>
+      <dd data-md="">
+       <p><var>promise</var>, a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a></p>
+      <dt data-md="">
+       <p>Output</p>
+      <dd data-md="">
+       <p>None</p>
+     </dl>
+     <ol>
+      <li data-md="">
+       <p>Wait until <var>promise</var> is settled <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</p>
+      <li data-md="">
+       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-microtask">Queue a microtask</a> to run the following substeps:</p>
+       <ol>
+        <li data-md="">
+         <p>Decrease <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-8">pending promises count</a> by one.</p>
+        <li data-md="">
+         <p>For each <var>reaction</var> in <var>promise</var>.[[PromiseFulfillReactions]]:</p>
+         <ol>
+          <li data-md="">
+           <p>Append <var>reaction</var>.[[Capability]].[[Promise]] to <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-extend-lifetime-promises" id="ref-for-extendableevent-extend-lifetime-promises-12">extend lifetime promises</a>.</p>
+          <li data-md="">
+           <p>Increase <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-9">pending promises count</a> by one.</p>
+          <li data-md="">
+           <p>Invoke <a data-link-type="dfn" href="#handle-extend-lifetime-promise" id="ref-for-handle-extend-lifetime-promise-7">Handle Extend Lifetime Promise</a> with <var>event</var> and <var>reaction</var>.[[Capability]].[[Promise]].</p>
+         </ol>
+        <li data-md="">
+         <p>If <var>event</var>’s <a data-link-type="dfn" href="#extendableevent-pending-promises-count" id="ref-for-extendableevent-pending-promises-count-10">pending promises count</a> is zero, unset <var>event</var>’s <a data-link-type="dfn" href="#extensions-allowed-flag" id="ref-for-extensions-allowed-flag-7">extensions allowed flag</a>.</p>
+       </ol>
+     </ol>
     </section>
     <section class="algorithm" data-algorithm="Handle Fetch">
      <h3 class="heading settled" id="on-fetch-request-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-export="" id="handle-fetch">Handle Fetch</dfn></span><a class="self-link" href="#on-fetch-request-algorithm"></a></h3>
@@ -5724,7 +5767,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dt data-md="">
        <p>Input</p>
       <dd data-md="">
-       <p><var>event</var>, an <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-18">ExtendableEvent</a></code> object</p>
+       <p><var>event</var>, an <code class="idl"><a data-link-type="idl" href="#extendableevent" id="ref-for-extendableevent-20">ExtendableEvent</a></code> object</p>
       <dd data-md="">
        <p><var>registration</var>, a <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-62">service worker registration</a></p>
       <dd data-md="">
@@ -6056,7 +6099,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
              <p><em>installing</em></p>
             <dd data-md="">
              <p><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerstate-installing" id="ref-for-dom-serviceworkerstate-installing-1">"installing"</a></code></p>
-             <p class="note" role="note">Note: The <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-104">service worker</a> in this state is considered an <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-19">installing worker</a>. During this state, <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-6">waitUntil()</a></code> can be called inside the <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerglobalscope-oninstall" id="ref-for-dom-serviceworkerglobalscope-oninstall-2">oninstall</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-20">installing worker</a> until the passed <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-105">service worker</a> is not active until all of the core caches are populated.</p>
+             <p class="note" role="note">Note: The <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-104">service worker</a> in this state is considered an <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-19">installing worker</a>. During this state, <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-7">waitUntil()</a></code> can be called inside the <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerglobalscope-oninstall" id="ref-for-dom-serviceworkerglobalscope-oninstall-2">oninstall</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-20">installing worker</a> until the passed <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> resolves successfully. This is primarily used to ensure that the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-105">service worker</a> is not active until all of the core caches are populated.</p>
             <dt data-md="">
              <p><em>installed</em></p>
             <dd data-md="">
@@ -6066,7 +6109,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
              <p><em>activating</em></p>
             <dd data-md="">
              <p><code class="idl"><a data-link-type="idl" href="#dom-serviceworkerstate-activating" id="ref-for-dom-serviceworkerstate-activating-1">"activating"</a></code></p>
-             <p class="note" role="note">Note: The <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-107">service worker</a> in this state is considered an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-40">active worker</a>. During this state, <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-7">waitUntil()</a></code> can be called inside the <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerglobalscope-onactivate" id="ref-for-dom-serviceworkerglobalscope-onactivate-2">onactivate</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-41">active worker</a> until the passed <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> resolves successfully. No <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-12">functional events</a> are dispatched until the state becomes <em>activated</em>.</p>
+             <p class="note" role="note">Note: The <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-107">service worker</a> in this state is considered an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-40">active worker</a>. During this state, <code class="idl"><a data-link-type="idl" href="#dom-extendableevent-waituntil" id="ref-for-dom-extendableevent-waituntil-8">waitUntil()</a></code> can be called inside the <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerglobalscope-onactivate" id="ref-for-dom-serviceworkerglobalscope-onactivate-2">onactivate</a></code> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">event handler</a> to extend the life of the <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-41">active worker</a> until the passed <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> resolves successfully. No <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-12">functional events</a> are dispatched until the state becomes <em>activated</em>.</p>
             <dt data-md="">
              <p><em>activated</em></p>
             <dd data-md="">
@@ -6724,6 +6767,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="#dfn-service-worker-global-object">dfn for service worker</a><span>, in §2.1</span>
      <li><a href="#cachestorage-global-object">dfn for CacheStorage</a><span>, in §6.5</span>
     </ul>
+   <li><a href="#handle-extend-lifetime-promise">Handle Extend Lifetime Promise</a><span>, in §Unnumbered section</span>
    <li><a href="#handle-fetch">Handle Fetch</a><span>, in §Unnumbered section</span>
    <li><a href="#dfn-handle-fetch-task-source">handle fetch task source</a><span>, in §2.5</span>
    <li><a href="#handle-foreign-fetch">Handle Foreign Fetch</a><span>, in §Unnumbered section</span>
@@ -6860,6 +6904,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="#dom-extendablemessageevent-origin">attribute for ExtendableMessageEvent</a><span>, in §4.8.2</span>
     </ul>
    <li><a href="#dom-foreignfetchoptions-origins">origins</a><span>, in §4.5</span>
+   <li><a href="#extendableevent-pending-promises-count">pending promises count</a><span>, in §4.4</span>
    <li>
     ports
     <ul>
@@ -7292,6 +7337,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#parent-browsing-context">parent browsing context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch">perform the fetch</a>
      <li><a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports">ports</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-microtask">queue a microtask</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm">realm</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context">realm execution context</a>
@@ -8961,16 +9007,17 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="extendableevent">
    <b><a href="#extendableevent">#extendableevent</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-extendableevent-1">4.4. ExtendableEvent</a> <a href="#ref-for-extendableevent-2">(2)</a> <a href="#ref-for-extendableevent-3">(3)</a> <a href="#ref-for-extendableevent-4">(4)</a> <a href="#ref-for-extendableevent-5">(5)</a> <a href="#ref-for-extendableevent-6">(6)</a>
-    <li><a href="#ref-for-extendableevent-7">4.5. InstallEvent</a>
-    <li><a href="#ref-for-extendableevent-8">4.6. FetchEvent</a> <a href="#ref-for-extendableevent-9">(2)</a>
-    <li><a href="#ref-for-extendableevent-10">4.7. ForeignFetchEvent</a> <a href="#ref-for-extendableevent-11">(2)</a>
-    <li><a href="#ref-for-extendableevent-12">4.8. ExtendableMessageEvent</a> <a href="#ref-for-extendableevent-13">(2)</a>
-    <li><a href="#ref-for-extendableevent-14">4.9. Events</a>
-    <li><a href="#ref-for-extendableevent-15">8.2. Define Functional Event</a>
-    <li><a href="#ref-for-extendableevent-16">Activate</a>
-    <li><a href="#ref-for-extendableevent-17">Extend Service Worker Lifetime</a>
-    <li><a href="#ref-for-extendableevent-18">Handle Functional Event</a>
+    <li><a href="#ref-for-extendableevent-1">4.4. ExtendableEvent</a> <a href="#ref-for-extendableevent-2">(2)</a> <a href="#ref-for-extendableevent-3">(3)</a> <a href="#ref-for-extendableevent-4">(4)</a> <a href="#ref-for-extendableevent-5">(5)</a> <a href="#ref-for-extendableevent-6">(6)</a> <a href="#ref-for-extendableevent-7">(7)</a>
+    <li><a href="#ref-for-extendableevent-8">4.5. InstallEvent</a>
+    <li><a href="#ref-for-extendableevent-9">4.6. FetchEvent</a> <a href="#ref-for-extendableevent-10">(2)</a>
+    <li><a href="#ref-for-extendableevent-11">4.7. ForeignFetchEvent</a> <a href="#ref-for-extendableevent-12">(2)</a>
+    <li><a href="#ref-for-extendableevent-13">4.8. ExtendableMessageEvent</a> <a href="#ref-for-extendableevent-14">(2)</a>
+    <li><a href="#ref-for-extendableevent-15">4.9. Events</a>
+    <li><a href="#ref-for-extendableevent-16">8.2. Define Functional Event</a>
+    <li><a href="#ref-for-extendableevent-17">Activate</a>
+    <li><a href="#ref-for-extendableevent-18">Extend Service Worker Lifetime</a>
+    <li><a href="#ref-for-extendableevent-19">Handle Extend Lifetime Promise</a>
+    <li><a href="#ref-for-extendableevent-20">Handle Functional Event</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dictdef-extendableeventinit">
@@ -8986,12 +9033,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="extendableevent-extend-lifetime-promises">
    <b><a href="#extendableevent-extend-lifetime-promises">#extendableevent-extend-lifetime-promises</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-1">4.4.1. event.waitUntil(f)</a>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-2">4.4. ExtendableEvent</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-3">(2)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-4">(3)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-5">(4)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-6">(5)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-7">(6)</a>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-8">4.6.7. event.respondWith(r)</a>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-9">4.7.3. event.respondWith(r)</a>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-10">Install</a>
-    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-11">Extend Service Worker Lifetime</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-12">(2)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-13">(3)</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-1">4.4. ExtendableEvent</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-2">(2)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-3">(3)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-4">(4)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-5">(5)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-6">(6)</a> <a href="#ref-for-extendableevent-extend-lifetime-promises-7">(7)</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-8">4.4.1. event.waitUntil(f)</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-9">4.6.7. event.respondWith(r)</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-10">4.7.3. event.respondWith(r)</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-11">Install</a>
+    <li><a href="#ref-for-extendableevent-extend-lifetime-promises-12">Handle Extend Lifetime Promise</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="extensions-allowed-flag">
@@ -9001,6 +9048,17 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-extensions-allowed-flag-2">Install</a>
     <li><a href="#ref-for-extensions-allowed-flag-3">Activate</a>
     <li><a href="#ref-for-extensions-allowed-flag-4">Extend Service Worker Lifetime</a> <a href="#ref-for-extensions-allowed-flag-5">(2)</a> <a href="#ref-for-extensions-allowed-flag-6">(3)</a>
+    <li><a href="#ref-for-extensions-allowed-flag-7">Handle Extend Lifetime Promise</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="extendableevent-pending-promises-count">
+   <b><a href="#extendableevent-pending-promises-count">#extendableevent-pending-promises-count</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-extendableevent-pending-promises-count-1">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-extendableevent-pending-promises-count-2">(2)</a>
+    <li><a href="#ref-for-extendableevent-pending-promises-count-3">4.6.7. event.respondWith(r)</a> <a href="#ref-for-extendableevent-pending-promises-count-4">(2)</a>
+    <li><a href="#ref-for-extendableevent-pending-promises-count-5">4.7.3. event.respondWith(r)</a> <a href="#ref-for-extendableevent-pending-promises-count-6">(2)</a>
+    <li><a href="#ref-for-extendableevent-pending-promises-count-7">Extend Service Worker Lifetime</a>
+    <li><a href="#ref-for-extendableevent-pending-promises-count-8">Handle Extend Lifetime Promise</a> <a href="#ref-for-extendableevent-pending-promises-count-9">(2)</a> <a href="#ref-for-extendableevent-pending-promises-count-10">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-extendableevent-waituntil">
@@ -9010,7 +9068,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dom-extendableevent-waituntil-2">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-dom-extendableevent-waituntil-3">(2)</a>
     <li><a href="#ref-for-dom-extendableevent-waituntil-4">4.6.7. event.respondWith(r)</a>
     <li><a href="#ref-for-dom-extendableevent-waituntil-5">4.8. ExtendableMessageEvent</a>
-    <li><a href="#ref-for-dom-extendableevent-waituntil-6">Update Worker State</a> <a href="#ref-for-dom-extendableevent-waituntil-7">(2)</a>
+    <li><a href="#ref-for-dom-extendableevent-waituntil-6">Extend Service Worker Lifetime</a>
+    <li><a href="#ref-for-dom-extendableevent-waituntil-7">Update Worker State</a> <a href="#ref-for-dom-extendableevent-waituntil-8">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="installevent">
@@ -9908,6 +9967,15 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-extend-service-worker-lifetime-4">Handle Fetch</a>
     <li><a href="#ref-for-extend-service-worker-lifetime-5">Handle Foreign Fetch</a>
     <li><a href="#ref-for-extend-service-worker-lifetime-6">Handle Functional Event</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="handle-extend-lifetime-promise">
+   <b><a href="#handle-extend-lifetime-promise">#handle-extend-lifetime-promise</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-handle-extend-lifetime-promise-1">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-handle-extend-lifetime-promise-2">(2)</a>
+    <li><a href="#ref-for-handle-extend-lifetime-promise-3">4.6.7. event.respondWith(r)</a> <a href="#ref-for-handle-extend-lifetime-promise-4">(2)</a>
+    <li><a href="#ref-for-handle-extend-lifetime-promise-5">4.7.3. event.respondWith(r)</a> <a href="#ref-for-handle-extend-lifetime-promise-6">(2)</a>
+    <li><a href="#ref-for-handle-extend-lifetime-promise-7">Handle Extend Lifetime Promise</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="handle-fetch">
