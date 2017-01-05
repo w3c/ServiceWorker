@@ -10,7 +10,7 @@ To understand the design and how you might build apps with service workers, see 
 
 ## Spec and API development
 
-For the nitty-gritty of the API, the [draft W3C specification](https://w3c.github.io/ServiceWorker/) is authoritative. For implementers and developers who seek a more stable version, [Service Workers 1](https://w3c.github.io/ServiceWorker/v1/) is a right document with which the contributors only focus on fixing bugs and resolving compatibility issues.
+For the nitty-gritty of the API, the draft W3C specifications are authoritative. [Service Workers Nightly](https://w3c.github.io/ServiceWorker/) is a living document. [Service Workers 1](https://w3c.github.io/ServiceWorker/v1/) is a version that is advancing toward a W3C Recommendation. For implementers and developers who seek all the latest features, [Service Workers Nightly](https://w3c.github.io/ServiceWorker/) is a right document that is constantly reflecting new requirements. For version 1, contributors plan to focus on fixing bugs and resolving compatibility issues without including new features from the nightly version.
 
 Spec development happens via [issues in this repository](https://github.com/w3c/ServiceWorker/issues). For general discussion, please use the [public-webapps@w3.org mailing list](http://lists.w3.org/Archives/Public/public-webapps/) with a `Subject:` prefix of `[service-workers]`.
 
