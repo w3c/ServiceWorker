@@ -1208,15 +1208,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially an empty array.
 
-    An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent" id="extensions-allowed-flag">extensions allowed flag</dfn>. It is initially set.
-
     An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">pending promises count</dfn> (the number of pending promises in the [=ExtendableEvent/extend lifetime promises=]). It is initially set to zero.
 
     [=/Service workers=] have two <a>lifecycle events</a>, {{install!!event}} and {{activate!!event}}. [=/Service workers=] use the {{ExtendableEvent}} interface for {{activate!!event}} event and {{install!!event}} event.
 
     <a href="#extensibility">Service worker extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* also use or extend the {{ExtendableEvent}} interface.
-
-    Note: To extend the lifetime of a [=/service worker=], algorithms that <a>dispatch</a> events using the {{ExtendableEvent}} interface run [=Extend Service Worker Lifetime=] algorithm after <a>dispatching</a> the event. See <a>Handle Fetch</a> and <a>Handle Functional Event</a>.
 
     <section algorithm="wait-until-method">
       <h4 id="wait-until-method">{{ExtendableEvent/waitUntil()|event.waitUntil(f)}}</h4>
@@ -1225,9 +1221,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
 
-        1. If the <a>extensions allowed flag</a> is unset, then:
+        1. If the [=ExtendableEvent/pending promises count=] is zero and the [=dispatch flag=] is unset, then:
             1. <a>Throw</a> an "{{InvalidStateError}}" exception.
             1. Abort these steps.
+
+            Note: If no lifetime extension promise has been added in the task that called the event handlers), calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
+
         1. Add |f| to the [=ExtendableEvent/extend lifetime promises=].
         1. Increase the [=ExtendableEvent/pending promises count=] by one.
 
@@ -1235,6 +1234,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Run [=Handle Extend Lifetime Promise=] with the [=context object=] and |f|.
         1. Return.
+
+        The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] when |event|'s [=dispatch flag=] is set or |event|'s [=ExtendableEvent/pending promises count=] is not zero. However, the user agent *may* impose a time limit to this lifetime extension.
     </section>
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
@@ -2325,9 +2326,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
           1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
-          1. Invoke [=Extend Service Worker Lifetime=] with |e|.
           1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
-              1. Wait until |e|'s <a>extensions allowed flag</a> is unset.
+              1. Wait until |e|'s [=ExtendableEvent/pending promises count=] is zero.
               1. If the result of <a>waiting for all</a> of |e|'s <a>extend lifetime promises</a> rejected, set |installFailed| to true.
 
           If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
@@ -2391,8 +2391,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{activate!!event}}.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. Invoke [=Extend Service Worker Lifetime=] with |e|.
-          1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s <a>extensions allowed flag</a> is unset.
+          1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s [=ExtendableEvent/pending promises count=] is zero.
       1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
@@ -2477,21 +2476,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="extend-service-worker-lifetime-algorithm"><dfn>Extend Service Worker Lifetime</dfn></h3>
-
-      : Input
-      :: |event|, an {{ExtendableEvent}} object
-      : Output
-      :: None
-
-      1. If |event|'s [=ExtendableEvent/pending promises count=] is zero, unset |event|'s [=ExtendableEvent/extensions allowed flag=] and abort these steps.
-
-          Note: If no lifetime extension promise has been added up to this point (i.e., at the end of the task that called the event handlers), the [=ExtendableEvent/extensions allowed flag=] is immediately unset. Calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
-      
-      The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] until |event|'s <a>extensions allowed flag</a> is unset. However, the user agent *may* impose a time limit to this lifetime extension.
-  </section>
-
-  <section algorithm>
     <h3 id="handle-extend-lifetime-promise-algorithm"><dfn>Handle Extend Lifetime Promise</dfn></h3>
 
       : Input
@@ -2500,14 +2484,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. Wait until |promise| is settled [=in parallel=].
-      2. [=Queue a microtask=] to run the following substeps:
-          1. Decrease |event|'s [=ExtendableEvent/pending promises count=] by one.
-          1. For each |reaction| in |promise|.\[[PromiseFulfillReactions]]:
-              1. Append |reaction|.\[[Capability]].\[[Promise]] to |event|'s [=ExtendableEvent/extend lifetime promises=].
-              1. Increase |event|'s [=ExtendableEvent/pending promises count=] by one.
-              1. Invoke [=Handle Extend Lifetime Promise=] with |event| and |reaction|.\[[Capability]].\[[Promise]].
-          1. If |event|'s [=ExtendableEvent/pending promises count=] is zero, unset |event|'s [=ExtendableEvent/extensions allowed flag=].
+      1. Wait, [=in parallel=], until |promise| is settled and |promise|'s <code>then</code> methods, if any, in the task where |promise| has been settled have executed.
+      2. [=Queue a microtask=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=], to decrease |event|'s [=ExtendableEvent/pending promises count=] by one.
   </section>
 
   <section algorithm>
@@ -2571,7 +2549,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
           1. Let the {{FetchEvent/isReload}} attribute of |e| be initialized to <code>true</code> if |request|'s [=request/client=] is a <a>window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. Invoke [=Extend Service Worker Lifetime=] with |e|.
           1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
           1. If |e|'s [=FetchEvent/wait to respond flag=] is set, then:
               1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
@@ -2621,7 +2598,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run these substeps:
           1. Invoke |callbackSteps| with |activeWorker|'s [=service worker/global object=] as its argument.
-          1. Invoke [=Extend Service Worker Lifetime=] with |event|.
 
           The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle functional event task source</a>.
 
