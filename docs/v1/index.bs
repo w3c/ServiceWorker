@@ -66,7 +66,7 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: data; for: MessageEvent; url: dom-messageevent-data
     type: dfn
         urlPrefix: browsers.html
-            text: ancestor origins array; for: Location; url: concept-location-ancestor-origins-array
+            text: ancestor origins list; for: Location; url: concept-location-ancestor-origins-list
         urlPrefix: syntax.html
             text: delay the load event; for: document; url: delay-the-load-event
 
@@ -878,7 +878,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface WindowClient : Client {
         readonly attribute VisibilityState visibilityState;
         readonly attribute boolean focused;
-        [SameObject] readonly attribute FrozenArray&lt;USVString&gt; ancestorOrigins;
+        [SameObject] readonly attribute DOMStringList ancestorOrigins;
         [NewObject] Promise&lt;WindowClient&gt; focus();
         [NewObject] Promise&lt;WindowClient&gt; navigate(USVString url);
       };
@@ -892,7 +892,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-focusstate">focus state</dfn>, which is either true or false (initially false).
 
-    A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins array</dfn>.
+    A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins list</dfn>.
 
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
@@ -958,7 +958,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-ancestororigins">{{WindowClient/ancestorOrigins}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/service worker client=]'s [=WindowClient/ancestor origins array=].
+      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=WindowClient/ancestor origins list=].
     </section>
 
     <section algorithm="client-focus">
@@ -972,14 +972,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
             1. Let |visibilityState| be null.
             1. Let |focusState| be false.
-            1. Let |ancestorOrigins| be the empty array.
+            1. Let |ancestorOriginsList| be the empty list.
             1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/service worker client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                 1. Run the <a>focusing steps</a> with |browsingContext|.
                 1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                 1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                1. Set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
+                1. Set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. Wait for |task| to have executed.
-            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with the <a>context object</a>'s associated [=Client/service worker client=], |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with the <a>context object</a>'s associated [=Client/service worker client=], |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
             1. If |windowClient|'s <a>focus state</a> is true, resolve |promise| with |windowClient|.
             1. Else, reject |promise| with a <code>TypeError</code>.
         1. Return |promise|.
@@ -1001,19 +1001,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |navigateFailed| to false.
             1. Let |visibilityState| be null.
             1. Let |focusState| be false.
-            1. Let |ancestorOrigins| be the empty array.
+            1. Let |ancestorOriginsList| be the empty list.
             1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/service worker client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                 1. *HandleNavigate*: <a>Navigate</a> |browsingContext| to |url| with <a lt="exceptions enabled flag">exceptions enabled</a>. The <a>source browsing context</a> must be |browsingContext|.
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* <a>throws</a> an exception, set |navigateFailed| to true.
                 1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                 1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                1. Set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
+                1. Set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. Wait for |task| to have executed (including its asynchronous steps).
             1. If |navigateFailed| is true, reject |promise| with a <code>TypeError</code> and abort these steps.
             1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s [=url/origin=] is not the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], then:
                 1. Resolve |promise| with null.
                 1. Abort these steps.
-            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |browsingContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |browsingContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
             1. Resolve |promise| with |windowClient|.
         1. Return |promise|.
     </section>
@@ -1067,15 +1067,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Let |browsingContext| be null.
                     1. Let |visibilityState| be null.
                     1. Let |focusState| be false.
-                    1. Let |ancestorOrigins| be the empty array.
+                    1. Let |ancestorOriginsList| be the empty list.
                     1. If |client| is a type of <a>environment</a>, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. Else, set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
                     1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
                         1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                         1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                        1. If |client| is a <a>window client</a>, set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
+                        1. If |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
                     1. Wait for |task| to have executed.
-                    1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+                    1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
                     1. Resolve |promise| with |windowClient| and abort these steps.
                 1. Else:
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
@@ -1109,7 +1109,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Let |isClientEnumerable| be true.
                     1. Let |visibilityState| be the empty string.
                     1. Let |focusState| be false.
-                    1. Let |ancestorOrigins| be the empty array.
+                    1. Let |ancestorOriginsList| be the empty list.
                     1. If |client| is a type of <a>environment</a>, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. Else, set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
                     1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
@@ -1117,13 +1117,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                         1. If |client| is a window client and |client|'s <a>responsible document</a> is not |browsingContext|'s <a>active document</a>,  set |isClientEnumerable| to false and abort these steps.
                         1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                         1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                        1. It |client| is a <a>window client</a>, set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
+                        1. It |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
                     1. Wait for |task| to have executed.
 
                         Note: Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.
 
                     1. If |isClientEnumerable| is true, then:
-                        1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+                        1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
                         1. Add |windowClient| to |matchedClients|.
                 1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a <a>dedicated worker client</a>, or |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a <a>shared worker client</a>, then:
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
@@ -1150,19 +1150,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |openWindowFailed| to false.
             1. Let |visibilityState| be null.
             1. Let |focusState| be false.
-            1. Let |ancestorOrigins| be the empty array.
+            1. Let |ancestorOriginsList| be the empty list.
             1. <a>Queue a task</a> |task| to run the following substeps on |newContext|'s {{Window}} object's <a>environment settings object</a>'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                 1. *HandleNavigate*: <a>Navigate</a> |newContext| to |url| with <a lt="exceptions enabled flag">exceptions enabled</a> and <a>replacement enabled</a>.
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* <a>throws</a> an exception, set |openWindowFailed| to true.
                 1. Set |visibilityState| to |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                 1. Set |focusState| to the result of running the <a>has focus steps</a> with |newContext|'s <a>active document</a> as the argument.
-                1. Set |ancestorOrigins| to |newContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
+                1. Set |ancestorOriginsList| to |newContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. Wait for |task| to have executed (including its asynchronous steps).
             1. If |openWindowFailed| is true, reject |promise| with a <code>TypeError</code> and abort these steps.
             1. If |newContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s [=environment settings object/origin=] is not the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], then:
                 1. Resolve |promise| with null.
                 1. Abort these steps.
-            1. Let |client| be the result of running <a>Create Window Client</a> algorithm with |newContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+            1. Let |client| be the result of running <a>Create Window Client</a> algorithm with |newContext|'s {{Window}} object's <a>environment settings object</a>, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
             1. Resolve |promise| with |client|.
         1. Return |promise|.
     </section>
@@ -2869,7 +2869,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |client|, a [=/service worker client=]
       :: |visibilityState|, a string
       :: |focusState|, a boolean
-      :: |ancestorOrigins|, an array
+      :: |ancestorOriginsList|, a list
       : Output
       :: |windowClient|, a {{WindowClient}} object
 
@@ -2877,7 +2877,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Set |windowClient|'s [=Client/service worker client=] to |client|.
       1. Set |windowClient|'s <a>visibility state</a> to |visibilityState|.
       1. Set |windowClient|'s <a>focus state</a> to |focusState|.
-      1. Set |windowClient|'s [=WindowClient/ancestor origins array=] to |ancestorOrigins|.
+      1. Set |windowClient|'s [=WindowClient/ancestor origins list=] to a {{DOMStringList}} object whose associated list is |ancestorOriginsList|.
       1. Return |windowClient|.
   </section>
 
