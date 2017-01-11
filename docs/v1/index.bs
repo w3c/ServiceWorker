@@ -1230,10 +1230,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Add |f| to the [=ExtendableEvent/extend lifetime promises=].
         1. Increase the [=ExtendableEvent/pending promises count=] by one.
 
-            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done within [=Handle Extend Lifetime Promise=] algorithm.
+            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done in the task queued by the reaction to the promise.
 
-        1. Run [=Handle Extend Lifetime Promise=] with the [=context object=] and |f|.
-        1. Return.
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |f|, [=queue a task=], on |f|’s [=relevant settings object=]'s [=responsible event loop=] using the [=handle functional event task source=], to decrease the [=ExtendableEvent/pending promises count=] by one.
 
         The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] when |event|'s [=dispatch flag=] is set or |event|'s [=ExtendableEvent/pending promises count=] is not zero. However, the user agent *may* impose a time limit to this lifetime extension.
     </section>
@@ -1327,9 +1326,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Add |r| to the <a>extend lifetime promises</a>.
         1. Increase the [=ExtendableEvent/pending promises count=] by one.
 
-            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done within [=Handle Extend Lifetime Promise=] algorithm.
+            Note: The [=ExtendableEvent/pending promises count=] is increased even if the given promise has already been settled. The corresponding count decrease is done in the task queued by the reaction to the promise.
 
-        1. Run [=Handle Extend Lifetime Promise=] with the [=context object=] and |r|.
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a task=], on |r|’s [=relevant settings object=]'s [=responsible event loop=] using the [=handle fetch task source=], to decrease the [=ExtendableEvent/pending promises count=] by one.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
@@ -2473,19 +2472,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Note: This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.
 
       1. Abort the script currently running in |serviceWorker|.
-  </section>
-
-  <section algorithm>
-    <h3 id="handle-extend-lifetime-promise-algorithm"><dfn>Handle Extend Lifetime Promise</dfn></h3>
-
-      : Input
-      :: |event|, an {{ExtendableEvent}} object
-      :: |promise|, a [=promise=]
-      : Output
-      :: None
-
-      1. Wait until |promise| is settled [=in parallel=].
-      2. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=], to decrease |event|'s [=ExtendableEvent/pending promises count=] by one.
   </section>
 
   <section algorithm>
