@@ -878,7 +878,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface WindowClient : Client {
         readonly attribute VisibilityState visibilityState;
         readonly attribute boolean focused;
-        [SameObject] readonly attribute DOMStringList ancestorOrigins;
+        [SameObject] readonly attribute FrozenArray&lt;USVString&gt; ancestorOrigins;
         [NewObject] Promise&lt;WindowClient&gt; focus();
         [NewObject] Promise&lt;WindowClient&gt; navigate(USVString url);
       };
@@ -892,7 +892,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-focusstate">focus state</dfn>, which is either true or false (initially false).
 
-    A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins list</dfn>.
+    A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins array</dfn>.
 
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
@@ -958,7 +958,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-ancestororigins">{{WindowClient/ancestorOrigins}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=WindowClient/ancestor origins list=].
+      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=WindowClient/ancestor origins array=].
     </section>
 
     <section algorithm="client-focus">
@@ -2877,7 +2877,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Set |windowClient|'s [=Client/service worker client=] to |client|.
       1. Set |windowClient|'s <a>visibility state</a> to |visibilityState|.
       1. Set |windowClient|'s <a>focus state</a> to |focusState|.
-      1. Set |windowClient|'s [=WindowClient/ancestor origins list=] to a {{DOMStringList}} object whose associated list is |ancestorOriginsList|.
+      1. Set |windowClient|'s [=WindowClient/ancestor origins array=] to a [=frozen array=] created from |ancestorOriginsList|.
       1. Return |windowClient|.
   </section>
 
