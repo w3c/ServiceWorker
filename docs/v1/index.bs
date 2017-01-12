@@ -2165,28 +2165,37 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="resolve-job-promise-algorithm"><dfn>Resolve Job Promise</dfn></h3>
 
       : Input
-      :: |job|, a <a>job</a>
+      :: |job|, a [=job=]
       :: |value|, any
       : Output
       :: none
 
-      1. If |job|'s [=job/client=] is not null, <a>queue a task</a> to resolve |job|'s [=job/job promise=] with |value| on |job|'s [=job/client=]'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
+      1. Let |convertedValue| be null.
+      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to run the following substeps:
+          1. If |job|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the {{ServiceWorkerRegistration}} object that represents |value|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+          1. Else, set |convertedValue| to |value|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+          1. Resolve |job|'s [=job/job promise=] with |convertedValue|.
       1. For each |equivalentJob| in |job|'s <a>list of equivalent jobs</a>:
-          1. If |equivalentJob|'s [=job/client=] is not null, <a>queue a task</a> to resolve |equivalentJob|'s [=job/job promise=] with |value| on |equivalentJob|'s [=job/client=]'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
+          1. If |equivalentJob|'s [=job/client=] is null, continue to the next iteration of the loop.
+          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to run the following substeps:
+              1. If |equivalentJob|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the {{ServiceWorkerRegistration}} object that represents |value|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
+              1. Else, set |convertedValue| to |value|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
+              1. Resolve |equivalentJob|'s [=job/job promise=] with |convertedValue|.
   </section>
 
   <section algorithm>
     <h3 id="reject-job-promise-algorithm"><dfn>Reject Job Promise</dfn></h3>
 
       : Input
-      :: |job|, a <a>job</a>
-      :: |reason|, an <a>exception</a>
+      :: |job|, a [=job=]
+      :: |reason|, an [=exception=]
       : Output
       :: none
 
-      1. If |job|'s [=job/client=] is not null, <a>queue a task</a> to reject |job|'s [=job/job promise=] with |reason| on |job|'s [=job/client=]'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
-      1. For each |equivalentJob| in |job|'s <a>list of equivalent jobs</a>:
-          1. If |equivalentJob|'s [=job/client=] is not null, <a>queue a task</a> to reject |equivalentJob|'s [=job/job promise=] with |reason| on |equivalentJob|'s [=job/client=]'s <a>responsible event loop</a> using the <a>DOM manipulation task source</a> as the <a>task source</a>.
+      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |job|'s [=job/job promise=] with an exception that is a copy of |reason|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+      1. For each |equivalentJob| in |job|'s [=list of equivalent jobs=]:
+          1. If |equivalentJob|'s [=job/client=] is null, continue to the next iteration of the loop:
+          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |equivalentJob|'s [=job/job promise=] with an exception that is a copy of |reason|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
   </section>
 
   <section algorithm>
@@ -2211,7 +2220,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
           1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=]'s value, then:
-              1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+              1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
           1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/update via cache mode=].
@@ -2301,7 +2310,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
 
       1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=] with the *exclude fragments flag* set, and |script|'s [=source text=] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=source text=], if |script| is a [=classic script=], and |script|'s [=module script/module record=]'s \[[ECMAScriptCode]] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=module script/module record=]'s \[[ECMAScriptCode]] otherwise, then:
-          1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+          1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
           1. Let |worker| be a new [=/service worker=].
@@ -2354,7 +2363,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
-      1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
+      1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
       1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=] and all the [=/service workers=] whose <a>containing service worker registration</a> is |registration|.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
