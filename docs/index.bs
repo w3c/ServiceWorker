@@ -2872,7 +2872,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request| is a <a>potential-navigation-or-subresource request</a>, then:
           1. Return null.
-      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. Else if |request| is a <a>non-subresource request</a>, then:
 
           Note: If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.
@@ -2885,9 +2884,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |activeWorker|'s <a>set of event types to handle</a> contains <code>fetch</code>, then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> contains <code>fetch</code>, then:
 
-              Note: If the above is true except |activeWorker|'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
+              Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
               1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
               1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
@@ -2909,6 +2908,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Else if |request| is a <a>subresource request</a>, then:
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. If |activeWorker|'s <a>set of event types to handle</a> does not contain <code>fetch</code>, then:
           1. Return null and continue running these steps <a>in parallel</a>.
           1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
