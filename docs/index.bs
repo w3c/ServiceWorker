@@ -2884,7 +2884,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=] and |registration|'s [=navigation preload enabled flag=] is set, and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> contains <code>fetch</code>, then:
+
+              Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
+
               1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
               1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
               1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
