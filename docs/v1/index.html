@@ -1177,7 +1177,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version 009836c46217067220542eccc715a300175723d6" name="generator">
+  <meta content="Bikeshed version 6ef2009a74468c39cdee1058d2c325259bdcb4fa" name="generator">
 <style>/* style-md-lists */
 
             /* This is a weird hack for me not yet following the commonmark spec
@@ -1424,7 +1424,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="http://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers 1</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-01-31">31 January 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-02-02">2 February 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1737,7 +1737,7 @@ pre.idl.highlight { color: #708090; }
      <p>A <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-24">service worker</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-export="" id="dfn-script-resource-map">script resource map</dfn> which is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map">ordered map</a> where the keys are <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URLs</a> and the values are <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response">responses</a>.</p>
      <p>A <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-25">service worker</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-export="" id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.</p>
      <p>A <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-26">service worker</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-export="" id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.</p>
-     <p>A <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-27">service worker</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-export="" id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> whose element type is an <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>’s event type. It is initially set to null.</p>
+     <p>A <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-27">service worker</a> has an associated <dfn class="dfn-paneled" data-dfn-for="service worker" data-dfn-type="dfn" data-export="" id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-set">set</a>) whose <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item">item</a> is an <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener">event listener</a>’s event type. It is initially an empty set.</p>
      <section>
       <h4 class="heading settled" data-level="2.1.1" id="service-worker-lifetime"><span class="secno">2.1.1. </span><span class="content">Lifetime</span><a class="self-link" href="#service-worker-lifetime"></a></h4>
       <p>The lifetime of a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-28">service worker</a> is tied to the execution lifetime of events and not references held by <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-2">service worker clients</a> to the <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-1">ServiceWorker</a></code> object.</p>
@@ -4805,8 +4805,14 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>If <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag-1">has ever been evaluated flag</a> is unset, then:</p>
        <ol>
         <li data-md="">
-         <p>Set <var>workerGlobalScope</var>’s associated <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-20">service worker</a>'s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-1">set of event types to handle</a> to the set of event types created from <var>settingsObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s associated list of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener">event listeners</a>' event types.</p>
-         <p class="note" role="note"><span>Note:</span> If the global object’s associated list of event listeners does not have any event listener added at this moment, the service worker’s set of event types to handle is set to an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.</p>
+         <p>For each <var>eventType</var> of <var>settingsObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s associated list of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener">event listeners</a>' event types:</p>
+         <ol>
+          <li data-md="">
+           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append">Append</a> <var>eventType</var> to <var>workerGlobalScope</var>’s associated <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-20">service worker</a>'s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-1">set of event types to handle</a>.</p>
+         </ol>
+       </ol>
+       <p class="note" role="note"><span>Note:</span> If the global object’s associated list of event listeners does not have any event listener added at this moment, the service worker’s set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.</p>
+       <ol>
         <li data-md="">
          <p>Set <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag-2">has ever been evaluated flag</a>.</p>
        </ol>
@@ -4921,7 +4927,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>activeWorker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-29">active worker</a>.</p>
       <li data-md="">
-       <p>If <var>activeWorker</var>’s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-2">set of event types to handle</a> does not contain <code>fetch</code>, then:</p>
+       <p>If <var>activeWorker</var>’s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-2">set of event types to handle</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain">contain</a> <code>fetch</code>, then:</p>
        <ol>
         <li data-md="">
          <p>Return null and continue running these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</p>
@@ -5029,7 +5035,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>activeWorker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-31">active worker</a>.</p>
       <li data-md="">
-       <p>If <var>activeWorker</var>’s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-3">set of event types to handle</a> does not contain <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code>, then:</p>
+       <p>If <var>activeWorker</var>’s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle-3">set of event types to handle</a> does not <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-contain">contain</a> <var>event</var>’s <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#dom-event-type">type</a></code>, then:</p>
        <ol>
         <li data-md="">
          <p>Return and continue running these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>.</p>
@@ -6474,11 +6480,15 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <li>
     <a data-link-type="biblio">[INFRA]</a> defines the following terms:
     <ul>
+     <li><a href="https://infra.spec.whatwg.org/#set-append">append</a>
      <li><a href="https://infra.spec.whatwg.org/#ascii-case-insensitive">ascii case-insensitive</a>
+     <li><a href="https://infra.spec.whatwg.org/#list-contain">contain</a>
      <li><a href="https://infra.spec.whatwg.org/#map-exists">exists</a>
      <li><a href="https://infra.spec.whatwg.org/#map-iterate">for each</a>
      <li><a href="https://infra.spec.whatwg.org/#map-getting-the-keys">get the keys</a>
+     <li><a href="https://infra.spec.whatwg.org/#list-item">item</a>
      <li><a href="https://infra.spec.whatwg.org/#ordered-map">ordered map</a>
+     <li><a href="https://infra.spec.whatwg.org/#ordered-set">ordered set</a>
      <li><a href="https://infra.spec.whatwg.org/#map-remove">remove</a>
      <li><a href="https://infra.spec.whatwg.org/#map-set">set</a>
     </ul>

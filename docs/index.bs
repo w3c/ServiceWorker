@@ -34,6 +34,10 @@ spec: fetch;
         text: empty
     type: interface
         text: ReadableStream
+spec: infra;
+    type: dfn;
+        for: set; text: append
+        for: list; text: append
 </pre>
 
 <pre class="anchors">
@@ -162,7 +166,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker=] has an associated <dfn export id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> whose element type is an <a>event listener</a>'s event type. It is initially set to null.
+    A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=item=] is an <a>event listener</a>'s event type. It is initially an empty set.
 
     A [=/service worker=] has an associated <dfn export id="dfn-foreign-fetch-scopes">list of foreign fetch scopes</dfn> whose element type is a [=/URL=]. It is initially empty.
 
@@ -2821,9 +2825,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.
 
       1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
-          1. Set |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a> to the set of event types created from |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types.
+          1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
+              1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
 
-              Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle is set to an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
+          Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
 
           1. Set |script|'s <a>has ever been evaluated flag</a>.
       1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
@@ -2884,7 +2889,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> contains <code>fetch</code>, then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -2909,7 +2914,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
-      1. If |activeWorker|'s <a>set of event types to handle</a> does not contain <code>fetch</code>, then:
+      1. If |activeWorker|'s <a>set of event types to handle</a> does not [=set/contain=] <code>fetch</code>, then:
           1. Return null and continue running these steps <a>in parallel</a>.
           1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
           1. Abort these steps.
@@ -3042,7 +3047,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Assert: <a>scope to registration map</a> contains a value equal to |registration|.
       1. Assert: |registration|'s <a>active worker</a> is not null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
-      1. If |activeWorker|'s <a>set of event types to handle</a> does not contain |event|'s {{Event/type}}, then:
+      1. If |activeWorker|'s <a>set of event types to handle</a> does not [=set/contain=] |event|'s {{Event/type}}, then:
           1. Return and continue running these steps <a>in parallel</a>.
           1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
           1. Abort these steps.
