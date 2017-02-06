@@ -2269,8 +2269,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
             1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
             1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=service worker registration/last update check time=] to the current time.
+            1. [=Extract a MIME type=] from the |response|'s [=unsafe response=]'s [=response/header list=]. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, return a [=network error=].
             1. If |response|'s <a>unsafe response</a>'s [=response/type=] is not "<code>error</code>", and |response|'s [=response/status=] is an <a>ok status</a>, then:
-                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|
+                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|.
             1. Return |response|.
         1. Else:
             1. If <a>script resource map</a>[|url|] [=map/exists=], return <a>script resource map</a>[|url|].
