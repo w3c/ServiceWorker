@@ -168,7 +168,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=item=] is an <a>event listener</a>'s event type. It is initially an empty set.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=item=] is an [=event=]. It is initially an empty set.
+    A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=item=] is an {{ExtendableEvent}}. It is initially an empty set.
 
     A [=/service worker=] has an associated <dfn export id="dfn-foreign-fetch-scopes">list of foreign fetch scopes</dfn> whose element type is a [=/URL=]. It is initially empty.
 
@@ -2701,7 +2701,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Let |installFailed| be false.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
-      1. Let |redundantWorker| be null.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
@@ -2722,19 +2721,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Wait for |task| to have executed or been discarded.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. If |installFailed| is true, then:
-          1. Set |redundantWorker| to |registration|'s <a>installing worker</a>.
+          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
           1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Set |registration|'s <a>installing worker</a>'s <a>imported scripts updated flag</a>.
       1. If |registration|'s <a>waiting worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a>waiting worker</a>.
-          1. <a lt="Terminate Service Worker">Terminate</a> |redundantWorker|.
+          1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
+          1. Run the [=Update Worker State=] algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and |registration|'s <a>installing worker</a> as the arguments.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>waiting worker</a> and *installed* as the arguments.
-      1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. Invoke <a>Finish Job</a> with |job|.
       1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm have executed.
       1. Invoke [=Try Activate=] with |registration|.
@@ -2751,15 +2748,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. If |registration|'s <a>waiting worker</a> is null, abort these steps.
-      1. Let |redundantWorker| be null.
-      1. If |registration|'s [=active worker=] is not null, |redundantWorker| be |registration|'s [=active worker=].
+      1. If |registration|'s [=active worker=] is not null, then:
+          1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
+          1. Run the [=Update Worker State=] algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and |registration|'s <a>waiting worker</a> as the arguments.
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activating* as the arguments.
 
           Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
 
-      1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. For each [=/service worker client=] |client| whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=]:
           1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
           1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
@@ -2789,8 +2786,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. Assert: |registration|'s [=waiting worker=] is not null.
-      1. If |registration|'s [=active worker=] is null, or if the result of running [=Service Worker Has No Pending Events=] with |registration|'s [=active worker=] is true, and no [=/service worker client=] is [=using=] |registration| or |registration|’s [=waiting worker=]'s [=skip waiting flag=] is set, then invoke [=Activate=] with |registration|.
+      1. If |registration|'s [=waiting worker=] is null, return.
+      1. Invoke [=Activate=] with |registration| if either of the following is true:
+        * |registration|'s [=active worker=] is null.
+        * The result of running [=Service Worker Has No Pending Events=] with |registration|’s [=active worker=] is true, and no [=/service worker client=] is [=using=] |registration| or |registration|’s [=waiting worker=]'s [=skip waiting flag=] is set.
   </section>
 
   <section algorithm>
@@ -2865,6 +2864,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |serviceWorker| is not running, abort these steps.
       1. Let |serviceWorkerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
       1. Set |serviceWorkerGlobalScope|'s closing flag to true.
+      1. [=set/Remove=] all the [=items=] from |serviceWorker|'s [=set of extended events=].
       1. If there are any <a>tasks</a>, whose <a>task source</a> is either the <a>handle fetch task source</a> or the <a>handle functional event task source</a>, queued in |serviceWorkerGlobalScope|'s <a>event loop</a>'s [=/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>containing service worker registration</a>'s corresponding [=service worker registration/task queues=] in the same order using their original <a>task sources</a>, and discard all the <a>tasks</a> (including <a>tasks</a> whose <a>task source</a> is neither the <a>handle fetch task source</a> nor the <a>handle functional event task source</a>) from |serviceWorkerGlobalScope|'s <a>event loop</a>'s [=/task queues=] without processing them.
 
           Note: This effectively means that the fetch events and the other functional events such as push events are backed up by the registration's task queues while the other tasks including message events are discarded.
