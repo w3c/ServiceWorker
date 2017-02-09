@@ -1386,7 +1386,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute DOMString clientId;
         readonly attribute DOMString reservedClientId;
         readonly attribute DOMString targetClientId;
-        readonly attribute boolean isReload;
 
         void respondWith(Promise&lt;Response&gt; r);
       };
@@ -1398,7 +1397,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         DOMString clientId = "";
         DOMString reservedClientId = "";
         DOMString targetClientId = "";
-        boolean isReload = false;
       };
     </pre>
 
@@ -1438,14 +1436,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="fetch-event-targetclientid">{{FetchEvent/targetClientId|event.targetClientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>targetClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
-    </section>
-
-    <section>
-      <h4 id="fetch-event-isreload">{{FetchEvent/isReload|event.isReload}}</h4>
-
-      <dfn attribute for="FetchEvent"><code>isReload</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to false.
-
-      Note: Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of Ctrl+l enter is left to the implementations of the user agents.
     </section>
 
     <section algorithm="fetch-event-respondwith">
@@ -2933,7 +2923,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
           1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
           1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
-          1. Let the {{FetchEvent/isReload}} attribute of |e| be initialized to <code>true</code> if |request|'s [=request/client=] is a <a>window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
           1. If |e|'s [=FetchEvent/wait to respond flag=] is set, then:
