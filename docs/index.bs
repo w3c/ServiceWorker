@@ -2976,6 +2976,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. For each |origin| in |activeWorker|'s <a>list of foreign fetch origins</a>:
           1. If |origin| is equal to |request|'s [=request/origin=], set |originMatches| to true.
       1. If |originMatches| is false, return null.
+      1. If |request|'s [=request/method=] is not a [=CORS-safelisted method=], or if there is at least one [=header=] in |request|'s [=request/header list=] for whose [=header/name=] is not a [=CORS-safelisted request-header=], return null.
+
+          Note: In the future this might be relaxed by adding supported methods and headers to the {{ForeignFetchOptions}}.
+
       1. Let |r| be a new {{Request}} object associated with |request|.
       1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
