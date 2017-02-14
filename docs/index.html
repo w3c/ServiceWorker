@@ -1852,12 +1852,12 @@ pre.idl.highlight { color: #708090; }
      <a class="self-link" href="#example-7e94092e"></a> Bootstrapping with a service worker: 
 <pre class="highlight"><span class="c1">// scope defaults to the path the script sits in
 </span><span class="c1">// "/" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"success!"</span><span class="p">)</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span>registration<span class="p">.</span>installing<span class="p">)</span> <span class="p">{</span>
     registration<span class="p">.</span>installing<span class="p">.</span>postMessage<span class="p">(</span><span class="s2">"Howdy from your installing page."</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">}</span><span class="p">,</span> err <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+<span class="p">}</span><span class="p">,</span> err <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Installing the worker failed!"</span><span class="p">,</span> err<span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -2384,10 +2384,10 @@ pre.idl.highlight { color: #708090; }
     <div class="example" id="example-744d6b8b">
      <a class="self-link" href="#example-744d6b8b"></a> Serving Cached Resources: 
 <pre class="highlight"><span class="c1">// caching.js
-</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   event<span class="p">.</span>waitUntil<span class="p">(</span>
     <span class="c1">// Open a cache of resources.
-</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=></span> <span class="p">{</span>
       <span class="c1">// Begins the process of fetching them.
 </span>      <span class="c1">// The coast is only clear when all the resources are ready.
 </span>      <span class="k">return</span> cache<span class="p">.</span>addAll<span class="p">(</span><span class="p">[</span>
@@ -2401,16 +2401,16 @@ pre.idl.highlight { color: #708090; }
   <span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   <span class="c1">// No "fetch" events are dispatched to the service worker until it
 </span>  <span class="c1">// successfully installs and activates.
 </span>
   <span class="c1">// All operations on caches are async, including matching URLs, so we use
 </span>  <span class="c1">// promises heavily. e.respondWith() even takes promises to enable this:
 </span>  event<span class="p">.</span>respondWith<span class="p">(</span>
-    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> response <span class="o">||</span> fetch<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">;</span>
-    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> caches<span class="p">.</span>match<span class="p">(</span><span class="s2">"/fallback.html"</span><span class="p">)</span><span class="p">;</span>
     <span class="p">}</span><span class="p">)</span>
   <span class="p">)</span><span class="p">;</span>
@@ -3613,6 +3613,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Invoke <a data-link-type="dfn" href="#start-register" id="ref-for-start-register-2">Start Register</a> with <var>scopeURL</var>, <var>scriptURL</var>, a new <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>, null, <var>contextURL</var>, <var>workerType</var>, and <var>useCache</var>.</p>
      </ol>
+    </section>
+    <section>
      <h3 class="heading settled" data-level="5.2" id="link-element-processing"><span class="secno">5.2. </span><span class="content">Processing the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element</span><a class="self-link" href="#link-element-processing"></a></h3>
      <p>When a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-2">serviceworker link</a>’s <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element is <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#insert-an-element-into-a-document">inserted into a document</a>, or a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-3">serviceworker link</a> is created on a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element that is already <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#in-a-document-tree">in a document tree</a>, or the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-href">href</a></code> or <code><a data-link-type="element-sub" href="#element-attrdef-link-scope" id="ref-for-element-attrdef-link-scope-1">scope</a></code> attributes of the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element of a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-4">serviceworker link</a> is changed, the user agent <em>should</em> run these steps:</p>
      <ol>
@@ -3655,7 +3657,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 <pre class="highlight">Link: &lt;/js/sw.js>; rel="serviceworker"; scope="/"
 </pre>
       <p>has more or less the same effect as a document being loaded in a secure context with the following <code>link</code> element:</p>
-<pre class="highlight"><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"serviceworker"</span> <span class="na">href=</span><span class="s">"/js/sw.js"</span> <span class="na">scope=</span><span class="s">"/"</span><span class="nt">></span>
+<pre class="highlight"><span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">"serviceworker"</span> <span class="na">href</span><span class="o">=</span><span class="s">"/js/sw.js"</span> <span class="na">scope</span><span class="o">=</span><span class="s">"/"</span><span class="p">></span>
 </pre>
       <p>which is more or less equivalent to the page containing javascript code like:</p>
 <pre class="highlight">navigator<span class="p">.</span>serviceworker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
@@ -6511,7 +6513,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-bf118df6"></a> Default scope: 
 <pre class="highlight"><span class="c1">// Maximum allowed scope defaults to the path the script sits in
 </span><span class="c1">// "/js" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded with the default scope '/js'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6520,7 +6522,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-76c5aa8b"></a> Upper path without Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response has no Service-Worker-Allowed header
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed due to the path restriction violation."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6529,7 +6531,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-49d267fe"></a> Upper path with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded as the max allowed scope was overriden to '/'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6538,7 +6540,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-7a18b25f"></a> A path restriction voliation even with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /foo"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed as the scope is still out of the overriden maximum allowed scope."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6556,7 +6558,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <h2 class="heading settled" data-level="9" id="acknowledgements"><span class="secno">9. </span><span class="content">Acknowledgements</span><a class="self-link" href="#acknowledgements"></a></h2>
     <p>Deep thanks go to Andrew Betts for organizing and hosting a small workshop of like-minded individuals including: Jake Archibald, Jackson Gabbard, Tobie Langel, Robin Berjon, Patrick Lauke, Christian Heilmann. From the clarity of the day’s discussions and the use-cases outlined there, much has become possible. Further thanks to Andrew for raising consciousness about the offline problem. His organization of EdgeConf and inclusion of Offline as a persistent topic there has created many opportunities and connections that have enabled this work to progress.</p>
     <p>Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the service worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson’s rigorous Web Worker spec. Much thanks to him.</p>
-    <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa, Jake Archibald, Josh Soref, Jinho Bang and Yutaka Hirano.</p>
+    <p>In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa, Jake Archibald, Josh Soref, Jinho Bang, Yutaka Hirano, and Michael(tm) Smith.</p>
     <p>Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.</p>
     <p>The authors would also like to thank Dimitri Glazkov for his scripts and formatting tools which have been essential in the production of this specification. The authors are also grateful for his considerable guidance.</p>
     <p>Thanks also to Vivian Cromwell, Greg Simon, Alex Komoroske, Wonsuk Lee, and Seojin Kim for their considerable professional support.</p>
