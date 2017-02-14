@@ -1731,7 +1731,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   The <dfn id="dfn-link-type-serviceworker" lt="serviceworker link type"><code>serviceworker</code></dfn> keyword may be used with <{link}> elements. This keyword creates an <a>external resource link</a> (<dfn id="dfn-serviceworker-link">serviceworker link</dfn>) that is used to declare a [=/service worker registration=] and its [=service worker registration/scope url=].
 
   <section>
-    <h3 id="link-element-processing">Processing</h3>
+    <h3 id="link-header-processing">Processing the <code>Link</code> header</h3>
 
     When a user agent that supports [[!RFC5988]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent *should* run these steps:
 
@@ -1748,7 +1748,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |useCache| be true if the <code>Link</code> header has a <a>target attribute</a> named "<code>usecache</code>", otherwise false.
       1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL|, |workerType|, and |useCache|.
 
-    When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
+    <h3 id="link-element-processing">Processing the <{link}> element</h3>
+
+    When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, or a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
 
       1. If the <{link/href}> attribute is the empty string, abort these steps.
       1. Let |client| be the document's [=ServiceWorkerContainer/service worker client=].
