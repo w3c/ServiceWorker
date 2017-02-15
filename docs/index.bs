@@ -231,7 +231,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <dfn export id="dfn-sharedworker-client">shared worker client</dfn> is a [=/client=] whose [=environment settings object/global object=] is a {{SharedWorkerGlobalScope}} object.
 
-    A <dfn export id="dfn-worker-client">worker client</dfn> is either a <a>dedicated worker client</a> or a <a>shared worker client</a>.
+    A <dfn export id="dfn-serviceworker-client">service worker client</dfn> is a [=/client=] whose [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object.
+
+    A <dfn export id="dfn-worker-client">worker client</dfn> is a <a>dedicated worker client</a>, a <a>shared worker client</a>, or a <a>service worker client</a>.
   </section>
 
   <section>
@@ -999,6 +1001,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If the [=context object=]'s [=Client/client=] is a type of [=environment=] or is a [=window client=], return {{ClientType/"window"}}.
         1. Else if the [=context object=]'s [=Client/client=] is a [=dedicated worker client=], return {{ClientType/"worker"}}.
         1. Else if the [=context object=]'s [=Client/client=] is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
+        1. Else if the [=context object=]'s [=Client/client=] is a [=service worker client=], return {{ClientType/"serviceworker"}}.
     </section>
 
     <section>
@@ -1129,6 +1132,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         "window",
         "worker",
         "sharedworker",
+        "serviceworker",
         "all"
       };
     </pre>
@@ -1189,6 +1193,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Add |client| to |targetClients|.
             1. Let |matchedClients| be an empty array.
             1. For each [=/client=] |client| in |targetClients|:
+                1. If |client|'s [=environment settings object/global object=] is the [=current global object=], then continue to the next iteration of the loop.
                 1. If |options|.{{ClientQueryOptions/type}} is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is a type of <a>environment</a> or is a <a>window client</a>, then:
                     1. Let |browsingContext| be null.
                     1. Let |isClientEnumerable| be true.
@@ -1210,7 +1215,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. If |isClientEnumerable| is true, then:
                         1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
                         1. Add |windowClient| to |matchedClients|.
-                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a <a>dedicated worker client</a>, or |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a <a>shared worker client</a>, then:
+                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a <a>dedicated worker client</a>, then:
+                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
+                    1. Add |clientObject| to |matchedClients|.
+                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a <a>shared worker client</a>, then:
+                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
+                    1. Add |clientObject| to |matchedClients|.
+                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"serviceworker"}} or {{ClientType/"all"}} and |client| is a <a>service worker client</a>, then:
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
                     1. Add |clientObject| to |matchedClients|.
             1. Sort |matchedClients| such that:
