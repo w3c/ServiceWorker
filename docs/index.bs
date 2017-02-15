@@ -136,7 +136,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section dfn-for="service worker">
     <h3 id="service-worker-concept">Service Worker</h3>
 
-    A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A [=/service worker=] executes in the registering [=/service worker client=]'s [=/origin=].
+    A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A [=/service worker=] executes in the registering [=/client=]'s [=/origin=].
 
     A [=/service worker=] has an associated <dfn export id="dfn-state">state</dfn>, which is one of *parsed*, *installing*, *installed*, *activating*, *activated*, and *redundant*. It is initially *parsed*.
 
@@ -175,7 +175,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
-      The lifetime of a [=/service worker=] is tied to the execution lifetime of events and not references held by [=/service worker clients=] to the {{ServiceWorker}} object.
+      The lifetime of a [=/service worker=] is tied to the execution lifetime of events and not references held by [=/clients=] to the {{ServiceWorker}} object.
 
       A user agent *may* <a lt="terminate service worker">terminate</a> [=/service workers=] at any time it:
 
@@ -214,22 +214,22 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
 
-      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>scope to registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s [=service worker registration/scope url=] and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/service worker clients=].
+      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>scope to registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s [=service worker registration/scope url=] and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/clients=].
     </section>
   </section>
 
-  <section dfn-for="service worker client">
-    <h3 id="service-worker-client-concept">Service Worker Client</h3>
+  <section dfn-for="client">
+    <h3 id="client-concept">Client</h3>
 
-    A <dfn export id="dfn-service-worker-client" for="">service worker client</dfn> is a type of <a>environment</a> or <a>environment settings object</a>.
+    A <dfn export id="dfn-client" for="">client</dfn> is a type of <a>environment</a> or <a>environment settings object</a>.
 
-    A [=/service worker client=] has an algorithm defined as the <dfn export for="service worker client">origin</dfn> that returns the [=/service worker client=]'s <a>creation URL</a>'s [=url/origin=] if the [=/service worker client=] is a type of <a>environment</a>, and the [=/service worker client=]'s [=environment settings object/origin=] otherwise.
+    A [=/client=] has an algorithm defined as the <dfn export for="client">origin</dfn> that returns the [=/client=]'s <a>creation URL</a>'s [=url/origin=] if the [=/client=] is a type of <a>environment</a>, and the [=/client=]'s [=environment settings object/origin=] otherwise.
 
-    A <dfn export id="dfn-window-client">window client</dfn> is a [=/service worker client=] whose [=environment settings object/global object=] is a {{Window}} object.
+    A <dfn export id="dfn-window-client">window client</dfn> is a [=/client=] whose [=environment settings object/global object=] is a {{Window}} object.
 
-    A <dfn export id="dfn-dedicatedworker-client">dedicated worker client</dfn> is a [=/service worker client=] whose [=environment settings object/global object=] is a {{DedicatedWorkerGlobalScope}} object.
+    A <dfn export id="dfn-dedicatedworker-client">dedicated worker client</dfn> is a [=/client=] whose [=environment settings object/global object=] is a {{DedicatedWorkerGlobalScope}} object.
 
-    A <dfn export id="dfn-sharedworker-client">shared worker client</dfn> is a [=/service worker client=] whose [=environment settings object/global object=] is a {{SharedWorkerGlobalScope}} object.
+    A <dfn export id="dfn-sharedworker-client">shared worker client</dfn> is a [=/client=] whose [=environment settings object/global object=] is a {{SharedWorkerGlobalScope}} object.
 
     A <dfn export id="dfn-worker-client">worker client</dfn> is either a <a>dedicated worker client</a> or a <a>shared worker client</a>.
   </section>
@@ -237,13 +237,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="selection">Selection and Use</h3>
 
-    A [=/service worker client=] independently <a lt="selection">selects</a> and <a>uses</a> a [=/service worker registration=] for its own loading and its subresources. The <dfn id="dfn-service-worker-registration-selection">selection</dfn> of a [=/service worker registration=], upon a <a>non-subresource request</a>, is a process of either <a lt="Match Service Worker Registration">matching</a> a [=/service worker registration=] from <a>scope to registration map</a> or inheriting an existing [=/service worker registration=] from its parent or owner context depending on the request's [=request/url=].
+    A [=/client=] independently <a lt="selection">selects</a> and <a>uses</a> a [=/service worker registration=] for its own loading and its subresources. The <dfn id="dfn-service-worker-registration-selection">selection</dfn> of a [=/service worker registration=], upon a <a>non-subresource request</a>, is a process of either <a lt="Match Service Worker Registration">matching</a> a [=/service worker registration=] from <a>scope to registration map</a> or inheriting an existing [=/service worker registration=] from its parent or owner context depending on the request's [=request/url=].
 
-    When the request's [=request/url=] is not <a lt="is local">local</a>, a [=/service worker client=] <a lt="Match Service Worker Registration">matches</a> a [=/service worker registration=] from <a>scope to registration map</a>. That is, the [=/service worker client=] attempts to consult a [=/service worker registration=] whose [=service worker registration/scope url=] <a lt="Match Service Worker Registration">matches</a> its <a>creation URL</a>.
+    When the request's [=request/url=] is not <a lt="is local">local</a>, a [=/client=] <a lt="Match Service Worker Registration">matches</a> a [=/service worker registration=] from <a>scope to registration map</a>. That is, the [=/client=] attempts to consult a [=/service worker registration=] whose [=service worker registration/scope url=] <a lt="Match Service Worker Registration">matches</a> its <a>creation URL</a>.
 
-    When the request's [=request/url=] <a>is local</a>, if the [=/service worker client=]'s <a>responsible browsing context</a> is a <a>nested browsing context</a> or the [=/service worker client=] is a <a>worker client</a>, the [=/service worker client=] inherits the [=/service worker registration=] from its <a>parent browsing context</a>'s environment or one of <a>the worker's Documents</a>' environment, respectively, if it exists.
+    When the request's [=request/url=] <a>is local</a>, if the [=/client=]'s <a>responsible browsing context</a> is a <a>nested browsing context</a> or the [=/client=] is a <a>worker client</a>, the [=/client=] inherits the [=/service worker registration=] from its <a>parent browsing context</a>'s environment or one of <a>the worker's Documents</a>' environment, respectively, if it exists.
 
-    If the <a>selection</a> was successful, the <a lt="selection">selected</a> [=/service worker registration=]'s <a>active worker</a> starts to <dfn id="dfn-control">control</dfn> the [=/service worker client=]. Otherwise, the flow returns to [=/fetch=] where it falls back to the default behavior. When a [=/service worker client=] is <a>controlled</a> by an <a>active worker</a>, it is considered that the [=/service worker client=] is <dfn id="dfn-use" lt="using|uses|used">using</dfn> the <a>active worker</a>'s <a>containing service worker registration</a>.
+    If the <a>selection</a> was successful, the <a lt="selection">selected</a> [=/service worker registration=]'s <a>active worker</a> starts to <dfn id="dfn-control">control</dfn> the [=/client=]. Otherwise, the flow returns to [=/fetch=] where it falls back to the default behavior. When a [=/client=] is <a>controlled</a> by an <a>active worker</a>, it is considered that the [=/client=] is <dfn id="dfn-use" lt="using|uses|used">using</dfn> the <a>active worker</a>'s <a>containing service worker registration</a>.
   </section>
 
   <section>
@@ -479,7 +479,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigator-service-worker-unregister">
       <h4 id="navigator-service-worker-unregister">{{ServiceWorkerRegistration/unregister()}}</h4>
 
-      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently <a>controlled</a> [=/service worker client=]'s <a>active service worker</a>'s <a>containing service worker registration</a> is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.
+      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently <a>controlled</a> [=/client=]'s <a>active service worker</a>'s <a>containing service worker registration</a> is effective until all the [=/clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.
 
       <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method *must* run these steps:
 
@@ -561,7 +561,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{ServiceWorkerContainer}} provides capabilities to register, unregister, and update the [=/service worker registrations=], and provides access to the state of the [=/service worker registrations=] and their associated [=/service workers=].
 
-    A {{ServiceWorkerContainer}} has an associated <dfn for="ServiceWorkerContainer">service worker client</dfn>, which is a [=/service worker client=] whose [=environment settings object/global object=] is associated with the {{Navigator}} object or the {{WorkerNavigator}} object that the {{ServiceWorkerContainer}} is retrieved from.
+    A {{ServiceWorkerContainer}} has an associated <dfn for="ServiceWorkerContainer">client</dfn>, which is a [=/client=] whose [=environment settings object/global object=] is associated with the {{Navigator}} object or the {{WorkerNavigator}} object that the {{ServiceWorkerContainer}} is retrieved from.
 
     A {{ServiceWorkerContainer}} object has an associated <dfn for="ServiceWorkerContainer">ready promise</dfn> (a <a>promise</a>). It is initially set to a new <a>promise</a>.
 
@@ -572,7 +572,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn attribute for="ServiceWorkerContainer"><code>controller</code></dfn> attribute *must* run these steps:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/client=].
         1. Return the {{ServiceWorker}} object that represents |client|'s <a>active service worker</a>.
 
       Note: {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} returns <code>null</code> if the request is a force refresh (shift+refresh). The {{ServiceWorker}} objects returned from this attribute getter that represent the same [=/service worker=] are the same objects.
@@ -584,7 +584,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn attribute for="ServiceWorkerContainer"><code>ready</code></dfn> attribute *must* run these steps:
 
         1. If the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=] is settled, return the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=].
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/client=].
         1. Let |registration| be null.
         1. Let |clientURL| be |client|'s <a>creation URL</a>.
         1. Run the following substeps <a>in parallel</a>:
@@ -611,7 +611,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method *must* run these steps:
 
         1. Let |p| be a <a>promise</a>.
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/client=].
         1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. Let |scopeURL| be null.
         1. If |options|.{{RegistrationOptions/scope}} is <a>present</a>, set |scopeURL| to the result of <a lt="URL parser">parsing</a> |options|.{{RegistrationOptions/scope}} with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
@@ -624,7 +624,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="ServiceWorkerContainer"><code>getRegistration(|clientURL|)</code></dfn> method *must* run these steps:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/client=].
         1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |clientURL| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" exception.
@@ -643,7 +643,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="ServiceWorkerContainer"><code>getRegistrations()</code></dfn> method *must* run these steps:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/client=].
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. Let |array| be an empty array.
@@ -741,7 +741,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         <tr>
           <td><dfn event id="service-worker-container-controllerchange-event"><code>controllerchange</code></dfn></td>
           <td>{{Event}}</td>
-          <td>The [=ServiceWorkerContainer/service worker client=]'s <a>active service worker</a> changes. (See step 9.2 of the <a>Activate</a> algorithm. The <a>skip waiting flag</a> of a [=/service worker=] causes <a lt="activate">activation</a> of the [=/service worker registration=] to occur while [=/service worker clients=] are <a>using</a> the [=/service worker registration=], {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} immediately reflects the <a>active worker</a> as the [=/service worker=] that <a>controls</a> the [=/service worker client=].)</td>
+          <td>The [=ServiceWorkerContainer/client=]'s <a>active service worker</a> changes. (See step 9.2 of the <a>Activate</a> algorithm. The <a>skip waiting flag</a> of a [=/service worker=] causes <a lt="activate">activation</a> of the [=/service worker registration=] to occur while [=/clients=] are <a>using</a> the [=/service worker registration=], {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} immediately reflects the <a>active worker</a> as the [=/service worker=] that <a>controls</a> the [=/client=].)</td>
         </tr>
       </tbody>
     </table>
@@ -880,7 +880,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for importscripts flag</dfn>. It is initially unset.
 
-    Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/service worker clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
+    Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
 
     <section>
       <h4 id="service-worker-global-scope-clients">{{ServiceWorkerGlobalScope/clients}}</h4>
@@ -897,7 +897,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-global-scope-skipwaiting">
       <h4 id="service-worker-global-scope-skipwaiting">{{ServiceWorkerGlobalScope/skipWaiting()}}</h4>
 
-      Note: The {{ServiceWorkerGlobalScope/skipWaiting()}} method allows this [=/service worker=] to progress from the [=service worker/registration=]'s <a lt="waiting worker">waiting</a> position to <a lt="active worker">active</a> even while [=/service worker clients=] are <a>using</a> the [=service worker/registration=].
+      Note: The {{ServiceWorkerGlobalScope/skipWaiting()}} method allows this [=/service worker=] to progress from the [=service worker/registration=]'s <a lt="waiting worker">waiting</a> position to <a lt="active worker">active</a> even while [=/clients=] are <a>using</a> the [=service worker/registration=].
 
       <dfn method for="ServiceWorkerGlobalScope"><code>skipWaiting()</code></dfn> method *must* run these steps:
 
@@ -969,26 +969,26 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    A {{Client}} object has an associated <dfn for="Client">service worker client</dfn> (a [=/service worker client=]).
+    A {{Client}} object has an associated <dfn for="Client">client</dfn> (a [=/client=]).
 
     A {{Client}} object has an associated <dfn for="Client">reserved state</dfn>, which is either true or false.
 
-    A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-visibilitystate">visibility state</dfn>, which is one of {{Document/visibilityState}} attribute value.
+    A {{WindowClient}} object has an associated <dfn id="dfn-client-visibilitystate">visibility state</dfn>, which is one of {{Document/visibilityState}} attribute value.
 
-    A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-focusstate">focus state</dfn>, which is either true or false (initially false).
+    A {{WindowClient}} object has an associated <dfn id="dfn-focusstate">focus state</dfn>, which is either true or false (initially false).
 
     A {{WindowClient}} object has an associated <dfn for="WindowClient">ancestor origins array</dfn>.
 
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
 
-      The <dfn attribute for="Client"><code>url</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/service worker client=]'s <a lt="URL serializer">serialized</a> <a>creation URL</a>.
+      The <dfn attribute for="Client"><code>url</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/client=]'s <a lt="URL serializer">serialized</a> <a>creation URL</a>.
     </section>
 
     <section>
       <h4 id="client-id">{{Client/id}}</h4>
 
-      The <dfn attribute for="Client"><code>id</code></dfn> attribute *must* return its associated [=Client/service worker client=]'s [=environment/id=].
+      The <dfn attribute for="Client"><code>id</code></dfn> attribute *must* return its associated [=Client/client=]'s [=environment/id=].
     </section>
 
     <section>
@@ -996,9 +996,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn attribute for="Client"><code>type</code></dfn> attribute *must* run these steps:
 
-        1. If the [=context object=]'s [=Client/service worker client=] is a type of [=environment=] or is a [=window client=], return {{ClientType/"window"}}.
-        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=dedicated worker client=], return {{ClientType/"worker"}}.
-        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
+        1. If the [=context object=]'s [=Client/client=] is a type of [=environment=] or is a [=window client=], return {{ClientType/"window"}}.
+        1. Else if the [=context object=]'s [=Client/client=] is a [=dedicated worker client=], return {{ClientType/"worker"}}.
+        1. Else if the [=context object=]'s [=Client/client=] is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
     </section>
 
     <section>
@@ -1013,7 +1013,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       The <dfn method for="Client"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
         1. Let |sourceSettings| be the <a>context object</a>'s <a>relevant settings object</a>.
-        1. Let |destination| be the {{ServiceWorkerContainer}} object whose [=ServiceWorkerContainer/service worker client=] is the <a>context object</a>'s [=Client/service worker client=].
+        1. Let |destination| be the {{ServiceWorkerContainer}} object whose [=ServiceWorkerContainer/client=] is the <a>context object</a>'s [=Client/client=].
         1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" exception.
         1. Let |targetRealm| be |destination|'s <a>relevant Realm</a>.
         1. Let |cloneRecord| be <a abstract-op>StructuredCloneWithTransfer</a>(|message|, |transfer|, |targetRealm|). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.
@@ -1043,7 +1043,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-ancestororigins">{{WindowClient/ancestorOrigins}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/service worker client=]'s [=WindowClient/ancestor origins array=].
+      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/client=]'s [=WindowClient/ancestor origins array=].
     </section>
 
     <section algorithm="client-focus">
@@ -1054,17 +1054,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" exception.
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
-            1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
+            1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/client=]'s [=environment settings object/global object=]'s [=/browsing context=].
             1. Let |visibilityState| be null.
             1. Let |focusState| be false.
             1. Let |ancestorOrigins| be the empty array.
-            1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/service worker client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
+            1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                 1. Run the <a>focusing steps</a> with |browsingContext|.
                 1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                 1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
                 1. Set |ancestorOrigins| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins array=].
             1. Wait for |task| to have executed.
-            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with the <a>context object</a>'s associated [=Client/service worker client=], |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
+            1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with the <a>context object</a>'s associated [=Client/client=], |visibilityState|, |focusState|, and |ancestorOrigins| as the arguments.
             1. If |windowClient|'s <a>focus state</a> is true, resolve |promise| with |windowClient|.
             1. Else, reject |promise| with a <code>TypeError</code>.
         1. Return |promise|.
@@ -1078,16 +1078,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |url| is <code>about:blank</code>, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. If the <a>context object</a>'s associated [=Client/service worker client=]'s <a>active service worker</a> is not the <a>context object</a>'s <a>relevant global object</a>'s [=ServiceWorkerGlobalScope/service worker=], return a <a>promise</a> rejected with a <code>TypeError</code>.
+        1. If the <a>context object</a>'s associated [=Client/client=]'s <a>active service worker</a> is not the <a>context object</a>'s <a>relevant global object</a>'s [=ServiceWorkerGlobalScope/service worker=], return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
-            1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
+            1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/client=]'s [=environment settings object/global object=]'s [=/browsing context=].
             1. If |browsingContext| has <a lt="discard a document">discarded</a> its {{Document}}, reject |promise| with a <code>TypeError</code> and abort these steps.
             1. Let |navigateFailed| to false.
             1. Let |visibilityState| be null.
             1. Let |focusState| be false.
             1. Let |ancestorOrigins| be the empty array.
-            1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/service worker client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
+            1. <a>Queue a task</a> |task| to run the following substeps on the <a>context object</a>'s associated [=Client/client=]'s <a>responsible event loop</a> using the <a>user interaction task source</a>:
                 1. *HandleNavigate*: <a>Navigate</a> |browsingContext| to |url| with <a lt="exceptions enabled flag">exceptions enabled</a>. The <a>source browsing context</a> must be |browsingContext|.
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* <a>throws</a> an exception, set |navigateFailed| to true.
                 1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
@@ -1142,7 +1142,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/client=] |client| whose [=client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
                 1. If |client| is a type of <a>environment</a>, then:
                     1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
@@ -1177,7 +1177,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
             1. Let |targetClients| be an empty array.
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/client=] |client| whose [=client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client| is a type of <a>environment</a>, then:
                     1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
                 1. Else:
@@ -1188,7 +1188,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. If |client|'s [=environment/execution ready flag=] is unset, continue to the next iteration of the loop.
                 1. Add |client| to |targetClients|.
             1. Let |matchedClients| be an empty array.
-            1. For each [=/service worker client=] |client| in |targetClients|:
+            1. For each [=/client=] |client| in |targetClients|:
                 1. If |options|.{{ClientQueryOptions/type}} is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is a type of <a>environment</a> or is a <a>window client</a>, then:
                     1. Let |browsingContext| be null.
                     1. Let |isClientEnumerable| be true.
@@ -1214,9 +1214,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
                     1. Add |clientObject| to |matchedClients|.
             1. Sort |matchedClients| such that:
-                * {{WindowClient}} objects are always placed before {{Client}} objects whose associated [=Client/service worker clients=] are <a>worker clients</a>.
-                * {{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their [=Client/service worker clients=]' creation order.
-                * {{Client}} objects whose associated [=Client/service worker clients=] are <a>worker clients</a> are placed next sorted in their [=Client/service worker clients=]' creation order.
+                * {{WindowClient}} objects are always placed before {{Client}} objects whose associated [=Client/clients=] are <a>worker clients</a>.
+                * {{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their [=Client/clients=]' creation order.
+                * {{Client}} objects whose associated [=Client/clients=] are <a>worker clients</a> are placed next sorted in their [=Client/clients=]' creation order.
             1. Resolve |promise| with |matchedClients|.
         1. Return |promise|.
     </section>
@@ -1260,7 +1260,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If the [=ServiceWorkerGlobalScope/service worker=] is not an <a>active worker</a>, return a <a>promise</a> rejected with an "{{InvalidStateError}}" exception.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/client=] |client| whose [=client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client| is a type of <a>environment</a>, then:
                     1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
                 1. Else:
@@ -1268,7 +1268,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm passing |client|'s <a>creation URL</a> as the argument.
                 1. If |registration| is not the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>, continue to the next iteration of the loop.
                 1. If |client|'s <a>active service worker</a> is not the [=ServiceWorkerGlobalScope/service worker=], then:
-                    1. Invoke <a>Handle Service Worker Client Unload</a> with |client| as the argument.
+                    1. Invoke <a>Handle Client Unload</a> with |client| as the argument.
                     1. Set |client|'s <a>active service worker</a> to [=ServiceWorkerGlobalScope/service worker=].
                     1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
             1. Resolve |promise| with undefined.
@@ -1659,7 +1659,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="extendablemessage-event-origin">{{ExtendableMessageEvent/origin|event.origin}}</h4>
 
-      The <dfn attribute for="ExtendableMessageEvent">origin</dfn> attribute *must* return the value it was initialized to. When the object is created, this attribute *must* be initialized to the empty string. It represents the [=environment settings object/origin=] of the [=/service worker client=] that sent the message.
+      The <dfn attribute for="ExtendableMessageEvent">origin</dfn> attribute *must* return the value it was initialized to. When the object is created, this attribute *must* be initialized to the empty string. It represents the [=environment settings object/origin=] of the [=/client=] that sent the message.
     </section>
 
     <section>
@@ -1755,7 +1755,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, or a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}> or <{link/scope}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
 
       1. If the <{link/href}> attribute is the empty string, abort these steps.
-      1. Let |client| be the document's [=ServiceWorkerContainer/service worker client=].
+      1. Let |client| be the document's [=ServiceWorkerContainer/client=].
       1. If |client| is not a <a>secure context</a>, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
       1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
       1. Let |scopeURL| be null.
@@ -2222,7 +2222,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="secure-context">Secure Context</h3>
 
-    [=/Service workers=] *must* execute in <a>secure contexts</a>. [=/Service worker clients=] *must* also be <a>secure contexts</a> to register a [=/service worker registration=], to get access to the [=/service worker registrations=] and the [=/service workers=], to do messaging with the [=/service workers=], and to be manipulated by the [=/service workers=]. This effectively means that [=/service workers=] and their [=/service worker clients=] *should* be hosted over HTTPS. A user agent *may* allow <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> for development purpose. (Note that they may still be <a>secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec-secure-contexts/#threat-risks">risks associated with insecure contexts</a>.
+    [=/Service workers=] *must* execute in <a>secure contexts</a>. [=/clients=] *must* also be <a>secure contexts</a> to register a [=/service worker registration=], to get access to the [=/service worker registrations=] and the [=/service workers=], to do messaging with the [=/service workers=], and to be manipulated by the [=/service workers=]. This effectively means that [=/service workers=] and their [=/clients=] *should* be hosted over HTTPS. A user agent *may* allow <code>localhost</code>, <code>127.0.0.0/8</code>, and <code>::1/128</code> for development purpose. (Note that they may still be <a>secure contexts</a>.) The primary reason for this restriction is to protect users from the <a href="https://w3c.github.io/webappsec-secure-contexts/#threat-risks">risks associated with insecure contexts</a>.
   </section>
 
   <section>
@@ -2244,7 +2244,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       *This section is non-normative.*
 
-      A [=/service worker=] executes in the registering [=/service worker client=]'s [=environment settings object/origin=]. One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other [=/origins=]. Therefore, [=/service workers=] cannot be hosted on CDNs. But they can include resources via <a>importScripts()</a>. The reason for this restriction is that [=/service workers=] create the opportunity for a bad actor to turn a bad day into a bad eternity.
+      A [=/service worker=] executes in the registering [=/client=]'s [=environment settings object/origin=]. One of the advanced concerns that major applications would encounter is whether they can be hosted from a CDN. By definition, these are servers in other places, often on other [=/origins=]. Therefore, [=/service workers=] cannot be hosted on CDNs. But they can include resources via <a>importScripts()</a>. The reason for this restriction is that [=/service workers=] create the opportunity for a bad actor to turn a bad day into a bad eternity.
     </section>
 
     <section>
@@ -2374,7 +2374,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-use-cache">use cache</dfn> (a boolean).
 
-    A <a>job</a> has a <dfn id="dfn-job-client">client</dfn> (a [=/service worker client=]). It is initially null.
+    A <a>job</a> has a <dfn id="dfn-job-client">client</dfn> (a [=/client=]). It is initially null.
 
     A <a>job</a> has a <dfn>referrer</dfn> (a [=/URL=] or null).
 
@@ -2401,7 +2401,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |scopeURL|, a [=/URL=]
       :: |scriptURL|, a [=/URL=]
       :: |promise|, a <a>promise</a>
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       : Output
       :: |job|, a <a>job</a>
 
@@ -2498,7 +2498,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |scopeURL|, a [=/URL=] or failure or null
       :: |scriptURL|, a [=/URL=] or failure
       :: |promise|, a <a>promise</a>
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       :: |referrer|, a [=/URL=]
       :: |workerType|, a <a>worker type</a>
       :: |useCache|, a boolean
@@ -2689,7 +2689,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
-      1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=] and all the [=/service workers=] whose <a>containing service worker registration</a> is |registration|.
+      1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the [=/clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=] and all the [=/service workers=] whose <a>containing service worker registration</a> is |registration|.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
       1. <a>Queue a task</a> |task| to run the following substeps:
@@ -2721,7 +2721,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. Invoke <a>Finish Job</a> with |job|.
       1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm have executed.
-      1. Wait until no [=/service worker client=] is <a>using</a> |registration| or |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set.
+      1. Wait until no [=/client=] is <a>using</a> |registration| or |registration|'s <a>waiting worker</a>'s <a>skip waiting flag</a> is set.
       1. If |registration|'s <a>waiting worker</a> is not null, invoke <a>Activate</a> algorithm with |registration| as its argument.
   </section>
 
@@ -2746,13 +2746,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
 
       1. If |redundantWorker| is not null, run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
-      1. For each [=/service worker client=] |client| whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=]:
+      1. For each [=/client=] |client| whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=]:
           1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
           1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
 
           Note: Resources will now use the service worker registration instead of the existing application cache.
 
-      1. For each [=/service worker client=] |client| who is <a>using</a> |registration|:
+      1. For each [=/client=] |client| who is <a>using</a> |registration|:
           1. Set |client|'s <a>active worker</a> to |registration|'s <a>active worker</a>.
           1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
@@ -2800,7 +2800,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           : The <a>API base URL</a>
           :: Return |serviceWorker|'s [=service worker/script url=].
           : The [=environment settings object/origin=]
-          :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
+          :: Return its registering [=/client=]'s [=environment settings object/origin=].
           : The <a>creation URL</a>
           :: Return |workerGlobalScope|'s [=WorkerGlobalScope/url=].
           : The [=environment settings object/HTTPS state=]
@@ -2901,7 +2901,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                       1. Resolve |preloadResponse| with |navigationPreloadResponse|.
           1. Else, resolve |preloadResponse| with undefined.
 
-          Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
+          Note: From this point, the [=/client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
 
       1. Else if |request| is a <a>subresource request</a>, then:
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
@@ -3062,19 +3062,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="on-client-unload-algorithm"><dfn>Handle Service Worker Client Unload</dfn></h3>
+    <h3 id="on-client-unload-algorithm"><dfn>Handle Client Unload</dfn></h3>
 
-    The user agent *must* run these steps when a [=/service worker client=] unloads by <a lt="unload a document">unloading</a>, <a lt="kill a worker">being killed</a>, or <a lt="terminate service worker">terminating</a>.
+    The user agent *must* run these steps when a [=/client=] unloads by <a lt="unload a document">unloading</a>, <a lt="kill a worker">being killed</a>, or <a lt="terminate service worker">terminating</a>.
 
       : Input
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       : Output
       :: None
 
       1. Run the following steps atomically.
       1. Let |registration| be the [=/service worker registration=] <a>used</a> by |client|.
       1. If |registration| is null, abort these steps.
-      1. If any other [=/service worker client=] is <a>using</a> |registration|, abort these steps.
+      1. If any other [=/client=] is <a>using</a> |registration|, abort these steps.
       1. If |registration|'s <a>uninstalling flag</a> is set, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument and abort these steps.
       1. If |registration|'s <a>waiting worker</a> is not null, run <a>Activate</a> algorithm with |registration| as the argument.
   </section>
@@ -3112,9 +3112,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Set |registration|'s <a>uninstalling flag</a>.
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
-      1. If no [=/service worker client=] is <a>using</a> |registration|, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+      1. If no [=/client=] is <a>using</a> |registration|, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
 
-          Note: When the registration is being used for a client, the deletion of the registration is handled by the Handle Service Worker Client Unload algorithm.
+          Note: When the registration is being used for a client, the deletion of the registration is handled by the Handle Client Unload algorithm.
 
       1. Invoke <a>Finish Job</a> with |job|.
   </section>
@@ -3242,12 +3242,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="notify-controller-change-algorithm"><dfn>Notify Controller Change</dfn></h3>
 
       : Input
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       : Output
       :: None
 
       1. Assert: |client| is not null.
-      1. If |client| is a type of <a>environment settings object</a>, <a>queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
+      1. If |client| is a type of <a>environment settings object</a>, <a>queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object |client| is [=ServiceWorkerContainer/client|associated=] with.
 
     The <a>task</a> *must* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
   </section>
@@ -3332,12 +3332,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="create-client-algorithm"><dfn>Create Client</dfn></h3>
 
       : Input
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       : Output
       :: |clientObject|, a {{Client}} object
 
       1. Let |clientObject| be a new {{Client}} object.
-      1. Set |clientObject|'s [=Client/service worker client=] to |client|.
+      1. Set |clientObject|'s [=Client/client=] to |client|.
       1. Set |clientObject|'s [=Client/reserved state=] to true if |client|'s [=environment/execution ready flag=] is unset, and false otherwise.
       1. Return |clientObject|.
   </section>
@@ -3346,7 +3346,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="create-windowclient-algorithm"><dfn>Create Window Client</dfn></h3>
 
       : Input
-      :: |client|, a [=/service worker client=]
+      :: |client|, a [=/client=]
       :: |visibilityState|, a string
       :: |focusState|, a boolean
       :: |ancestorOrigins|, an array
@@ -3354,7 +3354,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |windowClient|, a {{WindowClient}} object
 
       1. Let |windowClient| be a new {{WindowClient}} object.
-      1. Set |windowClient|'s [=Client/service worker client=] to |client|.
+      1. Set |windowClient|'s [=Client/client=] to |client|.
       1. Set |windowClient|'s <a>visibility state</a> to |visibilityState|.
       1. Set |windowClient|'s <a>focus state</a> to |focusState|.
       1. Set |windowClient|'s [=WindowClient/ancestor origins array=] to |ancestorOrigins|.
