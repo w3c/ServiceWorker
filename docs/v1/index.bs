@@ -1265,7 +1265,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute DOMString clientId;
         readonly attribute DOMString reservedClientId;
         readonly attribute DOMString targetClientId;
-        readonly attribute boolean isReload;
 
         void respondWith(Promise&lt;Response&gt; r);
       };
@@ -1276,7 +1275,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         DOMString clientId = "";
         DOMString reservedClientId = "";
         DOMString targetClientId = "";
-        boolean isReload = false;
       };
     </pre>
 
@@ -1310,14 +1308,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="fetch-event-targetclientid">{{FetchEvent/targetClientId|event.targetClientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>targetClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
-    </section>
-
-    <section>
-      <h4 id="fetch-event-isreload">{{FetchEvent/isReload|event.isReload}}</h4>
-
-      <dfn attribute for="FetchEvent"><code>isReload</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to false.
-
-      Note: Pressing the refresh button should be considered a reload while clicking a link and pressing the back button should not. The behavior of Ctrl+l enter is left to the implementations of the user agents.
     </section>
 
     <section algorithm="fetch-event-respondwith">
@@ -1937,8 +1927,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
             1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
             1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=service worker registration/last update check time=] to the current time.
+            1. [=Extract a MIME type=] from the |response|'s [=unsafe response=]'s [=response/header list=]. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, return a [=network error=].
             1. If |response|'s <a>unsafe response</a>'s [=response/type=] is not "<code>error</code>", and |response|'s [=response/status=] is an <a>ok status</a>, then:
-                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|
+                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|.
             1. Return |response|.
         1. Else:
             1. If <a>script resource map</a>[|url|] [=map/exists=], return <a>script resource map</a>[|url|].
@@ -2555,7 +2546,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
           1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
           1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
-          1. Let the {{FetchEvent/isReload}} attribute of |e| be initialized to <code>true</code> if |request|'s [=request/client=] is a <a>window client</a> and the event was dispatched with the user's intention for the page reload, and <code>false</code> otherwise.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
           1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
