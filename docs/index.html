@@ -1856,12 +1856,12 @@ pre.idl.highlight { color: #708090; }
      <a class="self-link" href="#example-7e94092e"></a> Bootstrapping with a service worker: 
 <pre class="highlight"><span class="c1">// scope defaults to the path the script sits in
 </span><span class="c1">// "/" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"success!"</span><span class="p">)</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span>registration<span class="p">.</span>installing<span class="p">)</span> <span class="p">{</span>
     registration<span class="p">.</span>installing<span class="p">.</span>postMessage<span class="p">(</span><span class="s2">"Howdy from your installing page."</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">}</span><span class="p">,</span> err <span class="o">=></span> <span class="p">{</span>
+<span class="p">}</span><span class="p">,</span> err <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Installing the worker failed!"</span><span class="p">,</span> err<span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -2390,10 +2390,10 @@ pre.idl.highlight { color: #708090; }
     <div class="example" id="example-744d6b8b">
      <a class="self-link" href="#example-744d6b8b"></a> Serving Cached Resources: 
 <pre class="highlight"><span class="c1">// caching.js
-</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
+</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   event<span class="p">.</span>waitUntil<span class="p">(</span>
     <span class="c1">// Open a cache of resources.
-</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=></span> <span class="p">{</span>
+</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=</span><span class="o">></span> <span class="p">{</span>
       <span class="c1">// Begins the process of fetching them.
 </span>      <span class="c1">// The coast is only clear when all the resources are ready.
 </span>      <span class="k">return</span> cache<span class="p">.</span>addAll<span class="p">(</span><span class="p">[</span>
@@ -2407,16 +2407,16 @@ pre.idl.highlight { color: #708090; }
   <span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
+self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   <span class="c1">// No "fetch" events are dispatched to the service worker until it
 </span>  <span class="c1">// successfully installs and activates.
 </span>
   <span class="c1">// All operations on caches are async, including matching URLs, so we use
 </span>  <span class="c1">// promises heavily. e.respondWith() even takes promises to enable this:
 </span>  event<span class="p">.</span>respondWith<span class="p">(</span>
-    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=></span> <span class="p">{</span>
+    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=</span><span class="o">></span> <span class="p">{</span>
       <span class="k">return</span> response <span class="o">||</span> fetch<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">;</span>
-    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
+    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
       <span class="k">return</span> caches<span class="p">.</span>match<span class="p">(</span><span class="s2">"/fallback.html"</span><span class="p">)</span><span class="p">;</span>
     <span class="p">}</span><span class="p">)</span>
   <span class="p">)</span><span class="p">;</span>
@@ -3683,7 +3683,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 <pre class="highlight">Link: &lt;/js/sw.js>; rel="serviceworker"; scope="/"
 </pre>
       <p>has more or less the same effect as a document being loaded in a secure context with the following <code>link</code> element:</p>
-<pre class="highlight"><span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">"serviceworker"</span> <span class="na">href</span><span class="o">=</span><span class="s">"/js/sw.js"</span> <span class="na">scope</span><span class="o">=</span><span class="s">"/"</span><span class="p">></span>
+<pre class="highlight"><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"serviceworker"</span> <span class="na">href=</span><span class="s">"/js/sw.js"</span> <span class="na">scope=</span><span class="s">"/"</span><span class="nt">></span>
 </pre>
       <p>which is more or less equivalent to the page containing javascript code like:</p>
 <pre class="highlight">navigator<span class="p">.</span>serviceworker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
@@ -3909,6 +3909,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <li data-md="">
             <p>Break the loop.</p>
           </ol>
+         <li data-md="">
+          <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a> is a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-14">ServiceWorkerGlobalScope</a></code> object, set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a> to "<code>foreign</code>".</p>
          <li data-md="">
           <p>Set <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-initiator">initiator</a> to "<code>fetch</code>" and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination">destination</a> to "<code>subresource</code>".</p>
          <li data-md="">
@@ -4430,7 +4432,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </section>
      <section>
       <h4 class="heading settled" data-level="7.3.2" id="importscripts"><span class="secno">7.3.2. </span><span class="content"><code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#dom-workerglobalscope-importscripts">importScripts(urls)</a></code></span><a class="self-link" href="#importscripts"></a></h4>
-      <p>When the <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="method" data-export="" id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-14">ServiceWorkerGlobalScope</a></code> object, the user agent <em>must</em> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#import-scripts-into-worker-global-scope">import scripts into worker global scope</a>, given this <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-15">ServiceWorkerGlobalScope</a></code> object and <var>urls</var>, and with the following steps to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch">perform the fetch</a> given the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request">request</a> <var>request</var>:</p>
+      <p>When the <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="method" data-export="" id="importscripts-method"><code>importScripts(<var>urls</var>)</code></dfn> method is called on a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-15">ServiceWorkerGlobalScope</a></code> object, the user agent <em>must</em> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#import-scripts-into-worker-global-scope">import scripts into worker global scope</a>, given this <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-16">ServiceWorkerGlobalScope</a></code> object and <var>urls</var>, and with the following steps to <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch">perform the fetch</a> given the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request">request</a> <var>request</var>:</p>
       <ol>
        <li data-md="">
         <p>Let <var>serviceWorker</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client">client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-26">service worker</a>.</p>
@@ -4439,6 +4441,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <ol>
          <li data-md="">
           <p>Let <var>registration</var> be <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-15">containing service worker registration</a>.</p>
+         <li data-md="">
+          <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a> to "<code>foreign</code>".</p>
          <li data-md="">
           <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
           <ul>
@@ -4521,7 +4525,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     </section>
     <section>
      <h3 class="heading settled" data-level="8.3" id="extension-to-service-worker-global-scope"><span class="secno">8.3. </span><span class="content">Define Event Handler</span><a class="self-link" href="#extension-to-service-worker-global-scope"></a></h3>
-     <p>Specifications <em>may</em> define an event handler attribute for the corresponding <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-8">functional event</a> using <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-16">ServiceWorkerGlobalScope</a></code> interface:</p>
+     <p>Specifications <em>may</em> define an event handler attribute for the corresponding <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-8">functional event</a> using <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-partial-interface">partial interface</a> definition to the <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-17">ServiceWorkerGlobalScope</a></code> interface:</p>
 <pre class="example idl highlight def" data-no-idl="" id="example-bdf67845"><a class="self-link" href="#example-bdf67845"></a><span class="kt">partial</span> <span class="kt">interface</span> <span class="nv">ServiceWorkerGlobalScope</span> {
   <span class="kt">attribute</span> <span class="n">EventHandler</span> <span class="nv">onfunctionalevent</span>;
 };
@@ -4530,7 +4534,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <section>
      <h3 class="heading settled" data-level="8.4" id="request-functional-event-dispatch"><span class="secno">8.4. </span><span class="content">Request Functional Event Dispatch</span><a class="self-link" href="#request-functional-event-dispatch"></a></h3>
      <p>To request a <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-9">functional event</a> dispatch to a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-92">service worker</a>, specifications <em>may</em> invoke <a data-link-type="dfn" href="#handle-functional-event" id="ref-for-handle-functional-event-1">Handle Functional Event</a> algorithm with its <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-55">service worker registration</a> <var>registration</var> and the algorithm <var>callbackSteps</var> as the arguments.</p>
-     <p>Specifications <em>may</em> define an algorithm <var>callbackSteps</var> where the corresponding <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-10">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-17">ServiceWorkerGlobalScope</a></code> object) at which it <em>may</em> fire its <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-11">functional events</a>. This algorithm is called on a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a data-link-type="dfn" href="#handle-functional-event" id="ref-for-handle-functional-event-2">Handle Functional Event</a> algorithm.</p>
+     <p>Specifications <em>may</em> define an algorithm <var>callbackSteps</var> where the corresponding <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-10">functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var>globalObject</var> (a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-18">ServiceWorkerGlobalScope</a></code> object) at which it <em>may</em> fire its <a data-link-type="dfn" href="#dfn-functional-events" id="ref-for-dfn-functional-events-11">functional events</a>. This algorithm is called on a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queued</a> by <a data-link-type="dfn" href="#handle-functional-event" id="ref-for-handle-functional-event-2">Handle Functional Event</a> algorithm.</p>
      <p class="note" role="note"><span>Note:</span> See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a data-link-type="biblio" href="#biblio-notifications">Notifications API</a>.</p>
     </section>
    </section>
@@ -4899,6 +4903,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>To <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-perform-fetch">perform the fetch</a> given <var>request</var>, run the following steps:</p>
        <ol>
         <li data-md="">
+         <p>Append `<code>Service-Worker</code>`/`<code>script</code>` to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list">header list</a>.</p>
+         <p class="note" role="note"><span>Note:</span> See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.</p>
+        <li data-md="">
          <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
          <ul>
           <li data-md="">
@@ -4910,7 +4917,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          </ul>
          <p class="note" role="note"><span>Note:</span> Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header’s max-age value in the network layer to determine if it should bypass the browser cache.</p>
         <li data-md="">
-         <p>Set <var>request</var>’s <a data-link-type="dfn">skip-service-worker flag</a>.</p>
+         <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a> to "<code>none</code>".</p>
         <li data-md="">
          <p>If the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#fetching-scripts-is-top-level">is top-level</a> flag is unset, then return the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch">fetching</a> <var>request</var>.</p>
         <li data-md="">
@@ -5275,7 +5282,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>Call the JavaScript <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-initializehostdefinedrealm">InitializeHostDefinedRealm()</a> abstract operation with the following customizations:</p>
        <ul>
         <li data-md="">
-         <p>For the global object, create a new <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-18">ServiceWorkerGlobalScope</a></code> object. Let <var>workerGlobalScope</var> be the created object.</p>
+         <p>For the global object, create a new <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-19">ServiceWorkerGlobalScope</a></code> object. Let <var>workerGlobalScope</var> be the created object.</p>
         <li data-md="">
          <p>Let <var>realmExecutionContext</var> be the created <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-execution-contexts">JavaScript execution context</a>.</p>
        </ul>
@@ -5470,7 +5477,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <li data-md="">
            <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-list-append">Append</a> to <var>preloadRequestHeaders</var> a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header">header</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name">name</a> is `<code>Service-Worker-Navigation-Preload</code>` and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value">value</a> is <var>registration</var>’s <a data-link-type="dfn" href="#service-worker-registration-navigation-preload-header-value" id="ref-for-service-worker-registration-navigation-preload-header-value-3">navigation preload header value</a>.</p>
           <li data-md="">
-           <p>Set <var>preloadRequest</var>’s <a data-link-type="dfn">skip-service-worker flag</a>.</p>
+           <p>Set <var>preloadRequest</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a> to "<code>none</code>".</p>
           <li data-md="">
            <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
            <ol>
@@ -6605,7 +6612,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-bf118df6"></a> Default scope: 
 <pre class="highlight"><span class="c1">// Maximum allowed scope defaults to the path the script sits in
 </span><span class="c1">// "/js" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded with the default scope '/js'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6614,7 +6621,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-76c5aa8b"></a> Upper path without Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response has no Service-Worker-Allowed header
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed due to the path restriction violation."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6623,7 +6630,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-49d267fe"></a> Upper path with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded as the max allowed scope was overriden to '/'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6632,7 +6639,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-7a18b25f"></a> A path restriction voliation even with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /foo"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed as the scope is still out of the overriden maximum allowed scope."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -7273,6 +7280,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://fetch.spec.whatwg.org/#concept-response">response</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-response">response <small>(for Response)</small></a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-request-response-tainting">response tainting</a>
+     <li><a href="https://fetch.spec.whatwg.org/#request-service-workers-mode">service-workers mode</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-response-status">status</a>
      <li><a href="https://fetch.spec.whatwg.org/#concept-body-stream">stream</a>
      <li><a href="https://fetch.spec.whatwg.org/#subresource-request">subresource request</a>
@@ -7906,7 +7914,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-containing-service-worker-registration-8">4.3.4. claim()</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-9">4.4.1. event.waitUntil(f)</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-10">4.5.1. event.registerForeignFetch(options)</a>
-    <li><a href="#ref-for-dfn-containing-service-worker-registration-11">4.6.7. event.respondWith(r)</a>
+    <li><a href="#ref-for-dfn-containing-service-worker-registration-11">4.6.6. event.respondWith(r)</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-12">4.7.3. event.respondWith(r)</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-13">4.9. Events</a> <a href="#ref-for-dfn-containing-service-worker-registration-14">(2)</a>
     <li><a href="#ref-for-dfn-containing-service-worker-registration-15">7.3.2. importScripts(urls)</a>
@@ -8734,10 +8742,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-serviceworkerglobalscope-11">4.3. Clients</a>
     <li><a href="#ref-for-serviceworkerglobalscope-12">4.4. ExtendableEvent</a>
     <li><a href="#ref-for-serviceworkerglobalscope-13">4.9. Events</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-14">7.3.2. importScripts(urls)</a> <a href="#ref-for-serviceworkerglobalscope-15">(2)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-16">8.3. Define Event Handler</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-17">8.4. Request Functional Event Dispatch</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-18">Run Service Worker</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-14">6.4.4. addAll(requests)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-15">7.3.2. importScripts(urls)</a> <a href="#ref-for-serviceworkerglobalscope-16">(2)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-17">8.3. Define Event Handler</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-18">8.4. Request Functional Event Dispatch</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-19">Run Service Worker</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="serviceworkerglobalscope-service-worker">
@@ -8755,7 +8764,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-13">4.3.4. claim()</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-14">(2)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-15">(3)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-16">(4)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-17">(5)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-18">4.4.1. event.waitUntil(f)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-19">4.5.1. event.registerForeignFetch(options)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-service-worker-20">4.6.7. event.respondWith(r)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-service-worker-20">4.6.6. event.respondWith(r)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-21">4.7.3. event.respondWith(r)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-22">4.9. Events</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-23">(2)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-24">(3)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker-25">(4)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker-26">7.3.2. importScripts(urls)</a>
@@ -9975,7 +9984,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-try-activate-1">4.1.3. skipWaiting()</a>
     <li><a href="#ref-for-try-activate-2">4.4.1. event.waitUntil(f)</a>
-    <li><a href="#ref-for-try-activate-3">4.6.7. event.respondWith(r)</a>
+    <li><a href="#ref-for-try-activate-3">4.6.6. event.respondWith(r)</a>
     <li><a href="#ref-for-try-activate-4">4.7.3. event.respondWith(r)</a>
     <li><a href="#ref-for-try-activate-5">Install</a> <a href="#ref-for-try-activate-6">(2)</a>
     <li><a href="#ref-for-try-activate-7">Handle Service Worker Client Unload</a>
