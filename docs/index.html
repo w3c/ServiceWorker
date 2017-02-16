@@ -1856,12 +1856,12 @@ pre.idl.highlight { color: #708090; }
      <a class="self-link" href="#example-7e94092e"></a> Bootstrapping with a service worker: 
 <pre class="highlight"><span class="c1">// scope defaults to the path the script sits in
 </span><span class="c1">// "/" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"success!"</span><span class="p">)</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span>registration<span class="p">.</span>installing<span class="p">)</span> <span class="p">{</span>
     registration<span class="p">.</span>installing<span class="p">.</span>postMessage<span class="p">(</span><span class="s2">"Howdy from your installing page."</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">}</span><span class="p">,</span> err <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+<span class="p">}</span><span class="p">,</span> err <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Installing the worker failed!"</span><span class="p">,</span> err<span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -2390,10 +2390,10 @@ pre.idl.highlight { color: #708090; }
     <div class="example" id="example-744d6b8b">
      <a class="self-link" href="#example-744d6b8b"></a> Serving Cached Resources: 
 <pre class="highlight"><span class="c1">// caching.js
-</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   event<span class="p">.</span>waitUntil<span class="p">(</span>
     <span class="c1">// Open a cache of resources.
-</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=></span> <span class="p">{</span>
       <span class="c1">// Begins the process of fetching them.
 </span>      <span class="c1">// The coast is only clear when all the resources are ready.
 </span>      <span class="k">return</span> cache<span class="p">.</span>addAll<span class="p">(</span><span class="p">[</span>
@@ -2407,16 +2407,16 @@ pre.idl.highlight { color: #708090; }
   <span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   <span class="c1">// No "fetch" events are dispatched to the service worker until it
 </span>  <span class="c1">// successfully installs and activates.
 </span>
   <span class="c1">// All operations on caches are async, including matching URLs, so we use
 </span>  <span class="c1">// promises heavily. e.respondWith() even takes promises to enable this:
 </span>  event<span class="p">.</span>respondWith<span class="p">(</span>
-    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> response <span class="o">||</span> fetch<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">;</span>
-    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> caches<span class="p">.</span>match<span class="p">(</span><span class="s2">"/fallback.html"</span><span class="p">)</span><span class="p">;</span>
     <span class="p">}</span><span class="p">)</span>
   <span class="p">)</span><span class="p">;</span>
@@ -2596,7 +2596,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </section>
      <section>
       <h4 class="heading settled" data-level="4.2.8" id="client-ancestororigins"><span class="secno">4.2.8. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-ancestororigins" id="ref-for-dom-windowclient-ancestororigins-2">ancestorOrigins</a></code></span><a class="self-link" href="#client-ancestororigins"></a></h4>
-      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="attribute" data-export="" id="dom-windowclient-ancestororigins"><code>ancestorOrigins</code></dfn> attribute <em>must</em> return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-7">service worker client</a>'s <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array-1">ancestor origins array</a>.</p>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="attribute" data-export="" id="dom-windowclient-ancestororigins"><code>ancestorOrigins</code></dfn> attribute <em>must</em> return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array-1">ancestor origins array</a>.</p>
      </section>
      <section class="algorithm" data-algorithm="client-focus">
       <h4 class="heading settled" data-level="4.2.9" id="client-focus"><span class="secno">4.2.9. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-focus" id="ref-for-dom-windowclient-focus-2">focus()</a></code></span><a class="self-link" href="#client-focus"></a></h4>
@@ -2610,15 +2610,15 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <p>Run these substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
         <ol>
          <li data-md="">
-          <p>Let <var>browsingContext</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-8">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</p>
+          <p>Let <var>browsingContext</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-7">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</p>
          <li data-md="">
           <p>Let <var>visibilityState</var> be null.</p>
          <li data-md="">
           <p>Let <var>focusState</var> be false.</p>
          <li data-md="">
-          <p>Let <var>ancestorOrigins</var> be the empty array.</p>
+          <p>Let <var>ancestorOriginsList</var> be the empty list.</p>
          <li data-md="">
-          <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-9">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>:</p>
+          <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-8">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>:</p>
           <ol>
            <li data-md="">
             <p>Run the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a> with <var>browsingContext</var>.</p>
@@ -2627,12 +2627,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <li data-md="">
             <p>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</p>
            <li data-md="">
-            <p>Set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.</p>
+            <p>Set <var>ancestorOriginsList</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>'s associated list.</p>
           </ol>
          <li data-md="">
           <p>Wait for <var>task</var> to have executed.</p>
          <li data-md="">
-          <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-1">Create Window Client</a> algorithm with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-10">service worker client</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</p>
+          <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-1">Create Window Client</a> algorithm with the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-9">service worker client</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOriginsList</var> as the arguments.</p>
          <li data-md="">
           <p>If <var>windowClient</var>’s <a data-link-type="dfn" href="#dfn-service-worker-client-focusstate" id="ref-for-dfn-service-worker-client-focusstate-2">focus state</a> is true, resolve <var>promise</var> with <var>windowClient</var>.</p>
          <li data-md="">
@@ -2653,14 +2653,14 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <li data-md="">
         <p>If <var>url</var> is <code>about:blank</code>, return a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</p>
        <li data-md="">
-        <p>If the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-11">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-active-service-worker">active service worker</a> is not the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-7">service worker</a>, return a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</p>
+        <p>If the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-10">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-active-service-worker">active service worker</a> is not the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-7">service worker</a>, return a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a> rejected with a <code>TypeError</code>.</p>
        <li data-md="">
         <p>Let <var>promise</var> be a new <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>.</p>
        <li data-md="">
         <p>Run these substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel">in parallel</a>:</p>
         <ol>
          <li data-md="">
-          <p>Let <var>browsingContext</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-12">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</p>
+          <p>Let <var>browsingContext</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-11">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#browsing-context">browsing context</a>.</p>
          <li data-md="">
           <p>If <var>browsingContext</var> has <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#discard-a-document">discarded</a> its <code class="idl"><a data-link-type="idl" href="https://dom.spec.whatwg.org/#document">Document</a></code>, reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
          <li data-md="">
@@ -2670,9 +2670,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <li data-md="">
           <p>Let <var>focusState</var> be false.</p>
          <li data-md="">
-          <p>Let <var>ancestorOrigins</var> be the empty array.</p>
+          <p>Let <var>ancestorOriginsList</var> be the empty list.</p>
          <li data-md="">
-          <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-13">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>:</p>
+          <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-12">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>:</p>
           <ol>
            <li data-md="">
             <p><em>HandleNavigate</em>: <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">Navigate</a> <var>browsingContext</var> to <var>url</var> with <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#exceptions-enabled">exceptions enabled</a>. The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#source-browsing-context">source browsing context</a> must be <var>browsingContext</var>.</p>
@@ -2683,7 +2683,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <li data-md="">
             <p>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</p>
            <li data-md="">
-            <p>Set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.</p>
+            <p>Set <var>ancestorOriginsList</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>'s associated list.</p>
           </ol>
          <li data-md="">
           <p>Wait for <var>task</var> to have executed (including its asynchronous steps).</p>
@@ -2698,7 +2698,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
             <p>Abort these steps.</p>
           </ol>
          <li data-md="">
-          <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-2">Create Window Client</a> algorithm with <var>browsingContext</var>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</p>
+          <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-2">Create Window Client</a> algorithm with <var>browsingContext</var>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOriginsList</var> as the arguments.</p>
          <li data-md="">
           <p>Resolve <var>promise</var> with <var>windowClient</var>.</p>
         </ol>
@@ -2768,7 +2768,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
              <li data-md="">
               <p>Let <var>focusState</var> be false.</p>
              <li data-md="">
-              <p>Let <var>ancestorOrigins</var> be the empty array.</p>
+              <p>Let <var>ancestorOriginsList</var> be the empty list.</p>
              <li data-md="">
               <p>If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-target-browsing-context">target browsing context</a>.</p>
              <li data-md="">
@@ -2781,12 +2781,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
                <li data-md="">
                 <p>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</p>
                <li data-md="">
-                <p>If <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-3">window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.</p>
+                <p>If <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-3">window client</a>, set <var>ancestorOriginsList</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>'s associated list.</p>
               </ol>
              <li data-md="">
               <p>Wait for <var>task</var> to have executed.</p>
              <li data-md="">
-              <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-3">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</p>
+              <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-3">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOriginsList</var> as the arguments.</p>
              <li data-md="">
               <p>Resolve <var>promise</var> with <var>windowClient</var> and abort these steps.</p>
             </ol>
@@ -2864,7 +2864,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
              <li data-md="">
               <p>Let <var>focusState</var> be false.</p>
              <li data-md="">
-              <p>Let <var>ancestorOrigins</var> be the empty array.</p>
+              <p>Let <var>ancestorOriginsList</var> be the empty list.</p>
              <li data-md="">
               <p>If <var>client</var> is a type of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment">environment</a>, set <var>browsingContext</var> to <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-target-browsing-context">target browsing context</a>.</p>
              <li data-md="">
@@ -2881,7 +2881,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
                <li data-md="">
                 <p>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</p>
                <li data-md="">
-                <p>It <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-5">window client</a>, set <var>ancestorOrigins</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.</p>
+                <p>It <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-5">window client</a>, set <var>ancestorOriginsList</var> to <var>browsingContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>'s associated list.</p>
               </ol>
              <li data-md="">
               <p>Wait for <var>task</var> to have executed.</p>
@@ -2890,7 +2890,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
               <p>If <var>isClientEnumerable</var> is true, then:</p>
               <ol>
                <li data-md="">
-                <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-4">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</p>
+                <p>Let <var>windowClient</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-4">Create Window Client</a> algorithm with <var>client</var>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOriginsList</var> as the arguments.</p>
                <li data-md="">
                 <p>Add <var>windowClient</var> to <var>matchedClients</var>.</p>
               </ol>
@@ -2908,11 +2908,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Sort <var>matchedClients</var> such that:</p>
           <ul>
            <li data-md="">
-            <p><code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-8">WindowClient</a></code> objects are always placed before <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-7">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-14">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-2">worker clients</a>.</p>
+            <p><code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-8">WindowClient</a></code> objects are always placed before <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-7">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-13">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-2">worker clients</a>.</p>
            <li data-md="">
-            <p><code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-9">WindowClient</a></code> objects that have been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed first sorted in the most recently <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order, and <code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-10">WindowClient</a></code> objects that have never been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-15">service worker clients</a>' creation order.</p>
+            <p><code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-9">WindowClient</a></code> objects that have been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed first sorted in the most recently <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> order, and <code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-10">WindowClient</a></code> objects that have never been <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focused</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-14">service worker clients</a>' creation order.</p>
            <li data-md="">
-            <p><code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-8">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-16">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-3">worker clients</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-17">service worker clients</a>' creation order.</p>
+            <p><code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-8">Client</a></code> objects whose associated <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-15">service worker clients</a> are <a data-link-type="dfn" href="#dfn-worker-client" id="ref-for-dfn-worker-client-3">worker clients</a> are placed next sorted in their <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-16">service worker clients</a>' creation order.</p>
           </ul>
          <li data-md="">
           <p>Resolve <var>promise</var> with <var>matchedClients</var>.</p>
@@ -2947,7 +2947,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <li data-md="">
           <p>Let <var>focusState</var> be false.</p>
          <li data-md="">
-          <p>Let <var>ancestorOrigins</var> be the empty array.</p>
+          <p>Let <var>ancestorOriginsList</var> be the empty list.</p>
          <li data-md="">
           <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> <var>task</var> to run the following substeps on <var>newContext</var>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>:</p>
           <ol>
@@ -2960,7 +2960,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <li data-md="">
             <p>Set <var>focusState</var> to the result of running the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">has focus steps</a> with <var>newContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a> as the argument.</p>
            <li data-md="">
-            <p>Set <var>ancestorOrigins</var> to <var>newContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>.</p>
+            <p>Set <var>ancestorOriginsList</var> to <var>newContext</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#location">Location</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>'s associated list.</p>
           </ol>
          <li data-md="">
           <p>Wait for <var>task</var> to have executed (including its asynchronous steps).</p>
@@ -2975,7 +2975,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
             <p>Abort these steps.</p>
           </ol>
          <li data-md="">
-          <p>Let <var>client</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-5">Create Window Client</a> algorithm with <var>newContext</var>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOrigins</var> as the arguments.</p>
+          <p>Let <var>client</var> be the result of running <a data-link-type="dfn" href="#create-window-client" id="ref-for-create-window-client-5">Create Window Client</a> algorithm with <var>newContext</var>’s <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>, <var>visibilityState</var>, <var>focusState</var>, and <var>ancestorOriginsList</var> as the arguments.</p>
          <li data-md="">
           <p>Resolve <var>promise</var> with <var>client</var>.</p>
         </ol>
@@ -3683,7 +3683,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 <pre class="highlight">Link: &lt;/js/sw.js>; rel="serviceworker"; scope="/"
 </pre>
       <p>has more or less the same effect as a document being loaded in a secure context with the following <code>link</code> element:</p>
-<pre class="highlight"><span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">"serviceworker"</span> <span class="na">href=</span><span class="s">"/js/sw.js"</span> <span class="na">scope=</span><span class="s">"/"</span><span class="nt">></span>
+<pre class="highlight"><span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">"serviceworker"</span> <span class="na">href</span><span class="o">=</span><span class="s">"/js/sw.js"</span> <span class="na">scope</span><span class="o">=</span><span class="s">"/"</span><span class="p">></span>
 </pre>
       <p>which is more or less equivalent to the page containing javascript code like:</p>
 <pre class="highlight">navigator<span class="p">.</span>serviceworker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
@@ -6327,7 +6327,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>clientObject</var> be a new <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-13">Client</a></code> object.</p>
       <li data-md="">
-       <p>Set <var>clientObject</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-18">service worker client</a> to <var>client</var>.</p>
+       <p>Set <var>clientObject</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-17">service worker client</a> to <var>client</var>.</p>
       <li data-md="">
        <p>Set <var>clientObject</var>’s <a data-link-type="dfn" href="#client-reserved-state" id="ref-for-client-reserved-state-2">reserved state</a> to true if <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-execution-ready-flag">execution ready flag</a> is unset, and false otherwise.</p>
       <li data-md="">
@@ -6346,7 +6346,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dd data-md="">
        <p><var>focusState</var>, a boolean</p>
       <dd data-md="">
-       <p><var>ancestorOrigins</var>, an array</p>
+       <p><var>ancestorOriginsList</var>, a list</p>
       <dt data-md="">
        <p>Output</p>
       <dd data-md="">
@@ -6356,13 +6356,13 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>windowClient</var> be a new <code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-12">WindowClient</a></code> object.</p>
       <li data-md="">
-       <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-19">service worker client</a> to <var>client</var>.</p>
+       <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#client-service-worker-client" id="ref-for-client-service-worker-client-18">service worker client</a> to <var>client</var>.</p>
       <li data-md="">
        <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#dfn-service-worker-client-visibilitystate" id="ref-for-dfn-service-worker-client-visibilitystate-2">visibility state</a> to <var>visibilityState</var>.</p>
       <li data-md="">
        <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#dfn-service-worker-client-focusstate" id="ref-for-dfn-service-worker-client-focusstate-3">focus state</a> to <var>focusState</var>.</p>
       <li data-md="">
-       <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array-2">ancestor origins array</a> to <var>ancestorOrigins</var>.</p>
+       <p>Set <var>windowClient</var>’s <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array-2">ancestor origins array</a> to a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-frozen-array-type">frozen array</a> created from <var>ancestorOriginsList</var>.</p>
       <li data-md="">
        <p>Return <var>windowClient</var>.</p>
      </ol>
@@ -6612,7 +6612,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-bf118df6"></a> Default scope: 
 <pre class="highlight"><span class="c1">// Maximum allowed scope defaults to the path the script sits in
 </span><span class="c1">// "/js" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded with the default scope '/js'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6621,7 +6621,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-76c5aa8b"></a> Upper path without Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response has no Service-Worker-Allowed header
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed due to the path restriction violation."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6630,7 +6630,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-49d267fe"></a> Upper path with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded as the max allowed scope was overriden to '/'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6639,7 +6639,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-7a18b25f"></a> A path restriction voliation even with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /foo"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=</span><span class="o">></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed as the scope is still out of the overriden maximum allowed scope."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -7316,7 +7316,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#a-browsing-context-is-discarded">a browsing context is discarded</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">active document</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-active-service-worker">active service worker</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-array">ancestor origins array</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">ancestor origins list</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">api base url</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#api-url-character-encoding">api url character encoding</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#application-cache">application cache</a>
@@ -8867,12 +8867,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-client-service-worker-client-2">4.2.2. id</a>
     <li><a href="#ref-for-client-service-worker-client-3">4.2.3. type</a> <a href="#ref-for-client-service-worker-client-4">(2)</a> <a href="#ref-for-client-service-worker-client-5">(3)</a>
     <li><a href="#ref-for-client-service-worker-client-6">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-client-service-worker-client-7">4.2.8. ancestorOrigins</a>
-    <li><a href="#ref-for-client-service-worker-client-8">4.2.9. focus()</a> <a href="#ref-for-client-service-worker-client-9">(2)</a> <a href="#ref-for-client-service-worker-client-10">(3)</a>
-    <li><a href="#ref-for-client-service-worker-client-11">4.2.10. navigate(url)</a> <a href="#ref-for-client-service-worker-client-12">(2)</a> <a href="#ref-for-client-service-worker-client-13">(3)</a>
-    <li><a href="#ref-for-client-service-worker-client-14">4.3.2. matchAll(options)</a> <a href="#ref-for-client-service-worker-client-15">(2)</a> <a href="#ref-for-client-service-worker-client-16">(3)</a> <a href="#ref-for-client-service-worker-client-17">(4)</a>
-    <li><a href="#ref-for-client-service-worker-client-18">Create Client</a>
-    <li><a href="#ref-for-client-service-worker-client-19">Create Window Client</a>
+    <li><a href="#ref-for-client-service-worker-client-7">4.2.9. focus()</a> <a href="#ref-for-client-service-worker-client-8">(2)</a> <a href="#ref-for-client-service-worker-client-9">(3)</a>
+    <li><a href="#ref-for-client-service-worker-client-10">4.2.10. navigate(url)</a> <a href="#ref-for-client-service-worker-client-11">(2)</a> <a href="#ref-for-client-service-worker-client-12">(3)</a>
+    <li><a href="#ref-for-client-service-worker-client-13">4.3.2. matchAll(options)</a> <a href="#ref-for-client-service-worker-client-14">(2)</a> <a href="#ref-for-client-service-worker-client-15">(3)</a> <a href="#ref-for-client-service-worker-client-16">(4)</a>
+    <li><a href="#ref-for-client-service-worker-client-17">Create Client</a>
+    <li><a href="#ref-for-client-service-worker-client-18">Create Window Client</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="client-reserved-state">
