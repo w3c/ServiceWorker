@@ -1242,7 +1242,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |f|, [=queue a microtask=] to run these substeps:
             1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Invoke [=Try Activate=] with the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
+            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
 
         The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] when |event|'s [=dispatch flag=] is set or |event|'s [=ExtendableEvent/pending promises count=] is not zero. However, the user agent *may* impose a time limit to this lifetime extension.
     </section>
@@ -1330,7 +1332,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a microtask=] to run these substeps:
             1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Invoke [=Try Activate=] with the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
+            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
@@ -2234,7 +2238,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. <a>Extract a MIME type</a> from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not one of <code>text/javascript</code>, <code>application/x-javascript</code>, and <code>application/javascript</code>, then:
               1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
               1. Asynchronously complete these steps with a <a>network error</a>.
-          1. Let |serviceWorkerAllowed| be the result of [=header/parse a header value|parsing=] \`<code>Service-Worker-Allowed</code>\` in |response|'s [=response/header list=].
+          1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
               Note: See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.
 
@@ -2357,7 +2361,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm have executed.
       1. Invoke [=Try Activate=] with |registration|.
 
-          Note: If [=Try Activate=] does not trigger [=Activate=] here, [=Activate=] is tried again when the last client controlled by the existing [=active worker=] is [=Handle Service Worker Client Unload|unloaded=], {{ServiceWorkerGlobalScope/skipWaiting()}} is asynchronously called, and the [=extend lifetime promises=] for the existing [=active worker=] settle.
+          Note: If [=Try Activate=] does not trigger [=Activate=] here, [=Activate=] is tried again when the last client controlled by the existing [=active worker=] is [=Handle Service Worker Client Unload|unloaded=], {{ServiceWorkerGlobalScope/skipWaiting()}} is asynchronously called, or the [=extend lifetime promises=] for the existing [=active worker=] settle.
   </section>
 
   <section algorithm>
@@ -2408,6 +2412,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. If |registration|'s [=waiting worker=] is null, return.
+      1. If |registration|'s [=active worker=] is not null and |registration|'s [=active worker=]'s [=state=] is *activating*, return.
+
+          Note: If the existing active worker is still in activating state, the activation of the waiting worker is delayed.
+
       1. Invoke [=Activate=] with |registration| if either of the following is true:
         * |registration|'s [=active worker=] is null.
         * The result of running [=Service Worker Has No Pending Events=] with |registration|’s [=active worker=] is true, and no [=/service worker client=] is [=using=] |registration| or |registration|’s [=waiting worker=]'s [=skip waiting flag=] is set.
@@ -2625,8 +2633,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |registration| be the [=/service worker registration=] <a>used</a> by |client|.
       1. If |registration| is null, abort these steps.
       1. If any other [=/service worker client=] is <a>using</a> |registration|, abort these steps.
-      1. If |registration|'s <a>uninstalling flag</a> is set, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument and abort these steps.
-      1. If |registration|'s <a>waiting worker</a> is not null, invoke [=Try Activate=] with |registration|.
+      1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
+      1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
   </section>
 
   <section algorithm>
@@ -2677,9 +2685,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Set |registration|'s <a>uninstalling flag</a>.
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
-      1. If no [=/service worker client=] is <a>using</a> |registration|, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+      1. Invoke [=Try Clear Registration=] with |registration|.
 
-          Note: When the registration is being used for a client, the deletion of the registration is handled by the Handle Service Worker Client Unload algorithm.
+          Note: If [=Try Clear Registration=] does not trigger [=Clear Registration=] here, [=Clear Registration=] is tried again when the last client [=using=] the registration is [=Handle Service Worker Client Unload|unloaded=] or the [=extend lifetime promises=] for the registration's service workers settle.
 
       1. Invoke <a>Finish Job</a> with |job|.
   </section>
@@ -2709,24 +2717,34 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. Run the following steps atomically.
-      1. Let |redundantWorker| be null.
       1. If |registration|'s <a>installing worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a>installing worker</a>.
-          1. <a lt="Terminate Service Worker">Terminate</a> |redundantWorker|.
+          1. [=Terminate Service Worker|Terminate=] |registration|'s [=installing worker=].
+          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. If |registration|'s <a>waiting worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a>waiting worker</a>.
-          1. <a lt="Terminate Service Worker">Terminate</a> |redundantWorker|.
+          1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
+          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. If |registration|'s <a>active worker</a> is not null, then:
-          1. Set |redundantWorker| to |registration|'s <a>active worker</a>.
-          1. <a lt="Terminate Service Worker">Terminate</a> |redundantWorker|.
+          1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
+          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |redundantWorker| and *redundant* as the arguments.
       1. Let |scopeString| be <a lt="URL serializer">serialized</a> |registration|'s [=service worker registration/scope url=] with the *exclude fragment flag* set.
       1. [=map/Remove=] <a>scope to registration map</a>[|scopeString|].
+  </section>
+
+  <section algorithm>
+    <h3 id="try-clear-registration-algorithm"><dfn>Try Clear Registration</dfn></h3>
+
+      : Input
+      :: |registration|, a [=/service worker registration=]
+      : Output
+      :: None
+
+      1. Invoke [=Clear Registration=] with |registration| if no [=/service worker client=] is [=using=] |registration| and all of the following conditions are true:
+          * |registration|'s [=installing worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=installing worker=] is true.
+          * |registration|'s [=waiting worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=waiting worker=] is true.
+          * |registration|'s [=active worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=active worker=] is true.
   </section>
 
   <section algorithm>
