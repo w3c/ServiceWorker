@@ -345,7 +345,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let the {{ExtendableMessageEvent/data}} attribute of |e| be initialized to |clonedMessage|.
             1. Let the {{ExtendableMessageEvent/origin}} attribute of |e| be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |incumbentSettings|'s [=environment settings object/origin=].
             1. If |incumbentGlobal| is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of |e| be initialized to a new {{ServiceWorker}} object that represents |incumbentGlobal|'s [=ServiceWorkerGlobalScope/service worker=].
-            1. Else if |incumbentGlobal| is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of |e| be initialized to a new {{WindowClient}} object that represents |incumbentGlobal|'s [=/browsing context=].
+            1. Else if |incumbentGlobal| is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of |e| be initialized to a new {{WindowClient}} object that represents |incumbentGlobal|'s [=/environment settings object=].
             1. Else, let it be initialized to a new {{Client}} object that represents the worker associated with |incumbentGlobal|.
             1. Let the {{ExtendableMessageEvent/ports}} attribute of |e| be initialized to |newPorts|.
             1. <a>Dispatch</a> |e| at |destination|.
@@ -788,8 +788,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl">
       [Global=(Worker,ServiceWorker), Exposed=ServiceWorker]
       interface ServiceWorkerGlobalScope : WorkerGlobalScope {
-        // A container for a list of Client objects that correspond to
-        // browsing contexts (or shared workers) that are on the origin of this SW
         [SameObject] readonly attribute Clients clients;
         [SameObject] readonly attribute ServiceWorkerRegistration registration;
 
