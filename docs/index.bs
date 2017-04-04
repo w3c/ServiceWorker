@@ -351,24 +351,28 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, <a>throw</a> an "{{InvalidStateError}}" exception and abort these steps. 
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
         1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
-        1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
-        1. Let |targetRealm| be |destination|'s [=global object/Realm=].
         1. Let |incumbentSettings| be the <a>incumbent settings object</a>, and |incumbentGlobal| its [=environment settings object/global object=].
-        1. Let |cloneRecord| be <a abstract-op>StructuredCloneWithTransfer</a>(|message|, |transfer|, |targetRealm|). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.
-        1. Let |clonedMessage| be |cloneRecord|.\[[Clone]].
-        1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |cloneRecord|.\[[TransferList]], if any, maintaining their relative order.
-        1. <a>Queue a task</a> that runs the following steps:
-            1. Create an event |e| that uses the {{ExtendableMessageEvent}} interface, with the event type {{message!!event}}, which does not bubble and is not cancelable.
-            1. Let the {{ExtendableMessageEvent/data}} attribute of |e| be initialized to |clonedMessage|.
-            1. Let the {{ExtendableMessageEvent/origin}} attribute of |e| be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |incumbentSettings|'s [=environment settings object/origin=].
-            1. If |incumbentGlobal| is a {{ServiceWorkerGlobalScope}} object, let the {{ExtendableMessageEvent/source}} attribute of |e| be initialized to a new {{ServiceWorker}} object that represents |incumbentGlobal|'s [=ServiceWorkerGlobalScope/service worker=].
-            1. Else if |incumbentGlobal| is a {{Window}} object, let the {{ExtendableMessageEvent/source}} attribute of |e| be initialized to a new {{WindowClient}} object that represents |incumbentGlobal|'s [=/environment settings object=].
-            1. Else, let it be initialized to a new {{Client}} object that represents the worker associated with |incumbentGlobal|.
-            1. Let the {{ExtendableMessageEvent/ports}} attribute of |e| be initialized to |newPorts|.
-            1. <a>Dispatch</a> |e| at |destination|.
-            1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
+        1. [=Queue a task=] on the [=DOM manipulation task source=] to run the following steps:
+            1. Let |source| be determined by switching on the type of |incumbentGlobal|:
+                <dl class="switch">
+                    <dt>{{ServiceWorkerGlobalScope}}</dt>
+                    <dd>a new {{ServiceWorker}} object that represents |incumbentGlobal|'s [=ServiceWorkerGlobalScope/service worker=].</dd>
 
-            The <a>task</a> *must* use the <a>DOM manipulation task source</a>.
+                    <dt>{{Window}}</dt>
+                    <dd>a new {{WindowClient}} object that represents |incumbentGlobal|'s [=relevant settings object=].</dd>
+
+                    <dt>Otherwise</dt>
+                    <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker
+                </dd>
+            1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
+            1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
+            1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
+            1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
+            1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
+            1. Let |e| be the result of [=creating an event=] named {{message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
+            1. [=Dispatch=] |e| at |destination|.
+            1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
     </section>
 
     <section>
@@ -1021,17 +1025,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |sourceSettings| be the <a>context object</a>'s <a>relevant settings object</a>.
         1. Let |destination| be the {{ServiceWorkerContainer}} object whose [=ServiceWorkerContainer/service worker client=] is the <a>context object</a>'s [=Client/service worker client=].
         1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" exception.
-        1. Let |targetRealm| be |destination|'s <a>relevant Realm</a>.
-        1. Let |cloneRecord| be <a abstract-op>StructuredCloneWithTransfer</a>(|message|, |transfer|, |targetRealm|). If this <a>throws</a> an exception, <a lt="throw">rethrow</a> that exception and abort these steps.
-        1. Let |clonedMessage| be |cloneRecord|.\[[Clone]].
-        1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |cloneRecord|.\[[TransferList]], if any, maintaining their relative order.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
         1. Add a <a>task</a> that runs the following steps to |destination|'s [=ServiceWorkerContainer/client message queue=]:
-            1. Create an event |e| that uses the {{MessageEvent}} interface, with the event type {{Window/message!!event}}, which does not bubble and is not cancelable.
-            1. Let the <a attribute for="MessageEvent">data</a> attribute of |e| be initialized to |clonedMessage|.
-            1. Let the <a attribute for="MessageEvent">origin</a> attribute of |e| be initialized to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |sourceSettings|'s [=environment settings object/origin=].
-            1. Let the <a attribute for="MessageEvent">source</a> attribute of |e| be initialized to a {{ServiceWorker}} object, which represents the [=ServiceWorkerGlobalScope/service worker=] associated with |sourceSettings|'s [=environment settings object/global object=].
-            1. Let the <a attribute for="MessageEvent">ports</a> attribute of |e| be initialized to |newPorts|.
-            1. <a>Dispatch</a> |e| at |destination|.
+            1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |sourceSettings|'s [=environment settings object/origin=].
+            1. Let |source| be a {{ServiceWorker}} object, which represents the [=ServiceWorkerGlobalScope/service worker=] associated with |sourceSettings|'s [=environment settings object/global object=].
+            1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
+            1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
+            1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any,
+            1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
     </section>
 
     <section>

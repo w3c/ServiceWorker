@@ -1177,7 +1177,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version aa692b5bb18791d7660cd494994fd0ac2ec23132" name="generator">
+  <meta content="Bikeshed version 2694cf87482eb631bb8582afc69be1fae22f2bff" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
 <style>/* style-md-lists */
 
@@ -1425,7 +1425,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-19">19 April 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-20">20 April 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1914,40 +1914,39 @@ pre.idl.highlight { color: #708090; }
        <li data-md="">
         <p>Invoke <a data-link-type="dfn" href="#run-service-worker" id="ref-for-run-service-worker-1">Run Service Worker</a> algorithm with <var>serviceWorker</var> as the argument.</p>
        <li data-md="">
-        <p>Let <var>destination</var> be the <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-2">ServiceWorkerGlobalScope</a></code> object associated with <var>serviceWorker</var>.</p>
-       <li data-md="">
-        <p>Let <var>targetRealm</var> be <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm">Realm</a>.</p>
-       <li data-md="">
         <p>Let <var>incumbentSettings</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">incumbent settings object</a>, and <var>incumbentGlobal</var> its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.</p>
        <li data-md="">
-        <p>Let <var>cloneRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclonewithtransfer">StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">rethrow</a> that exception and abort these steps.</p>
+        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserializewithtransfer">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>transfer</var>). Rethrow any exceptions.</p>
        <li data-md="">
-        <p>Let <var>clonedMessage</var> be <var>cloneRecord</var>.[[Clone]].</p>
-       <li data-md="">
-        <p>Let <var>newPorts</var> be a new <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-frozen-array-type">frozen array</a> consisting of all <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a></code> objects in <var>cloneRecord</var>.[[TransferList]], if any, maintaining their relative order.</p>
-       <li data-md="">
-        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> that runs the following steps:</p>
+        <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> on the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a> to run the following steps:</p>
         <ol>
          <li data-md="">
-          <p>Create an event <var>e</var> that uses the <code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-1">ExtendableMessageEvent</a></code> interface, with the event type <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-1">message</a></code>, which does not bubble and is not cancelable.</p>
+          <p>Let <var>source</var> be determined by switching on the type of <var>incumbentGlobal</var>:</p>
+          <dl class="switch">
+           <dt><code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-2">ServiceWorkerGlobalScope</a></code>
+           <dd>a new <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-8">ServiceWorker</a></code> object that represents <var>incumbentGlobal</var>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-1">service worker</a>.
+           <dt><code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code>
+           <dd>a new <code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-1">WindowClient</a></code> object that represents <var>incumbentGlobal</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>.
+           <dt>Otherwise
+           <dd>a new <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-1">Client</a></code> object that represents <var>incumbentGlobal</var>’s associated worker 
+          </dl>
          <li data-md="">
-          <p>Let the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-1">data</a></code> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</p>
+          <p>Let <var>origin</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialization</a> of <var>incumbentSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>.</p>
          <li data-md="">
-          <p>Let the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-origin" id="ref-for-dom-extendablemessageevent-origin-1">origin</a></code> attribute of <var>e</var> be initialized to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialization</a> of <var>incumbentSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>.</p>
+          <p>Let <var>destination</var> be the <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-3">ServiceWorkerGlobalScope</a></code> object associated with <var>serviceWorker</var>.</p>
          <li data-md="">
-          <p>If <var>incumbentGlobal</var> is a <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-3">ServiceWorkerGlobalScope</a></code> object, let the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-1">source</a></code> attribute of <var>e</var> be initialized to a new <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-8">ServiceWorker</a></code> object that represents <var>incumbentGlobal</var>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-1">service worker</a>.</p>
+          <p>Let <var>deserializeRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>(<var>serializeWithTransferResult</var>, <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm">Realm</a>).</p>
          <li data-md="">
-          <p>Else if <var>incumbentGlobal</var> is a <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a></code> object, let the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-2">source</a></code> attribute of <var>e</var> be initialized to a new <code class="idl"><a data-link-type="idl" href="#windowclient" id="ref-for-windowclient-1">WindowClient</a></code> object that represents <var>incumbentGlobal</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object">environment settings object</a>.</p>
+          <p>Let <var>messageClone</var> be <var>deserializeRecord</var>.[[Deserialized]].</p>
          <li data-md="">
-          <p>Else, let it be initialized to a new <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-1">Client</a></code> object that represents the worker associated with <var>incumbentGlobal</var>.</p>
+          <p>Let <var>newPorts</var> be a new <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-frozen-array-type">frozen array</a> consisting of all <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a></code> objects in <var>deserializeRecord</var>.[[TransferredValues]], if any, maintaining their relative order.</p>
          <li data-md="">
-          <p>Let the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-ports" id="ref-for-dom-extendablemessageevent-ports-1">ports</a></code> attribute of <var>e</var> be initialized to <var>newPorts</var>.</p>
+          <p>Let <var>e</var> be the result of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-create">creating an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-1">message</a></code>, using <code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-1">ExtendableMessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-origin" id="ref-for-dom-extendablemessageevent-origin-1">origin</a></code> attribute initialized to <var>origin</var>, the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-1">source</a></code> attribute initialized to <var>source</var>, the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-1">data</a></code> attribute initialized to <var>messageClone</var>, and the <code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-ports" id="ref-for-dom-extendablemessageevent-ports-1">ports</a></code> attribute initialized to <var>newPorts</var>.</p>
          <li data-md="">
           <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</p>
          <li data-md="">
           <p>Invoke <a data-link-type="dfn" href="#update-service-worker-extended-events-set" id="ref-for-update-service-worker-extended-events-set-1">Update Service Worker Extended Events Set</a> with <var>serviceWorker</var> and <var>e</var>.</p>
         </ol>
-        <p>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> <em>must</em> use the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">DOM manipulation task source</a>.</p>
       </ol>
      </section>
      <section>
@@ -2570,28 +2569,22 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <li data-md="">
         <p>If <var>destination</var> is null, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror">InvalidStateError</a></code>" exception.</p>
        <li data-md="">
-        <p>Let <var>targetRealm</var> be <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a>.</p>
-       <li data-md="">
-        <p>Let <var>cloneRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclonewithtransfer">StructuredCloneWithTransfer</a>(<var>message</var>, <var>transfer</var>, <var>targetRealm</var>). If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">throws</a> an exception, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw">rethrow</a> that exception and abort these steps.</p>
-       <li data-md="">
-        <p>Let <var>clonedMessage</var> be <var>cloneRecord</var>.[[Clone]].</p>
-       <li data-md="">
-        <p>Let <var>newPorts</var> be a new <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-frozen-array-type">frozen array</a> consisting of all <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a></code> objects in <var>cloneRecord</var>.[[TransferList]], if any, maintaining their relative order.</p>
+        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserializewithtransfer">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>transfer</var>). Rethrow any exceptions.</p>
        <li data-md="">
         <p>Add a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a> that runs the following steps to <var>destination</var>’s <a data-link-type="dfn" href="#dfn-client-message-queue" id="ref-for-dfn-client-message-queue-6">client message queue</a>:</p>
         <ol>
          <li data-md="">
-          <p>Create an event <var>e</var> that uses the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code> interface, with the event type <code class="idl"><a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a></code>, which does not bubble and is not cancelable.</p>
+          <p>Let <var>origin</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialization</a> of <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>.</p>
          <li data-md="">
-          <p>Let the <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">data</a> attribute of <var>e</var> be initialized to <var>clonedMessage</var>.</p>
+          <p>Let <var>source</var> be a <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-22">ServiceWorker</a></code> object, which represents the <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-6">service worker</a> associated with <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.</p>
          <li data-md="">
-          <p>Let the <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a> attribute of <var>e</var> be initialized to the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unicode-serialisation-of-an-origin">Unicode serialization</a> of <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>.</p>
+          <p>Let <var>deserializeRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>(<var>serializeWithTransferResult</var>, <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a>).</p>
          <li data-md="">
-          <p>Let the <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a> attribute of <var>e</var> be initialized to a <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-22">ServiceWorker</a></code> object, which represents the <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-6">service worker</a> associated with <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.</p>
+          <p>Let <var>messageClone</var> be <var>deserializeRecord</var>.[[Deserialized]].</p>
          <li data-md="">
-          <p>Let the <a class="idl-code" data-link-type="attribute" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports">ports</a> attribute of <var>e</var> be initialized to <var>newPorts</var>.</p>
+          <p>Let <var>newPorts</var> be a new <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-frozen-array-type">frozen array</a> consisting of all <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a></code> objects in <var>deserializeRecord</var>.[[TransferredValues]], if any,</p>
          <li data-md="">
-          <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch</a> <var>e</var> at <var>destination</var>.</p>
+          <p><a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-dispatch">Dispatch an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a></code> at <var>destination</var>, using <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a></code> attribute initialized to <var>origin</var>, the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a></code> attribute initialized to <var>source</var>, the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">data</a></code> attribute initialized to <var>messageClone</var>, and the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports">ports</a></code> attribute initialized to <var>newPorts</var>.</p>
         </ol>
       </ol>
      </section>
@@ -3561,7 +3554,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">any</span> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="any" href="#dom-extendablemessageevent-data" id="ref-for-dom-extendablemessageevent-data-2">data</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="USVString" href="#dom-extendablemessageevent-origin" id="ref-for-dom-extendablemessageevent-origin-2">origin</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString"><span class="kt">DOMString</span></a> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="DOMString" href="#dom-extendablemessageevent-lasteventid" id="ref-for-dom-extendablemessageevent-lasteventid-1">lastEventId</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-9">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-23">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="(Client or ServiceWorker or MessagePort)?" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-3">source</a>;
+  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> (<a class="n" data-link-type="idl-name" href="#client" id="ref-for-client-9">Client</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="#serviceworker" id="ref-for-serviceworker-23">ServiceWorker</a> <span class="kt">or</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>)? <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="(Client or ServiceWorker or MessagePort)?" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-2">source</a>;
   <span class="kt">readonly</span> <span class="kt">attribute</span> <span class="kt">FrozenArray</span>&lt;<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="FrozenArray<MessagePort>" href="#dom-extendablemessageevent-ports" id="ref-for-dom-extendablemessageevent-ports-2">ports</a>;
 };
 </pre>
@@ -3587,7 +3580,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="attribute" data-export="" id="dom-extendablemessageevent-lasteventid">lastEventId</dfn> attribute <em>must</em> return the value it was initialized to. When the object is created, this attribute <em>must</em> be initialized to the empty string.</p>
      </section>
      <section>
-      <h4 class="heading settled" data-level="4.8.4" id="extendablemessage-event-source"><span class="secno">4.8.4. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-4">event.source</a></code></span><a class="self-link" href="#extendablemessage-event-source"></a></h4>
+      <h4 class="heading settled" data-level="4.8.4" id="extendablemessage-event-source"><span class="secno">4.8.4. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-extendablemessageevent-source" id="ref-for-dom-extendablemessageevent-source-3">event.source</a></code></span><a class="self-link" href="#extendablemessage-event-source"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ExtendableMessageEvent" data-dfn-type="attribute" data-export="" id="dom-extendablemessageevent-source">source</dfn> attribute <em>must</em> return the value it was initialized to. When the object is created, this attribute <em>must</em> be initialized to null. It represents the <code class="idl"><a data-link-type="idl" href="#client" id="ref-for-client-11">Client</a></code> object from which the message is sent.</p>
      </section>
      <section>
@@ -7256,7 +7249,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/comms.html#messageport">MessagePort</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#navigator">Navigator</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">SharedWorkerGlobalScope</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredclonewithtransfer">StructuredCloneWithTransfer</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/infrastructure.html#structuredserializewithtransfer">StructuredSerializeWithTransfer</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#window">Window</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#worker">Worker</a>
@@ -9352,9 +9346,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-source">
    <b><a href="#dom-extendablemessageevent-source">#dom-extendablemessageevent-source</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-extendablemessageevent-source-1">3.1.3. postMessage(message, transfer)</a> <a href="#ref-for-dom-extendablemessageevent-source-2">(2)</a>
-    <li><a href="#ref-for-dom-extendablemessageevent-source-3">4.8. ExtendableMessageEvent</a>
-    <li><a href="#ref-for-dom-extendablemessageevent-source-4">4.8.4. event.source</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-source-1">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-source-2">4.8. ExtendableMessageEvent</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-source-3">4.8.4. event.source</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-ports">
