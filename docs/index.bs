@@ -223,9 +223,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section dfn-for="service worker client">
     <h3 id="service-worker-client-concept">Service Worker Client</h3>
 
-    A <dfn export id="dfn-service-worker-client" for="">service worker client</dfn> is a type of <a>environment</a> or <a>environment settings object</a>.
+    A <dfn export id="dfn-service-worker-client" for="">service worker client</dfn> is an [=environment=].
 
-    A [=/service worker client=] has an algorithm defined as the <dfn export for="service worker client">origin</dfn> that returns the [=/service worker client=]'s <a>creation URL</a>'s [=url/origin=] if the [=/service worker client=] is a type of <a>environment</a>, and the [=/service worker client=]'s [=environment settings object/origin=] otherwise.
+    A [=/service worker client=] has an algorithm defined as the <dfn export for="service worker client">origin</dfn> that returns the [=/service worker client=]'s [=environment settings object/origin=] if the [=/service worker client=] is an [=environment settings object=], and the [=/service worker client=]'s <a>creation URL</a>'s [=url/origin=] otherwise.
 
     A <dfn export id="dfn-window-client">window client</dfn> is a [=/service worker client=] whose [=environment settings object/global object=] is a {{Window}} object.
 
@@ -998,9 +998,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn attribute for="Client"><code>type</code></dfn> attribute *must* run these steps:
 
-        1. If the [=context object=]'s [=Client/service worker client=] is a type of [=environment=] or is a [=window client=], return {{ClientType/"window"}}.
-        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=dedicated worker client=], return {{ClientType/"worker"}}.
-        1. Else if the [=context object=]'s [=Client/service worker client=] is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
+        1. Let |client| be [=context object=]'s [=Client/service worker client=].
+        1. If |client| is an [=environment settings object=], then:
+            1. If |client| is a [=window client=], return {{ClientType/"window"}}.
+            1. Else if |client| is a [=dedicated worker client=], return {{ClientType/"worker"}}.
+            1. Else if |client| is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
+        1. Else:
+            1. Return {{ClientType/"window"}}.
     </section>
 
     <section>
@@ -1146,17 +1150,20 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run these substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
-                1. If |client| is a type of <a>environment</a>, then:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
-                1. Else:
+                1. If |client| is an [=environment settings object=], then:
                     1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
-                1. If |client| is a type of <a>environment</a> or is a <a>window client</a>, then:
+                1. Else:
+                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
+                1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
+                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
+                    1. Resolve |promise| with |clientObject| and abort these steps.
+                1. Else:
                     1. Let |browsingContext| be null.
                     1. Let |visibilityState| be null.
                     1. Let |focusState| be false.
                     1. Let |ancestorOriginsList| be the empty list.
-                    1. If |client| is a type of <a>environment</a>, set |browsingContext| to |client|’s [=environment/target browsing context=].
-                    1. Else, set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
+                    1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
+                    1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
                         1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                         1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
@@ -1164,9 +1171,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Wait for |task| to have executed.
                     1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
                     1. Resolve |promise| with |windowClient| and abort these steps.
-                1. Else:
-                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
-                    1. Resolve |promise| with |clientObject| and abort these steps.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -1180,10 +1184,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run these substeps <a>in parallel</a>:
             1. Let |targetClients| be an empty array.
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
-                1. If |client| is a type of <a>environment</a>, then:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
-                1. Else:
+                1. If |client| is an [=environment settings object=], then:
                     1. If |client| is not a <a>secure context</a>, continue to the next iteration of the loop.
+                1. Else:
+                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
                 1. If |options|.{{ClientQueryOptions/includeUncontrolled}} is false, then:
                     1. If |client|'s <a>active service worker</a> is not the associated [=ServiceWorkerGlobalScope/service worker=], continue to the next iteration of the loop.
                 1. If |options|.{{ClientQueryOptions/includeReserved}} is false, then:
@@ -1191,14 +1195,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Add |client| to |targetClients|.
             1. Let |matchedClients| be an empty array.
             1. For each [=/service worker client=] |client| in |targetClients|:
-                1. If |options|.{{ClientQueryOptions/type}} is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is a type of <a>environment</a> or is a <a>window client</a>, then:
+                1. If |options|.{{ClientQueryOptions/type}} is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is not an [=environment settings object=] or is a [=window client=], then:
                     1. Let |browsingContext| be null.
                     1. Let |isClientEnumerable| be true.
                     1. Let |visibilityState| be the empty string.
                     1. Let |focusState| be false.
                     1. Let |ancestorOriginsList| be the empty list.
-                    1. If |client| is a type of <a>environment</a>, set |browsingContext| to |client|’s [=environment/target browsing context=].
-                    1. Else, set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
+                    1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
+                    1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
                         1. If |browsingContext| has been <a lt="a browsing context is discarded">discarded</a>, set |isClientEnumerable| to false and abort these steps.
                         1. If |client| is a window client and |client|'s <a>responsible document</a> is not |browsingContext|'s <a>active document</a>,  set |isClientEnumerable| to false and abort these steps.
@@ -1212,7 +1216,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. If |isClientEnumerable| is true, then:
                         1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
                         1. Add |windowClient| to |matchedClients|.
-                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a <a>dedicated worker client</a>, or |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a <a>shared worker client</a>, then:
+                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a [=dedicated worker client=], or |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a [=shared worker client=], then:
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
                     1. Add |clientObject| to |matchedClients|.
             1. Sort |matchedClients| such that:
@@ -1263,10 +1267,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
-                1. If |client| is a type of <a>environment</a>, then:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
-                1. Else:
+                1. If |client| is an [=environment settings object=], then:
                     1. If |client| is not a <a>secure context</a>, continue to the next iteration of the loop.
+                1. Else:
+                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
                 1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm passing |client|'s <a>creation URL</a> as the argument.
                 1. If |registration| is not the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>, continue to the next iteration of the loop.
                 1. If |client|'s <a>active service worker</a> is not the [=ServiceWorkerGlobalScope/service worker=], then:
@@ -3126,7 +3130,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. [=map/For each=] <var ignore>scope</var> → |registration| of <a>scope to registration map</a>:
           1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
               1. If |registration|'s [=waiting worker=] is null and |registration|'s [=active worker=] is null, invoke <a>Clear Registration</a> with |registration| and continue to the next iteration of the loop.
-              1. Else, set |registration|'s <a>installing worker</a> to null.
+              1. Else, set |installingWorker| to null.
           1. If |registration|'s <a>waiting worker</a> is not null, run the following substep <a>in parallel</a>:
               1. Invoke <a>Activate</a> with |registration|.
   </section>
@@ -3305,7 +3309,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. Assert: |client| is not null.
-      1. If |client| is a type of <a>environment settings object</a>, <a>queue a task</a> to <a>fire an event</a> named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
+      1. If |client| is an [=environment settings object=], <a>queue a task</a> to [=fire an event=] named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object that |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
 
     The <a>task</a> *must* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
   </section>
