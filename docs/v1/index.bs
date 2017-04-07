@@ -191,7 +191,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.
 
-    A [=/service worker registration=] has an associated <dfn export id="dfn-use-cache">use cache</dfn> (a boolean). It is initially set to false.
+    A [=/service worker registration=] has an associated <dfn export id="dfn-update-via-cache">update via cache mode</dfn>, which is "`imports`", "`all`", or "`never`". It is initially set to "`imports`".
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.
 
@@ -394,13 +394,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute ServiceWorker? active;
 
         readonly attribute USVString scope;
-        readonly attribute boolean useCache;
+        readonly attribute ServiceWorkerUpdateViaCache updateViaCache;
 
         [NewObject] Promise&lt;void&gt; update();
         [NewObject] Promise&lt;boolean&gt; unregister();
 
         // event
         attribute EventHandler onupdatefound;
+      };
+
+      enum ServiceWorkerUpdateViaCache {
+        "imports",
+        "all",
+        "none"
       };
     </pre>
 
@@ -440,10 +446,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       </div>
     </section>
 
-    <section algorithm="service-worker-registration-usecache">
-      <h4 id="service-worker-registration-usecache">{{ServiceWorkerRegistration/useCache}}</h4>
+    <section algorithm="service-worker-registration-updateviacache">
+      <h4 id="service-worker-registration-updateviacache">{{ServiceWorkerRegistration/updateViaCache}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>useCache</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/use cache=].
+      The <dfn attribute for="ServiceWorkerRegistration"><code>updateViaCache</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/update via cache mode=].
     </section>
 
     <section algorithm="service-worker-registration-update">
@@ -540,7 +546,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       dictionary RegistrationOptions {
         USVString scope;
         WorkerType type = "classic";
-        boolean useCache = false;
+        ServiceWorkerUpdateViaCache updateViaCache = "imports";
       };
     </pre>
 
@@ -612,7 +618,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |p| with a <code>TypeError</code> and abort these steps.
         1. Let |job| be the result of running <a>Create Job</a> with *register*, |scopeURL|, |scriptURL|, |p|, and |client|.
         1. Set |job|'s [=job/worker type=] to |options|.{{RegistrationOptions/type}}.
-        1. Set |job|'s [=job/use cache=] to |options|.{{RegistrationOptions/useCache}}.
+        1. Set |job|'s [=job/update via cache mode=] to |options|.{{RegistrationOptions/updateViaCache}}.
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |p|.
     </section>
@@ -1951,7 +1957,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
             1. Set |request|'s [=service-workers mode=] to "`foreign`".
             1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
-                * |registration|'s [=service worker registration/use cache=] is false.
+                * |registration|'s [=service worker registration/update via cache mode=] is "`never`".
                 * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
                 * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
             1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
@@ -2067,7 +2073,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-worker-type">worker type</dfn> ("<code>classic</code>" or "<code>module</code>").
 
-    A <a>job</a> has a <dfn id="dfn-job-use-cache">use cache</dfn> (a boolean).
+    A <a>job</a> has an <dfn id="dfn-job-update-via-cache-mode">update via cache mode</dfn>, which is "`imports`", "`all`", or "`never`".
 
     A <a>job</a> has a <dfn id="dfn-job-client">client</dfn> (a [=/service worker client=]). It is initially null.
 
@@ -2204,11 +2210,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |registration| is not null, then:
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, and |job|'s [=job/use cache=]'s value equals |registration|'s [=service worker registration/use cache=]'s value, then:
+          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=]'s value, then:
               1. Invoke <a>Resolve Job Promise</a> with |job| and the {{ServiceWorkerRegistration}} object which represents |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/use cache=].
+          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/update via cache mode=].
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -2244,7 +2250,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
 
           1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
-              * |registration|'s [=service worker registration/use cache=] is false.
+              * |registration|'s [=service worker registration/update via cache mode=] is not "`all`".
               * |job|'s [=force bypass cache flag=] is set.
               * |newestWorker| is not null, and |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
 
@@ -2713,13 +2719,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |scope|, a [=/URL=]
-      :: |useCache|, a boolean
+      :: |updateViaCache|, an [=service worker registration/update via cache mode=]
       : Output
       :: |registration|, a [=/service worker registration=]
 
       1. Run the following steps atomically.
       1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
-      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/use cache=] is set to |useCache|.
+      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
       1. [=map/Set=] <a>scope to registration map</a>[|scopeString|] to |registration|.
       1. Return |registration|.
   </section>
