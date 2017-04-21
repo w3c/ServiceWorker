@@ -11,6 +11,7 @@ Editor: Jake Archibald, Google, jakearchibald@chromium.org
 Editor: Marijn Kruisselbrink, Google, mek@chromium.org
 Repository: w3c/ServiceWorker
 Group: webplatform
+!Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/service-workers>web-platform-tests service-workers/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/service-workers>ongoing work</a>)
 Abstract: This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.
 Abstract:
 Abstract: The core of this system is an event-driven <a>Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.
@@ -142,7 +143,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker=] has an associated <dfn export id="dfn-service-worker-id">id</dfn> (an opaque string), which uniquely identifies itself during the lifetime of its <a>containing service worker registration</a>.
 
     A [=/service worker=] has an associated <dfn export id="dfn-service-worker-global-object" for="service worker">global object</dfn> (a {{ServiceWorkerGlobalScope}} object or null).
-    
+
     A [=/service worker=] is dispatched a set of <dfn export id="dfn-lifecycle-events">lifecycle events</dfn>, {{install!!event}} and {{activate!!event}}, and <dfn export id="dfn-functional-events">functional events</dfn> including {{fetch!!event}}.
 
     A [=/service worker=] has an associated <dfn export id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null.
@@ -331,7 +332,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="ServiceWorker"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
-        1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, <a>throw</a> an "{{InvalidStateError}}" exception and abort these steps. 
+        1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, <a>throw</a> an "{{InvalidStateError}}" exception and abort these steps.
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
         1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
         1. Let |incumbentSettings| be the <a>incumbent settings object</a>, and |incumbentGlobal| its [=environment settings object/global object=].
@@ -573,9 +574,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run the following substeps <a>in parallel</a>:
             1. *CheckRegistration*: If the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL| as its argument is not null, then:
                 1. Set |registration| to the result value.
-            1. Else:  
+            1. Else:
                 1. Wait until <a>scope to registration map</a> has a new entry.
-                1. Jump to the step labeled *CheckRegistration*.  
+                1. Jump to the step labeled *CheckRegistration*.
             1. If |registration|'s <a>active worker</a> is null, wait until |registration|'s <a>active worker</a> changes.
 
                 Note: Implementers should consider this condition is met when the corresponding registration request gets to the step 6 of <a>Activate</a> algorithm.
@@ -1650,9 +1651,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                         1. Let |varyHeaders| be the array containing the elements corresponding to the [=http/field-values=] of the <a>Vary</a> header.
                         1. Let |matchAsterisk| be false.
                         1. For each |f| in |varyHeaders|:
-                            1. If |f| matches "<code>*</code>", set |matchAsterisk| to true and break the loop.      
+                            1. If |f| matches "<code>*</code>", set |matchAsterisk| to true and break the loop.
                         1. If |matchAsterisk| is true, reject |responsePromise| with a <code>TypeError</code>.
-                        1. Else, resolve |responsePromise| with a new {{Response}} object associated with |response| and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>".  
+                        1. Else, resolve |responsePromise| with a new {{Response}} object associated with |response| and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>".
                     1. Else, resolve |responsePromise| with a new {{Response}} object associated with |response| and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>".
 
                     Note: This step ensures that the promise for this fetch resolves as soon as the response's headers become available.
@@ -3130,7 +3131,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
   Anne van Kesteren has generously lent his encyclopedic knowledge of Web Platform arcana and standards development experience throughout the development of the service worker. This specification would be incomplete without his previous work in describing the real-world behavior of URLs, HTTP Fetch, Promises, and DOM. Similarly, this specification would not be possible without Ian Hickson's rigorous Web Worker spec. Much thanks to him.
 
-  In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa, Jake Archibald, Josh Soref, Jinho Bang, Yutaka Hirano, isonmad, and Ali Alabbas.
+  In no particular order, deep gratitude for design guidance and discussion goes to: Jungkee Song, Alec Flett, David Barrett-Kahn, Aaron Boodman, Michael Nordman, Tom Ashworth, Kinuko Yasuda, Darin Fisher, Jonas Sicking, Jesús Leganés Combarro, Mark Christian, Dave Hermann, Yehuda Katz, François Remy, Ilya Grigorik, Will Chan, Domenic Denicola, Nikhil Marathe, Yves Lafon, Adam Barth, Greg Simon, Devdatta Akhawe, Dominic Cooney, Jeffrey Yasskin, Joshua Bell, Boris Zbarsky, Matt Falkenhagen, Tobie Langel, Gavin Peters, Ben Kelly, Hiroki Nakagawa, Jake Archibald, Josh Soref, Jinho Bang, Yutaka Hirano, isonmad, Ali Alabbas, and Philip Jägenstedt.
 
   Jason Weber, Chris Wilson, Paul Kinlan, Ehsan Akhgari, and Daniel Austin have provided valuable, well-timed feedback on requirements and the standardization process.
 
