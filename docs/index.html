@@ -1177,7 +1177,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version 578172dc11c5ca130cd8ef816dc879f8e34fe1e9" name="generator">
+  <meta content="Bikeshed version 5bd73bb15eb04ad9f7d1a57f012e9ee6eca5a765" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
 <style>/* style-md-lists */
 
@@ -1425,7 +1425,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-28">28 April 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-29">29 April 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1857,12 +1857,12 @@ pre.idl.highlight { color: #708090; }
      <a class="self-link" href="#example-7e94092e"></a> Bootstrapping with a service worker: 
 <pre class="highlight"><span class="c1">// scope defaults to the path the script sits in
 </span><span class="c1">// "/" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="p">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/serviceworker.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>registration <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"success!"</span><span class="p">)</span><span class="p">;</span>
   <span class="k">if</span> <span class="p">(</span>registration<span class="p">.</span>installing<span class="p">)</span> <span class="p">{</span>
     registration<span class="p">.</span>installing<span class="p">.</span>postMessage<span class="p">(</span><span class="s2">"Howdy from your installing page."</span><span class="p">)</span><span class="p">;</span>
   <span class="p">}</span>
-<span class="p">}</span><span class="p">,</span> err <span class="p">=></span> <span class="p">{</span>
+<span class="p">}</span><span class="p">,</span> err <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Installing the worker failed!"</span><span class="p">,</span> err<span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -2395,10 +2395,10 @@ pre.idl.highlight { color: #708090; }
     <div class="example" id="example-744d6b8b">
      <a class="self-link" href="#example-744d6b8b"></a> Serving Cached Resources: 
 <pre class="highlight"><span class="c1">// caching.js
-</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="p">=></span> <span class="p">{</span>
+</span>self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"install"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   event<span class="p">.</span>waitUntil<span class="p">(</span>
     <span class="c1">// Open a cache of resources.
-</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="p">=></span> <span class="p">{</span>
+</span>    caches<span class="p">.</span>open<span class="p">(</span><span class="s2">"shell-v1"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span>cache <span class="o">=></span> <span class="p">{</span>
       <span class="c1">// Begins the process of fetching them.
 </span>      <span class="c1">// The coast is only clear when all the resources are ready.
 </span>      <span class="k">return</span> cache<span class="p">.</span>addAll<span class="p">(</span><span class="p">[</span>
@@ -2412,16 +2412,16 @@ pre.idl.highlight { color: #708090; }
   <span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 
-self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="p">=></span> <span class="p">{</span>
+self<span class="p">.</span>addEventListener<span class="p">(</span><span class="s2">"fetch"</span><span class="p">,</span> event <span class="o">=></span> <span class="p">{</span>
   <span class="c1">// No "fetch" events are dispatched to the service worker until it
 </span>  <span class="c1">// successfully installs and activates.
 </span>
   <span class="c1">// All operations on caches are async, including matching URLs, so we use
 </span>  <span class="c1">// promises heavily. e.respondWith() even takes promises to enable this:
 </span>  event<span class="p">.</span>respondWith<span class="p">(</span>
-    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="p">=></span> <span class="p">{</span>
+    caches<span class="p">.</span>match<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">.</span>then<span class="p">(</span>response <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> response <span class="o">||</span> fetch<span class="p">(</span>e<span class="p">.</span>request<span class="p">)</span><span class="p">;</span>
-    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+    <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
       <span class="k">return</span> caches<span class="p">.</span>match<span class="p">(</span><span class="s2">"/fallback.html"</span><span class="p">)</span><span class="p">;</span>
     <span class="p">}</span><span class="p">)</span>
   <span class="p">)</span><span class="p">;</span>
@@ -2590,9 +2590,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Let <var>source</var> be a <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-22">ServiceWorker</a></code> object, which represents the <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-6">service worker</a> associated with <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.</p>
          <li data-md="">
           <p>Let <var>deserializeRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>(<var>serializeWithTransferResult</var>, <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a>).</p>
-        </ol>
-        <p>If this throws an exception, <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-messageerror" id="ref-for-eventdef-serviceworkerglobalscope-messageerror-3">messageerror</a></code> at <var>destination</var>, using <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a></code> attribute initialized to <var>origin</var> and the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a></code> attribute initialized to <var>source</var>, and then abort these steps.</p>
-        <ol>
+          <p>If this throws an exception, <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-messageerror" id="ref-for-eventdef-serviceworkerglobalscope-messageerror-3">messageerror</a></code> at <var>destination</var>, using <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a></code> attribute initialized to <var>origin</var> and the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a></code> attribute initialized to <var>source</var>, and then abort these steps.</p>
          <li data-md="">
           <p>Let <var>messageClone</var> be <var>deserializeRecord</var>.[[Deserialized]].</p>
          <li data-md="">
@@ -6569,7 +6567,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-bf118df6"></a> Default scope: 
 <pre class="highlight"><span class="c1">// Maximum allowed scope defaults to the path the script sits in
 </span><span class="c1">// "/js" in this example
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded with the default scope '/js'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6578,7 +6576,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-76c5aa8b"></a> Upper path without Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response has no Service-Worker-Allowed header
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed due to the path restriction violation."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6587,7 +6585,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-49d267fe"></a> Upper path with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span>then<span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>log<span class="p">(</span><span class="s2">"Install succeeded as the max allowed scope was overriden to '/'."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
@@ -6596,7 +6594,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <a class="self-link" href="#example-7a18b25f"></a> A path restriction voliation even with Service-Worker-Allowed header: 
 <pre class="highlight"><span class="c1">// Set the scope to an upper path of the script location
 </span><span class="c1">// Response included "Service-Worker-Allowed : /foo"
-</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="p">=></span> <span class="p">{</span>
+</span>navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/foo/bar/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="p">(</span><span class="p">)</span> <span class="o">=></span> <span class="p">{</span>
   console<span class="p">.</span>error<span class="p">(</span><span class="s2">"Install failed as the scope is still out of the overriden maximum allowed scope."</span><span class="p">)</span><span class="p">;</span>
 <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
