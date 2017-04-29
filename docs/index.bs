@@ -368,7 +368,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 </dd>
             1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
             1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
-            1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
+            1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
+
+                If this throws an exception, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
             1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
             1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
             1. Let |e| be the result of [=creating an event=] named {{message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
@@ -555,6 +557,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         // events
         attribute EventHandler oncontrollerchange;
         attribute EventHandler onmessage; // event.source of message events is ServiceWorker object
+        attribute EventHandler onmessageerror;
       };
     </pre>
     <pre class="idl" id="registration-option-list-dictionary">
@@ -687,6 +690,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           <tr>
             <td><dfn attribute for="ServiceWorkerContainer"><code>onmessage</code></dfn></td>
             <td>{{ServiceWorkerContainer/message!!event}}</td>
+          </tr>
+          <tr>
+            <td><dfn attribute for="ServiceWorkerContainer"><code>onmessageerror</code></dfn></td>
+            <td>{{ServiceWorkerContainer/messageerror!!event}}</td>
           </tr>
         </tbody>
       </table>
@@ -881,6 +888,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         // event
         attribute EventHandler onmessage; // event.source of the message events is Client object
+        attribute EventHandler onmessageerror;
       };
     </pre>
 
@@ -947,6 +955,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessage</code></dfn></td>
             <td>{{message!!event}}</td>
+          </tr>
+          <tr>
+            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessageerror</code></dfn></td>
+            <td>{{messageerror!!event}}</td>
           </tr>
         </tbody>
       </table>
@@ -1031,6 +1043,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |sourceSettings|'s [=environment settings object/origin=].
             1. Let |source| be a {{ServiceWorker}} object, which represents the [=ServiceWorkerGlobalScope/service worker=] associated with |sourceSettings|'s [=environment settings object/global object=].
             1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
+
+               If this throws an exception, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
             1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
             1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any,
             1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
@@ -1739,6 +1753,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           <td><dfn event><code>message</code></dfn></td>
           <td>{{ExtendableMessageEvent}}</td>
           <td>When it receives a message.</td>
+        </tr>
+        <tr>
+          <td><dfn event><code>messageerror</code></dfn></td>
+          <td>{{MessageEvent}}</td>
+          <td>When it was sent a message that cannot be deserialized.</td>
         </tr>
       </tbody>
     </table>
@@ -2849,7 +2868,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
       1. If |script| is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> |script|. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> |script|.
 
-          Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>kill a worker</a> or <a>terminate a worker</a> algorithms.
+          Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
 
       1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
           1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
@@ -3102,7 +3121,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section algorithm>
     <h3 id="on-client-unload-algorithm"><dfn>Handle Service Worker Client Unload</dfn></h3>
 
-    The user agent *must* run these steps when a [=/service worker client=] unloads by <a lt="unload a document">unloading</a>, <a lt="kill a worker">being killed</a>, or <a lt="terminate service worker">terminating</a>.
+    The user agent *must* run these steps when a [=/service worker client=] unloads by <a lt="unload a document">unloading</a> or <a lt="terminate service worker">terminating</a>.
 
       : Input
       :: |client|, a [=/service worker client=]

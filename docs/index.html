@@ -1177,7 +1177,7 @@ Possible extra rowspan handling
 		}
 	}
 </style>
-  <meta content="Bikeshed version f585bc61ca4b271944cd978b64d50b0939de2188" name="generator">
+  <meta content="Bikeshed version 578172dc11c5ca130cd8ef816dc879f8e34fe1e9" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
 <style>/* style-md-lists */
 
@@ -1425,7 +1425,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-27">27 April 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-04-28">28 April 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1938,6 +1938,7 @@ pre.idl.highlight { color: #708090; }
           <p>Let <var>destination</var> be the <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-3">ServiceWorkerGlobalScope</a></code> object associated with <var>serviceWorker</var>.</p>
          <li data-md="">
           <p>Let <var>deserializeRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>(<var>serializeWithTransferResult</var>, <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm">Realm</a>).</p>
+          <p>If this throws an exception, <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-messageerror" id="ref-for-eventdef-serviceworkerglobalscope-messageerror-1">messageerror</a></code> at <var>destination</var>, using <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a></code> attribute initialized to <var>origin</var> and the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a></code> attribute initialized to <var>source</var>, and then abort these steps.</p>
          <li data-md="">
           <p>Let <var>messageClone</var> be <var>deserializeRecord</var>.[[Deserialized]].</p>
          <li data-md="">
@@ -2098,6 +2099,7 @@ pre.idl.highlight { color: #708090; }
   // events
   <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-oncontrollerchange" id="ref-for-dom-serviceworkercontainer-oncontrollerchange-1">oncontrollerchange</a>;
   <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-onmessage" id="ref-for-dom-serviceworkercontainer-onmessage-1">onmessage</a>; // event.source of message events is ServiceWorker object
+  <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-onmessageerror" id="ref-for-dom-serviceworkercontainer-onmessageerror-1">onmessageerror</a>;
 };
 </pre>
 <pre class="idl highlight def" id="registration-option-list-dictionary"><span class="kt">dictionary</span> <dfn class="nv dfn-paneled idl-code" data-dfn-type="dictionary" data-export="" id="dictdef-registrationoptions">RegistrationOptions</dfn> {
@@ -2264,6 +2266,9 @@ pre.idl.highlight { color: #708090; }
         <tr>
          <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerContainer" data-dfn-type="attribute" data-export="" id="dom-serviceworkercontainer-onmessage"><code>onmessage</code></dfn>
          <td><code class="idl"><a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a></code>
+        <tr>
+         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerContainer" data-dfn-type="attribute" data-export="" id="dom-serviceworkercontainer-onmessageerror"><code>onmessageerror</code></dfn>
+         <td><code class="idl"><a class="idl-code" data-link-type="event" href="https://html.spec.whatwg.org/multipage/indices.html#event-messageerror">messageerror</a></code>
       </table>
       <p>The first time the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object">context object</a>’s <code class="idl"><a data-link-type="idl" href="#dom-serviceworkercontainer-onmessage" id="ref-for-dom-serviceworkercontainer-onmessage-2">onmessage</a></code> IDL attribute is set, its <a data-link-type="dfn" href="#dfn-client-message-queue" id="ref-for-dfn-client-message-queue-5">client message queue</a> <em>must</em> be enabled.</p>
      </section>
@@ -2439,6 +2444,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 
   // event
   <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkerglobalscope-onmessage" id="ref-for-dom-serviceworkerglobalscope-onmessage-1">onmessage</a>; // event.source of the message events is Client object
+  <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkerglobalscope-onmessageerror" id="ref-for-dom-serviceworkerglobalscope-onmessageerror-1">onmessageerror</a>;
 };
 </pre>
      <p>A <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-6">ServiceWorkerGlobalScope</a></code> object represents the global execution context of a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-54">service worker</a>. A <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-7">ServiceWorkerGlobalScope</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="dfn" data-noexport="" id="serviceworkerglobalscope-service-worker">service worker</dfn> (a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-55">service worker</a>). A <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope-8">ServiceWorkerGlobalScope</a></code> object has an associated <dfn class="dfn-paneled" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="dfn" data-noexport="" id="serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag">force bypass cache for importscripts flag</dfn>. It is initially unset.</p>
@@ -2496,6 +2502,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <tr>
          <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export="" id="dom-serviceworkerglobalscope-onmessage"><code>onmessage</code></dfn>
          <td><code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-message" id="ref-for-eventdef-serviceworkerglobalscope-message-2">message</a></code>
+        <tr>
+         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="attribute" data-export="" id="dom-serviceworkerglobalscope-onmessageerror"><code>onmessageerror</code></dfn>
+         <td><code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-messageerror" id="ref-for-eventdef-serviceworkerglobalscope-messageerror-2">messageerror</a></code>
       </table>
      </section>
     </section>
@@ -2581,6 +2590,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Let <var>source</var> be a <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker-22">ServiceWorker</a></code> object, which represents the <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker-6">service worker</a> associated with <var>sourceSettings</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global">global object</a>.</p>
          <li data-md="">
           <p>Let <var>deserializeRecord</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/infrastructure.html#structureddeserializewithtransfer">StructuredDeserializeWithTransfer</a>(<var>serializeWithTransferResult</var>, <var>destination</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant Realm</a>).</p>
+        </ol>
+        <p>If this throws an exception, <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code class="idl"><a class="idl-code" data-link-type="event" href="#eventdef-serviceworkerglobalscope-messageerror" id="ref-for-eventdef-serviceworkerglobalscope-messageerror-3">messageerror</a></code> at <var>destination</var>, using <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>, with the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-origin">origin</a></code> attribute initialized to <var>origin</var> and the <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a></code> attribute initialized to <var>source</var>, and then abort these steps.</p>
+        <ol>
          <li data-md="">
           <p>Let <var>messageClone</var> be <var>deserializeRecord</var>.[[Deserialized]].</p>
          <li data-md="">
@@ -3620,6 +3632,10 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="event" data-export="" id="eventdef-serviceworkerglobalscope-message"><code>message</code></dfn>
         <td><code class="idl"><a data-link-type="idl" href="#extendablemessageevent" id="ref-for-extendablemessageevent-4">ExtendableMessageEvent</a></code>
         <td>When it receives a message.
+       <tr>
+        <td><dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorkerGlobalScope" data-dfn-type="event" data-export="" id="eventdef-serviceworkerglobalscope-messageerror"><code>messageerror</code></dfn>
+        <td><code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a></code>
+        <td>When it was sent a message that cannot be deserialized.
      </table>
     </section>
    </section>
@@ -5323,7 +5339,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>If <var>serviceWorker</var> is an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-36">active worker</a>, and there are any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">tasks</a> queued in <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-17">containing service worker registration</a>’s <a data-link-type="dfn" href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue-3">task queues</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue</a> them to <var>serviceWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a> in the same order using their original <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task sources</a>.</p>
       <li data-md="">
        <p>If <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script">classic script</a>, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-classic-script">run the classic script</a> <var>script</var>. Otherwise, it is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#module-script">module script</a>; <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-module-script">run the module script</a> <var>script</var>.</p>
-       <p class="note" role="note"><span>Note:</span> In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a data-link-type="dfn">kill a worker</a> or <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate a worker</a> algorithms.</p>
+       <p class="note" role="note"><span>Note:</span> In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-8">terminate service worker</a> algorithm.</p>
       <li data-md="">
        <p>If <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag-1">has ever been evaluated flag</a> is unset, then:</p>
        <ol>
@@ -5534,7 +5550,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>If <var>e</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is set, set <var>eventCanceled</var> to true.</p>
        </ol>
-       <p>If <var>task</var> is discarded or the script has been aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-8">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
+       <p>If <var>task</var> is discarded or the script has been aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-9">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
        <p>The <var>task</var> <em>must</em> use <var>activeWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a> and the <a data-link-type="dfn" href="#dfn-handle-fetch-task-source" id="ref-for-dfn-handle-fetch-task-source-4">handle fetch task source</a>.</p>
       <li data-md="">
        <p>Wait for <var>task</var> to have executed or been discarded.</p>
@@ -5681,7 +5697,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <li data-md="">
           <p>If <var>e</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag">canceled flag</a> is set, set <var>eventCanceled</var> to true.</p>
         </ol>
-        <p>If <var>task</var> is discarded or the script has been aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-9">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
+        <p>If <var>task</var> is discarded or the script has been aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-10">termination</a> of <var>activeWorker</var>, set <var>handleFetchFailed</var> to true.</p>
         <p>The <var>task</var> <em>must</em> use <var>activeWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a> and the <a data-link-type="dfn" href="#dfn-handle-fetch-task-source" id="ref-for-dfn-handle-fetch-task-source-5">handle fetch task source</a>.</p>
        <li data-md="">
         <p>Wait for <var>task</var> to have executed or been discarded.</p>
@@ -5769,7 +5785,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     </section>
     <section class="algorithm" data-algorithm="Handle Service Worker Client Unload">
      <h3 class="heading settled" id="on-client-unload-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="handle-service-worker-client-unload">Handle Service Worker Client Unload</dfn></span><a class="self-link" href="#on-client-unload-algorithm"></a></h3>
-     <p>The user agent <em>must</em> run these steps when a <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-45">service worker client</a> unloads by <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unload-a-document">unloading</a>, <a data-link-type="dfn">being killed</a>, or <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-10">terminating</a>.</p>
+     <p>The user agent <em>must</em> run these steps when a <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-45">service worker client</a> unloads by <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#unload-a-document">unloading</a> or <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-11">terminating</a>.</p>
      <dl>
       <dt data-md="">Input
       <dd data-md="">
@@ -5931,7 +5947,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>If <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-13">installing worker</a> is not null, then:</p>
        <ol>
         <li data-md="">
-         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-11">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-14">installing worker</a>.</p>
+         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-12">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-14">installing worker</a>.</p>
         <li data-md="">
          <p>Run the <a data-link-type="dfn" href="#update-worker-state" id="ref-for-update-worker-state-9">Update Worker State</a> algorithm passing <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-15">installing worker</a> and <em>redundant</em> as the arguments.</p>
         <li data-md="">
@@ -5941,7 +5957,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>If <var>registration</var>’s <a data-link-type="dfn" href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-16">waiting worker</a> is not null, then:</p>
        <ol>
         <li data-md="">
-         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-12">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-17">waiting worker</a>.</p>
+         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-13">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-17">waiting worker</a>.</p>
         <li data-md="">
          <p>Run the <a data-link-type="dfn" href="#update-worker-state" id="ref-for-update-worker-state-10">Update Worker State</a> algorithm passing <var>registration</var>’s <a data-link-type="dfn" href="#dfn-waiting-worker" id="ref-for-dfn-waiting-worker-18">waiting worker</a> and <em>redundant</em> as the arguments.</p>
         <li data-md="">
@@ -5951,7 +5967,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>If <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-45">active worker</a> is not null, then:</p>
        <ol>
         <li data-md="">
-         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-13">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-46">active worker</a>.</p>
+         <p><a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker-14">Terminate</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-46">active worker</a>.</p>
         <li data-md="">
          <p>Run the <a data-link-type="dfn" href="#update-worker-state" id="ref-for-update-worker-state-11">Update Worker State</a> algorithm passing <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-47">active worker</a> and <em>redundant</em> as the arguments.</p>
         <li data-md="">
@@ -6827,6 +6843,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <li><a href="#match-service-worker-for-foreign-fetch">Match Service Worker for Foreign Fetch</a><span>, in §Unnumbered section</span>
    <li><a href="#match-service-worker-registration">Match Service Worker Registration</a><span>, in §Unnumbered section</span>
    <li><a href="#eventdef-serviceworkerglobalscope-message">message</a><span>, in §4.9</span>
+   <li><a href="#eventdef-serviceworkerglobalscope-messageerror">messageerror</a><span>, in §4.9</span>
    <li><a href="#dfn-name-to-cache-map">name to cache map</a><span>, in §6.1</span>
    <li><a href="#dom-windowclient-navigate">navigate()</a><span>, in §4.2.10</span>
    <li><a href="#dom-windowclient-navigate">navigate(url)</a><span>, in §4.2</span>
@@ -6851,6 +6868,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <ul>
      <li><a href="#dom-serviceworkercontainer-onmessage">attribute for ServiceWorkerContainer</a><span>, in §3.4.7</span>
      <li><a href="#dom-serviceworkerglobalscope-onmessage">attribute for ServiceWorkerGlobalScope</a><span>, in §4.1.4</span>
+    </ul>
+   <li>
+    onmessageerror
+    <ul>
+     <li><a href="#dom-serviceworkercontainer-onmessageerror">attribute for ServiceWorkerContainer</a><span>, in §3.4.7</span>
+     <li><a href="#dom-serviceworkerglobalscope-onmessageerror">attribute for ServiceWorkerGlobalScope</a><span>, in §4.1.4</span>
     </ul>
    <li><a href="#dom-serviceworker-onstatechange">onstatechange</a><span>, in §3.1.4</span>
    <li><a href="#dom-serviceworkerregistration-onupdatefound">onupdatefound</a><span>, in §3.2.9</span>
@@ -7301,6 +7324,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#list-of-active-timers">list of active timers</a>
      <li><a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">message</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/indices.html#event-messageerror">messageerror</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-module-script-module-record">module record</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#module-script">module script</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#navigate">navigate</a>
@@ -7336,7 +7360,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task">task</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue">task queues</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source">task source</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/workers.html#terminate-a-worker">terminate a worker</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsers.html#top-level-browsing-context">top-level browsing context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/interaction.html#triggered-by-user-activation">triggered by user activation</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-type">type</a>
@@ -7563,6 +7586,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   // events
   <span class="kt"><span class="kt">attribute</span></span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><span class="n">EventHandler</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-oncontrollerchange"><span class="nv">oncontrollerchange</span></a>;
   <span class="kt"><span class="kt">attribute</span></span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><span class="n">EventHandler</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-onmessage"><span class="nv">onmessage</span></a>; // event.source of message events is ServiceWorker object
+  <span class="kt"><span class="kt">attribute</span></span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><span class="n">EventHandler</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkercontainer-onmessageerror"><span class="nv">onmessageerror</span></a>;
 };
 
 <span class="kt"><span class="kt">dictionary</span></span> <a class="nv" href="#dictdef-registrationoptions"><span class="nv">RegistrationOptions</span></a> {
@@ -7598,6 +7622,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 
   // event
   <span class="kt"><span class="kt">attribute</span></span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><span class="n">EventHandler</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkerglobalscope-onmessage"><span class="nv">onmessage</span></a>; // event.source of the message events is Client object
+  <span class="kt"><span class="kt">attribute</span></span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler"><span class="n">EventHandler</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworkerglobalscope-onmessageerror"><span class="nv">onmessageerror</span></a>;
 };
 
 [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed"><span class="nv">Exposed</span></a>=<span class="n"><span class="n">ServiceWorker</span></span>]
@@ -8610,6 +8635,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dom-serviceworkercontainer-onmessage-2">3.4.7. Event handlers</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="dom-serviceworkercontainer-onmessageerror">
+   <b><a href="#dom-serviceworkercontainer-onmessageerror">#dom-serviceworkercontainer-onmessageerror</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-serviceworkercontainer-onmessageerror-1">3.4. ServiceWorkerContainer</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="eventdef-serviceworker-statechange">
    <b><a href="#eventdef-serviceworker-statechange">#eventdef-serviceworker-statechange</a></b><b>Referenced in:</b>
    <ul>
@@ -8783,6 +8814,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dom-serviceworkerglobalscope-onmessage">#dom-serviceworkerglobalscope-onmessage</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-serviceworkerglobalscope-onmessage-1">4.1. ServiceWorkerGlobalScope</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-serviceworkerglobalscope-onmessageerror">
+   <b><a href="#dom-serviceworkerglobalscope-onmessageerror">#dom-serviceworkerglobalscope-onmessageerror</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-serviceworkerglobalscope-onmessageerror-1">4.1. ServiceWorkerGlobalScope</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="client">
@@ -9403,6 +9440,14 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message-3">4.8. ExtendableMessageEvent</a> <a href="#ref-for-eventdef-serviceworkerglobalscope-message-4">(2)</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="eventdef-serviceworkerglobalscope-messageerror">
+   <b><a href="#eventdef-serviceworkerglobalscope-messageerror">#eventdef-serviceworkerglobalscope-messageerror</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror-1">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror-2">4.1.4. Event handlers</a>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror-3">4.2.5. postMessage(message, transfer)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="dfn-serviceworker-link">
    <b><a href="#dfn-serviceworker-link">#dfn-serviceworker-link</a></b><b>Referenced in:</b>
    <ul>
@@ -9964,10 +10009,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-terminate-service-worker-3">4.4.1. event.waitUntil(f)</a>
     <li><a href="#ref-for-terminate-service-worker-4">Install</a> <a href="#ref-for-terminate-service-worker-5">(2)</a>
     <li><a href="#ref-for-terminate-service-worker-6">Activate</a> <a href="#ref-for-terminate-service-worker-7">(2)</a>
-    <li><a href="#ref-for-terminate-service-worker-8">Handle Fetch</a>
-    <li><a href="#ref-for-terminate-service-worker-9">Handle Foreign Fetch</a>
-    <li><a href="#ref-for-terminate-service-worker-10">Handle Service Worker Client Unload</a>
-    <li><a href="#ref-for-terminate-service-worker-11">Clear Registration</a> <a href="#ref-for-terminate-service-worker-12">(2)</a> <a href="#ref-for-terminate-service-worker-13">(3)</a>
+    <li><a href="#ref-for-terminate-service-worker-8">Run Service Worker</a>
+    <li><a href="#ref-for-terminate-service-worker-9">Handle Fetch</a>
+    <li><a href="#ref-for-terminate-service-worker-10">Handle Foreign Fetch</a>
+    <li><a href="#ref-for-terminate-service-worker-11">Handle Service Worker Client Unload</a>
+    <li><a href="#ref-for-terminate-service-worker-12">Clear Registration</a> <a href="#ref-for-terminate-service-worker-13">(2)</a> <a href="#ref-for-terminate-service-worker-14">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="handle-fetch">
