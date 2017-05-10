@@ -217,7 +217,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
 
-      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>scope to registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s [=service worker registration/scope url=] and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/service worker clients=].
+      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>scope to registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s [=service worker registration/scope url=], [=URL serializer|serialized=], and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/service worker clients=].
     </section>
   </section>
 
@@ -2400,7 +2400,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
   The following definitions are the user agent's internal data structures used throughout the specification.
 
-  A <dfn id="dfn-scope-to-registration-map">scope to registration map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=] and the values are [=/service worker registrations=].
+  A <dfn id="dfn-scope-to-registration-map">scope to registration map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=/service worker registrations=].
 
   A <dfn id="dfn-job">job</dfn> is an abstraction of one of register, update, and unregister request for a [=/service worker registration=].
 
@@ -3341,15 +3341,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
-      1. Let |matchingScope| be the empty string.
-      1. Let |allScopes| be the result of [=map/get the keys|getting the keys=] from <a>scope to registration map</a>.
-      1. Set |matchingScope| to the longest value in |allScopes| which the value of |clientURLString| starts with, if it exists.
+      1. Let |matchingScopeString| be the empty string.
+      1. Let |scopeStringSet| be the result of [=map/get the keys|getting the keys=] from <a>scope to registration map</a>.
+      1. Set |matchingScopeString| to the longest value in |scopeStringSet| which the value of |clientURLString| starts with, if it exists.
 
           Note: The URL string matching in this step is prefix-based rather than path-structural (e.g. a client URL string with "/prefix-of/resource.html" will match a registration for a scope with "/prefix").
 
-      1. Let |parsedMatchingScope| be null.
-      1. If |matchingScope| is not the empty string, set |parsedMatchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScope|.
-      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |parsedMatchingScope| as the argument.
+      1. Let |matchingScope| be null.
+      1. If |matchingScopeString| is not the empty string, set |matchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScopeString|.
+      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |matchingScope| as the argument.
       1. If |registration| is not null and |registration|'s <a>uninstalling flag</a> is set, return null.
       1. Return |registration|.
   </section>
