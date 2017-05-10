@@ -572,12 +572,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. If the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=] is settled, return the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=].
         1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
-        1. Let |registration| be null.
         1. Let |clientURL| be |client|'s <a>creation URL</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. *CheckRegistration*: If the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL| as its argument is not null, then:
-                1. Set |registration| to the result value.
-            1. Else:
+            1. *CheckRegistration*: Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL|.
+            1. If |registration| is null, then:
                 1. Wait until <a>scope to registration map</a> has a new entry.
                 1. Jump to the step labeled *CheckRegistration*.
             1. If |registration|'s <a>active worker</a> is null, wait until |registration|'s <a>active worker</a> changes.
