@@ -2533,9 +2533,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
       1. Let |eventCanceled| be false.
-      1. Let |r| be a new {{Request}} object associated with |request|.
-      1. Let |headersObject| be |r|'s {{Request/headers}} attribute value.
-      1. Set |headersObject|'s [=Headers/guard=] to *immutable*.
       1. Let |response| be null.
       1. Let |registration| be null.
       1. Let |client| be |request|'s [=request/client=].
@@ -2575,7 +2572,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
           1. Initialize |e|’s {{Event/cancelable}} attribute to true.
-          1. Initialize |e|’s {{FetchEvent/request}} attribute to |r|.
+          1. Initialize |e|’s {{FetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
           1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
           1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
