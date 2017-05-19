@@ -2913,9 +2913,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
       1. Let |eventCanceled| be false.
-      1. Let |r| be a new {{Request}} object associated with |request|.
-      1. Let |headersObject| be |r|'s {{Request/headers}} attribute value.
-      1. Set |headersObject|'s [=Headers/guard=] to *immutable*.
       1. Let |response| be null.
       1. Let |registration| be null.
       1. Let |client| be |request|'s [=request/client=].
@@ -2974,7 +2971,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
           1. Initialize |e|’s {{Event/cancelable}} attribute to true.
-          1. Initialize |e|’s {{FetchEvent/request}} attribute to |r|.
+          1. Initialize |e|’s {{FetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
           1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
           1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
@@ -3039,13 +3036,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Note: In the future this might be relaxed by adding supported methods and headers to the {{ForeignFetchOptions}}.
 
-      1. Let |r| be a new {{Request}} object associated with |request|.
       1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
           1. Let |e| be the result of <a>creating an event</a> with {{ForeignFetchEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{foreignfetch!!event}}.
           1. Initialize |e|’s {{Event/cancelable}} attribute to true.
-          1. Initialize |e|’s {{ForeignFetchEvent/request}} attribute to |r|.
+          1. Initialize |e|’s {{ForeignFetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
           1. Initialize |e|’s {{ForeignFetchEvent/origin}} attribute to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s [=request/origin=].
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
