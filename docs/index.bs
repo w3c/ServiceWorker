@@ -473,15 +473,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-registration-update">
       <h4 id="service-worker-registration-update">{{ServiceWorkerRegistration/update()}}</h4>
 
-      The <dfn method for="ServiceWorkerRegistration"><code>update()</code></dfn> method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
+      <dfn method for="ServiceWorkerRegistration"><code>update()</code></dfn> method *must* run these steps:
 
+        1. Let |p| be a <a>promise</a>.
         1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
-        1. If |newestWorker| is null, reject |promise| with an "{{InvalidStateError}}" exception and abort these steps.
-        1. If the <a>context object</a>'s <a>relevant settings object</a>'s [=environment settings object/global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is *installing*, reject |promise| with an "{{InvalidStateError}}" exception and abort these steps.
-        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
+        1. If |newestWorker| is null, reject |p| with an "{{InvalidStateError}}" exception and abort these steps.
+        1. If the <a>context object</a>'s <a>relevant settings object</a>'s [=environment settings object/global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is *installing*, reject |p| with an "{{InvalidStateError}}" exception and abort these steps.
+        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |p|, and the <a>context object</a>'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
         1. Invoke <a>Schedule Job</a> with |job|.
+        1. Return |p|.
     </section>
 
     <section algorithm="navigator-service-worker-unregister">
