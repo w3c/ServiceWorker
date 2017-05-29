@@ -1475,12 +1475,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If the [=FetchEvent/respond-with entered flag=] is set, then:
             1. <a>Throw</a> an "{{InvalidStateError}}" exception.
             1. Abort these steps.
-        1. Add |r| to the <a>extend lifetime promises</a>.
+        1. Let |promise| be <a>a promise resolved with</a> |r|.
+        1. Add |promise| to the <a>extend lifetime promises</a>.
         1. Increment the [=ExtendableEvent/pending promises count=] by one.
 
             Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
 
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a microtask=] to run these substeps:
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |promise|, [=queue a microtask=] to run these substeps:
             1. Decrement the [=ExtendableEvent/pending promises count=] by one.
             1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
             1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
@@ -1493,10 +1494,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set the [=FetchEvent/wait to respond flag=].
         1. Let |targetRealm| be the <a>relevant Realm</a> of the <a>context object</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. Wait until |r| settles.
-            1. If |r| rejected, then:
+            1. Wait until |promise| settles.
+            1. If |promise| rejected, then:
                 1. Set the [=FetchEvent/respond-with error flag=].
-            1. If |r| resolved with |response|, then:
+            1. If |promise| resolved with |response|, then:
                 1. If |response| is a {{Response}} object, then:
                     1. If |response| is [=Body/disturbed=] or [=Body/locked=], then:
                         1. Set the [=FetchEvent/respond-with error flag=].
