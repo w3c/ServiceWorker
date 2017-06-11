@@ -366,7 +366,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     <dt>Otherwise</dt>
                     <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker
                 </dd>
-            1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
+            1. Let |origin| be the [=serialization of an origin|serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
             1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
             1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
 
@@ -1044,7 +1044,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" exception.
         1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
         1. Add a <a>task</a> that runs the following steps to |destination|'s [=ServiceWorkerContainer/client message queue=]:
-            1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |sourceSettings|'s [=environment settings object/origin=].
+            1. Let |origin| be the [=serialization of an origin|serialization=] of |sourceSettings|'s [=environment settings object/origin=].
             1. Let |source| be a {{ServiceWorker}} object, which represents the [=ServiceWorkerGlobalScope/service worker=] associated with |sourceSettings|'s [=environment settings object/global object=].
             1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
 
@@ -3048,7 +3048,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|’s {{Event/type}} attribute to {{foreignfetch!!event}}.
           1. Initialize |e|’s {{Event/cancelable}} attribute to true.
           1. Initialize |e|’s {{ForeignFetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
-          1. Initialize |e|’s {{ForeignFetchEvent/origin}} attribute to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s [=request/origin=].
+          1. Initialize |e|’s {{ForeignFetchEvent/origin}} attribute to the  <a lt="serialization of an origin">serialization</a> of |request|'s [=request/origin=].
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
           1. If |e|'s [=ForeignFetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
@@ -3060,7 +3060,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |e|'s <a>list of exposed headers</a> is not empty, set |handleFetchFailed| to true.
               1. Else if |e|'s [=ForeignFetchEvent/potential response=] is a <a>opaque-redirect filtered response</a>, set |response| to |e|'s [=ForeignFetchEvent/potential response=].
               1. Else set |response| to an <a>opaque filtered response</a> of |internalResponse|.
-          1. Else if |e|'s [=ForeignFetchEvent/origin=] is not equal to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s [=request/origin=], set |handleFetchFailed| to true.
+          1. Else if |e|'s [=ForeignFetchEvent/origin=] is not equal to the <a lt="serialization of an origin">serialization</a> of |request|'s [=request/origin=], set |handleFetchFailed| to true.
           1. Else if |e|'s [=ForeignFetchEvent/potential response=] is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set |response| to |e|'s [=ForeignFetchEvent/potential response=].
           1. Else if |request|'s <a>response tainting</a> is <code>"opaque"</code>, set |response| to an <a>opaque filtered response</a> of |internalResponse|.
           1. Else:
