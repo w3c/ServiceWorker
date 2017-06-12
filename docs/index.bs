@@ -86,6 +86,7 @@ spec: rfc5988; urlPrefix: https://tools.ietf.org/html/rfc5988
     type: dfn
         text: context IRI; url: section-5.2
         text: target attribute; url: section-5.4
+        text: target attributes; url: section-5.4
         text: target IRI; url: section-5.1
 
 spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
@@ -1769,12 +1770,36 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 </section>
 
 <section>
-  <h2 id="link-type-serviceworker">Link type "<code>serviceworker</code>"</h2>
+  <h2 id="link-type-serviceworker">Link type "`serviceworker`"</h2>
 
-  The <dfn id="dfn-link-type-serviceworker" lt="serviceworker link type"><code>serviceworker</code></dfn> keyword may be used with <{link}> elements. This keyword creates an <a>external resource link</a> (<dfn id="dfn-serviceworker-link">serviceworker link</dfn>) that is used to declare a [=/service worker registration=] and its [=service worker registration/scope url=].
+  A [=/service worker registration=] and its [=service worker registration/scope url=] are created by a <dfn id="dfn-serviceworker-link">serviceworker link</dfn>, which is declared using a <a href="#serviceworker-link-header">"serviceworker" `Link` header</a> or a <{link}> element whose <{link/rel}> attribute contains the keyword "<{link/rel/serviceworker}>".
 
   <section>
-    <h3 id="link-header-processing">Processing the <code>Link</code> header</h3>
+    <h3 id="serviceworker-link-header">Declaring a "serviceworker" <code>Link</code> header</h3>
+
+    A <a>serviceworker link</a> can be declared using a `Link` header</a> [[!RFC5988]] with "`serviceworker`" as the value of the "`rel`" parameter and a [=service worker/script url=] as the <a>target IRI</a>, and the following optional <a>target attributes</a>:
+
+    : `scope`
+    :: Value: A [=service worker registration/scope url=].
+
+    : `workertype`
+    :: Value: A [=job/worker type=].
+
+    : `updateviacache`
+    :: Value: An [=service worker registration/update via cache mode=].
+
+    The "`anchor`" parameter must not be specified.
+
+    <div class="example">
+      <pre class="highlight">
+        Link: &lt;sw.js&gt;; rel="serviceworker"; scope="/"; workertype="module"; updateviacache="all"
+      </pre>
+    </div>
+
+  </section>
+
+  <section>
+    <h3 id="link-header-processing">Processing a "serviceworker" <code>Link</code> header</h3>
 
     When a user agent that supports [[!RFC5988]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent *should* run these steps:
 
@@ -1793,7 +1818,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section>
-    <h3 id="link-element-processing">Processing the <{link}> element</h3>
+    <h3 id="link-element-processing">Processing a "serviceworker" <{link}> element</h3>
 
     When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, or a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}>, <{link/scope}>, or <{link/updateviacache}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
 
@@ -1803,8 +1828,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
       1. Let |scopeURL| be null.
       1. If the <{link/scope}> attribute is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
-      1. Let |workerType| be the <{link/workertype}> attribute, or "<code>classic</code>" if the <{link/workertype}> attribute is omitted.
-      1. If |workerType| is not a valid {{WorkerType}} value, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
+      1. Let |workerType| be the state of the <{link/workertype}> attribute.
+      1. If |workerType| is <i>invalid</i>, abort these steps.
       1. Let |updateViaCache| be the <{link/updateviacache}> attribute, or "`imports`" if the <{link/updateviacache}> attribute is omitted.
       1. Let |promise| be a new <a>promise</a>.
       1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |promise|, |client|, |client|'s <a>creation URL</a>, |workerType|, and |updateViaCache|.
@@ -1835,24 +1860,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         navigator.serviceWorker.register("/js/sw.js", { scope: "/" });
       </pre>
     </div>
-  </section>
-
-  <section>
-    <h3 id="link-element-interface-extensions">Link element interface extensions</h3>
-
-    <pre class="idl">
-      partial interface HTMLLinkElement {
-        [CEReactions] attribute USVString scope;
-        [CEReactions] attribute WorkerType workerType;
-        [CEReactions] attribute ServiceWorkerUpdateViaCache updateViaCache;
-      };
-    </pre>
-
-    The <dfn attribute for="HTMLLinkElement" id="link-scope-attribute">scope</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">scope</dfn> content attribute.
-
-    The <dfn attribute for="HTMLLinkElement" id="link-workertype-attribute">workerType</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">workertype</dfn> content attribute.
-
-    The <dfn attribute for="HTMLLinkElement" id="link-updateviacache-attribute">updateViaCache</dfn> IDL attribute must <a>reflect</a> the element's <dfn element-attr for="link">updateViaCache</dfn> content attribute.
   </section>
 </section>
 
