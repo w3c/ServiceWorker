@@ -1425,7 +1425,7 @@ pre.idl.highlight { color: #708090; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-06-11">11 June 2017</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2017-06-24">24 June 2017</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1616,9 +1616,9 @@ pre.idl.highlight { color: #708090; }
     <li>
      <a href="#link-type-serviceworker"><span class="secno">5</span> <span class="content">Link type "<code>serviceworker</code>"</span></a>
      <ol class="toc">
-      <li><a href="#link-header-processing"><span class="secno">5.1</span> <span class="content">Processing the <code>Link</code> header</span></a>
-      <li><a href="#link-element-processing"><span class="secno">5.2</span> <span class="content">Processing the <code><span>link</span></code> element</span></a>
-      <li><a href="#link-element-interface-extensions"><span class="secno">5.3</span> <span class="content">Link element interface extensions</span></a>
+      <li><a href="#serviceworker-link-header"><span class="secno">5.1</span> <span class="content">Declaring a "serviceworker" <code>Link</code> header</span></a>
+      <li><a href="#link-header-processing"><span class="secno">5.2</span> <span class="content">Processing a "serviceworker" <code>Link</code> header</span></a>
+      <li><a href="#link-element-processing"><span class="secno">5.3</span> <span class="content">Processing a "serviceworker" <code><span>link</span></code> element</span></a>
      </ol>
     <li>
      <a href="#cache-objects"><span class="secno">6</span> <span class="content">Caches</span></a>
@@ -3639,10 +3639,31 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    </section>
    <section>
     <h2 class="heading settled" data-level="5" id="link-type-serviceworker"><span class="secno">5. </span><span class="content">Link type "<code>serviceworker</code>"</span><a class="self-link" href="#link-type-serviceworker"></a></h2>
-    <p>The <dfn data-dfn-type="dfn" data-lt="serviceworker link type" data-noexport="" id="dfn-link-type-serviceworker"><code>serviceworker</code><a class="self-link" href="#dfn-link-type-serviceworker"></a></dfn> keyword may be used with <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> elements. This keyword creates an <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/links.html#external-resource-link">external resource link</a> (<dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-serviceworker-link">serviceworker link</dfn>) that is used to declare a <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> and its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a>.</p>
+    <p>A <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-50">service worker registration</a> and its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-12">scope url</a> are created by a <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-serviceworker-link">serviceworker link</dfn>, which is declared using a <a href="#serviceworker-link-header">"serviceworker" <code>Link</code> header</a> or a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element whose <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-rel">rel</a></code> attribute contains the keyword "<code><a data-link-type="attr-value" href="https://html.spec.whatwg.org/multipage/links.html#link-type-serviceworker">serviceworker</a></code>".</p>
     <section>
-     <h3 class="heading settled" data-level="5.1" id="link-header-processing"><span class="secno">5.1. </span><span class="content">Processing the <code>Link</code> header</span><a class="self-link" href="#link-header-processing"></a></h3>
-     <p>When a user agent that supports <a data-link-type="biblio" href="#biblio-rfc5988">[RFC5988]</a> processes a <code>Link</code> header that contains a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-1">serviceworker link</a>, the user agent <em>should</em> run these steps:</p>
+     <h3 class="heading settled" data-level="5.1" id="serviceworker-link-header"><span class="secno">5.1. </span><span class="content">Declaring a "serviceworker" <code>Link</code> header</span><a class="self-link" href="#serviceworker-link-header"></a></h3>
+     <p>A <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-1">serviceworker link</a> can be declared using a <code>Link</code> header <a data-link-type="biblio" href="#biblio-rfc5988">[RFC5988]</a> with "<code>serviceworker</code>" as the value of the "<code>rel</code>" parameter and a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-3">script url</a> inside angle brackets  ("<code>&lt;></code>")as the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc5988#section-5.1">target IRI</a>, and the following optional <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc5988#section-5.4">target attributes</a>:</p>
+     <dl>
+      <dt data-md=""><code>scope</code>
+      <dd data-md="">
+       <p>Value: A <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-13">scope url</a>.</p>
+      <dt data-md=""><code>workertype</code>
+      <dd data-md="">
+       <p>Value: A <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-2">worker type</a>.</p>
+      <dt data-md=""><code>updateviacache</code>
+      <dd data-md="">
+       <p>Value: An <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-2">update via cache mode</a>.</p>
+     </dl>
+     <p>The "<code>anchor</code>" parameter must not be specified.</p>
+     <div class="example" id="example-dcaa255f">
+      <a class="self-link" href="#example-dcaa255f"></a> 
+<pre class="highlight">Link: &lt;sw.js>; rel="serviceworker"; scope="/"; workertype="module"; updateviacache="all"
+</pre>
+     </div>
+    </section>
+    <section>
+     <h3 class="heading settled" data-level="5.2" id="link-header-processing"><span class="secno">5.2. </span><span class="content">Processing a "serviceworker" <code>Link</code> header</span><a class="self-link" href="#link-header-processing"></a></h3>
+     <p>When a user agent that supports <a data-link-type="biblio" href="#biblio-rfc5988">[RFC5988]</a> processes a <code>Link</code> header that contains a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-2">serviceworker link</a>, the user agent <em>should</em> run these steps:</p>
      <ol>
       <li data-md="">
        <p>If the <code>Link</code> header has an "<code>anchor</code>" parameter, abort these steps.</p>
@@ -3671,8 +3692,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      </ol>
     </section>
     <section>
-     <h3 class="heading settled" data-level="5.2" id="link-element-processing"><span class="secno">5.2. </span><span class="content">Processing the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element</span><a class="self-link" href="#link-element-processing"></a></h3>
-     <p>When a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-2">serviceworker link</a>’s <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element is <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#insert-an-element-into-a-document">inserted into a document</a>, or a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-3">serviceworker link</a> is created on a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element that is already <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#in-a-document-tree">in a document tree</a>, or the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-href">href</a></code>, <code><a data-link-type="element-sub" href="#element-attrdef-link-scope" id="ref-for-element-attrdef-link-scope-1">scope</a></code>, or <code><a data-link-type="element-sub" href="#element-attrdef-link-updateviacache" id="ref-for-element-attrdef-link-updateviacache-1">updateviacache</a></code> attributes of the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element of a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-4">serviceworker link</a> is changed, the user agent <em>should</em> run these steps:</p>
+     <h3 class="heading settled" data-level="5.3" id="link-element-processing"><span class="secno">5.3. </span><span class="content">Processing a "serviceworker" <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element</span><a class="self-link" href="#link-element-processing"></a></h3>
+     <p>When a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-3">serviceworker link</a>’s <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element is <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#insert-an-element-into-a-document">inserted into a document</a>, or a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-4">serviceworker link</a> is created on a <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element that is already <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#in-a-document-tree">in a document tree</a>, or the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-href">href</a></code>, <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-scope">scope</a></code>, or <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-updateviacache">updateviacache</a></code> attributes of the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element of a <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-5">serviceworker link</a> is changed, the user agent <em>should</em> run these steps:</p>
      <ol>
       <li data-md="">
        <p>If the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-href">href</a></code> attribute is the empty string, abort these steps.</p>
@@ -3685,13 +3706,13 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>scopeURL</var> be null.</p>
       <li data-md="">
-       <p>If the <code><a data-link-type="element-sub" href="#element-attrdef-link-scope" id="ref-for-element-attrdef-link-scope-2">scope</a></code> attribute is present, set <var>scopeURL</var> to the result of <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> the <code><a data-link-type="element-sub" href="#element-attrdef-link-scope" id="ref-for-element-attrdef-link-scope-3">scope</a></code> attribute with the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/urls-and-fetching.html#document-base-url">document base URL</a>.</p>
+       <p>If the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-scope">scope</a></code> attribute is present, set <var>scopeURL</var> to the result of <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-parser">parsing</a> the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-scope">scope</a></code> attribute with the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/urls-and-fetching.html#document-base-url">document base URL</a>.</p>
       <li data-md="">
-       <p>Let <var>workerType</var> be the <code><a data-link-type="element-sub" href="#element-attrdef-link-workertype" id="ref-for-element-attrdef-link-workertype-1">workertype</a></code> attribute, or "<code>classic</code>" if the <code><a data-link-type="element-sub" href="#element-attrdef-link-workertype" id="ref-for-element-attrdef-link-workertype-2">workertype</a></code> attribute is omitted.</p>
+       <p>Let <var>workerType</var> be the state of the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-workertype">workertype</a></code> attribute.</p>
       <li data-md="">
-       <p>If <var>workerType</var> is not a valid <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a></code> value, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>error</code> at the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element, and abort these steps.</p>
+       <p>If <var>workerType</var> is <i>invalid</i>, abort these steps.</p>
       <li data-md="">
-       <p>Let <var>updateViaCache</var> be the <code><a data-link-type="element-sub" href="#element-attrdef-link-updateviacache" id="ref-for-element-attrdef-link-updateviacache-2">updateviacache</a></code> attribute, or "<code>imports</code>" if the <code><a data-link-type="element-sub" href="#element-attrdef-link-updateviacache" id="ref-for-element-attrdef-link-updateviacache-3">updateviacache</a></code> attribute is omitted.</p>
+       <p>Let <var>updateViaCache</var> be the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-updateviacache">updateviacache</a></code> attribute, or "<code>imports</code>" if the <code><a data-link-type="element-sub" href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-updateviacache">updateviacache</a></code> attribute is omitted.</p>
       <li data-md="">
        <p>Let <var>promise</var> be a new <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-promise-objects">promise</a>.</p>
       <li data-md="">
@@ -3707,7 +3728,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <p>If <var>promise</var> resolved, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">queue a task</a> to <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>load</code> at the <code><a data-link-type="element" href="https://html.spec.whatwg.org/multipage/semantics.html#the-link-element">link</a></code> element.</p>
        </ol>
      </ol>
-     <p>The <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-5">serviceworker link</a> element <em>must not</em> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/syntax.html#delay-the-load-event">delay the load event</a> of the element’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>.</p>
+     <p>The <a data-link-type="dfn" href="#dfn-serviceworker-link" id="ref-for-dfn-serviceworker-link-6">serviceworker link</a> element <em>must not</em> <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/syntax.html#delay-the-load-event">delay the load event</a> of the element’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>.</p>
      <div class="example" id="example-6f2c011f">
       <a class="self-link" href="#example-6f2c011f"></a> A resource being loaded with the following response header: 
 <pre class="highlight">Link: &lt;/js/sw.js>; rel="serviceworker"; scope="/"
@@ -3719,18 +3740,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
 <pre class="highlight">navigator<span class="p">.</span>serviceWorker<span class="p">.</span>register<span class="p">(</span><span class="s2">"/js/sw.js"</span><span class="p">,</span> <span class="p">{</span> scope<span class="o">:</span> <span class="s2">"/"</span> <span class="p">}</span><span class="p">)</span><span class="p">;</span>
 </pre>
      </div>
-    </section>
-    <section>
-     <h3 class="heading settled" data-level="5.3" id="link-element-interface-extensions"><span class="secno">5.3. </span><span class="content">Link element interface extensions</span><a class="self-link" href="#link-element-interface-extensions"></a></h3>
-<pre class="idl highlight def"><span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/semantics.html#htmllinkelement">HTMLLinkElement</a> {
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="USVString" href="#link-scope-attribute" id="ref-for-link-scope-attribute-1">scope</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a> <a class="nv idl-code" data-link-type="attribute" data-type="WorkerType" href="#link-workertype-attribute" id="ref-for-link-workertype-attribute-1">workerType</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#enumdef-serviceworkerupdateviacache" id="ref-for-enumdef-serviceworkerupdateviacache-3">ServiceWorkerUpdateViaCache</a> <a class="nv idl-code" data-link-type="attribute" data-type="ServiceWorkerUpdateViaCache" href="#link-updateviacache-attribute" id="ref-for-link-updateviacache-attribute-1">updateViaCache</a>;
-};
-</pre>
-     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="HTMLLinkElement" data-dfn-type="attribute" data-export="" id="link-scope-attribute"><code>scope</code></dfn> IDL attribute must <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-reflect">reflect</a> the element’s <dfn class="dfn-paneled" data-dfn-for="link" data-dfn-type="element-attr" data-export="" id="element-attrdef-link-scope"><code>scope</code></dfn> content attribute.</p>
-     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="HTMLLinkElement" data-dfn-type="attribute" data-export="" id="link-workertype-attribute"><code>workerType</code></dfn> IDL attribute must <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-reflect">reflect</a> the element’s <dfn class="dfn-paneled" data-dfn-for="link" data-dfn-type="element-attr" data-export="" id="element-attrdef-link-workertype"><code>workertype</code></dfn> content attribute.</p>
-     <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="HTMLLinkElement" data-dfn-type="attribute" data-export="" id="link-updateviacache-attribute"><code>updateViaCache</code></dfn> IDL attribute must <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-reflect">reflect</a> the element’s <dfn class="dfn-paneled" data-dfn-for="link" data-dfn-type="element-attr" data-export="" id="element-attrdef-link-updateviacache"><code>updateViaCache</code></dfn> content attribute.</p>
     </section>
    </section>
    <section>
@@ -4478,7 +4487,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
           <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
           <ul>
            <li data-md="">
-            <p><var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-2">update via cache mode</a> is "<code>none</code>".</p>
+            <p><var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-3">update via cache mode</a> is "<code>none</code>".</p>
            <li data-md="">
             <p>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#current-global-object">current global object</a>'s <a data-link-type="dfn" href="#serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag" id="ref-for-serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag-1">force bypass cache for importscripts flag</a> is set.</p>
            <li data-md="">
@@ -4572,7 +4581,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <section>
     <h2 class="heading settled" id="algorithms"><span class="content">Appendix A: Algorithms</span><a class="self-link" href="#algorithms"></a></h2>
     <p>The following definitions are the user agent’s internal data structures used throughout the specification.</p>
-    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-scope-to-registration-map">scope to registration map</dfn> is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map">ordered map</a> where the keys are <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-13">scope urls</a>, <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a>, and the values are <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-56">service worker registrations</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-scope-to-registration-map">scope to registration map</dfn> is an <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ordered-map">ordered map</a> where the keys are <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-14">scope urls</a>, <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a>, and the values are <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-56">service worker registrations</a>.</p>
     <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job">job</dfn> is an abstraction of one of register, update, and unregister request for a <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-57">service worker registration</a>.</p>
     <div>
       A <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-1">job</a> has a <dfn class="dfn-paneled" data-dfn-for="job" data-dfn-type="dfn" data-noexport="" id="dfn-job-type">job type</dfn>, which is one of <em>register</em>, <em>update</em>, and <em>unregister</em>. 
@@ -4593,7 +4602,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li data-md="">
       <p>For <em>unregister</em> <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-14">jobs</a>, their <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-2">scope url</a> is the same.</p>
     </ul>
-    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-15">jobs</a>. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-16">jobs</a> as its elements. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em>should</em> satisfy the general properties of FIFO queue. A user agent <em>must</em> maintain a separate <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-58">service worker registration</a> keyed by its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-14">scope url</a>. A <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-17">job</a>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
+    <p>A <dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-15">jobs</a>. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-1">job queue</a> contains <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-16">jobs</a> as its elements. The <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-2">job queue</a> <em>should</em> satisfy the general properties of FIFO queue. A user agent <em>must</em> maintain a separate <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-3">job queue</a> for each <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-58">service worker registration</a> keyed by its <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-15">scope url</a>. A <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-4">job queue</a> is initially empty. Unless stated otherwise, the <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-5">job queue</a> referenced from the algorithm steps is a <a data-link-type="dfn" href="#dfn-job-queue" id="ref-for-dfn-job-queue-6">job queue</a> for the <a data-link-type="dfn" href="#dfn-job" id="ref-for-dfn-job-17">job</a>’s <a data-link-type="dfn" href="#dfn-job-scope-url" id="ref-for-dfn-job-scope-url-3">scope url</a>.</p>
     <section class="algorithm" data-algorithm="Create Job">
      <h3 class="heading settled" id="create-job-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-noexport="" id="create-job">Create Job</dfn></span><a class="self-link" href="#create-job-algorithm"></a></h3>
      <dl>
@@ -4768,9 +4777,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dd data-md="">
        <p><var>referrer</var>, a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a></p>
       <dd data-md="">
-       <p><var>workerType</var>, a <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-2">worker type</a></p>
+       <p><var>workerType</var>, a <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-3">worker type</a></p>
       <dd data-md="">
-       <p><var>updateViaCache</var>, an <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-3">update via cache mode</a></p>
+       <p><var>updateViaCache</var>, an <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-4">update via cache mode</a></p>
       <dt data-md="">Output
       <dd data-md="">
        <p>none</p>
@@ -4794,7 +4803,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-3">Create Job</a> with <em>register</em>, <var>scopeURL</var>, <var>scriptURL</var>, <var>promise</var>, and <var>client</var>.</p>
       <li data-md="">
-       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-3">worker type</a> to <var>workerType</var>.</p>
+       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-4">worker type</a> to <var>workerType</var>.</p>
       <li data-md="">
        <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-update-via-cache-mode" id="ref-for-dfn-job-update-via-cache-mode-1">update via cache mode</a> to <var>updateViaCache</var>.</p>
       <li data-md="">
@@ -4848,7 +4857,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>Let <var>newestWorker</var> be the result of running the <a data-link-type="dfn" href="#get-newest-worker" id="ref-for-get-newest-worker-2">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</p>
         <li data-md="">
-         <p>If <var>newestWorker</var> is not null, <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-3">script url</a> with the <em>exclude fragments flag</em> set, and <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-update-via-cache-mode" id="ref-for-dfn-job-update-via-cache-mode-2">update via cache mode</a>'s value equals <var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-4">update via cache mode</a>, then:</p>
+         <p>If <var>newestWorker</var> is not null, <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-4">script url</a> with the <em>exclude fragments flag</em> set, and <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-update-via-cache-mode" id="ref-for-dfn-job-update-via-cache-mode-2">update via cache mode</a>'s value equals <var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-5">update via cache mode</a>, then:</p>
          <ol>
           <li data-md="">
            <p>Invoke <a data-link-type="dfn" href="#resolve-job-promise" id="ref-for-resolve-job-promise-1">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-17">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.</p>
@@ -4890,7 +4899,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>newestWorker</var> be the result of running <a data-link-type="dfn" href="#get-newest-worker" id="ref-for-get-newest-worker-3">Get Newest Worker</a> algorithm passing <var>registration</var> as the argument.</p>
       <li data-md="">
-       <p>If <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-type" id="ref-for-dfn-job-type-7">job type</a> is <em>update</em>, and <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-4">script url</a> does not <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equal</a> <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-6">script url</a> with the <em>exclude fragments flag</em> set, then:</p>
+       <p>If <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-type" id="ref-for-dfn-job-type-7">job type</a> is <em>update</em>, and <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-5">script url</a> does not <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equal</a> <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-6">script url</a> with the <em>exclude fragments flag</em> set, then:</p>
        <ol>
         <li data-md="">
          <p>Invoke <a data-link-type="dfn" href="#reject-job-promise" id="ref-for-reject-job-promise-5">Reject Job Promise</a> with <var>job</var> and a <code>TypeError</code>.</p>
@@ -4902,7 +4911,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>referrerPolicy</var> be the empty string.</p>
       <li data-md="">
-       <p>Switching on <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-4">worker type</a>, run these substeps with the following options:</p>
+       <p>Switching on <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-5">worker type</a>, run these substeps with the following options:</p>
        <dl>
         <dt data-md="">"<code>classic</code>"
         <dd data-md="">
@@ -4920,7 +4929,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
          <ul>
           <li data-md="">
-           <p><var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-5">update via cache mode</a> is not "<code>all</code>".</p>
+           <p><var>registration</var>’s <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-6">update via cache mode</a> is not "<code>all</code>".</p>
           <li data-md="">
            <p><var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-1">force bypass cache flag</a> is set.</p>
           <li data-md="">
@@ -4957,7 +4966,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
            <p>Asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error">network error</a>.</p>
          </ol>
         <li data-md="">
-         <p>Let <var>scopeURL</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-15">scope url</a>.</p>
+         <p>Let <var>scopeURL</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-16">scope url</a>.</p>
         <li data-md="">
          <p>Let <var>maxScopeString</var> be null.</p>
         <li data-md="">
@@ -5004,7 +5013,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        </ol>
        <p>Else, continue the rest of these steps after the algorithm’s asynchronous completion, with <var>script</var> being the asynchronous completion value.</p>
       <li data-md="">
-       <p>If <var>newestWorker</var> is not null, <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-5">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-11">script url</a> with the <em>exclude fragments flag</em> set, and <var>script</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-classic-script-source-text">source text</a> is a byte-for-byte match with <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-6">script resource</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-classic-script-source-text">source text</a>, if <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script">classic script</a>, and <var>script</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-module-script-module-record">module record</a>'s [[ECMAScriptCode]] is a byte-for-byte match with <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-7">script resource</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-module-script-module-record">module record</a>'s [[ECMAScriptCode]] otherwise, then:</p>
+       <p>If <var>newestWorker</var> is not null, <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-6">script url</a> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals">equals</a> <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-11">script url</a> with the <em>exclude fragments flag</em> set, and <var>script</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-classic-script-source-text">source text</a> is a byte-for-byte match with <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-6">script resource</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-classic-script-source-text">source text</a>, if <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script">classic script</a>, and <var>script</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-module-script-module-record">module record</a>'s [[ECMAScriptCode]] is a byte-for-byte match with <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-7">script resource</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-module-script-module-record">module record</a>'s [[ECMAScriptCode]] otherwise, then:</p>
        <ol>
         <li data-md="">
          <p>Invoke <a data-link-type="dfn" href="#resolve-job-promise" id="ref-for-resolve-job-promise-2">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-18">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.</p>
@@ -5019,7 +5028,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
         <li data-md="">
          <p>Generate a unique opaque string and set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-service-worker-id" id="ref-for-dfn-service-worker-id-1">id</a> to the value.</p>
         <li data-md="">
-         <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-6">script url</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-12">script url</a>, <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-8">script resource</a> to <var>script</var>, and <var>worker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-2">type</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-5">worker type</a>.</p>
+         <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-7">script url</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url-12">script url</a>, <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-8">script resource</a> to <var>script</var>, and <var>worker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-2">type</a> to <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-6">worker type</a>.</p>
         <li data-md="">
          <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-9">script resource</a>’s <a data-link-type="dfn" href="#dfn-https-state" id="ref-for-dfn-https-state-1">HTTPS state</a> to <var>httpsState</var>.</p>
         <li data-md="">
@@ -5061,9 +5070,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>If <var>newestWorker</var> is null, abort these steps.</p>
       <li data-md="">
-       <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-4">Create Job</a> with <em>update</em>, <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-16">scope url</a>, <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-7">script url</a>, null, and null.</p>
+       <p>Let <var>job</var> be the result of running <a data-link-type="dfn" href="#create-job" id="ref-for-create-job-4">Create Job</a> with <em>update</em>, <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-17">scope url</a>, <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-8">script url</a>, null, and null.</p>
       <li data-md="">
-       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-6">worker type</a> to <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-3">type</a>.</p>
+       <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-worker-type" id="ref-for-dfn-job-worker-type-7">worker type</a> to <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type-3">type</a>.</p>
       <li data-md="">
        <p>Set <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag-3">force bypass cache flag</a> if the <em>force bypass cache flag</em> is set.</p>
       <li data-md="">
@@ -5098,7 +5107,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Invoke <a data-link-type="dfn" href="#resolve-job-promise" id="ref-for-resolve-job-promise-3">Resolve Job Promise</a> with <var>job</var> and the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-19">ServiceWorkerRegistration</a></code> object which represents <var>registration</var>.</p>
       <li data-md="">
-       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>updatefound</code> at all the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-20">ServiceWorkerRegistration</a></code> objects for all the <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-40">service worker clients</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration-8">matches</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-17">scope url</a> and all the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-95">service workers</a> whose <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-16">containing service worker registration</a> is <var>registration</var>.</p>
+       <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">Queue a task</a> to <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a> named <code>updatefound</code> at all the <code class="idl"><a data-link-type="idl" href="#serviceworkerregistration" id="ref-for-serviceworkerregistration-20">ServiceWorkerRegistration</a></code> objects for all the <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-40">service worker clients</a> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration-8">matches</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-18">scope url</a> and all the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker-95">service workers</a> whose <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration-16">containing service worker registration</a> is <var>registration</var>.</p>
       <li data-md="">
        <p>Let <var>installingWorker</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-installing-worker" id="ref-for-dfn-installing-worker-8">installing worker</a>.</p>
       <li data-md="">
@@ -5192,7 +5201,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
        <p>Run the <a data-link-type="dfn" href="#update-worker-state" id="ref-for-update-worker-state-7">Update Worker State</a> algorithm passing <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker-27">active worker</a> and <em>activating</em> as the arguments.</p>
        <p class="note" role="note"><span>Note:</span> Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.</p>
       <li data-md="">
-       <p>For each <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-41">service worker client</a> <var>client</var> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration-9">matches</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-18">scope url</a>:</p>
+       <p>For each <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-41">service worker client</a> <var>client</var> whose <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url">creation URL</a> <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration-9">matches</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-19">scope url</a>:</p>
        <ol>
         <li data-md="">
          <p>If <var>client</var> is a <a data-link-type="dfn" href="#dfn-window-client" id="ref-for-dfn-window-client-6">window client</a>, unassociate <var>client</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-document">responsible document</a> from its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/offline.html#application-cache">application cache</a>, if it has one.</p>
@@ -5311,7 +5320,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <p>Return UTF-8.</p>
         <dt data-md="">The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url">API base URL</a>
         <dd data-md="">
-         <p>Return <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-8">script url</a>.</p>
+         <p>Return <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-9">script url</a>.</p>
         <dt data-md="">The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>
         <dd data-md="">
          <p>Return its registering <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client-44">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">origin</a>.</p>
@@ -5323,7 +5332,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state">HTTPS state</a>.</p>
        </dl>
       <li data-md="">
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url">url</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-9">script url</a>.</p>
+       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url">url</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url-10">script url</a>.</p>
       <li data-md="">
        <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state">HTTPS state</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource-12">script resource</a>’s <a data-link-type="dfn" href="#dfn-https-state" id="ref-for-dfn-https-state-2">HTTPS state</a>.</p>
       <li data-md="">
@@ -5903,7 +5912,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <dd data-md="">
        <p><var>scope</var>, a <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url">URL</a></p>
       <dd data-md="">
-       <p><var>updateViaCache</var>, an <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-6">update via cache mode</a></p>
+       <p><var>updateViaCache</var>, an <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-7">update via cache mode</a></p>
       <dt data-md="">Output
       <dd data-md="">
        <p><var>registration</var>, a <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-65">service worker registration</a></p>
@@ -5914,7 +5923,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
       <li data-md="">
        <p>Let <var>scopeString</var> be <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>scope</var> with the <em>exclude fragment flag</em> set.</p>
       <li data-md="">
-       <p>Let <var>registration</var> be a new <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-66">service worker registration</a> whose <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-19">scope url</a> is set to <var>scope</var> and <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-7">update via cache mode</a> is set to <var>updateViaCache</var>.</p>
+       <p>Let <var>registration</var> be a new <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration-66">service worker registration</a> whose <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-20">scope url</a> is set to <var>scope</var> and <a data-link-type="dfn" href="#dfn-update-via-cache" id="ref-for-dfn-update-via-cache-8">update via cache mode</a> is set to <var>updateViaCache</var>.</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set">Set</a> <a data-link-type="dfn" href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-9">scope to registration map</a>[<var>scopeString</var>] to <var>registration</var>.</p>
       <li data-md="">
@@ -5965,7 +5974,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
          <p>Run the <a data-link-type="dfn" href="#update-registration-state" id="ref-for-update-registration-state-9">Update Registration State</a> algorithm passing <var>registration</var>, "<code>active</code>" and null as the arguments.</p>
        </ol>
       <li data-md="">
-       <p>Let <var>scopeString</var> be <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-20">scope url</a> with the <em>exclude fragment flag</em> set.</p>
+       <p>Let <var>scopeString</var> be <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-serializer">serialized</a> <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-21">scope url</a> with the <em>exclude fragment flag</em> set.</p>
       <li data-md="">
        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-remove">Remove</a> <a data-link-type="dfn" href="#dfn-scope-to-registration-map" id="ref-for-dfn-scope-to-registration-map-10">scope to registration map</a>[<var>scopeString</var>].</p>
      </ol>
@@ -6559,7 +6568,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <dl>
       <dt data-md="">`<dfn data-dfn-type="dfn" data-noexport="" id="service-worker-allowed"><code>Service-Worker-Allowed</code><a class="self-link" href="#service-worker-allowed"></a></dfn>`
       <dd data-md="">
-       <p>Indicates the user agent will override the path restriction, which limits the maximum allowed <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-21">scope url</a> that the script can <a data-link-type="dfn" href="#dfn-control" id="ref-for-dfn-control-4">control</a>, to the given value.</p>
+       <p>Indicates the user agent will override the path restriction, which limits the maximum allowed <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url-22">scope url</a> that the script can <a data-link-type="dfn" href="#dfn-control" id="ref-for-dfn-control-4">control</a>, to the given value.</p>
        <p class="note" role="note"><span>Note:</span> The value is a URL. If a relative URL is given, it is parsed against the script’s URL.</p>
      </dl>
      <div class="example" id="example-bf118df6">
@@ -7001,8 +7010,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <ul>
      <li><a href="#dom-serviceworkerregistration-scope">attribute for ServiceWorkerRegistration</a><span>, in §3.2.5</span>
      <li><a href="#dom-registrationoptions-scope">dict-member for RegistrationOptions</a><span>, in §3.4</span>
-     <li><a href="#link-scope-attribute">attribute for HTMLLinkElement</a><span>, in §5.3</span>
-     <li><a href="#element-attrdef-link-scope">element-attr for link</a><span>, in §5.3</span>
     </ul>
    <li><a href="#dom-foreignfetchoptions-scopes">scopes</a><span>, in §4.5</span>
    <li><a href="#dfn-scope-to-registration-map">scope to registration map</a><span>, in §Unnumbered section</span>
@@ -7043,7 +7050,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <li><a href="#serviceworkerglobalscope">ServiceWorkerGlobalScope</a><span>, in §4.1</span>
    <li><a href="#service-worker-has-no-pending-events">Service Worker Has No Pending Events</a><span>, in §Unnumbered section</span>
    <li><a href="#dfn-serviceworker-link">serviceworker link</a><span>, in §5</span>
-   <li><a href="#dfn-link-type-serviceworker">serviceworker link type</a><span>, in §5</span>
    <li><a href="#serviceworkerregistration">ServiceWorkerRegistration</a><span>, in §3.2</span>
    <li>
     service worker registration
@@ -7110,8 +7116,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <ul>
      <li><a href="#dom-serviceworkerregistration-updateviacache">attribute for ServiceWorkerRegistration</a><span>, in §3.2.6</span>
      <li><a href="#dom-registrationoptions-updateviacache">dict-member for RegistrationOptions</a><span>, in §3.4</span>
-     <li><a href="#link-updateviacache-attribute">attribute for HTMLLinkElement</a><span>, in §5.3</span>
-     <li><a href="#element-attrdef-link-updateviacache">element-attr for link</a><span>, in §5.3</span>
     </ul>
    <li>
     update via cache mode
@@ -7142,8 +7146,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <li><a href="#dom-clienttype-worker">worker</a><span>, in §4.3</span>
    <li><a href="#dom-clienttype-worker">"worker"</a><span>, in §4.3</span>
    <li><a href="#dfn-worker-client">worker client</a><span>, in §2.3</span>
-   <li><a href="#element-attrdef-link-workertype">workertype</a><span>, in §5.3</span>
-   <li><a href="#link-workertype-attribute">workerType</a><span>, in §5.3</span>
    <li><a href="#dfn-job-worker-type">worker type</a><span>, in §Unnumbered section</span>
   </ul>
   <h3 class="no-num no-ref heading settled" id="index-defined-elsewhere"><span class="content">Terms defined by reference</span><a class="self-link" href="#index-defined-elsewhere"></a></h3>
@@ -7172,7 +7174,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://dom.spec.whatwg.org/#concept-event-fire">fire an event</a>
      <li><a href="https://dom.spec.whatwg.org/#in-a-document-tree">in a document tree</a>
      <li><a href="https://dom.spec.whatwg.org/#concept-node-document">node document</a>
-     <li><a href="https://dom.spec.whatwg.org/#concept-reflect">reflect</a>
      <li><a href="https://dom.spec.whatwg.org/#stop-immediate-propagation-flag">stop immediate propagation flag</a>
      <li><a href="https://dom.spec.whatwg.org/#stop-propagation-flag">stop propagation flag</a>
      <li><a href="https://dom.spec.whatwg.org/#dom-event-type">type</a>
@@ -7273,11 +7274,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <a data-link-type="biblio">[HTML]</a> defines the following terms:
     <ul>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#abstractworker">AbstractWorker</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>
      <li><a href="https://html.spec.whatwg.org/multipage/indices.html#event-domcontentloaded">DOMContentLoaded</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#dedicatedworkerglobalscope">DedicatedWorkerGlobalScope</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler">EventHandler</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#htmllinkelement">HTMLLinkElement</a>
      <li><a href="https://html.spec.whatwg.org/multipage/history.html#location">Location</a>
      <li><a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">MessageEvent</a>
      <li><a href="https://html.spec.whatwg.org/multipage/web-messaging.html#messageport">MessagePort</a>
@@ -7317,7 +7316,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop">event loop</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#exceptions-enabled">exceptions enabled flag</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-execution-ready-flag">execution ready flag</a>
-     <li><a href="https://html.spec.whatwg.org/multipage/links.html#external-resource-link">external resource link</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#fetch-a-classic-worker-script">fetch a classic worker script</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#fetch-a-module-worker-script-tree">fetch a module worker script graph</a>
      <li><a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">focusing steps</a>
@@ -7355,6 +7353,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context">realm execution context</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy">referrer policy <small>(for WorkerGlobalScope)</small></a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-referrer-policy">referrer policy <small>(for environment settings object)</small></a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-rel">rel</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">relevant global object</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm">relevant realm</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">relevant settings object</a>
@@ -7365,7 +7364,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-classic-script">run a classic script</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-module-script">run a module script</a>
      <li><a href="https://html.spec.whatwg.org/multipage/origin.html#same-origin">same origin</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-scope">scope</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-script">script</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/links.html#link-type-serviceworker">serviceworker</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#shared-workers">shared worker</a>
      <li><a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">source</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#source-browsing-context">source browsing context</a>
@@ -7379,9 +7380,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-type">type</a>
      <li><a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#unload-a-document">unload a document</a>
      <li><a href="https://html.spec.whatwg.org/multipage/urls-and-fetching.html#unsafe-response">unsafe response</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-updateviacache">updateviacache</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url">url</a>
      <li><a href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">user interaction task source</a>
      <li><a href="https://html.spec.whatwg.org/multipage/workers.html#workers">web worker</a>
+     <li><a href="https://html.spec.whatwg.org/multipage/semantics.html#attr-link-workertype">workertype</a>
     </ul>
    <li>
     <a data-link-type="biblio">[INFRA]</a> defines the following terms:
@@ -7433,6 +7436,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <ul>
      <li><a href="https://tools.ietf.org/html/rfc5988#section-5.2">context iri</a>
      <li><a href="https://tools.ietf.org/html/rfc5988#section-5.4">target attribute</a>
+     <li><a href="https://tools.ietf.org/html/rfc5988#section-5.4">target attributes</a>
      <li><a href="https://tools.ietf.org/html/rfc5988#section-5.1">target iri</a>
     </ul>
    <li>
@@ -7759,12 +7763,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <span class="kt">sequence</span>&lt;<a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/web-messaging.html#messageport">MessagePort</a>> <a class="nv" data-default="None" data-type="sequence<MessagePort> " href="#dom-extendablemessageeventinit-ports"><code>ports</code></a> = [];
 };
 
-<span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/semantics.html#htmllinkelement">HTMLLinkElement</a> {
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString"><span class="kt">USVString</span></a> <a class="nv idl-code" data-link-type="attribute" data-type="USVString" href="#link-scope-attribute">scope</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/workers.html#workertype">WorkerType</a> <a class="nv idl-code" data-link-type="attribute" data-type="WorkerType" href="#link-workertype-attribute">workerType</a>;
-  [<a class="nv idl-code" data-link-type="extended-attribute" href="https://html.spec.whatwg.org/multipage/custom-elements.html#cereactions">CEReactions</a>] <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#enumdef-serviceworkerupdateviacache">ServiceWorkerUpdateViaCache</a> <a class="nv idl-code" data-link-type="attribute" data-type="ServiceWorkerUpdateViaCache" href="#link-updateviacache-attribute">updateViaCache</a>;
-};
-
 <span class="kt">partial</span> <span class="kt">interface</span> <a class="nv idl-code" data-link-type="interface" href="https://html.spec.whatwg.org/multipage/webappapis.html#windoworworkerglobalscope">WindowOrWorkerGlobalScope</a> {
   [<a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SecureContext">SecureContext</a>, <a class="nv idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SameObject">SameObject</a>] <span class="kt">readonly</span> <span class="kt">attribute</span> <a class="n" data-link-type="idl-name" href="#cachestorage">CacheStorage</a> <a class="nv idl-code" data-link-type="attribute" data-readonly="" data-type="CacheStorage" href="#global-caches-attribute">caches</a>;
 };
@@ -7878,10 +7876,11 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-dfn-script-url-1">3.1.1. scriptURL</a>
     <li><a href="#ref-for-dfn-script-url-2">3.2.7. update()</a>
-    <li><a href="#ref-for-dfn-script-url-3">Register</a>
-    <li><a href="#ref-for-dfn-script-url-4">Update</a> <a href="#ref-for-dfn-script-url-5">(2)</a> <a href="#ref-for-dfn-script-url-6">(3)</a>
-    <li><a href="#ref-for-dfn-script-url-7">Soft Update</a>
-    <li><a href="#ref-for-dfn-script-url-8">Run Service Worker</a> <a href="#ref-for-dfn-script-url-9">(2)</a>
+    <li><a href="#ref-for-dfn-script-url-3">5.1. Declaring a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-script-url-4">Register</a>
+    <li><a href="#ref-for-dfn-script-url-5">Update</a> <a href="#ref-for-dfn-script-url-6">(2)</a> <a href="#ref-for-dfn-script-url-7">(3)</a>
+    <li><a href="#ref-for-dfn-script-url-8">Soft Update</a>
+    <li><a href="#ref-for-dfn-script-url-9">Run Service Worker</a> <a href="#ref-for-dfn-script-url-10">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-type">
@@ -8088,14 +8087,15 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-dfn-scope-url-9">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-dfn-scope-url-10">(2)</a>
     <li><a href="#ref-for-dfn-scope-url-11">4.5.1. event.registerForeignFetch(options)</a>
     <li><a href="#ref-for-dfn-scope-url-12">5. Link type "serviceworker"</a>
-    <li><a href="#ref-for-dfn-scope-url-13">Appendix A: Algorithms</a> <a href="#ref-for-dfn-scope-url-14">(2)</a>
-    <li><a href="#ref-for-dfn-scope-url-15">Update</a>
-    <li><a href="#ref-for-dfn-scope-url-16">Soft Update</a>
-    <li><a href="#ref-for-dfn-scope-url-17">Install</a>
-    <li><a href="#ref-for-dfn-scope-url-18">Activate</a>
-    <li><a href="#ref-for-dfn-scope-url-19">Set Registration</a>
-    <li><a href="#ref-for-dfn-scope-url-20">Clear Registration</a>
-    <li><a href="#ref-for-dfn-scope-url-21">Service Worker Script Response</a>
+    <li><a href="#ref-for-dfn-scope-url-13">5.1. Declaring a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-scope-url-14">Appendix A: Algorithms</a> <a href="#ref-for-dfn-scope-url-15">(2)</a>
+    <li><a href="#ref-for-dfn-scope-url-16">Update</a>
+    <li><a href="#ref-for-dfn-scope-url-17">Soft Update</a>
+    <li><a href="#ref-for-dfn-scope-url-18">Install</a>
+    <li><a href="#ref-for-dfn-scope-url-19">Activate</a>
+    <li><a href="#ref-for-dfn-scope-url-20">Set Registration</a>
+    <li><a href="#ref-for-dfn-scope-url-21">Clear Registration</a>
+    <li><a href="#ref-for-dfn-scope-url-22">Service Worker Script Response</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-installing-worker">
@@ -8176,11 +8176,12 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dfn-update-via-cache">#dfn-update-via-cache</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-update-via-cache-1">3.2.6. updateViaCache</a>
-    <li><a href="#ref-for-dfn-update-via-cache-2">7.3.2. importScripts(urls)</a>
-    <li><a href="#ref-for-dfn-update-via-cache-3">Start Register</a>
-    <li><a href="#ref-for-dfn-update-via-cache-4">Register</a>
-    <li><a href="#ref-for-dfn-update-via-cache-5">Update</a>
-    <li><a href="#ref-for-dfn-update-via-cache-6">Set Registration</a> <a href="#ref-for-dfn-update-via-cache-7">(2)</a>
+    <li><a href="#ref-for-dfn-update-via-cache-2">5.1. Declaring a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-update-via-cache-3">7.3.2. importScripts(urls)</a>
+    <li><a href="#ref-for-dfn-update-via-cache-4">Start Register</a>
+    <li><a href="#ref-for-dfn-update-via-cache-5">Register</a>
+    <li><a href="#ref-for-dfn-update-via-cache-6">Update</a>
+    <li><a href="#ref-for-dfn-update-via-cache-7">Set Registration</a> <a href="#ref-for-dfn-update-via-cache-8">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-uninstalling-flag">
@@ -8459,7 +8460,6 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <ul>
     <li><a href="#ref-for-enumdef-serviceworkerupdateviacache-1">3.2. ServiceWorkerRegistration</a>
     <li><a href="#ref-for-enumdef-serviceworkerupdateviacache-2">3.4. ServiceWorkerContainer</a>
-    <li><a href="#ref-for-enumdef-serviceworkerupdateviacache-3">5.3. Link element interface extensions</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="serviceworkerregistration-service-worker-registration">
@@ -8589,7 +8589,7 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client-5">3.4.5. getRegistrations()</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client-6">3.5. Events</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client-7">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-serviceworkercontainer-service-worker-client-8">5.2. Processing the link element</a>
+    <li><a href="#ref-for-serviceworkercontainer-service-worker-client-8">5.3. Processing a "serviceworker" link element</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client-9">Notify Controller Change</a>
    </ul>
   </aside>
@@ -9480,44 +9480,9 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
   <aside class="dfn-panel" data-for="dfn-serviceworker-link">
    <b><a href="#dfn-serviceworker-link">#dfn-serviceworker-link</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-serviceworker-link-1">5.1. Processing the Link header</a>
-    <li><a href="#ref-for-dfn-serviceworker-link-2">5.2. Processing the link element</a> <a href="#ref-for-dfn-serviceworker-link-3">(2)</a> <a href="#ref-for-dfn-serviceworker-link-4">(3)</a> <a href="#ref-for-dfn-serviceworker-link-5">(4)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="link-scope-attribute">
-   <b><a href="#link-scope-attribute">#link-scope-attribute</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-link-scope-attribute-1">5.3. Link element interface extensions</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="element-attrdef-link-scope">
-   <b><a href="#element-attrdef-link-scope">#element-attrdef-link-scope</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-element-attrdef-link-scope-1">5.2. Processing the link element</a> <a href="#ref-for-element-attrdef-link-scope-2">(2)</a> <a href="#ref-for-element-attrdef-link-scope-3">(3)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="link-workertype-attribute">
-   <b><a href="#link-workertype-attribute">#link-workertype-attribute</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-link-workertype-attribute-1">5.3. Link element interface extensions</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="element-attrdef-link-workertype">
-   <b><a href="#element-attrdef-link-workertype">#element-attrdef-link-workertype</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-element-attrdef-link-workertype-1">5.2. Processing the link element</a> <a href="#ref-for-element-attrdef-link-workertype-2">(2)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="link-updateviacache-attribute">
-   <b><a href="#link-updateviacache-attribute">#link-updateviacache-attribute</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-link-updateviacache-attribute-1">5.3. Link element interface extensions</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="element-attrdef-link-updateviacache">
-   <b><a href="#element-attrdef-link-updateviacache">#element-attrdef-link-updateviacache</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-element-attrdef-link-updateviacache-1">5.2. Processing the link element</a> <a href="#ref-for-element-attrdef-link-updateviacache-2">(2)</a> <a href="#ref-for-element-attrdef-link-updateviacache-3">(3)</a>
+    <li><a href="#ref-for-dfn-serviceworker-link-1">5.1. Declaring a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-serviceworker-link-2">5.2. Processing a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-serviceworker-link-3">5.3. Processing a "serviceworker" link element</a> <a href="#ref-for-dfn-serviceworker-link-4">(2)</a> <a href="#ref-for-dfn-serviceworker-link-5">(3)</a> <a href="#ref-for-dfn-serviceworker-link-6">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-fetching-record">
@@ -9833,9 +9798,10 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#dfn-job-worker-type">#dfn-job-worker-type</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dfn-job-worker-type-1">3.2.7. update()</a>
-    <li><a href="#ref-for-dfn-job-worker-type-2">Start Register</a> <a href="#ref-for-dfn-job-worker-type-3">(2)</a>
-    <li><a href="#ref-for-dfn-job-worker-type-4">Update</a> <a href="#ref-for-dfn-job-worker-type-5">(2)</a>
-    <li><a href="#ref-for-dfn-job-worker-type-6">Soft Update</a>
+    <li><a href="#ref-for-dfn-job-worker-type-2">5.1. Declaring a "serviceworker" Link header</a>
+    <li><a href="#ref-for-dfn-job-worker-type-3">Start Register</a> <a href="#ref-for-dfn-job-worker-type-4">(2)</a>
+    <li><a href="#ref-for-dfn-job-worker-type-5">Update</a> <a href="#ref-for-dfn-job-worker-type-6">(2)</a>
+    <li><a href="#ref-for-dfn-job-worker-type-7">Soft Update</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-job-update-via-cache-mode">
@@ -9959,8 +9925,8 @@ self<span class="p">.</span>addEventListener<span class="p">(</span><span class=
    <b><a href="#start-register">#start-register</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-start-register-1">3.4.3. register(scriptURL, options)</a>
-    <li><a href="#ref-for-start-register-2">5.1. Processing the Link header</a>
-    <li><a href="#ref-for-start-register-3">5.2. Processing the link element</a>
+    <li><a href="#ref-for-start-register-2">5.2. Processing a "serviceworker" Link header</a>
+    <li><a href="#ref-for-start-register-3">5.3. Processing a "serviceworker" link element</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="register">
