@@ -2544,14 +2544,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |job|, a [=job=]
-      :: |reason|, an [=exception=]
+      :: |errorName|, a string
       : Output
       :: none
 
-      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |job|'s [=job/job promise=] with an exception that is a copy of |reason|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |job|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorName| and a user agent-defined [=exception/message=].
       1. For each |equivalentJob| in |job|'s [=list of equivalent jobs=]:
-          1. If |equivalentJob|'s [=job/client=] is null, continue to the next iteration of the loop:
-          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |equivalentJob|'s [=job/job promise=] with an exception that is a copy of |reason|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
+          1. If |equivalentJob|'s [=job/client=] is null, [=iteration/continue=].
+          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |equivalentJob|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorName| and a user agent-defined [=exception/message=].
   </section>
 
   <section algorithm>
@@ -2594,13 +2594,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trusted</code>, then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the [=environment settings object/origin=] of |job|'s [=job/script url=] is not |job|'s [=job/referrer=]'s [=environment settings object/origin=], then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/referrer=]'s [=environment settings object/origin=], then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is not null, then:
@@ -2624,11 +2624,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null or |registration|'s <a>uninstalling flag</a> is set, then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+          1. Invoke [=Reject Job Promise=] with |job| and "`TypeError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
       1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=] with the *exclude fragments flag* set, then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+          1. Invoke [=Reject Job Promise=] with |job| and "`TypeError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
@@ -2657,7 +2657,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
           1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
           1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
-              1. Invoke [=Reject Job Promise=] with |job| and a "{{SecurityError}}" exception.
+              1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
               1. Asynchronously complete these steps with a [=network error=].
           1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
@@ -2677,7 +2677,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. If |scopeString| starts with |maxScopeString|, do nothing.
           1. Else:
-              1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+              1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a>last update check time</a> to the current time.
 
@@ -2687,9 +2687,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           If the algorithm asynchronously completes with null, then:
 
-              1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+              1. Invoke [=Reject Job Promise=] with |job| and "`TypeError`".
 
-                  Note: This will do nothing if <a>Reject Job Promise</a> was previously invoked with a "{{SecurityError}}" exception.
+                  Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "`SecurityError`".
 
               1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
@@ -2707,7 +2707,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
           1. Invoke <a>Run Service Worker</a> algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
           1. If an uncaught runtime script error occurs during the above step, then:
-              1. Invoke <a>Reject Job Promise</a> with |job| and a <code>TypeError</code>.
+              1. Invoke [=Reject Job Promise=] with |job| and "`TypeError`".
               1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Invoke <a>Install</a> algorithm with |job|, |worker|, and |registration| as its arguments.
@@ -3194,7 +3194,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
-          1. Invoke <a>Reject Job Promise</a> with |job| and a "{{SecurityError}}" exception.
+          1. Invoke [=Reject Job Promise=] with |job| and "`SecurityError`".
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null, then:
