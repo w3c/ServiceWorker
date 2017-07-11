@@ -350,7 +350,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="ServiceWorker"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
-        1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, <a>throw</a> an "{{InvalidStateError}}" exception and abort these steps.
+        1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, <a>throw</a> an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
         1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
         1. Let |incumbentSettings| be the <a>incumbent settings object</a>, and |incumbentGlobal| its [=environment settings object/global object=].
@@ -484,8 +484,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
-        1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" exception and abort these steps.
-        1. If the <a>context object</a>'s <a>relevant settings object</a>'s [=environment settings object/global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is *installing*, return [=a promise rejected with=] an "{{InvalidStateError}}" exception and abort these steps.
+        1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
+        1. If the <a>context object</a>'s <a>relevant settings object</a>'s [=environment settings object/global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is *installing*, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |promise| be a <a>promise</a>.
         1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
@@ -643,7 +643,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
         1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |clientURL| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" exception.
+        1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL| as its argument.
@@ -792,7 +792,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       The <dfn method for="NavigationPreloadManager"><code>enable()</code></dfn> method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
 
         1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" exception, and abort these steps.
+        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
         1. Set |registration|'s [=navigation preload enabled flag=].
         1. [=Resolve=] |promise| with undefined.
     </section>
@@ -803,7 +803,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       The <dfn method for="NavigationPreloadManager"><code>disable()</code></dfn> method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
 
         1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" exception, and abort these steps.
+        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
         1. Unset |registration|'s [=navigation preload enabled flag=].
         1. [=Resolve=] |promise| with undefined.
     </section>
@@ -814,7 +814,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       The <dfn method for="NavigationPreloadManager"><code>setHeaderValue(|value|)</code></dfn> method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
 
         1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" exception, and abort these steps.
+        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
         1. Set |registration|'s [=navigation preload header value=] to |value|.
         1. [=Resolve=] |promise| with undefined.
     </section>
@@ -1042,7 +1042,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |sourceSettings| be the <a>context object</a>'s <a>relevant settings object</a>.
         1. Let |destination| be the {{ServiceWorkerContainer}} object whose [=ServiceWorkerContainer/service worker client=] is the <a>context object</a>'s [=Client/service worker client=].
-        1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" exception.
+        1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
         1. Add a <a>task</a> that runs the following steps to |destination|'s [=ServiceWorkerContainer/client message queue=]:
             1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |sourceSettings|'s [=environment settings object/origin=].
@@ -1078,7 +1078,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="WindowClient"><code>focus()</code></dfn> method *must* run these steps:
 
-        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" exception.
+        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
             1. Let |browsingContext| be the <a>context object</a>'s associated [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
@@ -1172,9 +1172,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
                 1. If |client| is an [=environment settings object=], then:
-                    1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
+                    1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
                 1. Else:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" exception and abort these steps.
+                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
                 1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
                     1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
                     1. Resolve |promise| with |clientObject| and abort these steps.
@@ -1255,7 +1255,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |url| is <code>about:blank</code>, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" exception.
+        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
             1. Let |newContext| be a new <a>top-level browsing context</a>.
@@ -1284,7 +1284,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="Clients"><code>claim()</code></dfn> method *must* run these steps:
 
-        1. If the [=ServiceWorkerGlobalScope/service worker=] is not an <a>active worker</a>, return a <a>promise</a> rejected with an "{{InvalidStateError}}" exception.
+        1. If the [=ServiceWorkerGlobalScope/service worker=] is not an <a>active worker</a>, return a <a>promise</a> rejected with an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
@@ -1334,7 +1334,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
 
         1. If the [=ExtendableEvent/pending promises count=] is zero and the [=dispatch flag=] is unset, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
 
             Note: If no lifetime extension promise has been added in the task that called the event handlers, calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
@@ -1384,7 +1384,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="InstallEvent"><code>registerForeignFetch(|options|)</code></dfn> method *must* run these steps:
 
         1. If the <a>dispatch flag</a> is unset, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
         1. If |options|.{{ForeignFetchOptions/origins}} is empty <a>throw</a> a <code>TypeError</code> and abort these steps.
         1. Let |originURLs| be an empty list of [=/URLs=].
@@ -1477,10 +1477,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
 
         1. If the <a>dispatch flag</a> is unset, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
         1. If the [=FetchEvent/respond-with entered flag=] is set, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
         1. Add |r| to the <a>extend lifetime promises</a>.
         1. Increment the [=ExtendableEvent/pending promises count=] by one.
@@ -1597,10 +1597,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <div link-for-hint="ForeignFetchEvent">
         1. If the <a>dispatch flag</a> is unset, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
         1. If the [=ForeignFetchEvent/respond-with entered flag=] is set, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" exception.
+            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
             1. Abort these steps.
         1. Add |r| to the <a>extend lifetime promises</a>.
         1. Increment the [=ExtendableEvent/pending promises count=] by one.
@@ -2231,7 +2231,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Resolve |p| with a new {{Cache}} object which is a copy of |value|.
                     1. Abort these steps.
             1. Let |cache| be a new {{Cache}} object.
-            1. [=map/Set=] <a>name to cache map</a>[|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, reject |p| with a "{{QuotaExceededError}}" exception and abort these steps.
+            1. [=map/Set=] <a>name to cache map</a>[|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, reject |p| with a "{{QuotaExceededError}}" {{DOMException}} and abort these steps.
             1. Resolve |p| with |cache|.
         1. Return |p|.
     </section>
@@ -2594,13 +2594,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trusted</code>, then:
-          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the [=environment settings object/origin=] of |job|'s [=job/script url=] is not |job|'s [=job/referrer=]'s [=environment settings object/origin=], then:
-          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/referrer=]'s [=environment settings object/origin=], then:
-          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is not null, then:
@@ -2657,7 +2657,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
           1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
           1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a [=network error=].
           1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
@@ -2677,7 +2677,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. If |scopeString| starts with |maxScopeString|, do nothing.
           1. Else:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a>last update check time</a> to the current time.
 
@@ -2689,7 +2689,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
               1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
 
-                  Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" DOMException.
+                  Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
               1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
@@ -3194,7 +3194,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
-          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" DOMException.
+          1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null, then:
@@ -3542,7 +3542,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. For each |operation| in |operations|:
                   1. If |operation|.{{CacheBatchOperation/type}} matches neither "delete" nor "put", <a>throw</a> a <code>TypeError</code>.
                   1. If |operation|.{{CacheBatchOperation/type}} matches "delete" and |operation|.{{CacheBatchOperation/response}} is not null, <a>throw</a> a <code>TypeError</code>.
-                  1. If the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}, |operation|.{{CacheBatchOperation/options}}, and |addedRecords| as the arguments is not an empty array, <a>throw</a> an "{{InvalidStateError}}" exception.
+                  1. If the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}}, |operation|.{{CacheBatchOperation/options}}, and |addedRecords| as the arguments is not an empty array, <a>throw</a> an "{{InvalidStateError}}" {{DOMException}}.
                   1. Let |requestResponseArray| be the result of running <a>Query Cache</a> algorithm passing |operation|.{{CacheBatchOperation/request}} and |operation|.{{CacheBatchOperation/options}} as the arguments.
                   1. For each |requestResponse| in |requestResponseArray|:
                       1. If |operation|.{{CacheBatchOperation/type}} matches "delete", remove the corresponding <a>fetching record</a> from <a>request to response map</a>.
@@ -3562,7 +3562,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
                           Note: The cache commit is allowed as long as the response's headers are available.
 
-                      1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" exception.
+                      1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" {{DOMException}}.
                       1. Add an array [|operation|.request, |operation|.response] to |addedRecords|.
                   1. Add |operation|.response to |resultArray|.
               1. Return |resultArray|.
