@@ -1251,9 +1251,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
 
-        1. If the [=ExtendableEvent/pending promises count=] is zero and the [=dispatch flag=] is unset, then:
-            1. <a>Throw</a> an "{{InvalidStateError}}" {{DOMException}}.
-            1. Abort these steps.
+        1. If the {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
+
+        1. If the [=ExtendableEvent/pending promises count=] is zero and the [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
 
             Note: If no lifetime extension promise has been added in the task that called the event handlers, calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
 
