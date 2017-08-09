@@ -2424,6 +2424,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-promise">job promise</dfn> (a <a>promise</a>). It is initially null.
 
+    A [=job=] has a <dfn id="dfn-containing-job-queue">containing job queue</dfn> (a [=job queue=] or null). It is initially null.
+
     A <a>job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a>jobs</a>). It is initially the empty list.
 
     A <a>job</a> has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn>. It is initially unset.
@@ -2435,7 +2437,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     * For *register* and *update* <a>jobs</a>, both their [=job/scope url=] and the [=job/script url=] are the same.
     * For *unregister* <a>jobs</a>, their [=job/scope url=] is the same.
 
-  A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe queue used to synchronize the set of concurrent <a>jobs</a>. The <a>job queue</a> contains <a>jobs</a> as its elements. The <a>job queue</a> *should* satisfy the general properties of FIFO queue. A user agent *must* maintain a separate <a>job queue</a> for each [=/service worker registration=] keyed by its [=service worker registration/scope url=]. A <a>job queue</a> is initially empty. Unless stated otherwise, the <a>job queue</a> referenced from the algorithm steps is a <a>job queue</a> for the <a>job</a>'s [=job/scope url=].
+  A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe [=queue=] used to synchronize the set of concurrent [=jobs=]. The [=job queue=] contains [=jobs=] as its [=queue/items=]. A [=job queue=] is initially empty.
+
+  A <dfn id="dfn-scope-to-job-queue-map">scope to job queue map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=job queue=].
 
   <section algorithm>
     <h3 id="create-job-algorithm"><dfn>Create Job</dfn></h3>
@@ -2467,44 +2471,50 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. If the <a>job queue</a> is empty, then:
-          1. Push |job| to the <a>job queue</a> and invoke <a>Run Job</a>.
+      1. Let |jobQueue| be null.
+      1. Let |jobScope| be |job|'s [=job/scope url=], [=URL serializer|serialized=].
+      1. If [=scope to job queue map=][|jobScope|] does not [=map/exist=], [=map/set=] [=scope to job queue map=][|jobScope|] to a new [=job queue=].
+      1. Set |jobQueue| to [=scope to job queue map=][|jobScope|].
+      1. If |jobQueue| is empty, then:
+          1. Set |job|'s [=containing job queue=] to |jobQueue|, and [=queue/enqueue=] |job| to |jobQueue|.
+          1. Invoke [=Run Job=] with |jobQueue|.
       1. Else:
-          1. Let |lastJob| be the element at the back of the <a>job queue</a>.
-          1. If |job| is <a>equivalent</a> to |lastJob| and |lastJob|'s [=job/job promise=] has not settled, append |job| to |lastJob|'s <a>list of equivalent jobs</a>.
-          1. Else, push |job| to the <a>job queue</a>.
+          1. Let |lastJob| be the element at the back of |jobQueue|.
+          1. If |job| is [=equivalent=] to |lastJob| and |lastJob|'s [=job/job promise=] has not settled, append |job| to |lastJob|'s [=list of equivalent jobs=].
+          1. Else, set |job|'s [=containing job queue=] to |jobQueue|, and [=queue/enqueue=] |job| to |jobQueue|.
   </section>
 
   <section algorithm>
     <h3 id="run-job-algorithm"><dfn>Run Job</dfn></h3>
 
       : Input
-      :: none
+      :: jobQueue, a [=job queue=]
       : Output
       :: none
 
-      1. Assert: the <a>job queue</a> is not empty.
-      1. <a>Queue a task</a> to run these steps:
-          1. Let |job| be the element in the front of the <a>job queue</a>.
-          1. If |job|'s <a>job type</a> is *register*, run <a>Register</a> with |job| <a>in parallel</a>.
-          1. Else if |job|'s <a>job type</a> is *update*, run <a>Update</a> with |job| <a>in parallel</a>.
+      1. Assert: |jobQueue| is not empty.
+      1. [=Queue a task=] to run these steps:
+          1. Let |job| be the first [=queue/item=] in |jobQueue|.
+          1. If |job|'s [=job type=] is *register*, run [=Register=] with |job| [=in parallel=].
+          1. Else if |job|'s [=job type=] is *update*, run [=Update=] with |job| [=in parallel=].
 
               Note: For a register job and an update job, the user agent delays queuing a task for running the job until after a {{Document/DOMContentLoaded}} event has been dispatched to the document that initiated the job.
 
-          1. Else if |job|'s <a>job type</a> is *unregister*, run <a>Unregister</a> with |job| <a>in parallel</a>.
+          1. Else if |job|'s [=job type=] is *unregister*, run [=Unregister=] with |job| [=in parallel=].
   </section>
 
   <section algorithm>
     <h3 id="finish-job-algorithm"><dfn>Finish Job</dfn></h3>
 
       : Input
-      :: |job|, a <a>job</a>
+      :: |job|, a [=job=]
       : Output
       :: none
 
-      1. Assert: the top element in the <a>job queue</a> is |job|.
-      1. Pop the top element from the <a>job queue</a>.
-      1. If the <a>job queue</a> is not empty, invoke <a>Run Job</a> with the top element of the <a>job queue</a>.
+      1. Let |jobQueue| be |job|'s [=containing job queue=].
+      1. Assert: the first [=queue/item=] in |jobQueue| is |job|.
+      1. [=Dequeue=] from |jobQueue|.
+      1. If |jobQueue| [=queue/is not empty=], invoke [=Run Job=] with |jobQueue|.
   </section>
 
   <section algorithm>
