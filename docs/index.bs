@@ -2940,6 +2940,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |client| be |request|'s [=request/client=].
       1. Let |reservedClient| be |request|'s [=request/reserved client=].
       1. Let |preloadResponse| be a new [=promise=].
+      1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request| is a <a>potential-navigation-or-subresource request</a>, then:
           1. Return null.
@@ -2965,13 +2966,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
               1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
               1. Run the following substeps [=in parallel=]:
-                  1. [=Fetch=] |preloadRequest|.
+                  1. [=Fetch=] |preloadRequest| and let |preloadFetchInstance| be the instance of the [=/fetch=] algorithm.
 
                       To [=process response=] for |navigationPreloadResponse|, run these substeps:
 
                       1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                       1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
                       1. Resolve |preloadResponse| with |navigationPreloadResponse|.
+                  1. If |fetchInstance| is [=fetch/terminated=], then [=fetch/terminate=] |preloadFetchInstance| with the aborted flag set.
           1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
@@ -3007,9 +3009,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
               1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
           1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-          1. Run the following steps [=in parallel=]:
-              1. Wait for the fetch to become [=fetch/terminated=].
-              1. [=Queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s [=Request/signal=].
+          1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
 
           If |task| is discarded or the script has been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|, set |handleFetchFailed| to true.
 
