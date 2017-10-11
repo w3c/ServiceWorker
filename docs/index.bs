@@ -58,7 +58,6 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: map objects; url: sec-map-objects
         text: InitializeHostDefinedRealm; url: sec-initializehostdefinedrealm
         text: execution context; url: sec-execution-contexts
-        text: current Realm Record; url: current-realm
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -1052,7 +1051,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
                 If this throws an exception, catch it, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
             1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
-            1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any,
+            1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any.
             1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
     </section>
 
@@ -1864,13 +1863,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <dfn id="dfn-request-response-list">request response list</dfn> is a [=list=] of [=pairs=] consisting of a request (a [=/request=]) and a response (a [=/response=]).
 
-    When a [=request response list=] is referenced from within an algorithm, an attribute getter, an attribute setter, or a method, it designates the instance that the [=context object=] represents, unless specified otherwise.
+    The <dfn id="dfn-relevant-request-response-list">relevant request response list</dfn> is the instance that the [=context object=] represents.
 
     A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is an <a>ordered map</a> whose [=map/entry=] consists of a [=map/key=] (a string that represents the name of a [=request response list=]) and a [=map/value=] (a [=request response list=]).
 
     Each [=/origin=] has an associated [=name to cache map=].
 
-    When a [=name to cache map=] is referenced from within an algorithm, an attribute getter, an attribute setter, or a method, it designates the instance of the [=context object=]'s associated [=CacheStorage/global object=]'s [=environment settings object=]'s [=environment settings object/origin=], unless specified otherwise.
+    The <dfn id="dfn-relevant-name-to-cache-map">relevant name to cache map</dfn> is the instance of the [=context object=]'s associated [=CacheStorage/global object=]'s [=environment settings object=]'s [=environment settings object/origin=].
   </section>
 
   <section>
@@ -1902,12 +1901,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       [SecureContext, Exposed=(Window,Worker)]
       interface Cache {
         [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional CacheQueryOptions options);
-        [NewObject] Promise&lt;sequence&lt;Response&gt;&gt; matchAll(optional RequestInfo request, optional CacheQueryOptions options);
+        [NewObject] Promise&lt;FrozenArray&lt;Response&gt;&gt; matchAll(optional RequestInfo request, optional CacheQueryOptions options);
         [NewObject] Promise&lt;void&gt; add(RequestInfo request);
         [NewObject] Promise&lt;void&gt; addAll(sequence&lt;RequestInfo&gt; requests);
         [NewObject] Promise&lt;void&gt; put(RequestInfo request, Response response);
         [NewObject] Promise&lt;boolean&gt; delete(RequestInfo request, optional CacheQueryOptions options);
-        [NewObject] Promise&lt;sequence&lt;Request&gt;&gt; keys(optional RequestInfo request, optional CacheQueryOptions options);
+        [NewObject] Promise&lt;FrozenArray&lt;Request&gt;&gt; keys(optional RequestInfo request, optional CacheQueryOptions options);
       };
     </pre>
     <pre class="idl" id="cache-query-options-dictionary">
@@ -1958,22 +1957,22 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |r|'s [=request/method=] is not \`<code>GET</code>\` and |options|.ignoreMethod is false, return [=a promise resolved with=] an empty array.
             1. Else if |request| is a string, then:
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
-        1. Let |realm| be the [=current Realm Record=].
+        1. Let |realm| be the [=context object=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
             1. Let |responses| be an empty [=list=].
             1. If the optional argument |request| is omitted, then:
-                1. [=list/For each=] |requestResponse| of the [=request response list=]:
+                1. [=list/For each=] |requestResponse| of the [=relevant request response list=]:
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. Else:
                 1. Let |requestResponses| be the result of running [=Query Cache=] with |r| and |options|.
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
-                1. Let |responseArray| be an empty JavaScript array, in |realm|.
+                1. Let |responseList| be a [=list=].
                 1. [=list/For each=] |response| of |responses|:
-                    1. Add a new {{Response}} object associated with |response| and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>" to |responseArray|.
-                1. Resolve |promise| with |responseArray|.
+                    1. Add a new {{Response}} object associated with |response| and a new {{Headers}} object whose <a>guard</a> is "<code>immutable</code>" to |responseList|.
+                1. Resolve |promise| with a [=frozen array type|frozen array=] [=create a frozen array|created=] from |responseList|, in |realm|.
         1. Return |promise|.
     </section>
 
@@ -2001,8 +2000,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. For each |request| in |requests|:
             1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this <a>throws</a> an exception, return [=a promise rejected with=] that exception.
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", then:
-                1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with reason *fatal*.
-                1. Break the loop.
+                1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
+                1. [=Break=].
             1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`foreign`".
             1. Set |r|'s [=request/initiator=] to "`fetch`" and [=request/destination=] to "`subresource`".
             1. Add |r| to |requestList|.
@@ -2021,12 +2020,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                         1. If |matchAsterisk| is true, reject |responsePromise| with a `TypeError`.
 
                 * To [=process response end-of-body=] for |response|, run these substeps:
-                    1. If |response|'s [=response/aborted flag=] is set, reject |responsePromise| with a `TypeError` and abort these steps.
+                    1. If |response|'s [=response/aborted flag=] is set, reject |responsePromise| with an "{{AbortError}}" {{DOMException}} and abort these steps.
                     1. Resolve |responsePromise| with |response|.
 
                     Note: The cache commit is allowed when the response's body is fully received.
 
-                * To [=process response done=] for |response|, do nothing.
             1. Add |responsePromise| to |responsePromises|.
         1. Let |p| be [=waiting for all=] of |responsePromises|.
         1. Return the result of [=transforming=] |p| with a fulfillment handler that, when called with argument |responses|, performs the following substeps [=in parallel=]:
@@ -2094,7 +2092,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/options=] to |options|.
         1. [=list/Append=] |operation| to |operations|.
         1. Let |resultPromise| be the result of running [=Batch Cache Operations=] with |operations|.
-        1. Return the result of [=transforming=] |resultPromise| with a fulfillment handler, when called with argument |requestResponses|, performs the following substeps [=in parallel=]:
+        1. Return the result of [=transforming=] |resultPromise| with a fulfillment handler, when called with argument |requestResponses|, performs the following substeps:
             1. If |requestResponses| [=list/is not empty=], return true.
             1. Else, return false.
     </section>
@@ -2111,22 +2109,22 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |r|'s [=request/method=] is not \`<code>GET</code>\` and |options|.ignoreMethod is false, return [=a promise resolved with=] an empty array.
             1. Else if |request| is a string, then:
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
-        1. Let |realm| be the [=current Realm Record=].
+        1. Let |realm| be the [=context object=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
             1. Let |requests| be an empty [=list=].
             1. If the optional argument |request| is omitted, then:
-                1. [=list/For each=] |requestResponse| of the [=request response list=]:
+                1. [=list/For each=] |requestResponse| of the [=relevant request response list=]:
                     1. Add |requestResponse|'s request to |requests|.
             1. Else:
                 1. Let |requestResponses| be the result of running [=Query Cache=] with |r| and |options|.
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
                     1. Add |requestResponse|'s request to |requests|.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
-                1. Let |requestArray| be an empty JavaScript array, in |realm|.
+                1. Let |requestList| be a [=list=].
                 1. [=list/For each=] |request| of |requests|:
-                    1. Add a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`" to |requestArray|.
-                1. Resolve |promise| with |requestArray|.
+                    1. Add a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`" to |requestList|.
+                1. Resolve |promise| with a [=frozen array type|frozen array=] [=create a frozen array|created=] from |requestList|, in |realm|.
         1. Return |promise|.
     </section>
   </section>
@@ -2159,17 +2157,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. If |options|.{{CacheQueryOptions/cacheName}} is [=present=], then:
             1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
-                1. [=map/For each=] |cacheName| → |cache| of the [=name to cache map=]:
+                1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
                     1. If |options|.{{CacheQueryOptions/cacheName}} matches |cacheName|, then:
-                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the <a>\[[Call]]</a> internal method of {{Cache/match(request, options)}}.)
+                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
                         1. Abort these steps.
                 1. Resolve |promise| with undefined.
         1. Else:
             1. Let |promise| be [=a promise resolved with=] undefined.
-            1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=name to cache map=]:
+            1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
                 1. Set |promise| to the result of [=transforming=] itself with a fulfillment handler that, when called with argument |response|, performs the following substeps [=in parallel=]:
                     1. If |response| is not undefined, return |response|.
-                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
+                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
             1. Return |promise|.
     </section>
 
@@ -2180,10 +2178,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
-            1. [=map/For each=] |key| → <var ignore>value</var> of the [=name to cache map=]:
-                1. If |cacheName| matches |key|, then:
-                    1. Resolve |promise| with true.
-                    1. Abort these steps.
+            1. [=map/For each=] |key| → <var ignore>value</var> of the [=relevant name to cache map=]:
+                1. If |cacheName| matches |key|, resolve |promise| with true and abort these steps.
             1. Resolve |promise| with false.
         1. Return |promise|.
     </section>
@@ -2195,12 +2191,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
-            1. [=map/For each=] |key| → |value| of the [=name to cache map=]:
+            1. [=map/For each=] |key| → |value| of the [=relevant name to cache map=]:
                 1. If |cacheName| matches |key|, then:
                     1. Resolve |promise| with a new {{Cache}} object that represents |value|.
                     1. Abort these steps.
             1. Let |cache| be a new [=request response list=].
-            1. [=map/Set=] the [=name to cache map=][|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, reject |promise| with a "{{QuotaExceededError}}" {{DOMException}} and abort these steps.
+            1. [=map/Set=] the [=relevant name to cache map=][|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, reject |promise| with a "{{QuotaExceededError}}" {{DOMException}} and abort these steps.
             1. Resolve |promise| with a new {{Cache}} object that represents |cache|.
         1. Return |promise|.
     </section>
@@ -2213,7 +2209,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be the result of running the algorithm specified in {{CacheStorage/has(cacheName)}} method with |cacheName|.
         1. Return the result of [=transforming=] |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps [=in parallel=]:
             1. If |cacheExists| is true, then:
-                1. [=map/Remove=] the [=name to cache map=][|cacheName|].
+                1. [=map/Remove=] the [=relevant name to cache map=][|cacheName|].
                 1. Return true.
 
                 Note: After this step, the existing DOM objects (i.e. the currently referenced Cache, Request, and Response objects) should remain functional.
@@ -2229,7 +2225,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
-            1. Let |cacheKeys| be the result of [=map/get the keys|getting the keys=] of the [=name to cache map=].
+            1. Let |cacheKeys| be the result of [=map/get the keys|getting the keys=] of the [=relevant name to cache map=].
 
                 Note: The [=list/items=] in the result [=ordered set=] are in the order that their corresponding entry was added to the [=name to cache map=].
 
@@ -3473,7 +3469,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |options|.{{CacheQueryOptions/ignoreMethod}} is false and |request|'s [=request/method=] is not \`<code>GET</code>\`, return |resultList|.
       1. Let |cachedURL| and |requestURL| be null.
       1. Let |storage| be null.
-      1. If the optional argument |targetStorage| is omitted, set |storage| to the [=request response list=].
+      1. If the optional argument |targetStorage| is omitted, set |storage| to the [=relevant request response list=].
       1. Else, set |storage| to |targetStorage|.
       1. [=list/For each=] |requestResponse| of |storage|:
           1. Set |cachedURL| to |requestResponse|'s request's [=request/url=].
@@ -3509,7 +3505,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: |promise|, a [=promise=] that resolves with a [=request response list=]
 
-      1. Let |cache| be the [=request response list=].
+      1. Let |cache| be the [=relevant request response list=].
       1. Let |promise| be a <a>promise</a> resolved with no value.
       1. Return the result of <a>transforming</a> |promise| with a fulfillment handler that performs the following substeps <a>in parallel</a>:
           1. Let |itemsCopy| be a new [=request response list=] that is a copy of |cache|.
