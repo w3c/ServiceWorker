@@ -1644,17 +1644,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="Cache"><code>addAll(|requests|)</code></dfn> method *must* run these steps:
 
-        1. Let |r| be null.
         1. Let |responsePromises| be an empty [=list=].
         1. Let |requestList| be an empty [=list=].
         1. For each |request| whose type is {{Request}} in |requests|:
-            1. Set |r| to |request|'s [=Request/request=].
-            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", or |r|'s [=request/method=] is not \`<code>GET</code>\`, return a <a>promise</a> rejected with a <code>TypeError</code>.
+            1. Let |r| be |request|'s [=Request/request=].
+            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", or |r|'s [=request/method=] is not \``GET`\`, return [=a promise rejected with=] a `TypeError`.
         1. For each |request| in |requests|:
-            1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this <a>throws</a> an exception, return [=a promise rejected with=] that exception.
+            1. Let |r| be the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this <a>throws</a> an exception, return [=a promise rejected with=] that exception.
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", then:
                 1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
-                1. [=Break=].
+                1. Return [=a promise rejected with=] a `TypeError`.
             1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`foreign`".
             1. Set |r|'s [=request/initiator=] to "`fetch`" and [=request/destination=] to "`subresource`".
             1. Add |r| to |requestList|.
@@ -1663,14 +1662,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 * [=/Fetch=] |r|.
                 * To [=process response=] for |response|, run these substeps:
                     1. If |response|'s [=response/type=] is "<code>error</code>", or |response|'s [=response/status=] is not an [=ok status=], reject |responsePromise| with a `TypeError`.
-                    1. Else if |response|'s [=response/header list=] contains a [=header=] [=header/named=] \`<code>Vary</code>\`, then:
+                    1. Else if |response|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
                         1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header.
-                        1. Let |matchAsterisk| be false.
                         1. [=list/For each=] |fieldValue| of |fieldValues|:
                             1. If |fieldValue| matches "`*`", then:
-                                1. Set |matchAsterisk| to true.
-                                1. [=Break=].
-                        1. If |matchAsterisk| is true, reject |responsePromise| with a `TypeError`.
+                                1. Reject |responsePromise| with a `TypeError`.
+                                1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
+                                1. Abort these steps.
 
                 * To [=process response end-of-body=] for |response|, run these substeps:
                     1. If |response|'s [=response/aborted flag=] is set, reject |responsePromise| with an "{{AbortError}}" {{DOMException}} and abort these steps.
@@ -1680,7 +1678,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
             1. Add |responsePromise| to |responsePromises|.
         1. Let |p| be [=waiting for all=] of |responsePromises|.
-        1. Return the result of [=transforming=] |p| with a fulfillment handler that, when called with argument |responses|, performs the following substeps [=in parallel=]:
+        1. Return the result of [=transforming=] |p| with a fulfillment handler that, when called with argument |responses|, performs the following substeps:
             1. Let |operations| be an empty [=list=].
             1. Let |index| be zero.
             1. For each |response| in |responses|:
@@ -1690,8 +1688,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Set |operation|'s [=cache batch operation/response=] to |response|.
                 1. [=list/Append=] |operation| to |operations|.
                 1. Increment |index| by one.
-            1. Let |resultPromise| be the result of running [=Batch Cache Operations=] with |operations|.
-            1. Return the result of [=transforming=] |resultPromise| with a fulfillment handler that returns undefined.
+            1. Let |realm| be the [=context object=]'s [=relevant realm=].
+            1. Let |cacheJobPromise| be [=a new promise=].
+            1. Run the following substeps [=in parallel=]:
+                1. Let |errorData| be null.
+                1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
+                1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
+                    1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
+                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+            1. Return |cacheJobPromise|.
     </section>
 
     <section algorithm="cache-put">
@@ -1723,8 +1728,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/request=] to |r|.
         1. Set |operation|'s [=cache batch operation/response=] to |clonedResponse|.
         1. [=list/Append=] |operation| to |operations|.
-        1. Let |resultPromise| be the result of running [=Batch Cache Operations=] with |operations|.
-        1. Return the result of [=transforming=] |resultPromise| with a fulfillment handler that returns undefined.
+        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |cacheJobPromise| be [=a new promise=].
+        1. Run the following substeps [=in parallel=]:
+            1. Let |errorData| be null.
+            1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
+            1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
+                1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
+                1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+        1. Return |cacheJobPromise|.
     </section>
 
     <section algorithm="cache-delete">
@@ -1744,10 +1756,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/request=] to |r|.
         1. Set |operation|'s [=cache batch operation/options=] to |options|.
         1. [=list/Append=] |operation| to |operations|.
-        1. Let |resultPromise| be the result of running [=Batch Cache Operations=] with |operations|.
-        1. Return the result of [=transforming=] |resultPromise| with a fulfillment handler, when called with argument |requestResponses|, performs the following substeps:
-            1. If |requestResponses| [=list/is not empty=], return true.
-            1. Else, return false.
+        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |cacheJobPromise| be [=a new promise=].
+        1. Run the following substeps [=in parallel=]:
+            1. Let |errorData| be null.
+            1. Let |requestResponses| be the result of running [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
+            1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
+                1. If |errorData| is null, then:
+                    1. If |requestResponses| [=list/is not empty=], resolve |cacheJobPromise| with true.
+                    1. Else, resolve |cacheJobPromise| with false.
+                1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+        1. Return |cacheJobPromise|.
     </section>
 
     <section algorithm="cache-keys">
@@ -1818,7 +1837,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Else:
             1. Let |promise| be [=a promise resolved with=] undefined.
             1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
-                1. Set |promise| to the result of [=transforming=] itself with a fulfillment handler that, when called with argument |response|, performs the following substeps [=in parallel=]:
+                1. Set |promise| to the result of [=transforming=] itself with a fulfillment handler that, when called with argument |response|, performs the following substeps:
                     1. If |response| is not undefined, return |response|.
                     1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
             1. Return |promise|.
@@ -1860,15 +1879,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="CacheStorage"><code>delete(|cacheName|)</code></dfn> method *must* run these steps:
 
         1. Let |promise| be the result of running the algorithm specified in {{CacheStorage/has(cacheName)}} method with |cacheName|.
-        1. Return the result of [=transforming=] |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps [=in parallel=]:
-            1. If |cacheExists| is true, then:
+        1. Return the result of [=transforming=] |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps:
+            1. If |cacheExists| is false, then:
+                1. Return false.
+            1. Let |cacheJobPromise| be [=a new promise=].
+            1. Run the following substeps [=in parallel=]:
                 1. [=map/Remove=] the [=relevant name to cache map=][|cacheName|].
-                1. Return true.
+                1. Resolve |cacheJobPromise| with true.
 
                 Note: After this step, the existing DOM objects (i.e. the currently referenced Cache, Request, and Response objects) should remain functional.
 
-            1. Else:
-                1. Return false.
+            1. Return |cacheJobPromise|.
     </section>
 
     <section algorithm="cache-storage-keys">
@@ -3003,41 +3024,43 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |operations|, a [=list=] of [=cache batch operation=] objects
       : Output
-      :: |promise|, a [=promise=] that resolves with a [=request response list=]
+      :: |resultList|, a [=request response list=]
 
       1. Let |cache| be the [=relevant request response list=].
-      1. Let |promise| be a <a>promise</a> resolved with no value.
-      1. Return the result of <a>transforming</a> |promise| with a fulfillment handler that performs the following substeps <a>in parallel</a>:
-          1. Let |itemsCopy| be a new [=request response list=] that is a copy of |cache|.
-          1. Let |addedItems| be an empty [=list=].
-          1. Try running the following substeps atomically:
-              1. Let |resultList| be an empty [=list=].
-              1. [=list/For each=] |operation| in |operations|:
-                  1. If |operation|'s [=cache batch operation/type=] matches neither "`delete`" nor "`put`", <a>throw</a> a <code>TypeError</code>.
-                  1. If |operation|'s [=cache batch operation/type=] matches "`delete`" and |operation|'s [=cache batch operation/response=] is not null, <a>throw</a> a <code>TypeError</code>.
-                  1. If the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=], |operation|'s [=cache batch operation/options=], and |addedItems| [=list/is not empty=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-                  1. Let |requestResponses| be an empty [=list=].
-                  1. If |operation|'s [=cache batch operation/type=] matches "`delete`", then:
-                      1. Set |requestResponses| to the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=] and |operation|'s [=cache batch operation/options=].
-                      1. [=list/For each=] |requestResponse| in |requestResponses|:
-                          1. [=list/Remove=] the [=list/item=] whose value matches |requestResponse| from |cache|.
-                  1. Else if |operation|'s [=cache batch operation/type=] matches "`put`", then:
-                      1. If |operation|'s [=cache batch operation/response=] is null, <a>throw</a> a <code>TypeError</code>.
-                      1. Let |r| be |operation|'s [=cache batch operation/request=]'s associated [=Request/request=].
-                      1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", <a>throw</a> a <code>TypeError</code>.
-                      1. If |r|'s [=request/method=] is not \`<code>GET</code>\`, <a>throw</a> a <code>TypeError</code>.
-                      1. If |operation|'s [=cache batch operation/options=] is not null, <a>throw</a> a <code>TypeError</code>.
-                      1. Set |requestResponses| to the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=].
-                      1. [=list/For each=] |requestResponse| of |requestResponses|:
-                          1. [=list/Remove=] the [=list/item=] whose value matches |requestResponse| from |cache|.
-                      1. [=list/Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |cache|.
-                      1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" {{DOMException}}.
-                      1. [=list/Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |addedItems|.
-                  1. [=Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |resultList|.
-              1. Return |resultList|.
-          1. And then, if an exception was <a lt="throw">thrown</a>, then:
-              1. Set |cache| to |itemsCopy|.
-              1. <a>Throw</a> the exception.
+      1. Let |backupCache| be a new [=request response list=] that is a copy of |cache|.
+      1. Let |addedItems| be an empty [=list=].
+      1. Try running the following substeps atomically:
+          1. Let |resultList| be an empty [=list=].
+          1. [=list/For each=] |operation| in |operations|:
+              1. If |operation|'s [=cache batch operation/type=] matches neither "`delete`" nor "`put`", <a>throw</a> a <code>TypeError</code>.
+              1. If |operation|'s [=cache batch operation/type=] matches "`delete`" and |operation|'s [=cache batch operation/response=] is not null, <a>throw</a> a <code>TypeError</code>.
+              1. If the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=], |operation|'s [=cache batch operation/options=], and |addedItems| [=list/is not empty=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+              1. Let |requestResponses| be an empty [=list=].
+              1. If |operation|'s [=cache batch operation/type=] matches "`delete`", then:
+                  1. Set |requestResponses| to the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=] and |operation|'s [=cache batch operation/options=].
+                  1. [=list/For each=] |requestResponse| in |requestResponses|:
+                      1. [=list/Remove=] the [=list/item=] whose value matches |requestResponse| from |cache|.
+              1. Else if |operation|'s [=cache batch operation/type=] matches "`put`", then:
+                  1. If |operation|'s [=cache batch operation/response=] is null, <a>throw</a> a <code>TypeError</code>.
+                  1. Let |r| be |operation|'s [=cache batch operation/request=]'s associated [=Request/request=].
+                  1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", <a>throw</a> a <code>TypeError</code>.
+                  1. If |r|'s [=request/method=] is not \`<code>GET</code>\`, <a>throw</a> a <code>TypeError</code>.
+                  1. If |operation|'s [=cache batch operation/options=] is not null, <a>throw</a> a <code>TypeError</code>.
+                  1. Set |requestResponses| to the result of running [=Query Cache=] with |operation|'s [=cache batch operation/request=].
+                  1. [=list/For each=] |requestResponse| of |requestResponses|:
+                      1. [=list/Remove=] the [=list/item=] whose value matches |requestResponse| from |cache|.
+                  1. [=list/Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |cache|.
+                  1. If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a>throw</a> a "{{QuotaExceededError}}" {{DOMException}}.
+                  1. [=list/Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |addedItems|.
+              1. [=Append=] |operation|'s [=cache batch operation/request=]/|operation|'s [=cache batch operation/response=] to |resultList|.
+          1. Return |resultList|.
+      1. And then, if an exception was <a lt="throw">thrown</a>, then:
+          1. [=list/Remove=] all the [=list/items=] from the [=relevant request response list=].
+          1. [=list/For each=] |requestResponse| of |backupCache|:
+            1. [=list/Append=] |requestResponse| to the [=relevant request response list=].
+          1. [=Throw=] the exception.
+
+          Note: When an exception is [=throw|thrown=], the implementation does undo (roll back) any changes made to the cache storage during the batch operation job.
   </section>
 </section>
 
