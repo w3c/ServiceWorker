@@ -2008,7 +2008,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Run the following substeps [=in parallel=]:
                 * [=/Fetch=] |r|.
                 * To [=process response=] for |response|, run these substeps:
-                    1. If |response|'s [=response/type=] is "<code>error</code>", or |response|'s [=response/status=] is not an [=ok status=], reject |responsePromise| with a `TypeError`.
+                    1. If |response|'s [=response/type=] is "<code>error</code>", or |response|'s [=response/status=] is not an [=ok status=] or is `206`, reject |responsePromise| with a `TypeError`.
                     1. Else if |response|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
                         1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header.
                         1. [=list/For each=] |fieldValue| of |fieldValues|:
@@ -2058,6 +2058,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Else if |request| is a string, then:
             1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", return [=a promise rejected with=] a `TypeError`.
+        1. If |response|'s associated [=Response/response=]'s [=response/status=] is `206`, return [=a promise rejected with=] a `TypeError`.
         1. If |response|'s associated [=Response/response=]'s [=response/header list=] contains a <a>header</a> [=header/named=] \`<code>Vary</code>\`, then:
             1. Let |fieldValues| be the [=list=] containing the [=list/items=] corresponding to the  [=Vary=] header's [=http/field-values=].
             1. [=list/For each=] |fieldValue| in |fieldValues|:
