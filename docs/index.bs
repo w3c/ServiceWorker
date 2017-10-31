@@ -82,12 +82,12 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: request; for: Request; url: concept-request-request
         text: HTTP fetch; for: /; url: concept-http-fetch
 
-spec: rfc5988; urlPrefix: https://tools.ietf.org/html/rfc5988
+spec: rfc8288; urlPrefix: https://tools.ietf.org/html/rfc8288
     type: dfn
-        text: context IRI; url: section-5.2
-        text: target attribute; url: section-5.4
-        text: target attributes; url: section-5.4
-        text: target IRI; url: section-5.1
+        text: link context; url: section-3.2
+        text: target attribute; url: section-3.4
+        text: target attributes; url: section-3.4
+        text: link target; url: section-3.1
 
 spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
     type: dfn
@@ -1767,7 +1767,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="serviceworker-link-header">Declaring a "serviceworker" <code>Link</code> header</h3>
 
-    A <a>serviceworker link</a> can be declared using a `Link` header</a> [[!RFC5988]] with "`serviceworker`" as the value of the "`rel`" parameter and a [=URL serializer|serialized=] [=service worker/script url=] inside angle brackets ("`<>`") as the <a>target IRI</a>, and the following optional <a>target attributes</a>:
+    A <a>serviceworker link</a> can be declared using a `Link` header</a> [[!RFC8288]] with "`serviceworker`" as the value of the "`rel`" parameter and a [=URL serializer|serialized=] [=service worker/script url=] inside angle brackets ("`<>`") as the [=link target=], and the following optional [=target attributes=]:
 
     : `scope`
     :: Value: A [=URL serializer|serialized=] [=service worker registration/scope url=].
@@ -1791,17 +1791,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="link-header-processing">Processing a "serviceworker" <code>Link</code> header</h3>
 
-    When a user agent that supports [[!RFC5988]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent *should* run these steps:
+    When a user agent that supports [[!RFC8288]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent *should* run these steps:
 
       1. If the <code>Link</code> header has an "<code>anchor</code>" parameter, abort these steps.
-      1. Let |contextURL| be the result of <a lt="URL parser">parsing</a> the <a>context IRI</a> of the <code>Link</code> header.
+      1. Let |contextURL| be the result of <a lt="URL parser">parsing</a> the [=link context=] of the <code>Link</code> header.
       1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |contextURL| is <code>Not Trusted</code>, abort these steps.
       1. Let |request| be the [=/request=] for which this header was received in the response.
       1. If |request|'s [=request/client=] is not a <a>secure context</a>, abort these steps.
-      1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the <a>target IRI</a> of the <code>Link</code> header.
+      1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the [=link target=] of the <code>Link</code> header.
       1. Let |scopeURL| be null.
-      1. If the "<code>scope</code>" <a>target attribute</a> of the <code>Link</code> header is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the "<code>scope</code>" <a>target attribute</a> with |scriptURL|.
-      1. Let |workerType| be the "<code>workertype</code>" <a>target attribute</a> of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.
+      1. If the "<code>scope</code>" [=target attribute=] of the <code>Link</code> header is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the "<code>scope</code>" [=target attribute=] with |scriptURL|.
+      1. Let |workerType| be the "<code>workertype</code>" [=target attribute=] of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.
       1. If |workerType| is not a valid {{WorkerType}} value, abort these steps.
       1. Let |updateViaCache| be the "`updateviacache`" [=target attribute=] of the `Link` header, or "`imports`" if no such attribute is present.
       1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL|, |workerType|, and |updateViaCache|.
