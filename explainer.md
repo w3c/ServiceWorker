@@ -157,7 +157,7 @@ The lifecycle of a service worker is based on Chrome’s update model: do as muc
 
 Whenever you navigate to a page within scope of your service worker, the browser checks for updates in the background. If the script is byte-different, it’s considered to be a new version, and installed (note: only the script is checked, not external `importScripts`). However, the old version remains in control over pages until all tabs using it are gone (unless `.replace()` is called during install). Then the old version is garbage collected and the new version takes over.
 
-This avoids the problem of two versions of a site running at the same time, in different tabs. Our current strategy for this is [“cross fingers, hope it doesn’t happen”](https://twitter.com/jaffathecake/status/502779501936652289).
+This avoids the problem of two versions of a site running at the same time, in different tabs – something that happens by default on the web, and is the [source of really tricky bugs](https://twitter.com/jaffathecake/status/502779501936652289).
 
 Note: Updates obey the freshness headers of the worker script (such as `max-age`), unless the `max-age` is greater than 24 hours, in which case it is capped to 24 hours.
 
