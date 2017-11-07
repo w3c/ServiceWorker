@@ -1760,7 +1760,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 <section>
   <h2 id="link-type-serviceworker">Link type "`serviceworker`"</h2>
 
-  A [=/service worker registration=] and its [=service worker registration/scope url=] are created by a <dfn id="dfn-serviceworker-link">serviceworker link</dfn>, which is declared using a <a href="#serviceworker-link-header">"serviceworker" `Link` header</a> or a <{link}> element whose <{link/rel}> attribute contains the keyword "<{link/rel/serviceworker}>".
+  A [=/service worker registration=] and its [=service worker registration/scope url=] are created by a <dfn id="dfn-serviceworker-link">serviceworker link</dfn>, which is declared using a <a href="#serviceworker-link-header">"serviceworker" `Link` header</a>.
 
   <section>
     <h3 id="serviceworker-link-header">Declaring a "serviceworker" <code>Link</code> header</h3>
@@ -1803,51 +1803,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |workerType| is not a valid {{WorkerType}} value, abort these steps.
       1. Let |updateViaCache| be the "`updateviacache`" [=target attribute=] of the `Link` header, or "`imports`" if no such attribute is present.
       1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL|, |workerType|, and |updateViaCache|.
-  </section>
-
-  <section>
-    <h3 id="link-element-processing">Processing a "serviceworker" <{link}> element</h3>
-
-    When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, or a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}>, <{link/scope}>, or <{link/updateviacache}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
-
-      1. If the <{link/href}> attribute is the empty string, abort these steps.
-      1. Let |client| be the document's [=ServiceWorkerContainer/service worker client=].
-      1. If |client| is not a <a>secure context</a>, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
-      1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
-      1. Let |scopeURL| be null.
-      1. If the <{link/scope}> attribute is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
-      1. Let |workerType| be the state of the <{link/workertype}> attribute.
-      1. If |workerType| is <i>invalid</i>, abort these steps.
-      1. Let |updateViaCache| be the <{link/updateviacache}> attribute, or "`imports`" if the <{link/updateviacache}> attribute is omitted.
-      1. Let |promise| be a new <a>promise</a>.
-      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |promise|, |client|, |client|'s <a>creation URL</a>, |workerType|, and |updateViaCache|.
-      1. Run the following substeps <a>in parallel</a>:
-          1. Wait until |promise| settles.
-          1. If |promise| rejected, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element.
-          1. If |promise| resolved, <a>queue a task</a> to <a>fire an event</a> named <code>load</code> at the <{link}> element.
-
-    The <a>serviceworker link</a> element *must not* [=document/delay the load event=] of the element's <a>node document</a>.
-
-    <div class="example">
-      A resource being loaded with the following response header:
-
-      <pre class="highlight">
-        Link: &lt;/js/sw.js&gt;; rel="serviceworker"; scope="/"
-      </pre>
-
-      has more or less the same effect as a document being loaded in a secure context with the following
-      <code>link</code> element:
-
-      <pre highlight="html">
-        &lt;link rel="serviceworker" href="/js/sw.js" scope="/"&gt;
-      </pre>
-
-      which is more or less equivalent to the page containing JavaScript code like:
-
-      <pre highlight="js">
-        navigator.serviceWorker.register("/js/sw.js", { scope: "/" });
-      </pre>
-    </div>
   </section>
 </section>
 
