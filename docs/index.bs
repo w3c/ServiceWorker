@@ -12,7 +12,7 @@ Editor: Marijn Kruisselbrink, Google, mek@chromium.org
 Repository: w3c/ServiceWorker
 Group: serviceworkers
 !Tests: <a href=https://github.com/w3c/web-platform-tests/tree/master/service-workers>web-platform-tests service-workers/</a> (<a href=https://github.com/w3c/web-platform-tests/labels/service-workers>ongoing work</a>)
-Status Text: This is a living document addressing new features including foreign fetch, header-based installation, navigation preload, etc. Readers need to be aware that this specification may include unstable features. <a href="https://w3c.github.io/ServiceWorker/v1/">Service Workers 1</a> is a version that is advancing toward a W3C Recommendation.
+Status Text: This is a living document. Readers need to be aware that this specification may include unimplemented features, and details that may change. <a href="https://w3c.github.io/ServiceWorker/v1/">Service Workers 1</a> is a version that is advancing toward a W3C Recommendation.
 Abstract: This specification describes a method that enables applications to take advantage of persistent background processing, including hooks to enable bootstrapping of web applications while offline.
 Abstract:
 Abstract: The core of this system is an event-driven <a>Web Worker</a>, which responds to events dispatched from documents and other sources. A system for managing installation, versions, and upgrades is provided.
@@ -169,10 +169,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=list/item=] is an <a>event listener</a>'s event type. It is initially an empty set.
 
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=list/item=] is an {{ExtendableEvent}}. It is initially an empty set.
-
-    A [=/service worker=] has an associated <dfn export id="dfn-foreign-fetch-scopes">list of foreign fetch scopes</dfn> whose element type is a [=/URL=]. It is initially empty.
-
-    A [=/service worker=] has an associated <dfn export id="dfn-foreign-fetch-origins">list of foreign fetch origins</dfn> whose element type is a [=/URL=]. It is initially empty.
 
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
@@ -887,7 +883,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         attribute EventHandler oninstall;
         attribute EventHandler onactivate;
         attribute EventHandler onfetch;
-        attribute EventHandler onforeignfetch;
 
         // event
         attribute EventHandler onmessage; // event.source of the message events is Client object
@@ -950,10 +945,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onfetch</code></dfn></td>
             <td>{{fetch!!event}}</td>
-          </tr>
-          <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onforeignfetch</code></dfn></td>
-            <td>{{foreignfetch!!event}}</td>
           </tr>
           <tr>
             <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessage</code></dfn></td>
@@ -1360,49 +1351,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section>
-    <h3 id="installevent-interface">{{InstallEvent}}</h3>
-
-    <pre class="idl">
-      [Constructor(DOMString type, optional ExtendableEventInit eventInitDict), Exposed=ServiceWorker]
-      interface InstallEvent : ExtendableEvent {
-        void registerForeignFetch(ForeignFetchOptions options);
-      };
-
-      dictionary ForeignFetchOptions {
-        required sequence&lt;USVString&gt; scopes;
-        required sequence&lt;USVString&gt; origins;
-      };
-    </pre>
-
-    <section>
-      <h4 id="register-foreign-fetch-method">{{InstallEvent/registerForeignFetch(options)|event.registerForeignFetch(options)}}</h4>
-
-      {{InstallEvent/registerForeignFetch(options)}} registers this service worker to handle foreign fetches from certain origins for certain sub scopes.
-
-      <dfn method for="InstallEvent"><code>registerForeignFetch(|options|)</code></dfn> method *must* run these steps:
-
-        1. If the <a>dispatch flag</a> is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. If |options|.{{ForeignFetchOptions/origins}} is empty, [=throw=] a <code>TypeError</code>.
-        1. Let |originURLs| be an empty list of [=/URLs=].
-        1. If the value of |options|.{{ForeignFetchOptions/origins}} is not a single string equal to a single U+002A ASTERISK character (*):
-            1. For each |origin| in |options|.origins:
-                1. If the value of |origin| is not an <a>absolute-URL string</a>, [=throw=] a <code>TypeError</code>.
-                1. Add the result of <a lt="URL parser">parsing</a> |origin| to |originURLs|.
-        1. If |options|.{{ForeignFetchOptions/scopes}} is empty, [=throw=] a <code>TypeError</code>.
-        1. Let |scopeString| be the <a>context object</a>'s <a>relevant global object</a>'s [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>'s [=service worker registration/scope url=], <a lt="URL serializer">serialized</a>.
-        1. Let |subScopeURLs| be an empty list of [=/URLs=].
-        1. For each |subScope| in |options|.{{ForeignFetchOptions/scopes}}:
-            1. Let |subScopeURL| be the result of <a lt="URL parser">parsing</a> |subScope| with <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
-            1. If |subScopeURL| is failure, [=throw=] a <code>TypeError</code>.
-            1. Let |subScopeString| be the <a lt="URL serializer">serialized</a> |subScopeURL|.
-            1. If |subScopeString| does not start with |scopeString|, [=throw=] a <code>TypeError</code>.
-            1. Add |subScopeURL| to |subScopeURLs|.
-        1. Set this [=/service worker=]'s <a>list of foreign fetch scopes</a> to |subScopeURLs|.
-        1. Set this [=/service worker=]'s <a>list of foreign fetch origins</a> to |originURLs|.
-    </section>
-  </section>
-
-  <section>
     <h3 id="fetchevent-interface">{{FetchEvent}}</h3>
 
     <pre class="idl">
@@ -1537,122 +1485,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section>
-    <h3 id="foreignfetchevent-interface">{{ForeignFetchEvent}}</h3>
-
-    <pre class="idl">
-      [Constructor(DOMString type, ForeignFetchEventInit eventInitDict), Exposed=ServiceWorker]
-      interface ForeignFetchEvent : ExtendableEvent {
-        [SameObject] readonly attribute Request request;
-        readonly attribute USVString origin;
-
-        void respondWith(Promise&lt;ForeignFetchResponse&gt; r);
-      };
-
-      dictionary ForeignFetchEventInit : ExtendableEventInit {
-        required Request request;
-        USVString origin = "null";
-      };
-
-      dictionary ForeignFetchResponse {
-        required Response response;
-        USVString origin;
-        sequence&lt;ByteString&gt; headers;
-      };
-    </pre>
-
-    [=/Service workers=] have a <a>functional event</a> {{foreignfetch!!event}}. For {{foreignfetch!!event}} events, [=/service workers=] use the {{ForeignFetchEvent}} interface which extends the {{ExtendableEvent}} interface.
-
-    Each event using {{ForeignFetchEvent}} interface has an associated <dfn for="ForeignFetchEvent">potential response</dfn> (a [=/response=]), initially set to null, an associated <dfn for="ForeignFetchEvent">origin</dfn> (a {{USVString}} or null), initially set to null, an associated <dfn>list of exposed headers</dfn> (whose element type is a byte string), initially set to an empty list, and the following associated flags that are initially unset:
-
-        * <dfn for="ForeignFetchEvent">wait to respond flag</dfn>
-        * <dfn for="ForeignFetchEvent">respond-with entered flag</dfn>
-        * <dfn for="ForeignFetchEvent">respond-with error flag</dfn>
-
-    <section>
-      <h4 id="foreign-fetch-event-request">{{ForeignFetchEvent/request|event.request}}</h4>
-
-      The <dfn attribute for="ForeignFetchEvent"><code>request</code></dfn> attribute *must* return the value it was initialized to.
-    </section>
-
-    <section>
-      <h4 id="foreign-fetch-event-origin">{{ForeignFetchEvent/origin|event.origin}}</h4>
-
-      The <dfn attribute for="ForeignFetchEvent"><code>origin</code></dfn> attribute *must* return the value it was initialized to.
-    </section>
-
-    <section algorithm="foreign-fetch-event-respondwith">
-      <h4 id="foreign-fetch-event-respondwith">{{ForeignFetchEvent/respondWith(r)|event.respondWith(r)}}</h4>
-
-      Note: Developers can set the argument |r| with either a <a>promise</a> that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a <a>network error</a> is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of <a>filtered responses</a> defined in [=/Fetch=].
-
-      <dfn method for="ForeignFetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
-
-      <div link-for-hint="ForeignFetchEvent">
-        1. If the <a>dispatch flag</a> is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. If the [=ForeignFetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. Add |r| to the <a>extend lifetime promises</a>.
-        1. Increment the [=ExtendableEvent/pending promises count=] by one.
-
-            Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
-
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a microtask=] to run these substeps:
-            1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
-            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
-
-            Note: {{ForeignFetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
-
-        1. Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.
-        1. Set the [=ForeignFetchEvent/respond-with entered flag=].
-        1. Set the [=ForeignFetchEvent/wait to respond flag=].
-        1. Let |targetRealm| be the <a>relevant Realm</a> of the <a>context object</a>.
-        1. Run the following substeps <a>in parallel</a>:
-            1. Wait until |r| settles.
-            1. If |r| rejected, then:
-                1. Set the [=ForeignFetchEvent/respond-with error flag=].
-            1. If |r| resolved with |response|, then:
-                1. If |response| is a {{ForeignFetchResponse}}, then:
-                    1. Set the [=ForeignFetchEvent/origin=] to |response|.{{ForeignFetchResponse/origin}}.
-                    1. Set the <a>list of exposed headers</a> to |response|.{{ForeignFetchResponse/headers}}.
-                    1. If |response|.{{ForeignFetchResponse/response}} is [=Body/disturbed=] or [=Body/locked=], then:
-                        1. Set the [=ForeignFetchEvent/respond-with error flag=].
-                    1. Else:
-                        1. Let |bytes| be an empty byte sequence.
-                        1. Let |end-of-body| be false.
-                        1. Let |done| be false.
-                        1. Let |potentialResponse| be a copy of |response|.{{ForeignFetchResponse/response}}'s associated [=/response=], except for its [=response/body=].
-                        1. If |response|.{{ForeignFetchResponse/response}}'s body is non-null, run these substeps:
-                            1. Let |reader| be the result of <a lt="get a reader">getting a reader</a> from |response|.{{ForeignFetchResponse/response}}'s [=response/body=]'s <a>stream</a>.
-                            1. Let |strategy| be an object created in |targetRealm|. The user agent may choose any object.
-                            1. Let |pull| be an action that runs these subsubsteps:
-                                1. Let |promise| be the result of <a lt="read a chunk">reading a chunk</a> from |response|.{{ForeignFetchResponse/response}}'s [=response/body=]'s <a>stream</a> with |reader|.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to |bytes| and perform ! <a>DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is true, set |end-of-body| to true.
-                                1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a <code>TypeError</code>.
-                            1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|.{{ForeignFetchResponse/response}}'s [=response/body=]'s <a>stream</a> with |reader|.
-                            1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |strategy|, |pull| and |cancel| in |targetRealm|.
-                            1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose <a>stream</a> is |newStream|.
-                            1. Run these subsubsteps repeatedly <a>in parallel</a> while |done| is false:
-                                1. If |newStream| is <a>errored</a>, then set |done| to true.
-                                1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
-                                1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
-                                    1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
-                                    1. Remove |chunk| from |bytes|.
-                                    1. Let |buffer| be an <code>ArrayBuffer</code> object created in |targetRealm| and containing |chunk|.
-                                    1. [=ReadableStream/Enqueue=] a <code>Uint8Array</code> object created in |targetRealm| and wrapping |buffer| to |newStream|.
-                        1. Set the [=ForeignFetchEvent/potential response=] to |potentialResponse|.
-                1. Else:
-                    1. Set the [=ForeignFetchEvent/respond-with error flag=].
-
-                    Note: If the [=ForeignFetchEvent/respond-with error flag=] is set, a <a>network error</a> is returned to [=/Fetch=] through [=Handle Foreign Fetch=] algorithm. (See the step 19.1.) Otherwise, a filtered version of |response| is returned to [=/Fetch=] through [=Handle Foreign Fetch=] algorithm. (See the step 20.1.)
-
-            1. Unset the [=ForeignFetchEvent/wait to respond flag=].
-      </div>
-    </section>
-  </section>
-
-  <section>
     <h3 id="extendablemessageevent-interface">{{ExtendableMessageEvent}}</h3>
 
     <pre class="idl">
@@ -1724,7 +1556,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <tbody>
         <tr>
           <td><dfn event id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
-          <td>{{InstallEvent}}</td>
+          <td>{{ExtendableEvent}}</td>
           <td>[<a>Lifecycle event</a>] The [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>'s <a>installing worker</a> changes. (See step 11.2 of the <a>Install</a> algorithm.)</td>
         </tr>
         <tr>
@@ -1738,11 +1570,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           <td>[<a>Functional event</a>] The [=/http fetch=] invokes <a>Handle Fetch</a> with |request|. As a result of performing <a>Handle Fetch</a>, the [=ServiceWorkerGlobalScope/service worker=] returns a [=/response=] to the [=/http fetch=]. The [=/response=], represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
         </tr>
         <tr>
-          <td><dfn event id="service-worker-global-scope-foreignfetch-event"><code>foreignfetch</code></dfn></td>
-          <td>{{FetchEvent}}</td>
-          <td>[<a>Functional event</a>] The [=/http fetch=] invokes [=Handle Foreign Fetch=] with |request|. As a result of performing [=Handle Foreign Fetch=], the [=ServiceWorkerGlobalScope/service worker=] returns a [=/response=] to the [=/http fetch=]. The [=/response=], represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
-        </tr>
-        <tr>
           <td><dfn event><code>message</code></dfn></td>
           <td>{{ExtendableMessageEvent}}</td>
           <td>When it receives a message.</td>
@@ -1754,100 +1581,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         </tr>
       </tbody>
     </table>
-  </section>
-</section>
-
-<section>
-  <h2 id="link-type-serviceworker">Link type "`serviceworker`"</h2>
-
-  A [=/service worker registration=] and its [=service worker registration/scope url=] are created by a <dfn id="dfn-serviceworker-link">serviceworker link</dfn>, which is declared using a <a href="#serviceworker-link-header">"serviceworker" `Link` header</a> or a <{link}> element whose <{link/rel}> attribute contains the keyword "<{link/rel/serviceworker}>".
-
-  <section>
-    <h3 id="serviceworker-link-header">Declaring a "serviceworker" <code>Link</code> header</h3>
-
-    A <a>serviceworker link</a> can be declared using a `Link` header</a> [[!RFC8288]] with "`serviceworker`" as the value of the "`rel`" parameter and a [=URL serializer|serialized=] [=service worker/script url=] inside angle brackets ("`<>`") as the [=link target=], and the following optional [=target attributes=]:
-
-    : `scope`
-    :: Value: A [=URL serializer|serialized=] [=service worker registration/scope url=].
-
-    : `workertype`
-    :: Value: A [=job/worker type=].
-
-    : `updateviacache`
-    :: Value: An [=service worker registration/update via cache mode=].
-
-    The "`anchor`" parameter must not be specified.
-
-    <div class="example">
-      <pre class="highlight">
-        Link: &lt;sw.js&gt;; rel="serviceworker"; scope="/"; workertype="module"; updateviacache="all"
-      </pre>
-    </div>
-
-  </section>
-
-  <section>
-    <h3 id="link-header-processing">Processing a "serviceworker" <code>Link</code> header</h3>
-
-    When a user agent that supports [[!RFC8288]] processes a <code>Link</code> header that contains a <a>serviceworker link</a>, the user agent *should* run these steps:
-
-      1. If the <code>Link</code> header has an "<code>anchor</code>" parameter, abort these steps.
-      1. Let |contextURL| be the result of <a lt="URL parser">parsing</a> the [=link context=] of the <code>Link</code> header.
-      1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |contextURL| is <code>Not Trusted</code>, abort these steps.
-      1. Let |request| be the [=/request=] for which this header was received in the response.
-      1. If |request|'s [=request/client=] is not a <a>secure context</a>, abort these steps.
-      1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the [=link target=] of the <code>Link</code> header.
-      1. Let |scopeURL| be null.
-      1. If the "<code>scope</code>" [=target attribute=] of the <code>Link</code> header is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the "<code>scope</code>" [=target attribute=] with |scriptURL|.
-      1. Let |workerType| be the "<code>workertype</code>" [=target attribute=] of the <code>Link</code> header, or "<code>classic</code>" if no such attribute is present.
-      1. If |workerType| is not a valid {{WorkerType}} value, abort these steps.
-      1. Let |updateViaCache| be the "`updateviacache`" [=target attribute=] of the `Link` header, or "`imports`" if no such attribute is present.
-      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, a new <a>promise</a>, null, |contextURL|, |workerType|, and |updateViaCache|.
-  </section>
-
-  <section>
-    <h3 id="link-element-processing">Processing a "serviceworker" <{link}> element</h3>
-
-    When a <a>serviceworker link</a>'s <{link}> element is <a>inserted into a document</a>, or a <a>serviceworker link</a> is created on a <{link}> element that is already <a>in a document tree</a>, or the <{link/href}>, <{link/scope}>, or <{link/updateviacache}> attributes of the <{link}> element of a <a>serviceworker link</a> is changed, the user agent *should* run these steps:
-
-      1. If the <{link/href}> attribute is the empty string, abort these steps.
-      1. Let |client| be the document's [=ServiceWorkerContainer/service worker client=].
-      1. If |client| is not a <a>secure context</a>, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element, and abort these steps.
-      1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> the <{link/href}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
-      1. Let |scopeURL| be null.
-      1. If the <{link/scope}> attribute is present, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the <{link/scope}> attribute with the <{link}> element's <a>node document</a>'s <a>document base URL</a>.
-      1. Let |workerType| be the state of the <{link/workertype}> attribute.
-      1. If |workerType| is <i>invalid</i>, abort these steps.
-      1. Let |updateViaCache| be the <{link/updateviacache}> attribute, or "`imports`" if the <{link/updateviacache}> attribute is omitted.
-      1. Let |promise| be a new <a>promise</a>.
-      1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |promise|, |client|, |client|'s <a>creation URL</a>, |workerType|, and |updateViaCache|.
-      1. Run the following substeps <a>in parallel</a>:
-          1. Wait until |promise| settles.
-          1. If |promise| rejected, <a>queue a task</a> to <a>fire an event</a> named <code>error</code> at the <{link}> element.
-          1. If |promise| resolved, <a>queue a task</a> to <a>fire an event</a> named <code>load</code> at the <{link}> element.
-
-    The <a>serviceworker link</a> element *must not* [=document/delay the load event=] of the element's <a>node document</a>.
-
-    <div class="example">
-      A resource being loaded with the following response header:
-
-      <pre class="highlight">
-        Link: &lt;/js/sw.js&gt;; rel="serviceworker"; scope="/"
-      </pre>
-
-      has more or less the same effect as a document being loaded in a secure context with the following
-      <code>link</code> element:
-
-      <pre highlight="html">
-        &lt;link rel="serviceworker" href="/js/sw.js" scope="/"&gt;
-      </pre>
-
-      which is more or less equivalent to the page containing JavaScript code like:
-
-      <pre highlight="js">
-        navigator.serviceWorker.register("/js/sw.js", { scope: "/" });
-      </pre>
-    </div>
   </section>
 </section>
 
@@ -1999,7 +1732,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", then:
                 1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
                 1. Return [=a promise rejected with=] a `TypeError`.
-            1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`foreign`".
+            1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`none`".
             1. Set |r|'s [=request/initiator=] to "`fetch`" and [=request/destination=] to "`subresource`".
             1. Add |r| to |requestList|.
             1. Let |responsePromise| be [=a new promise=].
@@ -2296,7 +2029,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. If |serviceWorker|'s <a>imported scripts updated flag</a> is unset, then:
             1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
-            1. Set |request|'s [=service-workers mode=] to "`foreign`".
+            1. Set |request|'s [=service-workers mode=] to "`none`".
             1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
                 * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
                 * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
@@ -2752,7 +2485,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
       1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Let |e| be the result of <a>creating an event</a> with {{InstallEvent}}.
+          1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
           1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
           1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
@@ -3027,85 +2760,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="on-foreign-fetch-request-algorithm"><dfn export>Handle Foreign Fetch</dfn></h3>
-
-    The [=Handle Foreign Fetch=] algorithm is the entry point for the [=/fetch=] handling handed to the [=/service worker=] context to handle foreign fetch requests.
-
-      : Input
-      :: |request|, a [=/request=]
-      : Output
-      :: |response|, a [=/response=]
-
-    <div link-for-hint="ForeignFetchEvent">
-      1. Let |handleFetchFailed| be false.
-      1. Let |respondWithEntered| be false.
-      1. Let |eventCanceled| be false.
-      1. If |request| is not a <a>subresource request</a>, return null and abort these steps.
-
-          Note: Foreign fetch only allows intercepting of subresource requests. Navigation requests can be intercepted by the regular fetch event anyway, so there is no benefit to supporting those requests here as well.
-
-      1. If |request|'s [=request/client=] is not a <a>secure context</a>, return null and abort these steps.
-      1. Let |activeWorker| be the result of running the [=Match Service Worker for Foreign Fetch=] algorithm passing |request|'s [=request/url=] as the argument.
-      1. If |activeWorker| is null, return null.
-      1. If |activeWorker|'s <a>state</a> is *activating*, then:
-          1. Wait for |activeWorker|'s <a>state</a> to become *activated*.
-      1. If |activeWorker|'s [=environment settings object/origin=] is the same as |request|'s [=request/origin=], return null.
-      1. Let |originMatches| be false.
-      1. If |activeWorker|'s <a>list of foreign fetch origins</a> is empty, set |originMatches| to true.
-      1. For each |origin| in |activeWorker|'s <a>list of foreign fetch origins</a>:
-          1. If |origin| is equal to |request|'s [=request/origin=], set |originMatches| to true.
-      1. If |originMatches| is false, return null.
-      1. If |request|'s [=request/method=] is not a [=CORS-safelisted method=], or if there is at least one [=header=] in |request|'s [=request/header list=] for whose [=header/name=] is not a [=CORS-safelisted request-header=], return null.
-
-          Note: In the future this might be relaxed by adding supported methods and headers to the {{ForeignFetchOptions}}.
-
-      1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
-      1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Let |e| be the result of <a>creating an event</a> with {{ForeignFetchEvent}}.
-          1. Initialize |e|’s {{Event/type}} attribute to {{foreignfetch!!event}}.
-          1. Initialize |e|’s {{Event/cancelable}} attribute to true.
-          1. Initialize |e|’s {{ForeignFetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
-          1. Initialize |e|’s {{ForeignFetchEvent/origin}} attribute to the  <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s [=request/origin=].
-          1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
-          1. If |e|'s [=ForeignFetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
-          1. If |e|'s <a>wait to respond flag</a> is set, wait until |e|'s <a>wait to respond flag</a> is unset.
-          1. Let |internalResponse| be |e|'s [=ForeignFetchEvent/potential response=].
-          1. If |internalResponse| is a <a>filtered response</a>, set |internalResponse| to |internalResponse|'s <a>internal response</a>.
-          1. If |e|'s <a>respond-with error flag</a> is set, set |handleFetchFailed| to true.
-          1. Else if |e|'s [=ForeignFetchEvent/origin=] is null:
-              1. If |e|'s <a>list of exposed headers</a> is not empty, set |handleFetchFailed| to true.
-              1. Else if |e|'s [=ForeignFetchEvent/potential response=] is a <a>opaque-redirect filtered response</a>, set |response| to |e|'s [=ForeignFetchEvent/potential response=].
-              1. Else set |response| to an <a>opaque filtered response</a> of |internalResponse|.
-          1. Else if |e|'s [=ForeignFetchEvent/origin=] is not equal to the <a lt="Unicode serialization of an origin">Unicode serialization</a> of |request|'s [=request/origin=], set |handleFetchFailed| to true.
-          1. Else if |e|'s [=ForeignFetchEvent/potential response=] is an <a>opaque filtered response</a> or is an <a>opaque-redirect filtered response</a>, set |response| to |e|'s [=ForeignFetchEvent/potential response=].
-          1. Else if |request|'s <a>response tainting</a> is <code>"opaque"</code>, set |response| to an <a>opaque filtered response</a> of |internalResponse|.
-          1. Else:
-              1. Let |headers| be |e|'s <a>list of exposed headers</a>.
-              1. If |response| is a <a>CORS filtered response</a>, remove from |internalResponse|'s <a>CORS-exposed header-name list</a> all values not in |headers|.
-              1. Else set |internalResponse|'s <a>CORS-exposed header-name list</a> to |headers|.
-              1. Set |response| to a <a>CORS filtered response</a> of |internalResponse|.
-          1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-
-          If |task| is discarded or the script has been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|, set |handleFetchFailed| to true.
-
-          The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
-
-      1. Wait for |task| to have executed or been discarded.
-      1. If |respondWithEntered| is false, then:
-          1. If |eventCanceled| is true, then:
-              1. Return a <a>network error</a>.
-          1. Else:
-              1. Return null.
-      1. If |handleFetchFailed| is true, then:
-          1. Return a <a>network error</a>.
-      1. Else:
-          1. Return |response|.
-
-    </div>
-  </section>
-
-  <section algorithm>
     <h3 id="handle-functional-event-algorithm"><dfn export>Handle Functional Event</dfn></h3>
 
       : Input
@@ -3373,26 +3027,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |matchingScope| as the argument.
       1. If |registration| is not null and |registration|'s <a>uninstalling flag</a> is set, return null.
       1. Return |registration|.
-  </section>
-
-  <section algorithm>
-    <h3 id="foreign-fetch-scope-match-algorithm"><dfn>Match Service Worker for Foreign Fetch</dfn></h3>
-
-      : Input
-      :: |requestURL|, a [=/URL=]
-      : Output
-      :: |worker|, a [=/service worker=]
-
-      1. Run the following steps atomically.
-      1. Let |registration| be the result of running the [=Match Service Worker Registration=] algorithm passing |requestURL| as the argument.
-      1. If |registration| is null, return null.
-      1. Let |worker| be |registration|'s [=service worker registration/active worker=].
-      1. If |worker| is null, return null.
-      1. Let |requestURLString| be the <a lt="URL serializer">serialized</a> |requestURL|.
-      1. For each [=/URL=] |scope| in |worker|'s <a>list of foreign fetch scopes</a>:
-          1. Let |scopeString| be the <a lt="URL serializer">serialized</a> |scope|.
-          1. If |requestURLString| starts with |scopeString| return |worker|.
-      1. Return null.
   </section>
 
   <section algorithm>
