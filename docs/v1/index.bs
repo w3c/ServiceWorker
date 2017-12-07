@@ -1061,7 +1061,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface Clients {
         // The objects returned will be new instances every time
         [NewObject] Promise&lt;any&gt; get(DOMString id);
-        [NewObject] Promise&lt;sequence&lt;Client&gt;&gt; matchAll(optional ClientQueryOptions options);
+        [NewObject] Promise&lt;FrozenArray&lt;Client&gt;&gt; matchAll(optional ClientQueryOptions options);
         [NewObject] Promise&lt;WindowClient?&gt; openWindow(USVString url);
         [NewObject] Promise&lt;void&gt; claim();
       };
@@ -1123,50 +1123,53 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="Clients"><code>matchAll(|options|)</code></dfn> method *must* run these steps:
 
-        1. Let |promise| be a new <a>promise</a>.
-        1. Run these substeps <a>in parallel</a>:
-            1. Let |targetClients| be an empty array.
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+            1. Let |targetClients| be a new [=list=].
+            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the [=same origin|same=] as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client| is an [=environment settings object=], then:
-                    1. If |client| is not a <a>secure context</a>, continue to the next iteration of the loop.
-                1. Else:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, continue to the next iteration of the loop.
-                1. If |options|.{{ClientQueryOptions/includeUncontrolled}} is false, then:
-                    1. If |client|'s <a>active service worker</a> is not the associated [=ServiceWorkerGlobalScope/service worker=], continue to the next iteration of the loop.
-                1. If |options|.{{ClientQueryOptions/includeReserved}} is false, then:
-                    1. If |client|'s [=environment/execution ready flag=] is unset, continue to the next iteration of the loop.
+                    1. If |client| is not a [=secure context=], [=continue=].
+                1. Otherwise:
+                    1. If |client|’s [=creation URL=] is not a [=potentially trustworthy URL=], [=continue=].
+                1. If |options|["{{ClientQueryOptions/includeUncontrolled}}"] is false, and if |client|'s [=active service worker=] is not the associated [=ServiceWorkerGlobalScope/service worker=], [=continue=].
+                1. If |options|["{{ClientQueryOptions/includeReserved}}"] is false, and if |client|'s [=environment/execution ready flag=] is unset, [=continue=].
                 1. Add |client| to |targetClients|.
-            1. Let |matchedClients| be an empty array.
+            1. Let |matchedWindowData| be a new [=list=].
+            1. Let |matchedClients| be a new [=list=].
             1. For each [=/service worker client=] |client| in |targetClients|:
-                1. If |options|.{{ClientQueryOptions/type}} is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is not an [=environment settings object=] or is a [=window client=], then:
+                1. If |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is not an [=environment settings object=] or is a [=window client=], then:
+                    1. Let |windowData| be «[ "client" → |client|, "ancestorOriginsList" → a new [=list=] ]».
                     1. Let |browsingContext| be null.
                     1. Let |isClientEnumerable| be true.
-                    1. Let |visibilityState| be the empty string.
-                    1. Let |focusState| be false.
-                    1. Let |ancestorOriginsList| be the empty list.
                     1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
                     1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
-                    1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
-                        1. If |browsingContext| has been <a lt="a browsing context is discarded">discarded</a>, set |isClientEnumerable| to false and abort these steps.
-                        1. If |client| is a window client and |client|'s <a>responsible document</a> is not |browsingContext|'s <a>active document</a>,  set |isClientEnumerable| to false and abort these steps.
-                        1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
-                        1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                        1. It |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+                    1. [=Queue a task=] |task| to run the following substeps on |browsingContext|'s [=event loop=] using the [=user interaction task source=]:
+                        1. If |browsingContext| has been [=a browsing context is discarded|discarded=], then set |isClientEnumerable| to false and abort these steps.
+                        1. If |client| is a window client and |client|'s [=responsible document=] is not |browsingContext|'s [=active document=],  then set |isClientEnumerable| to false and abort these steps.
+                        1. Set |windowData|["`visibilityState`"] to |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
+                        1. Set |windowData|["`focusState`"] to the result of running the [=has focus steps=] with |browsingContext|'s [=active document=] as the argument.
+                        1. If |client| is a [=window client=], then set |windowData|["`ancestorOriginsList`"] to |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
                     1. Wait for |task| to have executed.
 
                         Note: Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.
 
                     1. If |isClientEnumerable| is true, then:
-                        1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
-                        1. Add |windowClient| to |matchedClients|.
-                1. Else if |options|.{{ClientQueryOptions/type}} is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a [=dedicated worker client=], or |options|.{{ClientQueryOptions/type}} is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a [=shared worker client=], then:
-                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
-                    1. Add |clientObject| to |matchedClients|.
-            1. Sort |matchedClients| such that:
-                * {{WindowClient}} objects are always placed before {{Client}} objects whose associated [=Client/service worker clients=] are <a>worker clients</a>.
-                * {{WindowClient}} objects that have been <a lt="focusing steps">focused</a> are placed first sorted in the most recently <a lt="focusing steps">focused</a> order, and {{WindowClient}} objects that have never been <a lt="focusing steps">focused</a> are placed next sorted in their [=Client/service worker clients=]' creation order.
-                * {{Client}} objects whose associated [=Client/service worker clients=] are <a>worker clients</a> are placed next sorted in their [=Client/service worker clients=]' creation order.
-            1. Resolve |promise| with |matchedClients|.
+                        1. Add |windowData| to |matchedWindowData|.
+                1. Else if |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a [=dedicated worker client=], or |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a [=shared worker client=], then:
+                    1. Add |client| to |matchedClients|.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                1. Let |clientObjects| be a new [=list=].
+                1. [=list/For each=] |windowData| in |matchedWindowData|:
+                    1. Let |windowClient| be the result of running [=Create Window Client=] algorithm with |windowData|["`client`"], |windowData|["`visibilityState`"], |windowData|["`focusState`"], and |windowData|["`ancestorOriginsList`"] as the arguments.
+                    1. [=Append=] |windowClient| to |clientObjects|.
+                1. [=list/For each=] |client| in |matchedClients|:
+                    1. Let |clientObject| be the result of running [=Create Client=] algorithm with |client| as the argument.
+                    1. [=Append=] |clientObject| to |clientObjects|.
+                1. Sort |matchedClients| such that:
+                    * {{WindowClient}} objects are always placed before {{Client}} objects whose associated [=Client/service worker clients=] are [=worker clients=].
+                    * {{WindowClient}} objects that have been [=focusing steps|focused=] are placed first sorted in the most recently [=focusing steps|focused=] order, and {{WindowClient}} objects that have never been [=focusing steps|focused=] are placed next sorted in their [=Client/service worker clients=]' creation order.
+                    * {{Client}} objects whose associated [=Client/service worker clients=] are [=worker clients=] are placed next sorted in their [=Client/service worker clients=]' creation order.
+                1. [=Resolve=] |promise| with [=create a frozen array|a new frozen array of=] |clientObjects|.
         1. Return |promise|.
     </section>
 
