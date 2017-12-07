@@ -532,7 +532,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         [NewObject] Promise&lt;ServiceWorkerRegistration&gt; register(USVString scriptURL, optional RegistrationOptions options);
 
         [NewObject] Promise&lt;any&gt; getRegistration(optional USVString clientURL = "");
-        [NewObject] Promise&lt;sequence&lt;ServiceWorkerRegistration&gt;&gt; getRegistrations();
+        [NewObject] Promise&lt;FrozenArray&lt;ServiceWorkerRegistration&gt;&gt; getRegistrations();
 
         void startMessages();
 
@@ -648,13 +648,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="ServiceWorkerContainer"><code>getRegistrations()</code></dfn> method *must* run these steps:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
-        1. Let |promise| be a new <a>promise</a>.
-        1. Run the following substeps <a>in parallel</a>:
-            1. Let |array| be an empty array.
-            1. [=map/For each=] |key| → |value| of <a>scope to registration map</a>:
-                1. If the [=url/origin=] of the result of <a lt="URL parser">parsing</a> |key| is the <a lt="same origin">same</a> as |client|'s [=environment settings object/origin=], and |value|'s <a>uninstalling flag</a> is unset, add the {{ServiceWorkerRegistration}} object associated with |value| to the |array|.
-            1. Resolve |promise| with |array|.
+        1. Let |client| be the [=context object=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+            1. Let |registrations| be a new [=list=].
+            1. [=map/For each=] |scope| → |registration| of [=scope to registration map=]:
+                1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |client|'s [=environment settings object/origin=], and |registration|'s [=uninstalling flag=] is unset, then [=append=] |registration| to |registrations|.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                1. Let |registrationObjects| be a new [=list=].
+                1. [=list/For each=] |registration| of |registrations|, [=append=] the {{ServiceWorkerRegistration}} object associated with |registration| to |registrationObjects|.
+                1. [=Resolve=] |promise| with [=create a frozen array|a new frozen array of=] |registrationObjects|.
         1. Return |promise|.
     </section>
 
