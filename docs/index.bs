@@ -2306,6 +2306,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If |scriptURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
+      1. Set |scriptURL|'s [=url/fragment=] to null.
       1. If |scriptURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scriptURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If |scopeURL| is null, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the string "<code>./</code>" with |scriptURL|.
@@ -2313,6 +2314,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Note: The scope url for the registration is set to the location of the service worker script by default.
 
       1. If |scopeURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
+      1. Set |scopeURL|'s [=url/fragment=] to null.
       1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Let |job| be the result of running [=Create Job=] with *register*, |scopeURL|, |scriptURL|, |promise|, and |client|.
@@ -2343,7 +2345,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |registration| is not null, then:
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=] with the *exclude fragments flag* set, and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
+          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=], and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
               1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
@@ -2364,7 +2366,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=] with the *exclude fragments flag* set, then:
+      1. If |job|'s <a>job type</a> is *update*, and |newestWorker|'s [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
@@ -2433,7 +2435,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
 
-      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=] with the *exclude fragments flag* set, and |script|'s [=source text=] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=source text=], if |script| is a [=classic script=], and |script|'s [=module script/module record=]'s \[[ECMAScriptCode]] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=module script/module record=]'s \[[ECMAScriptCode]] otherwise, then:
+      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=], and |script|'s [=source text=] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=source text=], if |script| is a [=classic script=], and |script|'s [=module script/module record=]'s \[[ECMAScriptCode]] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=module script/module record=]'s \[[ECMAScriptCode]] otherwise, then:
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
@@ -2880,7 +2882,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |registration|, a [=/service worker registration=]
 
       1. Run the following steps atomically.
-      1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
+      1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope|.
       1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
       1. [=map/Set=] <a>scope to registration map</a>[|scopeString|] to |registration|.
       1. Return |registration|.
