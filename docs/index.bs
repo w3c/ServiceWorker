@@ -637,6 +637,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
         1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |clientURL| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
+        1. Set |clientURL|'s [=url/fragment=] to null.
         1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
@@ -2307,6 +2308,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. If |scriptURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Set |scriptURL|'s [=url/fragment=] to null.
+
+          Note: The user agent does not store the [=url/fragment=] of the script's url. This means that the [=url/fragment=] does not have an effect on identifying [=/service workers=].
+
       1. If |scriptURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scriptURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If |scopeURL| is null, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the string "<code>./</code>" with |scriptURL|.
@@ -2315,6 +2319,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. If |scopeURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Set |scopeURL|'s [=url/fragment=] to null.
+
+          Note: The user agent does not store the [=url/fragment=] of the scope url. This means that the [=url/fragment=] does not have an effect on identifying [=/service worker registrations=].
+
       1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Let |job| be the result of running [=Create Job=] with *register*, |scopeURL|, |scriptURL|, |promise|, and |client|.
@@ -2882,7 +2889,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |registration|, a [=/service worker registration=]
 
       1. Run the following steps atomically.
-      1. Let |scopeString| be <a lt="URL serializer">serialized</a> |scope|.
+      1. Let |scopeString| be [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
       1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
       1. [=map/Set=] <a>scope to registration map</a>[|scopeString|] to |registration|.
       1. Return |registration|.
@@ -2909,7 +2916,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
           1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
-      1. Let |scopeString| be <a lt="URL serializer">serialized</a> |registration|'s [=service worker registration/scope url=] with the *exclude fragment flag* set.
+      1. Let |scopeString| be |registration|'s [=URL serializer|serialized=] [=service worker registration/scope url=].
       1. [=map/Remove=] <a>scope to registration map</a>[|scopeString|].
   </section>
 
@@ -3047,7 +3054,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Run the following steps atomically.
       1. Let |scopeString| be the empty string.
-      1. If |scope| is not null, set |scopeString| to <a lt="URL serializer">serialized</a> |scope| with the *exclude fragment flag* set.
+      1. If |scope| is not null, set |scopeString| to [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
       1. Let |registration| be null.
       1. [=map/For each=] |key| → |value| of <a>scope to registration map</a>:
           1. If |scopeString| matches |key|, set |registration| to |value|.
@@ -3142,7 +3149,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
               1. Set |cachedURL|'s [=url/query=] to the empty string.
               1. Set |requestURL|'s [=url/query=] to the empty string.
-          1. If |cachedURL| [=url/equals=] |requestURL| with the *exclude fragments flag* set, then:
+          1. If |cachedURL| [=url/equals=] |requestURL| with the *exclude fragment flag* set, then:
               1. Add a copy of |requestResponse|'s request to |requests|.
               1. Add a copy of |requestResponse|'s response to |responses|.
       1. Let |index| be zero.
