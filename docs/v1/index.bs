@@ -1280,10 +1280,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
 
-    [=/Service workers=] define the following behaviors for <code><a>install</a></code> event and <code><a>activate</a></code> event, respectively:
-
-      * Adding a <a>promise</a> |f| to the event's <a>extend lifetime promises</a> delays treating the <a>installing worker</a> as *installed* (i.e. a <a>waiting worker</a>) until all the <a>promises</a> in the <a>extend lifetime promises</a> resolve successfully. (See step 11.3.1 of <a>Install</a> algorithm.) If |f| rejects, the installation fails. This is primarily used to ensure that a [=/service worker=] is not considered *installed* (i.e. a <a>waiting worker</a>) until all of the core caches it depends on are populated.
-      * Adding a <a>promise</a> to the event's <a>extend lifetime promises</a> delays treating the <a>active worker</a> as *activated* until all the <a>promises</a> in the <a>extend lifetime promises</a> settle. (See step 12.3 of <a>Activate</a> algorithm.) This is primarily used to ensure that any <a>functional events</a> are not dispatched to the {{ServiceWorkerGlobalScope}} object that represents the [=/service worker=] until it upgrades database schemas and deletes the outdated cache entries.
+    Note: [=/Service workers=] delay treating the [=installing worker=] as *installed* until all the [=promises=] in the {{install!!event}} event's [=extend lifetime promises=] resolve successfully. (See the relevant [Install algorithm step](#install-settle-step).) If any of the promises rejects, the installation fails. This is primarily used to ensure that a [=/service worker=] is not considered *installed* until all of the core caches it depends on are populated. Likewise, [=/service workers=] delay treating the [=active worker=] as *activated* until all the [=promises=] in the {{activate!!event}} event's [=extend lifetime promises=] settle. (See the relevant [Activate algorithm step](#activate-settle-step).) This is primarily used to ensure that any [=functional events=] are not dispatched to the [=/service worker=] until it upgrades database schemas and deletes the outdated cache entries.
   </section>
 
   <section>
@@ -2384,7 +2381,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
           1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
           1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
-              1. Wait until |e|'s [=ExtendableEvent/pending promises count=] is zero.
+              1. <span id="install-settle-step">Wait until |e|'s [=ExtendableEvent/pending promises count=] is zero.</span>
               1. If the result of <a>waiting for all</a> of |e|'s <a>extend lifetime promises</a> rejected, set |installFailed| to true.
 
           If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
@@ -2443,7 +2440,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{activate!!event}}.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. *WaitForAsynchronousExtensions*: Wait, <a>in parallel</a>, until |e|'s [=ExtendableEvent/pending promises count=] is zero.
+          1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e|'s [=ExtendableEvent/pending promises count=] is zero.</span>
       1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
