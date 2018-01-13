@@ -39,6 +39,7 @@ spec: fetch;
         text: ReadableStream
 spec: infra;
     type: dfn;
+        text: list;
         for: set; text: append
         for: list; text: append
 </pre>
@@ -910,7 +911,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute USVString url;
         readonly attribute DOMString id;
         readonly attribute ClientType type;
-        readonly attribute boolean reserved;
         void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
       };
 
@@ -926,7 +926,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{Client}} object has an associated <dfn for="Client">service worker client</dfn> (a [=/service worker client=]).
 
-    A {{Client}} object has an associated <dfn for="Client">reserved state</dfn>, which is either true or false.
+    A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-browsing-context" for="WindowClient">browsing context</dfn>, which is its [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
 
     A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-visibilitystate">visibility state</dfn>, which is one of {{Document/visibilityState}} attribute value.
 
@@ -958,12 +958,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Else if |client| is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
         1. Else:
             1. Return {{ClientType/"window"}}.
-    </section>
-
-    <section>
-      <h4 id="client-reserved">{{Client/reserved}}</h4>
-
-      The <dfn attribute for="Client"><code>reserved</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/reserved state=].
     </section>
 
     <section algorithm="client-postmessage">
@@ -1078,7 +1072,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl" id="serviceworker-client-query-options-dictionary">
       dictionary ClientQueryOptions {
         boolean includeUncontrolled = false;
-        boolean includeReserved = false;
         ClientType type = "window";
       };
     </pre>
@@ -1127,8 +1120,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Return |promise|.
     </section>
 
-    <section algorithm="clients-getall">
-      <h4 id="clients-getall">{{Clients/matchAll(options)}}</h4>
+    <section algorithm="clients-matchall">
+      <h4 id="clients-matchall">{{Clients/matchAll(options)}}</h4>
 
       The <dfn method for="Clients"><code>matchAll(|options|)</code></dfn> method *must* run these steps:
 
@@ -1141,7 +1134,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Else:
                     1. If |client|’s [=creation URL=] is not a [=potentially trustworthy URL=], [=continue=].
                 1. If |options|["{{ClientQueryOptions/includeUncontrolled}}"] is false, and if |client|'s [=active service worker=] is not the associated [=ServiceWorkerGlobalScope/service worker=], [=continue=].
-                1. If |options|["{{ClientQueryOptions/includeReserved}}"] is false, and if |client|'s [=environment/execution ready flag=] is unset, [=continue=].
+                1. If |client|'s [=environment/execution ready flag=] is unset, [=continue=].
                 1. Add |client| to |targetClients|.
             1. Let |matchedWindowData| be a new [=list=].
             1. Let |matchedClients| be a new [=list=].
@@ -1174,10 +1167,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. [=list/For each=] |client| in |matchedClients|:
                     1. Let |clientObject| be the result of running [=Create Client=] algorithm with |client| as the argument.
                     1. [=Append=] |clientObject| to |clientObjects|.
-                1. Sort |matchedClients| such that:
-                    * {{WindowClient}} objects are always placed before {{Client}} objects whose associated [=Client/service worker clients=] are [=worker clients=].
-                    * {{WindowClient}} objects that have been [=focusing steps|focused=] are placed first sorted in the most recently [=focusing steps|focused=] order, and {{WindowClient}} objects that have never been [=focusing steps|focused=] are placed next sorted in their [=Client/service worker clients=]' creation order.
-                    * {{Client}} objects whose associated [=Client/service worker clients=] are [=worker clients=] are placed next sorted in their [=Client/service worker clients=]' creation order.
+                1. Sort |clientObjects| such that:
+                    * {{WindowClient}} objects whose [=WindowClient/browsing context=] has been [=focusing steps|focused=] are placed first, sorted in the most recently [=focusing steps|focused=] order.
+                    * {{WindowClient}} objects whose [=WindowClient/browsing context=] has never been [=focusing steps|focused=] are placed next, sorted in their [=Client/service worker client=]'s creation order.
+                    * {{Client}} objects whose associated [=Client/service worker client=] is a [=worker client=] are placed next, sorted in their [=Client/service worker client=]'s creation order.
+
+                    Note: [=Window clients=] are always placed before [=worker clients=].
+
                 1. [=Resolve=] |promise| with [=create a frozen array|a new frozen array of=] |clientObjects| in |promise|'s [=relevant Realm=].
         1. Return |promise|.
     </section>
@@ -1300,8 +1296,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface FetchEvent : ExtendableEvent {
         [SameObject] readonly attribute Request request;
         readonly attribute DOMString clientId;
-        readonly attribute DOMString reservedClientId;
-        readonly attribute DOMString targetClientId;
 
         void respondWith(Promise&lt;Response&gt; r);
       };
@@ -1310,8 +1304,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       dictionary FetchEventInit : ExtendableEventInit {
         required Request request;
         DOMString clientId = "";
-        DOMString reservedClientId = "";
-        DOMString targetClientId = "";
       };
     </pre>
 
@@ -1333,18 +1325,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="fetch-event-clientid">{{FetchEvent/clientId|event.clientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>clientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
-    </section>
-
-    <section>
-      <h4 id="fetch-event-reservedclientid">{{FetchEvent/reservedClientId|event.reservedClientId}}</h4>
-
-      <dfn attribute for="FetchEvent"><code>reservedClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
-    </section>
-
-    <section>
-      <h4 id="fetch-event-targetclientid">{{FetchEvent/targetClientId|event.targetClientId}}</h4>
-
-      <dfn attribute for="FetchEvent"><code>targetClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
     </section>
 
     <section algorithm="fetch-event-respondwith">
@@ -2606,9 +2586,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
           1. Initialize |e|’s {{Event/cancelable}} attribute to true.
           1. Initialize |e|’s {{FetchEvent/request}} attribute to a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
-          1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
-          1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/reservedClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
-          1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
+          1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/clientId}} attribute to the empty string, and to |client|'s [=environment/id=] otherwise.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
           1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
@@ -2964,7 +2942,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Let |clientObject| be a new {{Client}} object.
       1. Set |clientObject|'s [=Client/service worker client=] to |client|.
-      1. Set |clientObject|'s [=Client/reserved state=] to true if |client|'s [=environment/execution ready flag=] is unset, and false otherwise.
       1. Return |clientObject|.
   </section>
 
