@@ -597,9 +597,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn attribute for="ServiceWorkerContainer"><code>ready</code></dfn> attribute *must* run these steps:
 
         1. Let |readyPromise| be the [=context object=]'s [=ServiceWorkerContainer/ready promise=].
-        1. If |readyPromise| is pending, then:
+        1. If |readyPromise| is pending, run the following substeps [=in parallel=]:
             1. Let |registration| be the result of running [=Match Service Worker Registration=] with the [=context object=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
-            1. If |registration| is not null, and |registration|'s [=active worker=] is not null, resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration|.
+            1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=].
         1. Return |readyPromise|.
 
       Note: The returned [=ServiceWorkerContainer/ready promise=] will never reject. If it does not resolve in this algorithm, it will eventually resolve when a matching [=/service worker registration=] is registered and its [=active worker=] is set. (See the relevant [Activate algorithm step](#activate-resolve-ready-step).)
@@ -2533,9 +2533,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
 
       1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=].
-      1. [=list/For each=] |client| of |matchedClients|:
+      1. [=list/For each=] |client| of |matchedClients|, [=queue a task=] on |client|'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following substeps:
           1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
-          1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=]</span>.
+          1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=]</span>.
       1. [=list/For each=] |client| of |matchedClients|:
           1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
           1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
