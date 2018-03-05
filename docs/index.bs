@@ -165,7 +165,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker=] has an associated <dfn export id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-imported-scripts-updated-flag">imported scripts updated flag</dfn>. It is initially unset.
+    A [=/service worker=] has an associated <dfn export id="dfn-classic-scripts-imported-flag">classic scripts imported flag</dfn>. It is initially unset.
+
+    A [=/service worker=] has an associated <dfn export id="dfn-include-updated-resources-flag">include updated resources flag</dfn>. It is initially unset.
 
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=list/item=] is an <a>event listener</a>'s event type. It is initially an empty set.
 
@@ -2027,22 +2029,28 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       When the <dfn method for="ServiceWorkerGlobalScope" id="importscripts-method"><code>importScripts(|urls|)</code></dfn> method is called on a {{ServiceWorkerGlobalScope}} object, the user agent *must* <a>import scripts into worker global scope</a>, given this {{ServiceWorkerGlobalScope}} object and |urls|, and with the following steps to [=fetching scripts/perform the fetch=] given the [=/request=] |request|:
 
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
-        1. If |serviceWorker|'s <a>imported scripts updated flag</a> is unset, then:
-            1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
-            1. Set |request|'s [=service-workers mode=] to "`none`".
-            1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
-                * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
-                * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
-                * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
-            1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
-            1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=service worker registration/last update check time=] to the current time.
-            1. [=Extract a MIME type=] from the |response|'s [=unsafe response=]'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], return a [=network error=].
-            1. If |response|'s <a>unsafe response</a>'s [=response/type=] is not "<code>error</code>", and |response|'s [=response/status=] is an <a>ok status</a>, then:
-                1. [=map/Set=] <a>script resource map</a>[|request|'s [=request/url=]] to |response|.
-            1. Return |response|.
-        1. Else:
-            1. If <a>script resource map</a>[|url|] [=map/exists=], return <a>script resource map</a>[|url|].
-            1. Else, return a <a>network error</a>.
+        1. If |serviceWorker|'s [=service worker/script resource map=][|request|'s [=request/url=]] [=map/exists=], return [=service worker/script resource map=][|request|'s [=request/url=]].
+        1. If |serviceWorker|'s [=state=] is *installed*, *activating*, *activated*, or *redundant*, return a [=network error=].
+        1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
+        1. Set |request|'s [=service-workers mode=] to "`none`".
+        1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
+            * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
+            * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
+            * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
+        1. Let |response| be the result of <a lt="fetch">fetching</a> |request|.
+        1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=service worker registration/last update check time=] to the current time.
+        1. [=Extract a MIME type=] from the |response|'s [=unsafe response=]'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], return a [=network error=].
+        1. If |response|'s <a>unsafe response</a>'s [=response/type=] is not "<code>error</code>", and |response|'s [=response/status=] is an <a>ok status</a>, then:
+            1. Let |newestWorker| be the result of running [=Get Newest Worker=] with |registration|.
+            1. Let |resource| be null.
+            1. If |newestWorker| is not null, set |resource| to |newestWorker|'s [=service worker/script resource map=][|request|'s [=request/url=]], or null if it does not [=map/exist=].
+            1. Set |serviceWorker|'s [=service worker/include updated resources flag=] if any of the following are true:
+                * |newestWorker| is null.
+                * |resource| is null.
+                * |resource|'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=]. 
+            1. [=map/Set=] [=service worker/script resource map=][|request|'s [=request/url=]] to |response|.
+            1. Set |serviceWorker|'s [=classic scripts imported flag=].
+        1. Return |response|.
     </section>
   </section>
 
@@ -2069,7 +2077,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="privacy">Privacy</h3>
 
-    [=/Service workers=] introduce new persistent storage features including <a>scope to registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), [=request response list=] and <a>name to cache map</a> (for caches), and <a>script resource map</a> (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
+    [=/Service workers=] introduce new persistent storage features including <a>scope to registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), [=request response list=] and <a>name to cache map</a> (for caches), and [=service worker/script resource map=] (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
   </section>
 </section>
 
@@ -2147,7 +2155,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-worker-type">worker type</dfn> ("<code>classic</code>" or "<code>module</code>").
 
+    A [=job=] has a <dfn export id="dfn-job-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
+
     A <a>job</a> has an <dfn id="dfn-job-update-via-cache-mode">update via cache mode</dfn>, which is "`imports`", "`all`", or "`none`".
+
+    A [=job=] has a <dfn id="dfn-job-potentially-include-updated-resources-flag">potentially include updated resources flag</dfn>. It is initially unset.
 
     A <a>job</a> has a <dfn id="dfn-job-client">client</dfn> (a [=/service worker client=]). It is initially null.
 
@@ -2418,6 +2430,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Else:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
+          1. Set |job|'s [=job/potentially include updated resources flag=] if any of the following are true:
+              * |newestWorker| is null.
+              * |newestWorker|'s [=classic scripts imported flag=] is set.
+              * |newestWorker|'s [=service worker/script resource map=][|request|'s [=request/url=]]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
+          1. Set |job|'s [=job/script resource map=][|request|'s [=request/url=]] to |response|.
           1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a>last update check time</a> to the current time.
 
               Issue: The response's cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.
@@ -2434,20 +2451,23 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
-
-      1. If |newestWorker| is not null, |newestWorker|'s [=service worker/script url=] [=url/equals=] |job|'s [=job/script url=], and |script|'s [=source text=] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=source text=], if |script| is a [=classic script=], and |script|'s [=module script/module record=]'s \[[ECMAScriptCode]] is a byte-for-byte match with |newestWorker|'s [=script resource=]'s [=module script/module record=]'s \[[ECMAScriptCode]] otherwise, then:
+      1. If |job|'s [=job/potentially include updated resources flag=] is unset, then:
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
+          1. Invoke [=Finish Job=] with |job| and abort these steps.
+      1. Let |worker| be a new [=/service worker=].
+      1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s <a>script resource</a> to |script|, and |worker|'s [=service worker/type=] to |job|'s <a>worker type</a>.
+      1. [=map/For each=] |url| → |response| of |job|'s [=job/script resource map=]:
+          1. Set |worker|'s [=service worker/script resource map=][|url|] to |response|.
+      1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
+      1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
+      1. Invoke <a>Run Service Worker</a> algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+      1. If an uncaught runtime script error occurs during the above step, then:
+          1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+          1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Else:
-          1. Let |worker| be a new [=/service worker=].
-          1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s <a>script resource</a> to |script|, and |worker|'s [=service worker/type=] to |job|'s <a>worker type</a>.
-          1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
-          1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-          1. Invoke <a>Run Service Worker</a> algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
-          1. If an uncaught runtime script error occurs during the above step, then:
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-              1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
-              1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. If |worker|'s [=classic scripts imported flag=] is set, and |worker|'s [=service worker/include updated resources flag=] is unset, then:
+          1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
+          1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. Invoke <a>Install</a> algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
 
@@ -2509,7 +2529,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
           1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Set |registration|'s <a>installing worker</a>'s <a>imported scripts updated flag</a>.
       1. If |registration|'s <a>waiting worker</a> is not null, then:
           1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
           1. Run the [=Update Worker State=] algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
