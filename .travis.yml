@@ -1,0 +1,15 @@
+sudo: false
+language: python
+python:
+- '2.7'
+install:
+- pip install pygments lxml setuptools --upgrade
+- git clone https://github.com/tabatkins/bikeshed.git
+- pip install --editable $PWD/bikeshed
+- bikeshed update
+script:
+- bash "./deploy.sh"
+env:
+  global:
+  - ENCRYPTION_LABEL: "8bb8090ad69a"
+  - COMMIT_AUTHOR_EMAIL: "plh+deploy@w3.org"
