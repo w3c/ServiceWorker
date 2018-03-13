@@ -10,15 +10,13 @@ function doCompile {
   ./compile.sh
 }
 
+LAST_COMMITER_EMAIL=`git log -1 --pretty=format:'%aE'`
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
-if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
+if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" -o "$LAST_COMMITER_EMAIL" = "plh+deploy@w3.org" ]; then
     echo "Skipping deploy; just doing a build."
     doCompile
     exit 0
 fi
-
-# avoid loop
-exit 0
 
 # Save some useful information
 REPO=`git config remote.origin.url`
