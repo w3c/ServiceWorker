@@ -2375,10 +2375,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
       1. Switching on |job|'s <a>worker type</a>, run these substeps with the following options:
           <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
-          : "<code>classic</code>"
-          :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", and the to-be-created <a>environment settings object</a> for this service worker.
-          : "<code>module</code>"
-          :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker.
+          : "`classic`"
+          :: [=Fetch a classic worker script=] given |job|’s [=URL serializer|serialized=] [=job/script url=], |job|’s [=job/client=], "`serviceworker`", and null.
+          : "`module`"
+          :: [=Fetch a module worker script graph=] given |job|’s [=URL serializer|serialized=] [=job/script url=], |job|’s [=job/client=], "`serviceworker`", "`omit`", and null.
 
           To [=fetching scripts/perform the fetch=] given |request|, run the following steps:
 
@@ -2608,9 +2608,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
+      1. If |serviceWorker| is already running, abort these steps.
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
-      1. If |serviceWorker| is already running, abort these steps.
       1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the rest of these steps in that context.
       1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
           * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
@@ -2645,6 +2645,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for importscripts flag=] if the *force bypass cache for importscripts flag* is set.
       1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
       1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
+      1. Set |script|'s [=script/settings object=] to |settingsObject|.
+      1. Set |script|'s [=script/record=].\[[Realm]] to |settingsObject|'s [=environment settings object/Realm=].
       1. If |script| is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> |script|. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> |script|.
 
           Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
