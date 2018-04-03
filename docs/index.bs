@@ -576,7 +576,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A {{ServiceWorkerContainer}} has an associated <dfn for="ServiceWorkerContainer">service worker client</dfn>, which is a [=/service worker client=] whose [=environment settings object/global object=] is associated with the {{Navigator}} object or the {{WorkerNavigator}} object that the {{ServiceWorkerContainer}} is retrieved from.
 
-    A {{ServiceWorkerContainer}} object has an associated <dfn for="ServiceWorkerContainer">ready promise</dfn> (a <a>promise</a>). It is initially set to a new <a>promise</a>.
+    A {{ServiceWorkerContainer}} object has an associated <dfn for="ServiceWorkerContainer">ready promise</dfn> (a [=promise=]). It is initially set to [=a new promise=].
 
     A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn export id="dfn-client-message-queue" for="ServiceWorkerContainer">client message queue</dfn>, initially empty. A [=ServiceWorkerContainer/client message queue=] can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/client message queue=] is enabled, the <a>event loop</a> *must* use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its [=ServiceWorkerContainer/client message queue=] *must* be associated with its <a>relevant settings object</a>'s <a>responsible document</a>.
 
@@ -596,22 +596,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn attribute for="ServiceWorkerContainer"><code>ready</code></dfn> attribute *must* run these steps:
 
-        1. If the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=] is settled, return the <a>context object</a>'s [=ServiceWorkerContainer/ready promise=].
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
-        1. Let |clientURL| be |client|'s <a>creation URL</a>.
-        1. Run the following substeps <a>in parallel</a>:
-            1. *CheckRegistration*: Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL|.
-            1. If |registration| is null, then:
-                1. Wait until <a>scope to registration map</a> has a new entry.
-                1. Jump to the step labeled *CheckRegistration*.
-            1. If |registration|'s <a>active worker</a> is null, wait until |registration|'s <a>active worker</a> changes.
+        1. Let |readyPromise| be the [=context object=]'s [=ServiceWorkerContainer/ready promise=].
+        1. If |readyPromise| is pending, run the following substeps [=in parallel=]:
+            1. Let |registration| be the result of running [=Match Service Worker Registration=] with the [=context object=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
+            1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=].
+        1. Return |readyPromise|.
 
-                Note: Implementers should consider this condition is met when the corresponding registration request gets to the step 6 of <a>Activate</a> algorithm.
-
-            1. Resolve <a>context object</a>'s [=ServiceWorkerContainer/ready promise=] with the {{ServiceWorkerRegistration}} object which represents |registration|.
-        1. Return <a>context object</a>'s [=ServiceWorkerContainer/ready promise=].
-
-      Note: When the {{ServiceWorkerContainer/ready}} attribute is accessed, the returned <a>promise</a> will never reject. Instead, it waits until the <a>promise</a> resolves with a [=/service worker registration=] that has an <a>active worker</a>.
+      Note: The returned [=ServiceWorkerContainer/ready promise=] will never reject. If it does not resolve in this algorithm, it will eventually resolve when a matching [=/service worker registration=] is registered and its [=active worker=] is set. (See the relevant [Activate algorithm step](#activate-resolve-ready-step).)
     </section>
 
     <section algorithm="navigator-service-worker-register">
@@ -2560,7 +2551,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
 
-      1. For each [=/service worker client=] |client| whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=]:
+      1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=].
+      1. [=list/For each=] |client| of |matchedClients|, [=queue a task=] on |client|'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following substeps:
+          1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
+          1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=]</span>.
+      1. [=list/For each=] |client| of |matchedClients|:
           1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
           1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
 
