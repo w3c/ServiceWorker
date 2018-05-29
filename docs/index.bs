@@ -1148,6 +1148,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run these substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
+                1. If |client|'s [=environment/execution ready flag=] is unset, then:
+                    1. Wait for the [=/HTTP fetch=] steps using the [=/request=] that |client| is the associated [=request/reserved client=] of to finish.
+                    1. If the response returned by the [=/HTTP fetch=] steps was a [=network error=], then:
+                        1. Reject |promise| with a "{{NetworkError}}" {{DOMException}} and abort these steps.
+                    1. Wait for |client|'s [=environment/execution ready flag=] to be set.
                 1. If |client| is an [=environment settings object=], then:
                     1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
                 1. Else:
