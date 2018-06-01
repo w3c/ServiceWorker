@@ -1943,7 +1943,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. Set |response| to |response|'s [=unsafe response=].
-        1. If |response|’s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
+        1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
         1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], return a [=network error=].
         1. If |response|'s [=response/type=] is not "`error`", and |response|'s [=response/status=] is an <a>ok status</a>, then:
             1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
@@ -2285,10 +2285,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Set |updatedResourceMap|[|request|'s [=request/url=]] to |response|.
-          1. If |response|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|'s <a>last update check time</a> to the current time.
-
-              Issue: The response's cache state concept had been removed from fetch. The fetch issue <a href="https://github.com/whatwg/fetch/issues/376">#376</a> tracks the request to restore the concept or add some similar way to check this state.
-
+          1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s <a>last update check time</a> to the current time.
           1. If |newestWorker| is null, or |newestWorker|'s [=script resource map=][|request|'s [=request/url=]]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=], set |hasUpdatedResources| to true.
           1. Else if |newestWorker|'s [=classic scripts imported flag=] is set, then:
               1. [=map/For each=] |url| → |storedResponse| of |newestWorker|'s [=script resource map=]:
@@ -2300,7 +2297,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Let |fetchedResponse| be the result of [=fetch|fetching=] |request|.
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
                   1. Set |updatedResourceMap|[|request|'s [=request/url=]] to |fetchedResponse|.
-                  1. If |fetchedResponse|'s <a for="response" href="https://github.com/whatwg/fetch/issues/376">cache state</a> is not "<code>local</code>", set |registration|’s [=last update check time=] to the current time.
+                  1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
                   1. [=Extract a MIME type=] from the |fetchedResponse|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], asynchronously complete these steps with a [=network error=].
                   1. If |fetchedResponse|'s [=response/type=] is "`error`", or |fetchedResponse|'s [=response/status=] is not an [=ok status=], asynchronously complete these steps with a [=network error=].
                   1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=response/body=], set |hasUpdatedResources| to true.
