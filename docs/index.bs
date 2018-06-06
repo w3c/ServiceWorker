@@ -139,7 +139,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section dfn-for="service worker">
     <h3 id="service-worker-concept">Service Worker</h3>
 
-    A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A [=/service worker=] executes in the registering [=/service worker client=]'s [=/origin=].
+    A <dfn export id="dfn-service-worker" for="">service worker</dfn> is a type of <a>web worker</a>. A [=/service worker=] executes in the registering [=/service worker client=]'s [=/origin=]. [=/Service workers=] define <dfn export id="dfn-lifecycle-events">lifecycle events</dfn>, {{install!!event}} and {{activate!!event}}. [=/Service workers=] and specifications that <a href="#extensibility">extend</a> [=/service Workers=] define set of events called <dfn export id="dfn-functional-events">functional events</dfn> including {{fetch!!event}}. (See the <a href="#execution-context-events">list</a> of [=lifecycle events=] and [=functional events=].)
 
     A [=/service worker=] has an associated <dfn export id="dfn-state">state</dfn>, which is one of *parsed*, *installing*, *installed*, *activating*, *activated*, and *redundant*. It is initially *parsed*.
 
@@ -150,8 +150,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker=] has an associated <dfn export id="dfn-containing-service-worker-registration" lt="registration|containing service worker registration">containing service worker registration</dfn> (a [=/service worker registration=]), which contains itself.
 
     A [=/service worker=] has an associated <dfn export id="dfn-service-worker-global-object" for="service worker">global object</dfn> (a {{ServiceWorkerGlobalScope}} object or null).
-
-    A [=/service worker=] has <dfn export id="dfn-lifecycle-events">lifecycle events</dfn>, {{install!!event}} and {{activate!!event}}, and <dfn export id="dfn-functional-events">functional events</dfn> including {{fetch!!event}}, which target the {{ServiceWorkerGlobalScope}}.
 
     A [=/service worker=] has an associated <dfn export id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null.
 
@@ -1549,20 +1547,56 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         <tr>
           <td><dfn event id="service-worker-global-scope-install-event"><code>install</code></dfn></td>
           <td>{{ExtendableEvent}}</td>
-          <td>[=Lifecycle event=]</td>
+          <td>[=Lifecycle Event|Lifecycle=]</td>
           <td>The [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>'s <a>installing worker</a> changes. (See step 11.2 of the <a>Install</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-global-scope-activate-event"><code>activate</code></dfn></td>
           <td>{{ExtendableEvent}}</td>
-          <td>[=Lifecycle event=]</td>
+          <td>[=Lifecycle Event|Lifecycle=]</td>
           <td>The [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>'s <a>active worker</a> changes. (See step 12.2 of the <a>Activate</a> algorithm.)</td>
         </tr>
         <tr>
           <td><dfn event id="service-worker-global-scope-fetch-event"><code>fetch</code></dfn></td>
           <td>{{FetchEvent}}</td>
-          <td>[=Functional event=]</td>
+          <td>[=Functional event|Functional=]</td>
           <td>The [=/http fetch=] invokes <a>Handle Fetch</a> with |request|. As a result of performing <a>Handle Fetch</a>, the [=ServiceWorkerGlobalScope/service worker=] returns a [=/response=] to the [=/http fetch=]. The [=/response=], represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
+        </tr>
+        <tr>
+          <td><a href="https://w3c.github.io/push-api/#dfn-push">push</a></td>
+          <td><a href="https://w3c.github.io/push-api/#dom-pushevent"><code>PushEvent</code></a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://w3c.github.io/push-api/#dfn-fire-the-push-event">Firing a push event</a>.)</td>
+        </tr>
+        <tr>
+          <td><a href="https://notifications.spec.whatwg.org/#dom-serviceworkerglobalscope-onnotificationclick">notificationclick</a></td>
+          <td><a href="https://notifications.spec.whatwg.org/#notificationevent"><code>NotificationEvent</code></a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://notifications.spec.whatwg.org/#activating-a-notification">Activating a notification.</a>)</td>
+        </tr>
+        <tr>
+          <td><a href="https://notifications.spec.whatwg.org/#dom-serviceworkerglobalscope-onnotificationclose">notificationclose</a></td>
+          <td><a href="https://notifications.spec.whatwg.org/#notificationevent"><code>NotificationEvent</code></a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://notifications.spec.whatwg.org/#closing-a-notification">Closing a notification.</a>)</td>
+        </tr>
+        <tr>
+          <td><a href="https://wicg.github.io/BackgroundSync/spec/#sync">sync</a></td>
+          <td><a href="https://wicg.github.io/BackgroundSync/spec/#syncevent"><code>SyncEvent</code></a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://wicg.github.io/BackgroundSync/spec/#fire-a-sync-event">Firing a sync event</a>.)</td>
+        </tr>
+        <tr>
+          <td><a href="https://w3c.github.io/payment-handler/#the-canmakepaymentevent">canmakepayment</a></td>
+          <td><a href="https://w3c.github.io/payment-handler/#dom-canmakepaymentevent">CanMakePaymentEvent</a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://w3c.github.io/payment-handler/#dfn-handling-a-canmakepaymentevent">Handling a CanMakePaymentEvent</a>.)</td>
+        </tr>
+        <tr>
+          <td><a href="https://w3c.github.io/payment-handler/#the-paymentrequestevent">paymentrequest</a></td>
+          <td><a href="https://w3c.github.io/payment-handler/#dom-paymentrequestevent">PaymentRequestEvent</a></td>
+          <td>[=Functional event|Functional=]</td>
+          <td>(See <a href="https://w3c.github.io/payment-handler/#dfn-handling-a-paymentrequestevent">Handling a PaymentRequestEvent</a>.)</td>
         </tr>
         <tr>
           <td><dfn event><code>message</code></dfn></td>
