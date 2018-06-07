@@ -1148,27 +1148,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run these substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
-                1. If |client| is an [=environment settings object=], then:
-                    1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
-                1. Else:
-                    1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
-                1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
-                    1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
-                    1. Resolve |promise| with |clientObject| and abort these steps.
-                1. Else:
-                    1. Let |browsingContext| be null.
-                    1. Let |visibilityState| be null.
-                    1. Let |focusState| be false.
-                    1. Let |ancestorOriginsList| be the empty list.
-                    1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
-                    1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
-                    1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
-                        1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
-                        1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
-                        1. If |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
-                    1. Wait for |task| to have executed.
-                    1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
-                    1. Resolve |promise| with |windowClient| and abort these steps.
+                1. If |client|'s [=environment/execution ready flag=] is not unset, set the [=/get client promise] for |client| to |promise| and abort these steps.
+                1. Invoke [[=Resolve Get Client Promise=]] with |client| and |promise|.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -3216,6 +3197,40 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Note: When an exception is [=throw|thrown=], the implementation does undo (roll back) any changes made to the cache storage during the batch operation job.
   </section>
+
+  <section algorithm>
+    <h3 id="resolve-get-client-promise-algorithm"><dfn>Resolve Get Client Promise Algorithm</dfn></h3>
+
+      : Input
+      :: |client|, a [=/service worker client=]
+      :: |promise|, a <a>promise</a>
+
+      : Output
+      :: none
+
+      1. If |client| is an [=environment settings object=], then:
+          1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and return.
+      1. Else:
+          1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and return.
+      1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
+          1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
+          1. Resolve |promise| with |clientObject| and return.
+      1. Else:
+          1. Let |browsingContext| be null.
+          1. Let |visibilityState| be null.
+          1. Let |focusState| be false.
+          1. Let |ancestorOriginsList| be the empty list.
+          1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
+          1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
+          1. <a>Queue a task</a> |task| to run the following substeps on |browsingContext|'s <a>event loop</a> using the <a>user interaction task source</a>:
+              1. Set |visibilityState| to |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
+              1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
+              1. If |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+          1. Wait for |task| to have executed.
+          1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
+          1. Resolve |promise| with |windowClient| and return.
+  </section>
+
 </section>
 
 <section>
