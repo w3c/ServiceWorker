@@ -222,6 +222,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <dfn export id="dfn-service-worker-client" for="">service worker client</dfn> is an [=environment=].
 
+    A [=/service worker client=] has an associated <dfn export>discarded flag</dfn>. It is initially unset.
+
+   This specification defines the following [=environment discarding steps=] for a [=/service worker client=] |client|:
+        1. Set |client|'s [=discarded flag=].
+
+    Note: Implementations can essentially discard clients whose [=discarded flag=] is set.
+
     A [=/service worker client=] has an algorithm defined as the <dfn export for="service worker client">origin</dfn> that returns the [=/service worker client=]'s [=environment settings object/origin=] if the [=/service worker client=] is an [=environment settings object=], and the [=/service worker client=]'s <a>creation URL</a>'s [=url/origin=] otherwise.
 
     A <dfn export id="dfn-window-client">window client</dfn> is a [=/service worker client=] whose [=environment settings object/global object=] is a {{Window}} object.
@@ -1147,9 +1154,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
-                1. If |client|'s [=environment/id=] is not |id|, continue to the next iteration of the loop.
-                1. If |client|'s [=environment/execution ready flag=] is not unset, set the [=/get client promise] for |client| to |promise| and abort these steps.
-                1. Invoke [[=Resolve Get Client Promise=]] with |client| and |promise|.
+                1. If |client|'s [=environment/id=] is not |id|, [=continue=].
+                1. Wait for either |client|'s [=environment/execution ready flag=] to be set or for |client|'s [=discarded flag=] to be set.
+                1. If |client|'s [=environment/execution ready flag=] is set, then invoke [=Resolve Get Client Promise=] with |client| and |promise|.
+                1. Else, resolve |promise| with undefined.
+                1. [=Break=].
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -3199,7 +3208,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="resolve-get-client-promise-algorithm"><dfn>Resolve Get Client Promise Algorithm</dfn></h3>
+    <h3 id="resolve-get-client-promise-algorithm"><dfn>Resolve Get Client Promise</dfn></h3>
 
       : Input
       :: |client|, a [=/service worker client=]
