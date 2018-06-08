@@ -1156,9 +1156,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/id=] is not |id|, [=continue=].
                 1. Wait for either |client|'s [=environment/execution ready flag=] to be set or for |client|'s [=discarded flag=] to be set.
-                1. If |client|'s [=environment/execution ready flag=] is set, then invoke [=Resolve Get Client Promise=] with |client| and |promise|.
-                1. Else, resolve |promise| with undefined.
-                1. [=Break=].
+                1. If |client|'s [=environment/execution ready flag=] is set, then invoke [=Resolve Get Client Promise=] with |client| and |promise|, and abort these steps.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -3218,12 +3216,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. If |client| is an [=environment settings object=], then:
-          1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and return.
+          1. If |client| is not a <a>secure context</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
       1. Else:
-          1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and return.
+          1. If |client|’s <a>creation URL</a> is not a <a>potentially trustworthy URL</a>, reject |promise| with a "{{SecurityError}}" {{DOMException}} and abort these steps.
       1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
           1. Let |clientObject| be the result of running <a>Create Client</a> algorithm with |client| as the argument.
-          1. Resolve |promise| with |clientObject| and return.
+          1. Resolve |promise| with |clientObject| and abort these steps.
       1. Else:
           1. Let |browsingContext| be null.
           1. Let |visibilityState| be null.
@@ -3236,8 +3234,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Set |focusState| to the result of running the <a>has focus steps</a> with |browsingContext|'s <a>active document</a> as the argument.
               1. If |client| is a <a>window client</a>, set |ancestorOriginsList| to |browsingContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
           1. Wait for |task| to have executed.
+          1. If |client|'s [=discarded flag=] is set, resolve |promise| with undefined and abort these steps.
           1. Let |windowClient| be the result of running <a>Create Window Client</a> algorithm with |client|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
-          1. Resolve |promise| with |windowClient| and return.
+          1. Resolve |promise| with |windowClient|.
   </section>
 
 </section>
