@@ -2146,7 +2146,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="firing-functional-events">Firing Functional Events</h3>
 
-    To request a <a>functional event</a> dispatch to the [=service worker registration/active worker=] of a [=/service worker registration=], specifications *may* invoke <a>fire a functional event</a>.
+    To request a [=functional event=] dispatch to the [=service worker registration/active worker=] of a [=/service worker registration=], specifications *may* invoke [=Fire Functional Event=].
   </section>
 </section>
 
@@ -2809,13 +2809,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="fire-functional-event-algorithm"><dfn export>Fire a Functional Event</dfn></h3>
+    <h3 id="fire-functional-event-algorithm"><dfn export lt="Fire Functional Event|Fire a functional event">Fire Functional Event</dfn></h3>
 
       : Input
-      :: |eventName|, a DOMString
+      :: |eventName|, a string
       :: |eventConstructor|, an event constructor that extends {{ExtendableEvent}}
       :: |registration|, a [=/service worker registration=]
-      :: |initializationSteps|, optional steps to initialise |event|, constructed from |eventConstructor|
+      :: |initialization|, optional property initialization for |event|, constructed from |eventConstructor|
       :: |postDispatchSteps|, optional steps to run on the [=service worker registration/active worker=]'s event loop, with |dispatchedEvent| set to the instance of |eventConstructor| that was [=dispatched=].
       : Output
       :: None
@@ -2833,7 +2833,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
       1. [=Queue a task=] |task| to run these substeps:
           1. Let |event| be the result of [=creating an event=] with |eventConstructor| and the [=relevant realm=] of |activeWorker|'s [=service worker/global object=].
-          1. If |initializationSteps| is not null, then initialize |event| with |initializationSteps|.
+          1. If |initialization| is not null, then initialize |event| with |initialization|.
           1. [=Dispatch=] |event| on |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |event|.
           1. If |postDispatchSteps| is not null, then run |postDispatchSteps| passing |event| as |dispatchedEvent|.
@@ -2846,7 +2846,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <div class="example">
         To fire an "`amazingthing`" event (which is of type `AmazingThingEvent`) on a particular |serviceWorkerRegistration|, and initialize the event object's properties, the prose would be:
 
-        1. [=Fire a functional event=] named "`amazingthing`" using `AmazingThingEvent` on |serviceWorkerRegistration| with the following properties:
+        1. [=Fire Functional Event=] "`amazingthing`" using `AmazingThingEvent` on |serviceWorkerRegistration| with the following properties:
             : propertyName
             :: value
             : anotherPropertyName
@@ -2854,11 +2854,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
             Then run the following steps with |dispatchedEvent|:
 
-            1. Do whatever you need to with |dispatchedEvent|.
+            1. Do whatever you need to with |dispatchedEvent| on the service worker's event loop.
 
         Note that the initialization steps and post-dispatch steps are optional. If they aren't needed, the prose would be:
 
-        1. [=Fire a functional event=] named "`whatever`" using {{ExtendableEvent}} on |serviceWorkerRegistration|.
+        1. [=Fire Functional Event=] "`whatever`" using {{ExtendableEvent}} on |serviceWorkerRegistration|.
       </div>
   </section>
 
