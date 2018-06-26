@@ -1087,11 +1087,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
         1. Let |promise| be a new <a>promise</a>.
         1. [=Queue a task=] to run the following steps on the [=context object=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
-            1. Run the [=focusing steps=] with the current [=/browsing context=].
-            1. Let |frameType| be the result of running [=Get Frame Type=] with the current [=/browsing context=].
-            1. Let |visibilityState| be the current [=/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
-            1. Let |focusState| be the result of running the [=has focus steps=] with the current [=/browsing context=]'s [=active document=].
-            1. Let |ancestorOriginsList| be the current [=/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+            1. Run the [=focusing steps=] with the [=context object=]'s [=WindowClient/browsing context=].
+            1. Let |frameType| be the result of running [=Get Frame Type=] with the [=context object=]'s [=WindowClient/browsing context=].
+            1. Let |visibilityState| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
+            1. Let |focusState| be the result of running the [=has focus steps=] with the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=].
+            1. Let |ancestorOriginsList| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                 1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
                 1. If |windowClient|'s [=focus state=] is true, resolve |promise| with |windowClient|.
@@ -1111,7 +1111,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
         1. Let |promise| be a new <a>promise</a>.
         1. [=Queue a task=] to run the following steps on the [=context object=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
-            1. Let |browsingContext| be the current [=/browsing context=].
+            1. Let |browsingContext| be the [=context object=]'s [=WindowClient/browsing context=].
             1. If |browsingContext| has [=discard a document|discarded=] its {{Document}}, [=queue a task=] to reject |promise| with a `TypeError`, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
             1. *HandleNavigate*: [=Navigate=] |browsingContext| to |url| with [=exceptions enabled flag|exceptions enabled=]. The [=source browsing context=] must be |browsingContext|.
             1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
