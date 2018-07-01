@@ -1343,7 +1343,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute Promise&lt;any&gt; preloadResponse;
         readonly attribute DOMString clientId;
         readonly attribute DOMString resultingClientId;
-        readonly attribute DOMString targetClientId;
+        readonly attribute DOMString replacesClientId;
 
         void respondWith(Promise&lt;Response&gt; r);
       };
@@ -1354,7 +1354,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         Promise&lt;any&gt; preloadResponse;
         DOMString clientId = "";
         DOMString resultingClientId = "";
-        DOMString targetClientId = "";
+        DOMString replacesClientId = "";
       };
     </pre>
 
@@ -1391,9 +1391,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     </section>
 
     <section>
-      <h4 id="fetch-event-targetclientid">{{FetchEvent/targetClientId|event.targetClientId}}</h4>
+      <h4 id="fetch-event-replacesClientId">{{FetchEvent/replacesClientId|event.replacesClientId}}</h4>
 
-      <dfn attribute for="FetchEvent"><code>targetClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
+      <dfn attribute for="FetchEvent"><code>replacesClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
     </section>
 
     <section algorithm="fetch-event-respondwith">
@@ -2783,7 +2783,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
           1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
           1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
-          1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/targetClientId}} attribute to |request|'s [=request/target client id=], and to the empty string otherwise.
+          1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
           1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
