@@ -2059,13 +2059,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section>
-    <h3 id="request-functional-event-dispatch">Request Functional Event Dispatch</h3>
+    <h3 id="firing-functional-events">Firing Functional Events</h3>
 
-    To request a <a>functional event</a> dispatch to a [=/service worker=], specifications *may* invoke <a>Handle Functional Event</a> algorithm with its [=/service worker registration=] <var ignore>registration</var> and the algorithm |callbackSteps| as the arguments.
-
-    Specifications *may* define an algorithm |callbackSteps| where the corresponding <a>functional event</a> can be created and fired with specification specific objects. The algorithm is passed <var ignore>globalObject</var> (a {{ServiceWorkerGlobalScope}} object) at which it *may* fire its <a>functional events</a>. This algorithm is called on a <a>task</a> <a lt="queue a task">queued</a> by <a>Handle Functional Event</a> algorithm.
-
-    Note: See an <a href="https://notifications.spec.whatwg.org/#activating-a-notification">example</a> hook defined in <a biblio data-biblio-type="informative" lt="notifications">Notifications API</a>.
+    To request a [=functional event=] dispatch to the [=service worker registration/active worker=] of a [=/service worker registration=], specifications *should* invoke [=Fire Functional Event=].
   </section>
 </section>
 
@@ -2660,35 +2656,57 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="handle-functional-event-algorithm"><dfn export>Handle Functional Event</dfn></h3>
+    <h3 id="fire-functional-event-algorithm"><dfn export lt="Fire Functional Event|Fire a functional event">Fire Functional Event</dfn></h3>
 
       : Input
-      :: |event|, an {{ExtendableEvent}} object
+      :: |eventName|, a string
+      :: |eventConstructor|, an event constructor that extends {{ExtendableEvent}}
       :: |registration|, a [=/service worker registration=]
-      :: |callbackSteps|, an algorithm
+      :: |initialization|, optional property initialization for |event|, constructed from |eventConstructor|
+      :: |postDispatchSteps|, optional steps to run on the [=service worker registration/active worker=]'s event loop, with |dispatchedEvent| set to the instance of |eventConstructor| that was [=dispatched=].
       : Output
       :: None
 
-      1. Assert: <a>scope to registration map</a> contains a value equal to |registration|.
-      1. Assert: |registration|'s <a>active worker</a> is not null.
-      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
-      1. If |activeWorker|'s <a>set of event types to handle</a> does not [=set/contain=] |event|'s {{Event/type}}, then:
-          1. Return and continue running these steps <a>in parallel</a>.
-          1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+      1. Assert: [=scope to registration map=] contains a value equal to |registration|.
+      1. Assert: |registration|'s [=active worker=] is not null.
+      1. Let |activeWorker| be |registration|'s [=active worker=].
+      1. If |activeWorker|'s [=set of event types to handle=] does not [=set/contain=] |eventName|, then return and run the following steps [=in parallel=]:
+          1. If the time difference in seconds calculated by the current time minus |registration|'s [=last update check time=] is greater than 86400, invoke [=Soft Update=] algorithm with |registration|.
           1. Abort these steps.
 
           Note: To avoid unnecessary delays, the Handle Functional Event enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.
 
-      1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
-      1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
-      1. <a>Queue a task</a> |task| to run these substeps:
-          1. Invoke |callbackSteps| with |activeWorker|'s [=service worker/global object=] as its argument.
+      1. If |activeWorker|'s [=state=] is *activating*, wait for |activeWorker|'s [=state=] to become *activated*.
+      1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
+      1. [=Queue a task=] |task| to run these substeps:
+          1. Let |event| be the result of [=creating an event=] with |eventConstructor| and the [=relevant realm=] of |activeWorker|'s [=service worker/global object=].
+          1. If |initialization| is not null, then initialize |event| with |initialization|.
+          1. [=Dispatch=] |event| on |activeWorker|'s [=service worker/global object=].
           1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |event|.
+          1. If |postDispatchSteps| is not null, then run |postDispatchSteps| passing |event| as |dispatchedEvent|.
 
-          The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle functional event task source</a>.
+          The |task| *must* use |activeWorker|'s [=event loop=] and the [=handle functional event task source=].
 
       1. Wait for |task| to have executed or been discarded.
-      1. If the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+      1. If the time difference in seconds calculated by the current time minus |registration|'s [=last update check time=] is greater than 86400, invoke [=Soft Update=] algorithm with |registration|.
+
+      <div class="example">
+        To fire an "`amazingthing`" event (which is of type `AmazingThingEvent`) on a particular |serviceWorkerRegistration|, and initialize the event object's properties, the prose would be:
+
+        1. [=Fire Functional Event=] "`amazingthing`" using `AmazingThingEvent` on |serviceWorkerRegistration| with the following properties:
+            : propertyName
+            :: value
+            : anotherPropertyName
+            :: anotherValue
+
+            Then run the following steps with |dispatchedEvent|:
+
+            1. Do whatever you need to with |dispatchedEvent| on the service worker's event loop.
+
+        Note that the initialization steps and post-dispatch steps are optional. If they aren't needed, the prose would be:
+
+        1. [=Fire Functional Event=] "`whatever`" using {{ExtendableEvent}} on |serviceWorkerRegistration|.
+      </div>
   </section>
 
   <section algorithm>
