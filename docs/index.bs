@@ -314,7 +314,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface ServiceWorker : EventTarget {
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
-        void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
+        void postMessage(any message, sequence&lt;object&gt; transfer);
+        void postMessage(any message, optional PostMessageOptions options);
 
         // event
         attribute EventHandler onstatechange;
@@ -362,11 +363,20 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="ServiceWorker"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
+        1. Let |options| be «[ "transfer" → |transfer| ]».
+        1. Invoke {{ServiceWorker/postMessage(message, options)}} with |message| and |options| as the arguments.
+    </section>
+
+    <section algorithm="service-worker-postmessage-options">
+      <h4 id="service-worker-postmessage-options">{{ServiceWorker/postMessage(message, options)}}</h4>
+
+      The <dfn method for="ServiceWorker"><code>postMessage(|message|, |options|)</code></dfn> method *must* run these steps:
+
         1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
         1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
         1. Let |incumbentSettings| be the <a>incumbent settings object</a>, and |incumbentGlobal| its [=environment settings object/global object=].
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
         1. [=Queue a task=] on the [=DOM manipulation task source=] to run the following steps:
             1. Let |source| be determined by switching on the type of |incumbentGlobal|:
                 <dl class="switch">
@@ -982,7 +992,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute FrameType frameType;
         readonly attribute DOMString id;
         readonly attribute ClientType type;
-        void postMessage(any message, optional sequence&lt;object&gt; transfer = []);
+        void postMessage(any message, sequence&lt;object&gt; transfer);
+        void postMessage(any message, optional PostMessageOptions options);
       };
 
       [Exposed=ServiceWorker]
@@ -1051,10 +1062,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="Client"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
+        1. Let |options| be «[ "transfer" → |transfer| ]».
+        1. Invoke {{Client/postMessage(message, options)}} with |message| and |options| as the arguments.
+    </section>
+
+    <section algorithm="client-postmessage-options">
+      <h4 id="client-postmessage-options">{{Client/postMessage(message, options)}}</h4>
+
+      The <dfn method for="Client"><code>postMessage(|message|, |options|)</code></dfn> method *must* run these steps:
+
         1. Let |sourceSettings| be the <a>context object</a>'s <a>relevant settings object</a>.
         1. Let |destination| be the {{ServiceWorkerContainer}} object whose [=ServiceWorkerContainer/service worker client=] is the <a>context object</a>'s [=Client/service worker client=], or null if no match is found.
         1. If |destination| is null, <a>throw</a> an "{{InvalidStateError}}" {{DOMException}}.
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
         1. Add a <a>task</a> that runs the following steps to |destination|'s [=ServiceWorkerContainer/client message queue=]:
             1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |sourceSettings|'s [=environment settings object/origin=].
             1. Let |source| be a {{ServiceWorker}} object, which represents the [=ServiceWorkerGlobalScope/service worker=] associated with |sourceSettings|'s [=environment settings object/global object=].
