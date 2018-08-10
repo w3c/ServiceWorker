@@ -1472,7 +1472,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2019-03-06">6 March 2019</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2019-03-07">7 March 2019</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -1547,7 +1547,8 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
         <li><a href="#service-worker-url"><span class="secno">3.1.1</span> <span class="content"><code class="idl"><span>scriptURL</span></code></span></a>
         <li><a href="#service-worker-state"><span class="secno">3.1.2</span> <span class="content"><code class="idl"><span>state</span></code></span></a>
         <li><a href="#service-worker-postmessage"><span class="secno">3.1.3</span> <span class="content"><code class="idl"><span>postMessage(message, transfer)</span></code></span></a>
-        <li><a href="#service-worker-event-handler"><span class="secno">3.1.4</span> <span class="content">Event handler</span></a>
+        <li><a href="#service-worker-postmessage-options"><span class="secno">3.1.4</span> <span class="content"><code class="idl"><span>postMessage(message, options)</span></code></span></a>
+        <li><a href="#service-worker-event-handler"><span class="secno">3.1.5</span> <span class="content">Event handler</span></a>
        </ol>
       <li>
        <a href="#serviceworkerregistration-interface"><span class="secno">3.2</span> <span class="content"><code class="idl"><span>ServiceWorkerRegistration</span></code></span></a>
@@ -1603,11 +1604,12 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
         <li><a href="#client-id"><span class="secno">4.2.3</span> <span class="content"><code class="idl"><span>id</span></code></span></a>
         <li><a href="#client-type"><span class="secno">4.2.4</span> <span class="content"><code class="idl"><span>type</span></code></span></a>
         <li><a href="#client-postmessage"><span class="secno">4.2.5</span> <span class="content"><code class="idl"><span>postMessage(message, transfer)</span></code></span></a>
-        <li><a href="#client-visibilitystate"><span class="secno">4.2.6</span> <span class="content"><code class="idl"><span>visibilityState</span></code></span></a>
-        <li><a href="#client-focused"><span class="secno">4.2.7</span> <span class="content"><code class="idl"><span>focused</span></code></span></a>
-        <li><a href="#client-ancestororigins"><span class="secno">4.2.8</span> <span class="content"><code class="idl"><span>ancestorOrigins</span></code></span></a>
-        <li><a href="#client-focus"><span class="secno">4.2.9</span> <span class="content"><code class="idl"><span>focus()</span></code></span></a>
-        <li><a href="#client-navigate"><span class="secno">4.2.10</span> <span class="content"><code class="idl"><span>navigate(url)</span></code></span></a>
+        <li><a href="#client-postmessage-options"><span class="secno">4.2.6</span> <span class="content"><code class="idl"><span>postMessage(message, options)</span></code></span></a>
+        <li><a href="#client-visibilitystate"><span class="secno">4.2.7</span> <span class="content"><code class="idl"><span>visibilityState</span></code></span></a>
+        <li><a href="#client-focused"><span class="secno">4.2.8</span> <span class="content"><code class="idl"><span>focused</span></code></span></a>
+        <li><a href="#client-ancestororigins"><span class="secno">4.2.9</span> <span class="content"><code class="idl"><span>ancestorOrigins</span></code></span></a>
+        <li><a href="#client-focus"><span class="secno">4.2.10</span> <span class="content"><code class="idl"><span>focus()</span></code></span></a>
+        <li><a href="#client-navigate"><span class="secno">4.2.11</span> <span class="content"><code class="idl"><span>navigate(url)</span></code></span></a>
        </ol>
       <li>
        <a href="#clients-interface"><span class="secno">4.3</span> <span class="content"><code class="idl"><span>Clients</span></code></span></a>
@@ -1905,7 +1907,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/servic
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="serviceworker"><code><c- g>ServiceWorker</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget"><c- n>EventTarget</c-></a> {
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString" id="ref-for-idl-USVString"><c- b>USVString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="USVString" href="#dom-serviceworker-scripturl" id="ref-for-dom-serviceworker-scripturl"><c- g>scriptURL</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-serviceworkerstate" id="ref-for-enumdef-serviceworkerstate"><c- n>ServiceWorkerState</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ServiceWorkerState" href="#dom-serviceworker-state" id="ref-for-dom-serviceworker-state"><c- g>state</c-></a>;
-  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage" id="ref-for-dom-serviceworker-postmessage"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, transfer), ServiceWorker/postMessage(message)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-transfer-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-transfer-message"></a></dfn>, <c- b>optional</c-> <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object"><c- b>object</c-></a>> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, transfer), ServiceWorker/postMessage(message)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-transfer-transfer"></a></dfn> = []);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage" id="ref-for-dom-serviceworker-postmessage"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, transfer)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-transfer-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-transfer-message"></a></dfn>, <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object"><c- b>object</c-></a>> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, transfer)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-transfer-transfer"></a></dfn>);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage-message-options" id="ref-for-dom-serviceworker-postmessage-message-options"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, options), ServiceWorker/postMessage(message)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-options-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-options-message"></a></dfn>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions" id="ref-for-postmessageoptions"><c- n>PostMessageOptions</c-></a> <dfn class="idl-code" data-dfn-for="ServiceWorker/postMessage(message, options), ServiceWorker/postMessage(message)" data-dfn-type="argument" data-export id="dom-serviceworker-postmessage-message-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-serviceworker-postmessage-message-options-options"></a></dfn>);
 
   // event
   <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworker-onstatechange" id="ref-for-dom-serviceworker-onstatechange"><c- g>onstatechange</c-></a>;
@@ -1942,6 +1945,16 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/servic
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorker" data-dfn-type="method" data-export id="dom-serviceworker-postmessage"><code>postMessage(<var>message</var>, <var>transfer</var>)</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
+        <p>Let <var>options</var> be «[ "transfer" → <var>transfer</var> ]».</p>
+       <li data-md>
+        <p>Invoke <code class="idl"><a data-link-type="idl" href="#dom-serviceworker-postmessage-message-options" id="ref-for-dom-serviceworker-postmessage-message-options①">postMessage(message, options)</a></code> with <var>message</var> and <var>options</var> as the arguments.</p>
+      </ol>
+     </section>
+     <section class="algorithm" data-algorithm="service-worker-postmessage-options">
+      <h4 class="heading settled" data-level="3.1.4" id="service-worker-postmessage-options"><span class="secno">3.1.4. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-serviceworker-postmessage-message-options" id="ref-for-dom-serviceworker-postmessage-message-options②">postMessage(message, options)</a></code></span><a class="self-link" href="#service-worker-postmessage-options"></a></h4>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="ServiceWorker" data-dfn-type="method" data-export id="dom-serviceworker-postmessage-message-options"><code>postMessage(<var>message</var>, <var>options</var>)</code></dfn> method <em>must</em> run these steps:</p>
+      <ol>
+       <li data-md>
         <p>If the <code class="idl"><a data-link-type="idl" href="#dom-serviceworker-state" id="ref-for-dom-serviceworker-state②">state</a></code> attribute value of the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object">context object</a> is <code class="idl"><a data-link-type="idl" href="#dom-serviceworkerstate-redundant" id="ref-for-dom-serviceworkerstate-redundant">"redundant"</a></code>, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException">DOMException</a></code>.</p>
        <li data-md>
         <p>Let <var>serviceWorker</var> be the <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker④②">service worker</a> represented by the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object①">context object</a>.</p>
@@ -1950,7 +1963,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/servic
        <li data-md>
         <p>Let <var>incumbentSettings</var> be the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object" id="ref-for-incumbent-settings-object">incumbent settings object</a>, and <var>incumbentGlobal</var> its <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global④">global object</a>.</p>
        <li data-md>
-        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer" id="ref-for-structuredserializewithtransfer">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>transfer</var>). Rethrow any exceptions.</p>
+        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer" id="ref-for-structuredserializewithtransfer">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>options</var>.transfer). Rethrow any exceptions.</p>
        <li data-md>
         <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task①">Queue a task</a> on the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source" id="ref-for-dom-manipulation-task-source">DOM manipulation task source</a> to run the following steps:</p>
         <ol>
@@ -1985,7 +1998,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/servic
       </ol>
      </section>
      <section>
-      <h4 class="heading settled" data-level="3.1.4" id="service-worker-event-handler"><span class="secno">3.1.4. </span><span class="content">Event handler</span><a class="self-link" href="#service-worker-event-handler"></a></h4>
+      <h4 class="heading settled" data-level="3.1.5" id="service-worker-event-handler"><span class="secno">3.1.5. </span><span class="content">Event handler</span><a class="self-link" href="#service-worker-event-handler"></a></h4>
       <p>The following is the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers" id="ref-for-event-handlers">event handler</a> (and its corresponding <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type" id="ref-for-event-handler-event-type">event handler event type</a>) that <em>must</em> be supported, as <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes" id="ref-for-event-handler-idl-attributes">event handler IDL attributes</a>, by all objects implementing <code class="idl"><a data-link-type="idl" href="#serviceworker" id="ref-for-serviceworker⑧">ServiceWorker</a></code> interface:</p>
       <table class="data">
        <thead>
@@ -2539,7 +2552,8 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-frametype" id="ref-for-enumdef-frametype"><c- n>FrameType</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="FrameType" href="#dom-client-frametype" id="ref-for-dom-client-frametype"><c- g>frameType</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-client-id" id="ref-for-dom-client-id"><c- g>id</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-clienttype" id="ref-for-enumdef-clienttype"><c- n>ClientType</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ClientType" href="#dom-client-type" id="ref-for-dom-client-type"><c- g>type</c-></a>;
-  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage" id="ref-for-dom-client-postmessage"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, transfer), Client/postMessage(message)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-transfer-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-client-postmessage-message-transfer-message"></a></dfn>, <c- b>optional</c-> <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a>> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, transfer), Client/postMessage(message)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code><a class="self-link" href="#dom-client-postmessage-message-transfer-transfer"></a></dfn> = []);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage" id="ref-for-dom-client-postmessage"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, transfer)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-transfer-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-client-postmessage-message-transfer-message"></a></dfn>, <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object①"><c- b>object</c-></a>> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, transfer)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code><a class="self-link" href="#dom-client-postmessage-message-transfer-transfer"></a></dfn>);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage-message-options" id="ref-for-dom-client-postmessage-message-options"><c- g>postMessage</c-></a>(<c- b>any</c-> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, options), Client/postMessage(message)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-options-message"><code><c- g>message</c-></code><a class="self-link" href="#dom-client-postmessage-message-options-message"></a></dfn>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions" id="ref-for-postmessageoptions①"><c- n>PostMessageOptions</c-></a> <dfn class="idl-code" data-dfn-for="Client/postMessage(message, options), Client/postMessage(message)" data-dfn-type="argument" data-export id="dom-client-postmessage-message-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-client-postmessage-message-options-options"></a></dfn>);
 };
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed⑥"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
@@ -2602,7 +2616,17 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
      </section>
      <section class="algorithm" data-algorithm="client-postmessage">
       <h4 class="heading settled" data-level="4.2.5" id="client-postmessage"><span class="secno">4.2.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-client-postmessage" id="ref-for-dom-client-postmessage①">postMessage(message, transfer)</a></code></span><a class="self-link" href="#client-postmessage"></a></h4>
-      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Client" data-dfn-type="method" data-export data-lt="postMessage(message, transfer)|postMessage(message)" id="dom-client-postmessage"><code>postMessage(<var>message</var>, <var>transfer</var>)</code></dfn> method <em>must</em> run these steps:</p>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Client" data-dfn-type="method" data-export id="dom-client-postmessage"><code>postMessage(<var>message</var>, <var>transfer</var>)</code></dfn> method <em>must</em> run these steps:</p>
+      <ol>
+       <li data-md>
+        <p>Let <var>options</var> be «[ "transfer" → <var>transfer</var> ]».</p>
+       <li data-md>
+        <p>Invoke <code class="idl"><a data-link-type="idl" href="#dom-client-postmessage-message-options" id="ref-for-dom-client-postmessage-message-options①">postMessage(message, options)</a></code> with <var>message</var> and <var>options</var> as the arguments.</p>
+      </ol>
+     </section>
+     <section class="algorithm" data-algorithm="client-postmessage-options">
+      <h4 class="heading settled" data-level="4.2.6" id="client-postmessage-options"><span class="secno">4.2.6. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-client-postmessage-message-options" id="ref-for-dom-client-postmessage-message-options②">postMessage(message, options)</a></code></span><a class="self-link" href="#client-postmessage-options"></a></h4>
+      <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="Client" data-dfn-type="method" data-export data-lt="postMessage(message, options)|postMessage(message)" id="dom-client-postmessage-message-options"><code>postMessage(<var>message</var>, <var>options</var>)</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
         <p>Let <var>sourceSettings</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object②⑤">context object</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object" id="ref-for-relevant-settings-object①⓪">relevant settings object</a>.</p>
@@ -2611,7 +2635,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <li data-md>
         <p>If <var>destination</var> is null, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①">throw</a> an "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#invalidstateerror" id="ref-for-invalidstateerror⑥">InvalidStateError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException⑦">DOMException</a></code>.</p>
        <li data-md>
-        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer" id="ref-for-structuredserializewithtransfer①">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>transfer</var>). Rethrow any exceptions.</p>
+        <p>Let <var>serializeWithTransferResult</var> be <a data-link-type="abstract-op" href="https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer" id="ref-for-structuredserializewithtransfer①">StructuredSerializeWithTransfer</a>(<var>message</var>, <var>options</var>.transfer). Rethrow any exceptions.</p>
        <li data-md>
         <p>Add a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task③">task</a> that runs the following steps to <var>destination</var>’s <a data-link-type="dfn" href="#dfn-client-message-queue" id="ref-for-dfn-client-message-queue⑤">client message queue</a>:</p>
         <ol>
@@ -2632,19 +2656,19 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       </ol>
      </section>
      <section>
-      <h4 class="heading settled" data-level="4.2.6" id="client-visibilitystate"><span class="secno">4.2.6. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-visibilitystate" id="ref-for-dom-windowclient-visibilitystate①">visibilityState</a></code></span><a class="self-link" href="#client-visibilitystate"></a></h4>
+      <h4 class="heading settled" data-level="4.2.7" id="client-visibilitystate"><span class="secno">4.2.7. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-visibilitystate" id="ref-for-dom-windowclient-visibilitystate①">visibilityState</a></code></span><a class="self-link" href="#client-visibilitystate"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="attribute" data-export id="dom-windowclient-visibilitystate"><code>visibilityState</code></dfn> attribute <em>must</em> return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object②⑦">context object</a>’s <a data-link-type="dfn" href="#dfn-service-worker-client-visibilitystate" id="ref-for-dfn-service-worker-client-visibilitystate">visibility state</a>.</p>
      </section>
      <section>
-      <h4 class="heading settled" data-level="4.2.7" id="client-focused"><span class="secno">4.2.7. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-focused" id="ref-for-dom-windowclient-focused①">focused</a></code></span><a class="self-link" href="#client-focused"></a></h4>
+      <h4 class="heading settled" data-level="4.2.8" id="client-focused"><span class="secno">4.2.8. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-focused" id="ref-for-dom-windowclient-focused①">focused</a></code></span><a class="self-link" href="#client-focused"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="attribute" data-export id="dom-windowclient-focused"><code>focused</code></dfn> attribute <em>must</em> return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object②⑧">context object</a>’s <a data-link-type="dfn" href="#dfn-service-worker-client-focusstate" id="ref-for-dfn-service-worker-client-focusstate">focus state</a>.</p>
      </section>
      <section>
-      <h4 class="heading settled" data-level="4.2.8" id="client-ancestororigins"><span class="secno">4.2.8. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-ancestororigins" id="ref-for-dom-windowclient-ancestororigins①">ancestorOrigins</a></code></span><a class="self-link" href="#client-ancestororigins"></a></h4>
+      <h4 class="heading settled" data-level="4.2.9" id="client-ancestororigins"><span class="secno">4.2.9. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-ancestororigins" id="ref-for-dom-windowclient-ancestororigins①">ancestorOrigins</a></code></span><a class="self-link" href="#client-ancestororigins"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="attribute" data-export id="dom-windowclient-ancestororigins"><code>ancestorOrigins</code></dfn> attribute <em>must</em> return the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object②⑨">context object</a>’s associated <a data-link-type="dfn" href="#windowclient-ancestor-origins-array" id="ref-for-windowclient-ancestor-origins-array">ancestor origins array</a>.</p>
      </section>
      <section class="algorithm" data-algorithm="client-focus">
-      <h4 class="heading settled" data-level="4.2.9" id="client-focus"><span class="secno">4.2.9. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-focus" id="ref-for-dom-windowclient-focus①">focus()</a></code></span><a class="self-link" href="#client-focus"></a></h4>
+      <h4 class="heading settled" data-level="4.2.10" id="client-focus"><span class="secno">4.2.10. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-focus" id="ref-for-dom-windowclient-focus①">focus()</a></code></span><a class="self-link" href="#client-focus"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="method" data-export id="dom-windowclient-focus"><code>focus()</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
@@ -2682,7 +2706,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       </ol>
      </section>
      <section class="algorithm" data-algorithm="client-navigate">
-      <h4 class="heading settled" data-level="4.2.10" id="client-navigate"><span class="secno">4.2.10. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-navigate" id="ref-for-dom-windowclient-navigate①">navigate(url)</a></code></span><a class="self-link" href="#client-navigate"></a></h4>
+      <h4 class="heading settled" data-level="4.2.11" id="client-navigate"><span class="secno">4.2.11. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#dom-windowclient-navigate" id="ref-for-dom-windowclient-navigate①">navigate(url)</a></code></span><a class="self-link" href="#client-navigate"></a></h4>
       <p>The <dfn class="dfn-paneled idl-code" data-dfn-for="WindowClient" data-dfn-type="method" data-export id="dom-windowclient-navigate"><code>navigate(url)</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
@@ -6338,7 +6362,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><a href="#dom-clienttype-all">enum-value for ClientType</a><span>, in §4.3</span>
      <li><a href="#dom-serviceworkerupdateviacache-all">enum-value for ServiceWorkerUpdateViaCache</a><span>, in §3.2</span>
     </ul>
-   <li><a href="#dom-windowclient-ancestororigins">ancestorOrigins</a><span>, in §4.2.8</span>
+   <li><a href="#dom-windowclient-ancestororigins">ancestorOrigins</a><span>, in §4.2.9</span>
    <li><a href="#windowclient-ancestor-origins-array">ancestor origins array</a><span>, in §4.2</span>
    <li><a href="#dom-frametype-auxiliary">"auxiliary"</a><span>, in §4.2</span>
    <li><a href="#dfn-bad-import-script-response">bad import script response</a><span>, in §Unnumbered section</span>
@@ -6405,8 +6429,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li><a href="#finish-job">Finish Job</a><span>, in §Unnumbered section</span>
    <li><a href="#fire-functional-event">Fire a functional event</a><span>, in §Unnumbered section</span>
    <li><a href="#fire-functional-event">Fire Functional Event</a><span>, in §Unnumbered section</span>
-   <li><a href="#dom-windowclient-focus">focus()</a><span>, in §4.2.9</span>
-   <li><a href="#dom-windowclient-focused">focused</a><span>, in §4.2.7</span>
+   <li><a href="#dom-windowclient-focus">focus()</a><span>, in §4.2.10</span>
+   <li><a href="#dom-windowclient-focused">focused</a><span>, in §4.2.8</span>
    <li><a href="#dfn-service-worker-client-focusstate">focus state</a><span>, in §4.2</span>
    <li><a href="#dfn-job-force-bypass-cache-flag">force bypass cache flag</a><span>, in §Unnumbered section</span>
    <li><a href="#serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag">force bypass cache for importscripts flag</a><span>, in §4.1</span>
@@ -6497,7 +6521,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li><a href="#eventdef-serviceworkerglobalscope-messageerror">messageerror</a><span>, in §4.7</span>
    <li><a href="#dictdef-multicachequeryoptions">MultiCacheQueryOptions</a><span>, in §5.5</span>
    <li><a href="#dfn-name-to-cache-map">name to cache map</a><span>, in §5.1</span>
-   <li><a href="#dom-windowclient-navigate">navigate(url)</a><span>, in §4.2.10</span>
+   <li><a href="#dom-windowclient-navigate">navigate(url)</a><span>, in §4.2.11</span>
    <li><a href="#dom-serviceworkerregistration-navigationpreload">navigationPreload</a><span>, in §3.2.4</span>
    <li><a href="#service-worker-registration-navigation-preload-enabled-flag">navigation preload enabled flag</a><span>, in §2.2</span>
    <li><a href="#service-worker-registration-navigation-preload-header-value">navigation preload header value</a><span>, in §2.2</span>
@@ -6532,7 +6556,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><a href="#dom-serviceworkercontainer-onmessageerror">attribute for ServiceWorkerContainer</a><span>, in §3.4.7</span>
      <li><a href="#dom-serviceworkerglobalscope-onmessageerror">attribute for ServiceWorkerGlobalScope</a><span>, in §4.1.4</span>
     </ul>
-   <li><a href="#dom-serviceworker-onstatechange">onstatechange</a><span>, in §3.1.4</span>
+   <li><a href="#dom-serviceworker-onstatechange">onstatechange</a><span>, in §3.1.5</span>
    <li><a href="#dom-serviceworkerregistration-onupdatefound">onupdatefound</a><span>, in §3.2.9</span>
    <li><a href="#dom-cachestorage-open">open(cacheName)</a><span>, in §5.5.3</span>
    <li><a href="#dom-clients-openwindow">openWindow(url)</a><span>, in §4.3.3</span>
@@ -6551,7 +6575,13 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><a href="#dom-extendablemessageevent-ports">attribute for ExtendableMessageEvent</a><span>, in §4.6.5</span>
      <li><a href="#dom-extendablemessageeventinit-ports">dict-member for ExtendableMessageEventInit</a><span>, in §4.6</span>
     </ul>
-   <li><a href="#dom-client-postmessage">postMessage(message)</a><span>, in §4.2.5</span>
+   <li><a href="#dom-client-postmessage-message-options">postMessage(message)</a><span>, in §4.2.6</span>
+   <li>
+    postMessage(message, options)
+    <ul>
+     <li><a href="#dom-client-postmessage-message-options">method for Client</a><span>, in §4.2.6</span>
+     <li><a href="#dom-serviceworker-postmessage-message-options">method for ServiceWorker</a><span>, in §3.1.4</span>
+    </ul>
    <li>
     postMessage(message, transfer)
     <ul>
@@ -6735,7 +6765,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li><a href="#dfn-use">uses</a><span>, in §2.4</span>
    <li><a href="#dfn-use">using</a><span>, in §2.4</span>
    <li><a href="#dfn-service-worker-client-visibilitystate">visibility state</a><span>, in §4.2</span>
-   <li><a href="#dom-windowclient-visibilitystate">visibilityState</a><span>, in §4.2.6</span>
+   <li><a href="#dom-windowclient-visibilitystate">visibilityState</a><span>, in §4.2.7</span>
    <li><a href="#dom-serviceworkerregistration-waiting">waiting</a><span>, in §3.2.2</span>
    <li><a href="#dfn-waiting-worker">waiting worker</a><span>, in §2.2</span>
    <li><a href="#fetchevent-wait-to-respond-flag">wait to respond flag</a><span>, in §4.5</span>
@@ -6763,7 +6793,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://dom.spec.whatwg.org/#document">https://dom.spec.whatwg.org/#document</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-document">2.4. Selection and Use</a>
-    <li><a href="#ref-for-document①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-document①">4.2.11. navigate(url)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-event">
@@ -6802,7 +6832,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-context-object">
    <a href="https://dom.spec.whatwg.org/#context-object">https://dom.spec.whatwg.org/#context-object</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-context-object">3.1.3. postMessage(message, transfer)</a> <a href="#ref-for-context-object①">(2)</a>
+    <li><a href="#ref-for-context-object">3.1.4. postMessage(message, options)</a> <a href="#ref-for-context-object①">(2)</a>
     <li><a href="#ref-for-context-object②">3.2.7. update()</a> <a href="#ref-for-context-object③">(2)</a>
     <li><a href="#ref-for-context-object④">3.2.8. unregister()</a>
     <li><a href="#ref-for-context-object⑤">3.3. navigator.serviceWorker</a>
@@ -6821,12 +6851,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-context-object②②">4.2.1. url</a>
     <li><a href="#ref-for-context-object②③">4.2.2. frameType</a>
     <li><a href="#ref-for-context-object②④">4.2.4. type</a>
-    <li><a href="#ref-for-context-object②⑤">4.2.5. postMessage(message, transfer)</a> <a href="#ref-for-context-object②⑥">(2)</a>
-    <li><a href="#ref-for-context-object②⑦">4.2.6. visibilityState</a>
-    <li><a href="#ref-for-context-object②⑧">4.2.7. focused</a>
-    <li><a href="#ref-for-context-object②⑨">4.2.8. ancestorOrigins</a>
-    <li><a href="#ref-for-context-object③⓪">4.2.9. focus()</a> <a href="#ref-for-context-object③①">(2)</a> <a href="#ref-for-context-object③②">(3)</a> <a href="#ref-for-context-object③③">(4)</a> <a href="#ref-for-context-object③④">(5)</a> <a href="#ref-for-context-object③⑤">(6)</a> <a href="#ref-for-context-object③⑥">(7)</a>
-    <li><a href="#ref-for-context-object③⑦">4.2.10. navigate(url)</a> <a href="#ref-for-context-object③⑧">(2)</a> <a href="#ref-for-context-object③⑨">(3)</a> <a href="#ref-for-context-object④⓪">(4)</a> <a href="#ref-for-context-object④①">(5)</a> <a href="#ref-for-context-object④②">(6)</a>
+    <li><a href="#ref-for-context-object②⑤">4.2.6. postMessage(message, options)</a> <a href="#ref-for-context-object②⑥">(2)</a>
+    <li><a href="#ref-for-context-object②⑦">4.2.7. visibilityState</a>
+    <li><a href="#ref-for-context-object②⑧">4.2.8. focused</a>
+    <li><a href="#ref-for-context-object②⑨">4.2.9. ancestorOrigins</a>
+    <li><a href="#ref-for-context-object③⓪">4.2.10. focus()</a> <a href="#ref-for-context-object③①">(2)</a> <a href="#ref-for-context-object③②">(3)</a> <a href="#ref-for-context-object③③">(4)</a> <a href="#ref-for-context-object③④">(5)</a> <a href="#ref-for-context-object③⑤">(6)</a> <a href="#ref-for-context-object③⑥">(7)</a>
+    <li><a href="#ref-for-context-object③⑦">4.2.11. navigate(url)</a> <a href="#ref-for-context-object③⑧">(2)</a> <a href="#ref-for-context-object③⑨">(3)</a> <a href="#ref-for-context-object④⓪">(4)</a> <a href="#ref-for-context-object④①">(5)</a> <a href="#ref-for-context-object④②">(6)</a>
     <li><a href="#ref-for-context-object④③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-context-object④④">4.4.1. event.waitUntil(f)</a>
     <li><a href="#ref-for-context-object④⑤">4.5.6. event.respondWith(r)</a> <a href="#ref-for-context-object④⑥">(2)</a>
@@ -6841,7 +6871,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-event-create">
    <a href="https://dom.spec.whatwg.org/#concept-event-create">https://dom.spec.whatwg.org/#concept-event-create</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-event-create">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-event-create">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-event-create①">Install</a>
     <li><a href="#ref-for-concept-event-create②">Activate</a>
     <li><a href="#ref-for-concept-event-create③">Handle Fetch</a>
@@ -6852,8 +6882,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://dom.spec.whatwg.org/#concept-event-dispatch">https://dom.spec.whatwg.org/#concept-event-dispatch</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-event-dispatch">2.5. Task Sources</a> <a href="#ref-for-concept-event-dispatch①">(2)</a>
-    <li><a href="#ref-for-concept-event-dispatch②">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-concept-event-dispatch③">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-event-dispatch②">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-concept-event-dispatch③">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-event-dispatch④">Install</a>
     <li><a href="#ref-for-concept-event-dispatch⑤">Activate</a>
     <li><a href="#ref-for-concept-event-dispatch⑥">Handle Fetch</a>
@@ -6889,8 +6919,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-event-fire">
    <a href="https://dom.spec.whatwg.org/#concept-event-fire">https://dom.spec.whatwg.org/#concept-event-fire</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-event-fire">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-concept-event-fire①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-event-fire">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-concept-event-fire①">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-event-fire②">Install</a>
     <li><a href="#ref-for-concept-event-fire③">Update Worker State</a>
     <li><a href="#ref-for-concept-event-fire④">Notify Controller Change</a>
@@ -6977,8 +7007,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-sec-promise-objects⑥">3.6.1. enable()</a>
     <li><a href="#ref-for-sec-promise-objects⑦">3.6.2. disable()</a>
     <li><a href="#ref-for-sec-promise-objects⑧">4.1.3. skipWaiting()</a>
-    <li><a href="#ref-for-sec-promise-objects⑨">4.2.9. focus()</a> <a href="#ref-for-sec-promise-objects①⓪">(2)</a>
-    <li><a href="#ref-for-sec-promise-objects①①">4.2.10. navigate(url)</a> <a href="#ref-for-sec-promise-objects①②">(2)</a> <a href="#ref-for-sec-promise-objects①③">(3)</a> <a href="#ref-for-sec-promise-objects①④">(4)</a>
+    <li><a href="#ref-for-sec-promise-objects⑨">4.2.10. focus()</a> <a href="#ref-for-sec-promise-objects①⓪">(2)</a>
+    <li><a href="#ref-for-sec-promise-objects①①">4.2.11. navigate(url)</a> <a href="#ref-for-sec-promise-objects①②">(2)</a> <a href="#ref-for-sec-promise-objects①③">(3)</a> <a href="#ref-for-sec-promise-objects①④">(4)</a>
     <li><a href="#ref-for-sec-promise-objects①⑤">4.3.1. get(id)</a>
     <li><a href="#ref-for-sec-promise-objects①⑥">4.3.3. openWindow(url)</a> <a href="#ref-for-sec-promise-objects①⑦">(2)</a> <a href="#ref-for-sec-promise-objects①⑧">(3)</a> <a href="#ref-for-sec-promise-objects①⑨">(4)</a>
     <li><a href="#ref-for-sec-promise-objects②⓪">4.3.4. claim()</a> <a href="#ref-for-sec-promise-objects②①">(2)</a>
@@ -7513,8 +7543,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-location">
    <a href="https://html.spec.whatwg.org/multipage/history.html#location">https://html.spec.whatwg.org/multipage/history.html#location</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-location">4.2.9. focus()</a>
-    <li><a href="#ref-for-location①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-location">4.2.10. focus()</a>
+    <li><a href="#ref-for-location①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-location②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-location③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-location④">Resolve Get Client Promise</a>
@@ -7523,16 +7553,16 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-messageevent">
    <a href="https://html.spec.whatwg.org/multipage/comms.html#messageevent">https://html.spec.whatwg.org/multipage/comms.html#messageevent</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-messageevent">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-messageevent①">4.2.5. postMessage(message, transfer)</a> <a href="#ref-for-messageevent②">(2)</a>
+    <li><a href="#ref-for-messageevent">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-messageevent①">4.2.6. postMessage(message, options)</a> <a href="#ref-for-messageevent②">(2)</a>
     <li><a href="#ref-for-messageevent③">4.7. Events</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-messageport">
    <a href="https://html.spec.whatwg.org/multipage/web-messaging.html#messageport">https://html.spec.whatwg.org/multipage/web-messaging.html#messageport</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-messageport">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-messageport①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-messageport">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-messageport①">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-messageport②">4.6. ExtendableMessageEvent</a> <a href="#ref-for-messageport③">(2)</a> <a href="#ref-for-messageport④">(3)</a> <a href="#ref-for-messageport⑤">(4)</a>
     <li><a href="#ref-for-messageport⑥">4.6.5. event.ports</a>
    </ul>
@@ -7544,6 +7574,13 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-navigator①">3.4. ServiceWorkerContainer</a> <a href="#ref-for-navigator②">(2)</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-postmessageoptions">
+   <a href="https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions">https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-postmessageoptions">3.1. ServiceWorker</a>
+    <li><a href="#ref-for-postmessageoptions①">4.2. Client</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-sharedworkerglobalscope">
    <a href="https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope">https://html.spec.whatwg.org/multipage/workers.html#sharedworkerglobalscope</a><b>Referenced in:</b>
    <ul>
@@ -7553,24 +7590,24 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-structureddeserializewithtransfer">
    <a href="https://html.spec.whatwg.org/multipage/structured-data.html#structureddeserializewithtransfer">https://html.spec.whatwg.org/multipage/structured-data.html#structureddeserializewithtransfer</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-structureddeserializewithtransfer">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-structureddeserializewithtransfer①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-structureddeserializewithtransfer">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-structureddeserializewithtransfer①">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-structuredserializewithtransfer">
    <a href="https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer">https://html.spec.whatwg.org/multipage/structured-data.html#structuredserializewithtransfer</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-structuredserializewithtransfer">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-structuredserializewithtransfer①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-structuredserializewithtransfer">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-structuredserializewithtransfer①">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-window">
    <a href="https://html.spec.whatwg.org/multipage/window-object.html#window">https://html.spec.whatwg.org/multipage/window-object.html#window</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-window">2.3. Service Worker Client</a>
-    <li><a href="#ref-for-window①">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-window①">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-window②">3.4. ServiceWorkerContainer</a>
-    <li><a href="#ref-for-window③">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-window③">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-window④">4.3.3. openWindow(url)</a> <a href="#ref-for-window⑤">(2)</a> <a href="#ref-for-window⑥">(3)</a>
     <li><a href="#ref-for-window⑦">5. Caches</a>
     <li><a href="#ref-for-window⑧">5.5. CacheStorage</a>
@@ -7618,8 +7655,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-active-document">
    <a href="https://html.spec.whatwg.org/multipage/browsers.html#active-document">https://html.spec.whatwg.org/multipage/browsers.html#active-document</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-active-document">4.2.9. focus()</a> <a href="#ref-for-active-document①">(2)</a> <a href="#ref-for-active-document②">(3)</a>
-    <li><a href="#ref-for-active-document③">4.2.10. navigate(url)</a> <a href="#ref-for-active-document④">(2)</a> <a href="#ref-for-active-document⑤">(3)</a>
+    <li><a href="#ref-for-active-document">4.2.10. focus()</a> <a href="#ref-for-active-document①">(2)</a> <a href="#ref-for-active-document②">(3)</a>
+    <li><a href="#ref-for-active-document③">4.2.11. navigate(url)</a> <a href="#ref-for-active-document④">(2)</a> <a href="#ref-for-active-document⑤">(3)</a>
     <li><a href="#ref-for-active-document⑥">4.3.2. matchAll(options)</a> <a href="#ref-for-active-document⑦">(2)</a> <a href="#ref-for-active-document⑧">(3)</a> <a href="#ref-for-active-document⑨">(4)</a>
     <li><a href="#ref-for-active-document①⓪">4.3.3. openWindow(url)</a> <a href="#ref-for-active-document①①">(2)</a> <a href="#ref-for-active-document①②">(3)</a>
     <li><a href="#ref-for-active-document①③">Resolve Get Client Promise</a> <a href="#ref-for-active-document①④">(2)</a> <a href="#ref-for-active-document①⑤">(3)</a>
@@ -7631,7 +7668,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-environment-active-service-worker">3.2.8. unregister()</a>
     <li><a href="#ref-for-concept-environment-active-service-worker①">3.4.1. controller</a>
     <li><a href="#ref-for-concept-environment-active-service-worker②">3.5. Events</a>
-    <li><a href="#ref-for-concept-environment-active-service-worker③">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-environment-active-service-worker③">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-environment-active-service-worker④">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-environment-active-service-worker⑤">4.3.4. claim()</a> <a href="#ref-for-concept-environment-active-service-worker⑥">(2)</a>
     <li><a href="#ref-for-concept-environment-active-service-worker⑦">Handle Fetch</a> <a href="#ref-for-concept-environment-active-service-worker⑧">(2)</a> <a href="#ref-for-concept-environment-active-service-worker⑨">(3)</a> <a href="#ref-for-concept-environment-active-service-worker①⓪">(4)</a>
@@ -7640,8 +7677,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-location-ancestor-origins-list">
    <a href="https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list">https://html.spec.whatwg.org/multipage/browsers.html#concept-location-ancestor-origins-list</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-location-ancestor-origins-list">4.2.9. focus()</a>
-    <li><a href="#ref-for-concept-location-ancestor-origins-list①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-location-ancestor-origins-list">4.2.10. focus()</a>
+    <li><a href="#ref-for-concept-location-ancestor-origins-list①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-location-ancestor-origins-list②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-location-ancestor-origins-list③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-concept-location-ancestor-origins-list④">Resolve Get Client Promise</a>
@@ -7652,7 +7689,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-api-base-url">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-api-base-url①">(2)</a>
     <li><a href="#ref-for-api-base-url②">3.4.4. getRegistration(clientURL)</a>
-    <li><a href="#ref-for-api-base-url③">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-api-base-url③">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-api-base-url④">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-api-base-url⑤">Run Service Worker</a>
    </ul>
@@ -7705,7 +7742,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-environment-creation-url②">3.4.2. ready</a>
     <li><a href="#ref-for-concept-environment-creation-url③">3.4.3. register(scriptURL, options)</a>
     <li><a href="#ref-for-concept-environment-creation-url④">4.2.1. url</a>
-    <li><a href="#ref-for-concept-environment-creation-url⑤">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-environment-creation-url⑤">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-environment-creation-url⑥">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-concept-environment-creation-url⑦">4.3.4. claim()</a>
     <li><a href="#ref-for-concept-environment-creation-url⑧">Create Job</a>
@@ -7718,8 +7755,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-current-global-object">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#current-global-object">https://html.spec.whatwg.org/multipage/webappapis.html#current-global-object</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-current-global-object">4.2.9. focus()</a>
-    <li><a href="#ref-for-current-global-object①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-current-global-object">4.2.10. focus()</a>
+    <li><a href="#ref-for-current-global-object①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-current-global-object②">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-current-global-object③">6.3.2. importScripts(urls)</a>
    </ul>
@@ -7727,23 +7764,23 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-dom-messageevent-data">
    <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data">https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-data</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-messageevent-data">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-messageevent-data">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-discard-a-document">
    <a href="https://html.spec.whatwg.org/multipage/window-object.html#discard-a-document">https://html.spec.whatwg.org/multipage/window-object.html#discard-a-document</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-discard-a-document">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-discard-a-document">4.2.11. navigate(url)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-dom-manipulation-task-source">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source">https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-manipulation-task-source">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-manipulation-task-source">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-manipulation-task-source①">3.4.2. ready</a>
     <li><a href="#ref-for-dom-manipulation-task-source②">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-dom-manipulation-task-source③">4.2.9. focus()</a>
-    <li><a href="#ref-for-dom-manipulation-task-source④">4.2.10. navigate(url)</a> <a href="#ref-for-dom-manipulation-task-source⑤">(2)</a> <a href="#ref-for-dom-manipulation-task-source⑥">(3)</a>
+    <li><a href="#ref-for-dom-manipulation-task-source③">4.2.10. focus()</a>
+    <li><a href="#ref-for-dom-manipulation-task-source④">4.2.11. navigate(url)</a> <a href="#ref-for-dom-manipulation-task-source⑤">(2)</a> <a href="#ref-for-dom-manipulation-task-source⑥">(3)</a>
     <li><a href="#ref-for-dom-manipulation-task-source⑦">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-dom-manipulation-task-source⑧">4.3.3. openWindow(url)</a> <a href="#ref-for-dom-manipulation-task-source⑨">(2)</a>
     <li><a href="#ref-for-dom-manipulation-task-source①⓪">5.4.2. matchAll(request, options)</a>
@@ -7771,7 +7808,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-environment-settings-object">2.3. Service Worker Client</a>
     <li><a href="#ref-for-environment-settings-object①">4.2.4. type</a>
-    <li><a href="#ref-for-environment-settings-object②">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-environment-settings-object②">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-environment-settings-object③">4.3.2. matchAll(options)</a> <a href="#ref-for-environment-settings-object④">(2)</a>
     <li><a href="#ref-for-environment-settings-object⑤">4.3.3. openWindow(url)</a> <a href="#ref-for-environment-settings-object⑥">(2)</a> <a href="#ref-for-environment-settings-object⑦">(3)</a>
     <li><a href="#ref-for-environment-settings-object⑧">5.1. Constructs</a>
@@ -7786,7 +7823,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-event-handlers">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers">https://html.spec.whatwg.org/multipage/webappapis.html#event-handlers</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handlers">3.1.4. Event handler</a> <a href="#ref-for-event-handlers①">(2)</a>
+    <li><a href="#ref-for-event-handlers">3.1.5. Event handler</a> <a href="#ref-for-event-handlers①">(2)</a>
     <li><a href="#ref-for-event-handlers②">3.2.9. Event handler</a> <a href="#ref-for-event-handlers③">(2)</a>
     <li><a href="#ref-for-event-handlers④">3.4.7. Event handlers</a> <a href="#ref-for-event-handlers⑤">(2)</a>
     <li><a href="#ref-for-event-handlers⑥">4.1.4. Event handlers</a> <a href="#ref-for-event-handlers⑦">(2)</a>
@@ -7796,7 +7833,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-event-handler-event-type">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-event-type</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handler-event-type">3.1.4. Event handler</a> <a href="#ref-for-event-handler-event-type①">(2)</a>
+    <li><a href="#ref-for-event-handler-event-type">3.1.5. Event handler</a> <a href="#ref-for-event-handler-event-type①">(2)</a>
     <li><a href="#ref-for-event-handler-event-type②">3.2.9. Event handler</a> <a href="#ref-for-event-handler-event-type③">(2)</a>
     <li><a href="#ref-for-event-handler-event-type④">3.4.7. Event handlers</a> <a href="#ref-for-event-handler-event-type⑤">(2)</a>
     <li><a href="#ref-for-event-handler-event-type⑥">4.1.4. Event handlers</a> <a href="#ref-for-event-handler-event-type⑦">(2)</a>
@@ -7805,7 +7842,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-event-handler-idl-attributes">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes">https://html.spec.whatwg.org/multipage/webappapis.html#event-handler-idl-attributes</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-handler-idl-attributes">3.1.4. Event handler</a>
+    <li><a href="#ref-for-event-handler-idl-attributes">3.1.5. Event handler</a>
     <li><a href="#ref-for-event-handler-idl-attributes①">3.2.9. Event handler</a>
     <li><a href="#ref-for-event-handler-idl-attributes②">3.4.7. Event handlers</a>
     <li><a href="#ref-for-event-handler-idl-attributes③">4.1.4. Event handlers</a>
@@ -7816,8 +7853,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-event-loop">2.2. Service Worker Registration</a> <a href="#ref-for-event-loop①">(2)</a> <a href="#ref-for-event-loop②">(3)</a> <a href="#ref-for-event-loop③">(4)</a>
     <li><a href="#ref-for-event-loop④">3.4. ServiceWorkerContainer</a>
-    <li><a href="#ref-for-event-loop⑤">4.2.9. focus()</a>
-    <li><a href="#ref-for-event-loop⑥">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-event-loop⑤">4.2.10. focus()</a>
+    <li><a href="#ref-for-event-loop⑥">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-event-loop⑦">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-event-loop⑧">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-event-loop⑨">Run Service Worker</a> <a href="#ref-for-event-loop①⓪">(2)</a>
@@ -7830,7 +7867,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-exceptions-enabled">
    <a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#exceptions-enabled">https://html.spec.whatwg.org/multipage/browsing-the-web.html#exceptions-enabled</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-exceptions-enabled">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-exceptions-enabled">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-exceptions-enabled①">4.3.3. openWindow(url)</a>
    </ul>
   </aside>
@@ -7863,7 +7900,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-focusing-steps">
    <a href="https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps">https://html.spec.whatwg.org/multipage/interaction.html#focusing-steps</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-focusing-steps">4.2.9. focus()</a>
+    <li><a href="#ref-for-focusing-steps">4.2.10. focus()</a>
     <li><a href="#ref-for-focusing-steps①">4.3.2. matchAll(options)</a> <a href="#ref-for-focusing-steps②">(2)</a> <a href="#ref-for-focusing-steps③">(3)</a>
    </ul>
   </aside>
@@ -7872,11 +7909,11 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-settings-object-global">2.3. Service Worker Client</a> <a href="#ref-for-concept-settings-object-global①">(2)</a> <a href="#ref-for-concept-settings-object-global②">(3)</a>
     <li><a href="#ref-for-concept-settings-object-global③">2.4. Selection and Use</a>
-    <li><a href="#ref-for-concept-settings-object-global④">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-settings-object-global④">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-settings-object-global⑤">3.2.7. update()</a>
     <li><a href="#ref-for-concept-settings-object-global⑥">3.4. ServiceWorkerContainer</a>
     <li><a href="#ref-for-concept-settings-object-global⑦">4.2. Client</a>
-    <li><a href="#ref-for-concept-settings-object-global⑧">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-settings-object-global⑧">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-settings-object-global⑨">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-settings-object-global①⓪">5.4.4. addAll(requests)</a>
     <li><a href="#ref-for-concept-settings-object-global①①">6.3.2. importScripts(urls)</a>
@@ -7888,8 +7925,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-has-focus-steps">
    <a href="https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps">https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-has-focus-steps">4.2.9. focus()</a>
-    <li><a href="#ref-for-has-focus-steps①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-has-focus-steps">4.2.10. focus()</a>
+    <li><a href="#ref-for-has-focus-steps①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-has-focus-steps②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-has-focus-steps③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-has-focus-steps④">Resolve Get Client Promise</a>
@@ -7959,7 +7996,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-incumbent-settings-object">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object">https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-incumbent-settings-object">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-incumbent-settings-object">3.1.4. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-fetching-scripts-is-top-level">
@@ -7977,7 +8014,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-event-message">
    <a href="https://html.spec.whatwg.org/multipage/indices.html#event-message">https://html.spec.whatwg.org/multipage/indices.html#event-message</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-event-message">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-event-message">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-module-script">
@@ -7990,7 +8027,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate">https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-navigate">3.2.8. unregister()</a>
-    <li><a href="#ref-for-navigate①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-navigate①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-navigate②">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-navigate③">Handle Fetch</a>
    </ul>
@@ -8006,11 +8043,11 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-settings-object-origin">2.3. Service Worker Client</a>
-    <li><a href="#ref-for-concept-settings-object-origin①">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-settings-object-origin①">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-settings-object-origin②">3.4.4. getRegistration(clientURL)</a> <a href="#ref-for-concept-settings-object-origin③">(2)</a>
     <li><a href="#ref-for-concept-settings-object-origin④">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-concept-settings-object-origin⑤">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-concept-settings-object-origin⑥">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-settings-object-origin⑤">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-concept-settings-object-origin⑥">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-settings-object-origin⑦">4.3.1. get(id)</a>
     <li><a href="#ref-for-concept-settings-object-origin⑧">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-settings-object-origin⑨">4.3.3. openWindow(url)</a> <a href="#ref-for-concept-settings-object-origin①⓪">(2)</a>
@@ -8048,7 +8085,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-dom-messageevent-ports">
    <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports">https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-messageevent-ports">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-messageevent-ports">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-queue-a-microtask">
@@ -8062,12 +8099,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task">https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-queue-a-task">2.2. Service Worker Registration</a>
-    <li><a href="#ref-for-queue-a-task①">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-queue-a-task①">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-queue-a-task②">3.4. ServiceWorkerContainer</a>
     <li><a href="#ref-for-queue-a-task③">3.4.2. ready</a>
     <li><a href="#ref-for-queue-a-task④">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-queue-a-task⑤">4.2.9. focus()</a> <a href="#ref-for-queue-a-task⑥">(2)</a>
-    <li><a href="#ref-for-queue-a-task⑦">4.2.10. navigate(url)</a> <a href="#ref-for-queue-a-task⑧">(2)</a> <a href="#ref-for-queue-a-task⑨">(3)</a> <a href="#ref-for-queue-a-task①⓪">(4)</a>
+    <li><a href="#ref-for-queue-a-task⑤">4.2.10. focus()</a> <a href="#ref-for-queue-a-task⑥">(2)</a>
+    <li><a href="#ref-for-queue-a-task⑦">4.2.11. navigate(url)</a> <a href="#ref-for-queue-a-task⑧">(2)</a> <a href="#ref-for-queue-a-task⑨">(3)</a> <a href="#ref-for-queue-a-task①⓪">(4)</a>
     <li><a href="#ref-for-queue-a-task①①">4.3.2. matchAll(options)</a> <a href="#ref-for-queue-a-task①②">(2)</a>
     <li><a href="#ref-for-queue-a-task①③">4.3.3. openWindow(url)</a> <a href="#ref-for-queue-a-task①④">(2)</a> <a href="#ref-for-queue-a-task①⑤">(3)</a>
     <li><a href="#ref-for-queue-a-task①⑥">5.4.2. matchAll(request, options)</a>
@@ -8093,7 +8130,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-global-object-realm">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm">https://html.spec.whatwg.org/multipage/webappapis.html#concept-global-object-realm</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-global-object-realm">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-global-object-realm">3.1.4. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-realm-execution-context">
@@ -8112,8 +8149,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global">https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-global</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-relevant-global">3.4. ServiceWorkerContainer</a>
-    <li><a href="#ref-for-concept-relevant-global①">4.2.9. focus()</a>
-    <li><a href="#ref-for-concept-relevant-global②">4.2.10. navigate(url)</a> <a href="#ref-for-concept-relevant-global③">(2)</a>
+    <li><a href="#ref-for-concept-relevant-global①">4.2.10. focus()</a>
+    <li><a href="#ref-for-concept-relevant-global②">4.2.11. navigate(url)</a> <a href="#ref-for-concept-relevant-global③">(2)</a>
     <li><a href="#ref-for-concept-relevant-global④">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-relevant-global⑤">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-concept-relevant-global⑥">4.4.1. event.waitUntil(f)</a>
@@ -8126,7 +8163,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-relevant-realm">3.4.2. ready</a>
     <li><a href="#ref-for-concept-relevant-realm①">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-concept-relevant-realm②">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-relevant-realm②">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-relevant-realm③">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-concept-relevant-realm④">4.5.6. event.respondWith(r)</a>
     <li><a href="#ref-for-concept-relevant-realm⑤">5.4.2. matchAll(request, options)</a>
@@ -8141,7 +8178,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-relevant-settings-object">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object">https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-relevant-settings-object">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-relevant-settings-object">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-relevant-settings-object①">3.2.7. update()</a> <a href="#ref-for-relevant-settings-object②">(2)</a>
     <li><a href="#ref-for-relevant-settings-object③">3.2.8. unregister()</a>
     <li><a href="#ref-for-relevant-settings-object④">3.4. ServiceWorkerContainer</a>
@@ -8149,8 +8186,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-relevant-settings-object⑥">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-relevant-settings-object⑦">(2)</a>
     <li><a href="#ref-for-relevant-settings-object⑧">3.4.4. getRegistration(clientURL)</a>
     <li><a href="#ref-for-relevant-settings-object⑨">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-relevant-settings-object①⓪">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-relevant-settings-object①①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-relevant-settings-object①⓪">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-relevant-settings-object①①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-relevant-settings-object①②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-relevant-settings-object①③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-relevant-settings-object①④">5.4.2. matchAll(request, options)</a>
@@ -8188,8 +8225,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-responsible-event-loop">3.4.2. ready</a>
     <li><a href="#ref-for-responsible-event-loop①">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-responsible-event-loop②">4.2.9. focus()</a>
-    <li><a href="#ref-for-responsible-event-loop③">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-responsible-event-loop②">4.2.10. focus()</a>
+    <li><a href="#ref-for-responsible-event-loop③">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-responsible-event-loop④">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-responsible-event-loop⑤">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-responsible-event-loop⑥">5.4.2. matchAll(request, options)</a>
@@ -8223,7 +8260,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://html.spec.whatwg.org/multipage/origin.html#same-origin">https://html.spec.whatwg.org/multipage/origin.html#same-origin</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-same-origin">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-same-origin①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-same-origin①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-same-origin②">4.3.1. get(id)</a>
     <li><a href="#ref-for-same-origin③">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-same-origin④">4.3.3. openWindow(url)</a>
@@ -8246,14 +8283,14 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-dom-messageevent-source">
    <a href="https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source">https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-source</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-messageevent-source">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-dom-messageevent-source①">4.2.5. postMessage(message, transfer)</a> <a href="#ref-for-dom-messageevent-source②">(2)</a>
+    <li><a href="#ref-for-dom-messageevent-source">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-dom-messageevent-source①">4.2.6. postMessage(message, options)</a> <a href="#ref-for-dom-messageevent-source②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-source-browsing-context">
    <a href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#source-browsing-context">https://html.spec.whatwg.org/multipage/browsing-the-web.html#source-browsing-context</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-source-browsing-context">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-source-browsing-context">4.2.11. navigate(url)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-environment-target-browsing-context">
@@ -8268,7 +8305,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-task">2.2. Service Worker Registration</a> <a href="#ref-for-concept-task①">(2)</a>
     <li><a href="#ref-for-concept-task②">3.4. ServiceWorkerContainer</a>
-    <li><a href="#ref-for-concept-task③">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-concept-task③">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-concept-task④">Install</a>
     <li><a href="#ref-for-concept-task⑤">Run Service Worker</a>
     <li><a href="#ref-for-concept-task⑥">Terminate Service Worker</a> <a href="#ref-for-concept-task⑦">(2)</a> <a href="#ref-for-concept-task⑧">(3)</a>
@@ -8303,7 +8340,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-triggered-by-user-activation">
    <a href="https://html.spec.whatwg.org/multipage/interaction.html#triggered-by-user-activation">https://html.spec.whatwg.org/multipage/interaction.html#triggered-by-user-activation</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-triggered-by-user-activation">4.2.9. focus()</a>
+    <li><a href="#ref-for-triggered-by-user-activation">4.2.10. focus()</a>
     <li><a href="#ref-for-triggered-by-user-activation①">4.3.3. openWindow(url)</a>
    </ul>
   </aside>
@@ -8335,8 +8372,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-user-interaction-task-source">
    <a href="https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source">https://html.spec.whatwg.org/multipage/webappapis.html#user-interaction-task-source</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-user-interaction-task-source">4.2.9. focus()</a>
-    <li><a href="#ref-for-user-interaction-task-source①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-user-interaction-task-source">4.2.10. focus()</a>
+    <li><a href="#ref-for-user-interaction-task-source①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-user-interaction-task-source②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-user-interaction-task-source③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-user-interaction-task-source④">Resolve Get Client Promise</a>
@@ -8551,8 +8588,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate">https://www.w3.org/TR/page-visibility/#dom-document-visibilitystate</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-document-visibilitystate">4.2. Client</a>
-    <li><a href="#ref-for-dom-document-visibilitystate①">4.2.9. focus()</a>
-    <li><a href="#ref-for-dom-document-visibilitystate②">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-dom-document-visibilitystate①">4.2.10. focus()</a>
+    <li><a href="#ref-for-dom-document-visibilitystate②">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-dom-document-visibilitystate③">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-dom-document-visibilitystate④">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-dom-document-visibilitystate⑤">Resolve Get Client Promise</a>
@@ -8717,7 +8754,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-url-origin">2.3. Service Worker Client</a>
     <li><a href="#ref-for-concept-url-origin①">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-concept-url-origin②">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-url-origin②">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-url-origin③">Match Service Worker Registration</a> <a href="#ref-for-concept-url-origin④">(2)</a>
    </ul>
   </aside>
@@ -8763,7 +8800,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-url-parser">3.4.3. register(scriptURL, options)</a> <a href="#ref-for-concept-url-parser①">(2)</a>
     <li><a href="#ref-for-concept-url-parser②">3.4.4. getRegistration(clientURL)</a>
     <li><a href="#ref-for-concept-url-parser③">3.4.5. getRegistrations()</a>
-    <li><a href="#ref-for-concept-url-parser④">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-concept-url-parser④">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-concept-url-parser⑤">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-concept-url-parser⑥">Start Register</a>
     <li><a href="#ref-for-concept-url-parser⑦">Update</a>
@@ -8807,14 +8844,14 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-idl-DOMException">
    <a href="https://heycam.github.io/webidl/#idl-DOMException">https://heycam.github.io/webidl/#idl-DOMException</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-idl-DOMException">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-idl-DOMException">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-idl-DOMException①">3.2.7. update()</a> <a href="#ref-for-idl-DOMException②">(2)</a>
     <li><a href="#ref-for-idl-DOMException③">3.4.4. getRegistration(clientURL)</a>
     <li><a href="#ref-for-idl-DOMException④">3.6.1. enable()</a>
     <li><a href="#ref-for-idl-DOMException⑤">3.6.2. disable()</a>
     <li><a href="#ref-for-idl-DOMException⑥">3.6.3. setHeaderValue(value)</a>
-    <li><a href="#ref-for-idl-DOMException⑦">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-idl-DOMException⑧">4.2.9. focus()</a>
+    <li><a href="#ref-for-idl-DOMException⑦">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-idl-DOMException⑧">4.2.10. focus()</a>
     <li><a href="#ref-for-idl-DOMException⑨">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-idl-DOMException①⓪">4.3.4. claim()</a>
     <li><a href="#ref-for-idl-DOMException①①">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-idl-DOMException①②">(2)</a>
@@ -8865,19 +8902,19 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-invalidaccesserror">
    <a href="https://heycam.github.io/webidl/#invalidaccesserror">https://heycam.github.io/webidl/#invalidaccesserror</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-invalidaccesserror">4.2.9. focus()</a>
+    <li><a href="#ref-for-invalidaccesserror">4.2.10. focus()</a>
     <li><a href="#ref-for-invalidaccesserror①">4.3.3. openWindow(url)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-invalidstateerror">
    <a href="https://heycam.github.io/webidl/#invalidstateerror">https://heycam.github.io/webidl/#invalidstateerror</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-invalidstateerror">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-invalidstateerror">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-invalidstateerror①">3.2.7. update()</a> <a href="#ref-for-invalidstateerror②">(2)</a>
     <li><a href="#ref-for-invalidstateerror③">3.6.1. enable()</a>
     <li><a href="#ref-for-invalidstateerror④">3.6.2. disable()</a>
     <li><a href="#ref-for-invalidstateerror⑤">3.6.3. setHeaderValue(value)</a>
-    <li><a href="#ref-for-invalidstateerror⑥">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-invalidstateerror⑥">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-invalidstateerror⑦">4.3.4. claim()</a>
     <li><a href="#ref-for-invalidstateerror⑧">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-invalidstateerror⑨">(2)</a>
     <li><a href="#ref-for-invalidstateerror①⓪">4.5.6. event.respondWith(r)</a> <a href="#ref-for-invalidstateerror①①">(2)</a>
@@ -8990,8 +9027,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-dfn-frozen-array-type">
    <a href="https://heycam.github.io/webidl/#dfn-frozen-array-type">https://heycam.github.io/webidl/#dfn-frozen-array-type</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-frozen-array-type">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-dfn-frozen-array-type①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dfn-frozen-array-type">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-dfn-frozen-array-type①">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-dfn-frozen-array-type②">5.4.2. matchAll(request, options)</a>
     <li><a href="#ref-for-dfn-frozen-array-type③">5.4.7. keys(request, options)</a>
     <li><a href="#ref-for-dfn-frozen-array-type④">Create Window Client</a>
@@ -9030,9 +9067,9 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-dfn-throw">
    <a href="https://heycam.github.io/webidl/#dfn-throw">https://heycam.github.io/webidl/#dfn-throw</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-throw">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-dfn-throw①">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-dfn-throw②">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-dfn-throw">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-dfn-throw①">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-dfn-throw②">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-dfn-throw③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-dfn-throw④">4.4.1. event.waitUntil(f)</a> <a href="#ref-for-dfn-throw⑤">(2)</a>
     <li><a href="#ref-for-dfn-throw⑥">4.5.6. event.respondWith(r)</a> <a href="#ref-for-dfn-throw⑦">(2)</a>
@@ -9171,6 +9208,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="term-for-messageevent" style="color:initial">MessageEvent</span>
      <li><span class="dfn-paneled" id="term-for-messageport" style="color:initial">MessagePort</span>
      <li><span class="dfn-paneled" id="term-for-navigator" style="color:initial">Navigator</span>
+     <li><span class="dfn-paneled" id="term-for-postmessageoptions" style="color:initial">PostMessageOptions</span>
      <li><span class="dfn-paneled" id="term-for-sharedworkerglobalscope" style="color:initial">SharedWorkerGlobalScope</span>
      <li><span class="dfn-paneled" id="term-for-structureddeserializewithtransfer" style="color:initial">StructuredDeserializeWithTransfer</span>
      <li><span class="dfn-paneled" id="term-for-structuredserializewithtransfer" style="color:initial">StructuredSerializeWithTransfer</span>
@@ -9440,7 +9478,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
 <c- b>interface</c-> <a href="#serviceworker"><code><c- g>ServiceWorker</c-></code></a> : <a class="n" data-link-type="idl-name" href="https://dom.spec.whatwg.org/#eventtarget" id="ref-for-eventtarget③"><c- n>EventTarget</c-></a> {
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-USVString" id="ref-for-idl-USVString①①"><c- b>USVString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="USVString" href="#dom-serviceworker-scripturl" id="ref-for-dom-serviceworker-scripturl②"><c- g>scriptURL</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-serviceworkerstate" id="ref-for-enumdef-serviceworkerstate④"><c- n>ServiceWorkerState</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ServiceWorkerState" href="#dom-serviceworker-state" id="ref-for-dom-serviceworker-state⑤"><c- g>state</c-></a>;
-  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage" id="ref-for-dom-serviceworker-postmessage②"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-serviceworker-postmessage-message-transfer-message"><code><c- g>message</c-></code></a>, <c- b>optional</c-> <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object②"><c- b>object</c-></a>> <a href="#dom-serviceworker-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code></a> = []);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage" id="ref-for-dom-serviceworker-postmessage②"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-serviceworker-postmessage-message-transfer-message"><code><c- g>message</c-></code></a>, <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object②"><c- b>object</c-></a>> <a href="#dom-serviceworker-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code></a>);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-serviceworker-postmessage-message-options" id="ref-for-dom-serviceworker-postmessage-message-options③"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-serviceworker-postmessage-message-options-message"><code><c- g>message</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions" id="ref-for-postmessageoptions②"><c- n>PostMessageOptions</c-></a> <a href="#dom-serviceworker-postmessage-message-options-options"><code><c- g>options</c-></code></a>);
 
   // event
   <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/webappapis.html#eventhandler" id="ref-for-eventhandler①⓪"><c- n>EventHandler</c-></a> <a class="idl-code" data-link-type="attribute" data-type="EventHandler" href="#dom-serviceworker-onstatechange" id="ref-for-dom-serviceworker-onstatechange①"><c- g>onstatechange</c-></a>;
@@ -9546,7 +9585,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-frametype" id="ref-for-enumdef-frametype①"><c- n>FrameType</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="FrameType" href="#dom-client-frametype" id="ref-for-dom-client-frametype②"><c- g>frameType</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑨"><c- b>DOMString</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="DOMString" href="#dom-client-id" id="ref-for-dom-client-id②"><c- g>id</c-></a>;
   <c- b>readonly</c-> <c- b>attribute</c-> <a class="n" data-link-type="idl-name" href="#enumdef-clienttype" id="ref-for-enumdef-clienttype②"><c- n>ClientType</c-></a> <a class="idl-code" data-link-type="attribute" data-readonly data-type="ClientType" href="#dom-client-type" id="ref-for-dom-client-type②"><c- g>type</c-></a>;
-  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage" id="ref-for-dom-client-postmessage②"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-client-postmessage-message-transfer-message"><code><c- g>message</c-></code></a>, <c- b>optional</c-> <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object①①"><c- b>object</c-></a>> <a href="#dom-client-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code></a> = []);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage" id="ref-for-dom-client-postmessage②"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-client-postmessage-message-transfer-message"><code><c- g>message</c-></code></a>, <c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-object" id="ref-for-idl-object①①"><c- b>object</c-></a>> <a href="#dom-client-postmessage-message-transfer-transfer"><code><c- g>transfer</c-></code></a>);
+  <c- b>void</c-> <a class="idl-code" data-link-type="method" href="#dom-client-postmessage-message-options" id="ref-for-dom-client-postmessage-message-options③"><c- g>postMessage</c-></a>(<c- b>any</c-> <a href="#dom-client-postmessage-message-options-message"><code><c- g>message</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="https://html.spec.whatwg.org/multipage/web-messaging.html#postmessageoptions" id="ref-for-postmessageoptions①①"><c- n>PostMessageOptions</c-></a> <a href="#dom-client-postmessage-message-options-options"><code><c- g>options</c-></code></a>);
 };
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed⑥①"><c- g>Exposed</c-></a>=<c- n>ServiceWorker</c->]
@@ -9677,7 +9717,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dfn-service-worker③⑥">2.6. User Agent Shutdown</a>
     <li><a href="#ref-for-dfn-service-worker③⑦">3.1. ServiceWorker</a> <a href="#ref-for-dfn-service-worker③⑧">(2)</a> <a href="#ref-for-dfn-service-worker③⑨">(3)</a> <a href="#ref-for-dfn-service-worker④⓪">(4)</a>
     <li><a href="#ref-for-dfn-service-worker④①">3.1.1. scriptURL</a>
-    <li><a href="#ref-for-dfn-service-worker④②">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dfn-service-worker④②">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dfn-service-worker④③">3.2.1. installing</a>
     <li><a href="#ref-for-dfn-service-worker④④">3.2.2. waiting</a>
     <li><a href="#ref-for-dfn-service-worker④⑤">3.2.3. active</a>
@@ -10196,8 +10236,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-serviceworker">2.1.1. Lifetime</a>
     <li><a href="#ref-for-serviceworker①">3.1. ServiceWorker</a> <a href="#ref-for-serviceworker②">(2)</a> <a href="#ref-for-serviceworker③">(3)</a> <a href="#ref-for-serviceworker④">(4)</a> <a href="#ref-for-serviceworker⑤">(5)</a> <a href="#ref-for-serviceworker⑥">(6)</a>
-    <li><a href="#ref-for-serviceworker⑦">3.1.3. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-serviceworker⑧">3.1.4. Event handler</a>
+    <li><a href="#ref-for-serviceworker⑦">3.1.4. postMessage(message, options)</a>
+    <li><a href="#ref-for-serviceworker⑧">3.1.5. Event handler</a>
     <li><a href="#ref-for-serviceworker⑨">3.2. ServiceWorkerRegistration</a> <a href="#ref-for-serviceworker①⓪">(2)</a> <a href="#ref-for-serviceworker①①">(3)</a>
     <li><a href="#ref-for-serviceworker①②">3.2.1. installing</a>
     <li><a href="#ref-for-serviceworker①③">3.2.2. waiting</a>
@@ -10206,7 +10246,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-serviceworker①⑥">3.4.1. controller</a> <a href="#ref-for-serviceworker①⑦">(2)</a>
     <li><a href="#ref-for-serviceworker①⑧">3.5. Events</a> <a href="#ref-for-serviceworker①⑨">(2)</a>
     <li><a href="#ref-for-serviceworker②⓪">4.1. ServiceWorkerGlobalScope</a>
-    <li><a href="#ref-for-serviceworker②①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-serviceworker②①">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-serviceworker②②">4.6. ExtendableMessageEvent</a> <a href="#ref-for-serviceworker②③">(2)</a>
     <li><a href="#ref-for-serviceworker②④">Update Registration State</a> <a href="#ref-for-serviceworker②⑤">(2)</a> <a href="#ref-for-serviceworker②⑥">(3)</a>
     <li><a href="#ref-for-serviceworker②⑦">Update Worker State</a>
@@ -10247,7 +10287,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dom-serviceworkerstate-redundant">
    <b><a href="#dom-serviceworkerstate-redundant">#dom-serviceworkerstate-redundant</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-serviceworkerstate-redundant">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-serviceworkerstate-redundant">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-serviceworkerstate-redundant①">Update Worker State</a>
    </ul>
   </aside>
@@ -10263,7 +10303,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-dom-serviceworker-state">3.1. ServiceWorker</a>
     <li><a href="#ref-for-dom-serviceworker-state①">3.1.2. state</a>
-    <li><a href="#ref-for-dom-serviceworker-state②">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-serviceworker-state②">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-serviceworker-state③">3.5. Events</a>
     <li><a href="#ref-for-dom-serviceworker-state④">Update Worker State</a>
    </ul>
@@ -10273,6 +10313,14 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-dom-serviceworker-postmessage">3.1. ServiceWorker</a>
     <li><a href="#ref-for-dom-serviceworker-postmessage①">3.1.3. postMessage(message, transfer)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-serviceworker-postmessage-message-options">
+   <b><a href="#dom-serviceworker-postmessage-message-options">#dom-serviceworker-postmessage-message-options</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-serviceworker-postmessage-message-options">3.1. ServiceWorker</a>
+    <li><a href="#ref-for-dom-serviceworker-postmessage-message-options①">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-serviceworker-postmessage-message-options②">3.1.4. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-serviceworker-onstatechange">
@@ -10397,7 +10445,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-serviceworkercontainer③">3.4. ServiceWorkerContainer</a> <a href="#ref-for-serviceworkercontainer④">(2)</a> <a href="#ref-for-serviceworkercontainer⑤">(3)</a> <a href="#ref-for-serviceworkercontainer⑥">(4)</a> <a href="#ref-for-serviceworkercontainer⑦">(5)</a> <a href="#ref-for-serviceworkercontainer⑧">(6)</a> <a href="#ref-for-serviceworkercontainer⑨">(7)</a> <a href="#ref-for-serviceworkercontainer①⓪">(8)</a> <a href="#ref-for-serviceworkercontainer①①">(9)</a>
     <li><a href="#ref-for-serviceworkercontainer①②">3.4.7. Event handlers</a>
     <li><a href="#ref-for-serviceworkercontainer①③">3.5. Events</a>
-    <li><a href="#ref-for-serviceworkercontainer①④">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-serviceworkercontainer①④">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-serviceworkercontainer①⑤">Activate</a>
     <li><a href="#ref-for-serviceworkercontainer①⑥">Notify Controller Change</a>
    </ul>
@@ -10435,7 +10483,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client③">3.4.4. getRegistration(clientURL)</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client④">3.4.5. getRegistrations()</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client⑤">3.5. Events</a>
-    <li><a href="#ref-for-serviceworkercontainer-service-worker-client⑥">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-serviceworkercontainer-service-worker-client⑥">4.2.6. postMessage(message, options)</a>
     <li><a href="#ref-for-serviceworkercontainer-service-worker-client⑦">Notify Controller Change</a>
    </ul>
   </aside>
@@ -10452,7 +10500,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dfn-client-message-queue">3.4. ServiceWorkerContainer</a> <a href="#ref-for-dfn-client-message-queue①">(2)</a> <a href="#ref-for-dfn-client-message-queue②">(3)</a>
     <li><a href="#ref-for-dfn-client-message-queue③">3.4.6. startMessages()</a>
     <li><a href="#ref-for-dfn-client-message-queue④">3.4.7. Event handlers</a>
-    <li><a href="#ref-for-dfn-client-message-queue⑤">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dfn-client-message-queue⑤">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-serviceworkercontainer-controller">
@@ -10520,7 +10568,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="eventdef-serviceworker-statechange">
    <b><a href="#eventdef-serviceworker-statechange">#eventdef-serviceworker-statechange</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-serviceworker-statechange">3.1.4. Event handler</a>
+    <li><a href="#ref-for-eventdef-serviceworker-statechange">3.1.5. Event handler</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="service-worker-registration-updatefound-event">
@@ -10595,7 +10643,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <b><a href="#serviceworkerglobalscope">#serviceworkerglobalscope</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-serviceworkerglobalscope">2.1. Service Worker</a>
-    <li><a href="#ref-for-serviceworkerglobalscope①">3.1.3. postMessage(message, transfer)</a> <a href="#ref-for-serviceworkerglobalscope②">(2)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope①">3.1.4. postMessage(message, options)</a> <a href="#ref-for-serviceworkerglobalscope②">(2)</a>
     <li><a href="#ref-for-serviceworkerglobalscope③">3.2.7. update()</a>
     <li><a href="#ref-for-serviceworkerglobalscope④">4.1. ServiceWorkerGlobalScope</a> <a href="#ref-for-serviceworkerglobalscope⑤">(2)</a> <a href="#ref-for-serviceworkerglobalscope⑥">(3)</a> <a href="#ref-for-serviceworkerglobalscope⑦">(4)</a> <a href="#ref-for-serviceworkerglobalscope⑧">(5)</a>
     <li><a href="#ref-for-serviceworkerglobalscope⑨">4.1.4. Event handlers</a>
@@ -10610,12 +10658,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="serviceworkerglobalscope-service-worker">
    <b><a href="#serviceworkerglobalscope-service-worker">#serviceworkerglobalscope-service-worker</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-serviceworkerglobalscope-service-worker">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-service-worker">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker①">3.2.7. update()</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker②">4.1.2. registration</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker③">4.1.3. skipWaiting()</a> <a href="#ref-for-serviceworkerglobalscope-service-worker④">(2)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑤">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑥">4.2.10. navigate(url)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker⑦">(2)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑤">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑥">4.2.11. navigate(url)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker⑦">(2)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑧">4.3.1. get(id)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker⑨">4.3.2. matchAll(options)</a> <a href="#ref-for-serviceworkerglobalscope-service-worker①⓪">(2)</a>
     <li><a href="#ref-for-serviceworkerglobalscope-service-worker①①">4.3.3. openWindow(url)</a>
@@ -10691,7 +10739,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="client">
    <b><a href="#client">#client</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-client">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-client">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-client①">4.2. Client</a> <a href="#ref-for-client②">(2)</a> <a href="#ref-for-client③">(3)</a> <a href="#ref-for-client④">(4)</a>
     <li><a href="#ref-for-client⑤">4.3. Clients</a>
     <li><a href="#ref-for-client⑥">4.3.2. matchAll(options)</a>
@@ -10703,7 +10751,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="windowclient">
    <b><a href="#windowclient">#windowclient</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-windowclient">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-windowclient">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-windowclient①">4.2. Client</a> <a href="#ref-for-windowclient②">(2)</a> <a href="#ref-for-windowclient③">(3)</a> <a href="#ref-for-windowclient④">(4)</a> <a href="#ref-for-windowclient⑤">(5)</a> <a href="#ref-for-windowclient⑥">(6)</a>
     <li><a href="#ref-for-windowclient⑦">4.3. Clients</a>
     <li><a href="#ref-for-windowclient⑧">4.3.2. matchAll(options)</a> <a href="#ref-for-windowclient⑨">(2)</a>
@@ -10723,9 +10771,9 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client①">4.2.1. url</a>
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client②">4.2.3. id</a>
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client③">4.2.4. type</a>
-    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client④">4.2.5. postMessage(message, transfer)</a>
-    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client⑤">4.2.9. focus()</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑥">(2)</a>
-    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client⑦">4.2.10. navigate(url)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑧">(2)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑨">(3)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client④">4.2.6. postMessage(message, options)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client⑤">4.2.10. focus()</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑥">(2)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-service-worker-client⑦">4.2.11. navigate(url)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑧">(2)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client⑨">(3)</a>
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client①⓪">4.3.2. matchAll(options)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client①①">(2)</a> <a href="#ref-for-dfn-service-worker-client-service-worker-client①②">(3)</a>
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client①③">Create Client</a>
     <li><a href="#ref-for-dfn-service-worker-client-service-worker-client①④">Create Window Client</a>
@@ -10741,30 +10789,30 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dfn-service-worker-client-browsing-context">
    <b><a href="#dfn-service-worker-client-browsing-context">#dfn-service-worker-client-browsing-context</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-service-worker-client-browsing-context">4.2.9. focus()</a> <a href="#ref-for-dfn-service-worker-client-browsing-context①">(2)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context②">(3)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context③">(4)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context④">(5)</a>
-    <li><a href="#ref-for-dfn-service-worker-client-browsing-context⑤">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-browsing-context">4.2.10. focus()</a> <a href="#ref-for-dfn-service-worker-client-browsing-context①">(2)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context②">(3)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context③">(4)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context④">(5)</a>
+    <li><a href="#ref-for-dfn-service-worker-client-browsing-context⑤">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-dfn-service-worker-client-browsing-context⑥">4.3.2. matchAll(options)</a> <a href="#ref-for-dfn-service-worker-client-browsing-context⑦">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-service-worker-client-visibilitystate">
    <b><a href="#dfn-service-worker-client-visibilitystate">#dfn-service-worker-client-visibilitystate</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-service-worker-client-visibilitystate">4.2.6. visibilityState</a>
+    <li><a href="#ref-for-dfn-service-worker-client-visibilitystate">4.2.7. visibilityState</a>
     <li><a href="#ref-for-dfn-service-worker-client-visibilitystate①">Create Window Client</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-service-worker-client-focusstate">
    <b><a href="#dfn-service-worker-client-focusstate">#dfn-service-worker-client-focusstate</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dfn-service-worker-client-focusstate">4.2.7. focused</a>
-    <li><a href="#ref-for-dfn-service-worker-client-focusstate①">4.2.9. focus()</a>
+    <li><a href="#ref-for-dfn-service-worker-client-focusstate">4.2.8. focused</a>
+    <li><a href="#ref-for-dfn-service-worker-client-focusstate①">4.2.10. focus()</a>
     <li><a href="#ref-for-dfn-service-worker-client-focusstate②">Create Window Client</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="windowclient-ancestor-origins-array">
    <b><a href="#windowclient-ancestor-origins-array">#windowclient-ancestor-origins-array</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-windowclient-ancestor-origins-array">4.2.8. ancestorOrigins</a>
+    <li><a href="#ref-for-windowclient-ancestor-origins-array">4.2.9. ancestorOrigins</a>
     <li><a href="#ref-for-windowclient-ancestor-origins-array①">Create Window Client</a>
    </ul>
   </aside>
@@ -10803,39 +10851,47 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dom-client-postmessage①">4.2.5. postMessage(message, transfer)</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="dom-client-postmessage-message-options">
+   <b><a href="#dom-client-postmessage-message-options">#dom-client-postmessage-message-options</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-client-postmessage-message-options">4.2. Client</a>
+    <li><a href="#ref-for-dom-client-postmessage-message-options①">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-client-postmessage-message-options②">4.2.6. postMessage(message, options)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="dom-windowclient-visibilitystate">
    <b><a href="#dom-windowclient-visibilitystate">#dom-windowclient-visibilitystate</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-windowclient-visibilitystate">4.2. Client</a>
-    <li><a href="#ref-for-dom-windowclient-visibilitystate①">4.2.6. visibilityState</a>
+    <li><a href="#ref-for-dom-windowclient-visibilitystate①">4.2.7. visibilityState</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-windowclient-focused">
    <b><a href="#dom-windowclient-focused">#dom-windowclient-focused</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-windowclient-focused">4.2. Client</a>
-    <li><a href="#ref-for-dom-windowclient-focused①">4.2.7. focused</a>
+    <li><a href="#ref-for-dom-windowclient-focused①">4.2.8. focused</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-windowclient-ancestororigins">
    <b><a href="#dom-windowclient-ancestororigins">#dom-windowclient-ancestororigins</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-windowclient-ancestororigins">4.2. Client</a>
-    <li><a href="#ref-for-dom-windowclient-ancestororigins①">4.2.8. ancestorOrigins</a>
+    <li><a href="#ref-for-dom-windowclient-ancestororigins①">4.2.9. ancestorOrigins</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-windowclient-focus">
    <b><a href="#dom-windowclient-focus">#dom-windowclient-focus</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-windowclient-focus">4.2. Client</a>
-    <li><a href="#ref-for-dom-windowclient-focus①">4.2.9. focus()</a>
+    <li><a href="#ref-for-dom-windowclient-focus①">4.2.10. focus()</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-windowclient-navigate">
    <b><a href="#dom-windowclient-navigate">#dom-windowclient-navigate</a></b><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-dom-windowclient-navigate">4.2. Client</a>
-    <li><a href="#ref-for-dom-windowclient-navigate①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-dom-windowclient-navigate①">4.2.11. navigate(url)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="clients">
@@ -11086,7 +11142,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="extendablemessageevent">
    <b><a href="#extendablemessageevent">#extendablemessageevent</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-extendablemessageevent">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-extendablemessageevent">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-extendablemessageevent①">4.6. ExtendableMessageEvent</a> <a href="#ref-for-extendablemessageevent②">(2)</a>
     <li><a href="#ref-for-extendablemessageevent③">4.7. Events</a>
    </ul>
@@ -11100,7 +11156,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-data">
    <b><a href="#dom-extendablemessageevent-data">#dom-extendablemessageevent-data</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-extendablemessageevent-data">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-data">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-extendablemessageevent-data①">4.6. ExtendableMessageEvent</a>
     <li><a href="#ref-for-dom-extendablemessageevent-data②">4.6.1. event.data</a>
    </ul>
@@ -11108,7 +11164,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-origin">
    <b><a href="#dom-extendablemessageevent-origin">#dom-extendablemessageevent-origin</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-extendablemessageevent-origin">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-origin">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-extendablemessageevent-origin①">4.6. ExtendableMessageEvent</a>
     <li><a href="#ref-for-dom-extendablemessageevent-origin②">4.6.2. event.origin</a>
    </ul>
@@ -11123,7 +11179,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-source">
    <b><a href="#dom-extendablemessageevent-source">#dom-extendablemessageevent-source</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-extendablemessageevent-source">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-source">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-extendablemessageevent-source①">4.6. ExtendableMessageEvent</a>
     <li><a href="#ref-for-dom-extendablemessageevent-source②">4.6.4. event.source</a>
    </ul>
@@ -11131,7 +11187,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="dom-extendablemessageevent-ports">
    <b><a href="#dom-extendablemessageevent-ports">#dom-extendablemessageevent-ports</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-extendablemessageevent-ports">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-dom-extendablemessageevent-ports">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-dom-extendablemessageevent-ports①">4.6. ExtendableMessageEvent</a>
     <li><a href="#ref-for-dom-extendablemessageevent-ports②">4.6.5. event.ports</a>
    </ul>
@@ -11168,7 +11224,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="eventdef-serviceworkerglobalscope-message">
    <b><a href="#eventdef-serviceworkerglobalscope-message">#eventdef-serviceworkerglobalscope-message</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message①">3.4.7. Event handlers</a>
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message②">4.1.4. Event handlers</a>
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-message③">4.6. ExtendableMessageEvent</a> <a href="#ref-for-eventdef-serviceworkerglobalscope-message④">(2)</a>
@@ -11177,10 +11233,10 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="eventdef-serviceworkerglobalscope-messageerror">
    <b><a href="#eventdef-serviceworkerglobalscope-messageerror">#eventdef-serviceworkerglobalscope-messageerror</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror①">3.4.7. Event handlers</a>
     <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror②">4.1.4. Event handlers</a>
-    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror③">4.2.5. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-eventdef-serviceworkerglobalscope-messageerror③">4.2.6. postMessage(message, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-request-response-list">
@@ -11697,7 +11753,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="run-service-worker">
    <b><a href="#run-service-worker">#run-service-worker</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-run-service-worker">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-run-service-worker">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-run-service-worker①">6.2. Content Security Policy</a>
     <li><a href="#ref-for-run-service-worker②">Update</a>
     <li><a href="#ref-for-run-service-worker③">Install</a>
@@ -11754,7 +11810,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="update-service-worker-extended-events-set">
    <b><a href="#update-service-worker-extended-events-set">#update-service-worker-extended-events-set</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-update-service-worker-extended-events-set">3.1.3. postMessage(message, transfer)</a>
+    <li><a href="#ref-for-update-service-worker-extended-events-set">3.1.4. postMessage(message, options)</a>
     <li><a href="#ref-for-update-service-worker-extended-events-set①">Handle Fetch</a>
     <li><a href="#ref-for-update-service-worker-extended-events-set②">Fire Functional Event</a>
    </ul>
@@ -11864,8 +11920,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="create-window-client">
    <b><a href="#create-window-client">#create-window-client</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-create-window-client">4.2.9. focus()</a>
-    <li><a href="#ref-for-create-window-client①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-create-window-client">4.2.10. focus()</a>
+    <li><a href="#ref-for-create-window-client①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-create-window-client②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-create-window-client③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-create-window-client④">Resolve Get Client Promise</a>
@@ -11874,8 +11930,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="get-frame-type">
    <b><a href="#get-frame-type">#get-frame-type</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-get-frame-type">4.2.9. focus()</a>
-    <li><a href="#ref-for-get-frame-type①">4.2.10. navigate(url)</a>
+    <li><a href="#ref-for-get-frame-type">4.2.10. focus()</a>
+    <li><a href="#ref-for-get-frame-type①">4.2.11. navigate(url)</a>
     <li><a href="#ref-for-get-frame-type②">4.3.2. matchAll(options)</a>
     <li><a href="#ref-for-get-frame-type③">4.3.3. openWindow(url)</a>
     <li><a href="#ref-for-get-frame-type④">Resolve Get Client Promise</a>
