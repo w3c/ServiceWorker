@@ -8,7 +8,7 @@ Spec development happens via [issues in this repository](https://github.com/w3c/
 
 Updates to the spec must reference [resolved issues marked `needs spec`](https://github.com/w3c/ServiceWorker/issues?q=is%3Aclosed+label%3A%22needs+spec%22).
 
-To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change `docs/index.bs` and submit it with the corresponding bikesheded `index.html`.
+To make edits to the design, please send pull requests against the Nightly spec on the master branch. We use [bikeshed](https://github.com/tabatkins/bikeshed). So, change and submit `docs/index.bs`. When your pull request is merged, Travis CI will automatically build the spec.
 
 For normative changes, a corresponding [web-platform-tests](https://github.com/web-platform-tests/wpt) PR is highly appreciated. Typically, both PRs will be merged at the same time. Note that a test change that contradicts the spec should not be merged before the corresponding spec change. If testing is not practical, please explain why and if appropriate [file an issue](https://github.com/web-platform-tests/wpt/issues/new) to follow up later. Add the `type:untestable` or `type:missing-coverage` label as appropriate.
 
