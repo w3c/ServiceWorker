@@ -59,6 +59,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: map objects; url: sec-map-objects
         text: InitializeHostDefinedRealm; url: sec-initializehostdefinedrealm
         text: execution context; url: sec-execution-contexts
+        text: abrupt completion; url: sec-completion-record-specification-type
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -2487,8 +2488,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |worker|'s [=script resource map=][|url|] to |response|.
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-      1. Invoke <a>Run Service Worker</a> algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
-      1. If an uncaught runtime script error occurs during the above step, then:
+      1. Let |promise| be the result of invoking the [=Run Service Worker=] algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+      1. Wait for |promise| to resolve. If it resolves with undefined or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
@@ -2634,58 +2635,60 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |serviceWorker|, a [=/service worker=]
       :: *force bypass cache for importscripts flag*, an optional flag unset by default
       : Output
-      :: None
+      :: |promise|, a [=promise=]
 
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
-      1. If |serviceWorker| is already running, abort these steps.
-      1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the rest of these steps in that context.
-      1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
-          * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
-          * Let |realmExecutionContext| be the created [=execution context|JavaScript execution context=].
-      1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
-      1. Let |workerEventLoop| be a newly created <a>event loop</a>.
-      1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
+      1. If |serviceWorker| is already running, this algorithm must have been invoked previously. Return the same promise as the previous time.
+      1. Let |promise| be [=a new promise=].
+      1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following substeps in that context:
+          1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
+              * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
+              * Let |realmExecutionContext| be the created [=execution context|JavaScript execution context=].
+          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
+          1. Let |workerEventLoop| be a newly created <a>event loop</a>.
+          1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
 
-          : The [=environment settings object/realm execution context=]
-          :: Return |realmExecutionContext|.
-          : The [=environment settings object/global object=]
-          :: Return |workerGlobalScope|.
-          : The <a>responsible event loop</a>
-          :: Return |workerEventLoop|.
-          : The [=environment settings object/referrer policy=]
-          :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
-          : The <a>API URL character encoding</a>
-          :: Return UTF-8.
-          : The <a>API base URL</a>
-          :: Return |serviceWorker|'s [=service worker/script url=].
-          : The [=environment settings object/origin=]
-          :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
-          : The <a>creation URL</a>
-          :: Return |workerGlobalScope|'s [=WorkerGlobalScope/url=].
-          : The [=environment settings object/HTTPS state=]
-          :: Return |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=].
+              : The [=environment settings object/realm execution context=]
+              :: Return |realmExecutionContext|.
+              : The [=environment settings object/global object=]
+              :: Return |workerGlobalScope|.
+              : The <a>responsible event loop</a>
+              :: Return |workerEventLoop|.
+              : The [=environment settings object/referrer policy=]
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
+              : The <a>API URL character encoding</a>
+              :: Return UTF-8.
+              : The <a>API base URL</a>
+              :: Return |serviceWorker|'s [=service worker/script url=].
+              : The [=environment settings object/origin=]
+              :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
+              : The <a>creation URL</a>
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/url=].
+              : The [=environment settings object/HTTPS state=]
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=].
 
-      1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
-      1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
-      1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
-      1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
-      1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for importscripts flag=] if the *force bypass cache for importscripts flag* is set.
-      1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
-      1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
-      1. If |script| is a <a>classic script</a>, then <a lt="run a classic script">run the classic script</a> |script|. Otherwise, it is a <a>module script</a>; <a lt="run a module script">run the module script</a> |script|.
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
+          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for importscripts flag=] if the *force bypass cache for importscripts flag* is set.
+          1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
+          1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
+          1. Resolve |promise| with the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
 
-          Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
+              Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
 
-      1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
-          1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
-              1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
+          1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
+              1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
+                  1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
 
-          Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
+                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
 
-          1. Set |script|'s <a>has ever been evaluated flag</a>.
-      1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
-      1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
+              1. Set |script|'s <a>has ever been evaluated flag</a>.
+          1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
+          1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
+      1. Return |promise|.
   </section>
 
   <section algorithm>
