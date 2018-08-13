@@ -1215,7 +1215,7 @@ Possible extra rowspan handling
   <link href="https://www.w3.org/StyleSheets/TR/2016/W3C-ED" rel="stylesheet" type="text/css">
   <meta content="Bikeshed version ca499dee738ad325bae89163f1eee6d8a2978cf4" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="a11d2441d365849cdbb25f69a6410e0d6eb989a0" name="document-revision">
+  <meta content="a71caad3d37d8ca7a3b3bd8a4f814abffd3828d0" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1473,7 +1473,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2018-08-12">12 August 2018</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2018-08-13">13 August 2018</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -3194,7 +3194,9 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
                  <li data-md>
                   <p>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader" id="ref-for-concept-get-reader">getting a reader</a> from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body②">body</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream" id="ref-for-concept-body-stream">stream</a>.</p>
                  <li data-md>
-                  <p>Let <var>strategy</var> be an object created in <var>targetRealm</var>. The user agent may choose any object.</p>
+                  <p>Let <var>highWaterMark</var> be a non-negative, non-NaN number, chosen by the user agent.</p>
+                 <li data-md>
+                  <p>Let <var>sizeAlgorithm</var> be an algorithm that accepts a <a data-link-type="dfn" href="https://streams.spec.whatwg.org/#chunk" id="ref-for-chunk">chunk</a> object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.</p>
                  <li data-md>
                   <p>Let <var>pull</var> be an action that runs these subsubsteps:</p>
                   <ol>
@@ -3210,7 +3212,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
                  <li data-md>
                   <p>Let <var>cancel</var> be an action that <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-cancel-readablestream" id="ref-for-concept-cancel-readablestream">cancels</a> <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body④">body</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream" id="ref-for-concept-body-stream②">stream</a> with <var>reader</var>.</p>
                  <li data-md>
-                  <p>Let <var>newStream</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-construct-readablestream" id="ref-for-concept-construct-readablestream">construct a ReadableStream object</a> with <var>strategy</var>, <var>pull</var> and <var>cancel</var> in <var>targetRealm</var>.</p>
+                  <p>Let <var>newStream</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-construct-readablestream" id="ref-for-concept-construct-readablestream">construct a ReadableStream object</a> with <var>highWaterMark</var>, <var>sizeAlgorithm</var>, <var>pull</var>, and <var>cancel</var> in <var>targetRealm</var>.</p>
                  <li data-md>
                   <p>Set <var>potentialResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑤">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body" id="ref-for-concept-body">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream" id="ref-for-concept-body-stream③">stream</a> is <var>newStream</var>.</p>
                  <li data-md>
@@ -8624,6 +8626,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-secure-contexts⑤">Resolve Get Client Promise</a>
    </ul>
   </aside>
+  <aside class="dfn-panel" data-for="term-for-chunk">
+   <a href="https://streams.spec.whatwg.org/#chunk">https://streams.spec.whatwg.org/#chunk</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-chunk">4.5.6. event.respondWith(r)</a>
+   </ul>
+  </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url-equals">
    <a href="https://url.spec.whatwg.org/#concept-url-equals">https://url.spec.whatwg.org/#concept-url-equals</a><b>Referenced in:</b>
    <ul>
@@ -9261,6 +9269,11 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="term-for-secure-contexts" style="color:initial">secure contexts</span>
     </ul>
    <li>
+    <a data-link-type="biblio">[STREAMS]</a> defines the following terms:
+    <ul>
+     <li><span class="dfn-paneled" id="term-for-chunk" style="color:initial">chunk</span>
+    </ul>
+   <li>
     <a data-link-type="biblio">[URL]</a> defines the following terms:
     <ul>
      <li><span class="dfn-paneled" id="term-for-concept-url-equals" style="color:initial">equal</span>
@@ -9340,6 +9353,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://tools.ietf.org/html/rfc7231">Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content</a>. June 2014. Proposed Standard. URL: <a href="https://tools.ietf.org/html/rfc7231">https://tools.ietf.org/html/rfc7231</a>
    <dt id="biblio-secure-contexts">[SECURE-CONTEXTS]
    <dd>Mike West. <a href="https://www.w3.org/TR/secure-contexts/">Secure Contexts</a>. 15 September 2016. CR. URL: <a href="https://www.w3.org/TR/secure-contexts/">https://www.w3.org/TR/secure-contexts/</a>
+   <dt id="biblio-streams">[STREAMS]
+   <dd>Adam Rice; Domenic Denicola; 吉野剛史 (Takeshi Yoshino). <a href="https://streams.spec.whatwg.org/">Streams Standard</a>. Living Standard. URL: <a href="https://streams.spec.whatwg.org/">https://streams.spec.whatwg.org/</a>
    <dt id="biblio-url">[URL]
    <dd>Anne van Kesteren. <a href="https://url.spec.whatwg.org/">URL Standard</a>. Living Standard. URL: <a href="https://url.spec.whatwg.org/">https://url.spec.whatwg.org/</a>
    <dt id="biblio-webidl">[WebIDL]
