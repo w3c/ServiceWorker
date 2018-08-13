@@ -1437,14 +1437,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                         1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
                         1. If |response|'s [=response/body=] is non-null, run these substeps:
                             1. Let |reader| be the result of <a lt="get a reader">getting a reader</a> from |response|'s [=response/body=]'s <a>stream</a>.
-                            1. Let |strategy| be an object created in |targetRealm|. The user agent may choose any object.
+                            1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
+                            1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
                             1. Let |pull| be an action that runs these subsubsteps:
                                 1. Let |promise| be the result of <a lt="read a chunk">reading a chunk</a> from |response|'s [=response/body=]'s <a>stream</a> with |reader|.
                                 1. When |promise| is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to |bytes| and perform ! <a>DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
                                 1. When |promise| is fulfilled with an object whose <code>done</code> property is true, set |end-of-body| to true.
                                 1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a <code>TypeError</code>.
                             1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s <a>stream</a> with |reader|.
-                            1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |strategy|, |pull| and |cancel| in |targetRealm|.
+                            1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |highWaterMark|, |sizeAlgorithm|, |pull|, and |cancel| in |targetRealm|.
                             1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose <a>stream</a> is |newStream|.
                             1. Run these subsubsteps repeatedly <a>in parallel</a> while |done| is false:
                                 1. If |newStream| is <a>errored</a>, then set |done| to true.
