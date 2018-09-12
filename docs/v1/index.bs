@@ -1231,9 +1231,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially an empty array.
+    An {{ExtendableEvent}} object has an associated <dfn export for="ExtendableEvent">extend lifetime promises</dfn> (an array of <a>promises</a>). It is initially an empty array.
 
     An {{ExtendableEvent}} object has an associated <dfn for="ExtendableEvent">pending promises count</dfn> (the number of pending promises in the [=ExtendableEvent/extend lifetime promises=]). It is initially set to zero.
+
+    An {{ExtendableEvent}} object has an associated <dfn export for="ExtendableEvent">timed out flag</dfn>. It is initially unset, and is set after an optional user agent imposed delay if the [=ExtendableEvent/pending promises count=] is greater than zero.
+
+    An {{ExtendableEvent}} object is said to be <dfn export for="ExtendableEvent">active</dfn> when its [=ExtendableEvent/timed out flag=] is unset and either its [=ExtendableEvent/pending promises count=] is greater than zero or its [=dispatch flag=] is set.
 
     [=/Service workers=] have two <a>lifecycle events</a>, {{install!!event}} and {{activate!!event}}. [=/Service workers=] use the {{ExtendableEvent}} interface for {{activate!!event}} event and {{install!!event}} event.
 
@@ -1248,7 +1252,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. If the {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
-        1. If the [=ExtendableEvent/pending promises count=] is zero and the [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If not [=ExtendableEvent/active=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
             Note: If no lifetime extension promise has been added in the task that called the event handlers, calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
 
@@ -1263,7 +1267,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
             1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
 
-        The user agent *should not* <a lt="terminate service worker">terminate</a> the [=/service worker=] associated with |event|'s <a>relevant settings object</a>'s [=environment settings object/global object=] when |event|'s [=dispatch flag=] is set or |event|'s [=ExtendableEvent/pending promises count=] is not zero. However, the user agent *may* impose a time limit to this lifetime extension.
+        The user agent *should not* [=terminate service worker|terminate=] a [=/service worker=] if [=Service Worker Has No Pending Events=] returns false for that [=/service worker=].
     </section>
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
@@ -2408,8 +2412,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
           1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
           1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
-              1. <span id="install-settle-step">Wait until |e|'s [=ExtendableEvent/pending promises count=] is zero.</span>
-              1. If the result of <a>waiting for all</a> of |e|'s <a>extend lifetime promises</a> rejected, set |installFailed| to true.
+              1. <span id="install-settle-step">Wait until |e| is not [=ExtendableEvent/active=].</span>
+              1. If |e|'s [=ExtendableEvent/timed out flag=] is set, or the result of [=waiting for all=] of |e|'s [=extend lifetime promises=] rejected, set |installFailed| to true.
 
           If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
 
@@ -2470,7 +2474,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{activate!!event}}.
           1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e|'s [=ExtendableEvent/pending promises count=] is zero.</span>
+          1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e| is not [=ExtendableEvent/active=].</span>
       1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
@@ -2754,8 +2758,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Assert: |event|'s [=dispatch flag=] is unset.
       1. For each |item| of |worker|'s [=set of extended events=]:
-          1. If |item|'s [=pending promises count=] is zero, [=set/remove=] |item| from |worker|'s [=set of extended events=].
-      1. If |event|'s [=pending promises count=] is not zero, [=set/append=] |event| to |worker|'s [=set of extended events=].
+          1. If |item| is not [=ExtendableEvent/active=], [=set/remove=] |item| from |worker|'s [=set of extended events=].
+      1. If |event| is [=ExtendableEvent/active=], [=set/append=] |event| to |worker|'s [=set of extended events=].
   </section>
 
   <section algorithm>
@@ -2988,11 +2992,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: True or false, a boolean
 
-      1. Let |sum| be zero.
-      1. For each |item| of |worker|'s [=set of extended events=]:
-          1. Add |item|'s [=pending promises count=] to |sum|.
-      1. If |sum| is zero, return true.
-      1. Else, return false.
+      1. For each |event| of |worker|'s [=set of extended events=]:
+          1. If |event| is [=ExtendableEvent/active=], return false.
+      1. Return true.
   </section>
 
   <section algorithm>
