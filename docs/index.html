@@ -1215,7 +1215,7 @@ Possible extra rowspan handling
   <link href="https://www.w3.org/StyleSheets/TR/2016/W3C-ED" rel="stylesheet" type="text/css">
   <meta content="Bikeshed version 090ef96cbce74475c89e94394cc8fa4fbc08b477" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="037e4ffb9a8c744fcd6debd1aad76939ab19c4d2" name="document-revision">
+  <meta content="ff1d50394776abc25c9747364fcd4bb68cefdb0c" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1734,6 +1734,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
       <li><a href="#create-client-algorithm"><span class="secno"></span> <span class="content"><span>Create Client</span></span></a>
       <li><a href="#create-windowclient-algorithm"><span class="secno"></span> <span class="content"><span>Create Window Client</span></span></a>
       <li><a href="#query-cache-algorithm"><span class="secno"></span> <span class="content"><span>Query Cache</span></span></a>
+      <li><a href="#request-matches-cached-item-algorithm"><span class="secno"></span> <span class="content"><span>Request Matches Cached Item</span></span></a>
       <li><a href="#batch-cache-operations-algorithm"><span class="secno"></span> <span class="content"><span>Batch Cache Operations</span></span></a>
       <li><a href="#resolve-get-client-promise-algorithm"><span class="secno"></span> <span class="content"><span>Resolve Get Client Promise</span></span></a>
      </ol>
@@ -3410,7 +3411,6 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑤"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-default="false" data-dfn-for="CacheQueryOptions" data-dfn-type="dict-member" data-export data-type="boolean " id="dom-cachequeryoptions-ignoresearch"><code><c- g>ignoreSearch</c-></code></dfn> = <c- b>false</c->;
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑥"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-default="false" data-dfn-for="CacheQueryOptions" data-dfn-type="dict-member" data-export data-type="boolean " id="dom-cachequeryoptions-ignoremethod"><code><c- g>ignoreMethod</c-></code></dfn> = <c- b>false</c->;
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑦"><c- b>boolean</c-></a> <dfn class="dfn-paneled idl-code" data-default="false" data-dfn-for="CacheQueryOptions" data-dfn-type="dict-member" data-export data-type="boolean " id="dom-cachequeryoptions-ignorevary"><code><c- g>ignoreVary</c-></code></dfn> = <c- b>false</c->;
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①③"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="CacheQueryOptions" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-cachequeryoptions-cachename"><code><c- g>cacheName</c-></code></dfn>;
 };
 </pre>
      <p>A <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache⑨">Cache</a></code> object represents a <a data-link-type="dfn" href="#dfn-request-response-list" id="ref-for-dfn-request-response-list②">request response list</a>. Multiple separate objects implementing the <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⓪">Cache</a></code> interface across documents and workers can all be associated with the same <a data-link-type="dfn" href="#dfn-request-response-list" id="ref-for-dfn-request-response-list③">request response list</a> simultaneously.</p>
@@ -3911,11 +3911,15 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
      <h3 class="heading settled" data-level="5.5" id="cachestorage-interface"><span class="secno">5.5. </span><span class="content"><code class="idl"><a data-link-type="idl" href="#cachestorage" id="ref-for-cachestorage②">CacheStorage</a></code></span><a class="self-link" href="#cachestorage-interface"></a></h3>
 <pre class="idl highlight def">[<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SecureContext" id="ref-for-SecureContext⑧"><c- g>SecureContext</c-></a>, <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①②"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="interface" data-export id="cachestorage"><code><c- g>CacheStorage</c-></code></dfn> {
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①⑨"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-match" id="ref-for-dom-cachestorage-match"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑦"><c- n>RequestInfo</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/match(request, options), CacheStorage/match(request)" data-dfn-type="argument" data-export id="dom-cachestorage-match-request-options-request"><code><c- g>request</c-></code><a class="self-link" href="#dom-cachestorage-match-request-options-request"></a></dfn>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑤"><c- n>CacheQueryOptions</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/match(request, options), CacheStorage/match(request)" data-dfn-type="argument" data-export id="dom-cachestorage-match-request-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-cachestorage-match-request-options-options"></a></dfn>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②⓪"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑧"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-has" id="ref-for-dom-cachestorage-has"><c- g>has</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①④"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/has(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-has-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-has-cachename-cachename"></a></dfn>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="n" data-link-type="idl-name" href="#cache" id="ref-for-cache①①"><c- n>Cache</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-open" id="ref-for-dom-cachestorage-open"><c- g>open</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑤"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/open(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-open-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-open-cachename-cachename"></a></dfn>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②②"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑨"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-delete" id="ref-for-dom-cachestorage-delete"><c- g>delete</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑥"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/delete(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-delete-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-delete-cachename-cachename"></a></dfn>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②③"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑦"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-keys" id="ref-for-dom-cachestorage-keys"><c- g>keys</c-></a>();
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①⑨"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-match" id="ref-for-dom-cachestorage-match"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑦"><c- n>RequestInfo</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/match(request, options), CacheStorage/match(request)" data-dfn-type="argument" data-export id="dom-cachestorage-match-request-options-request"><code><c- g>request</c-></code><a class="self-link" href="#dom-cachestorage-match-request-options-request"></a></dfn>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-multicachequeryoptions" id="ref-for-dictdef-multicachequeryoptions"><c- n>MultiCacheQueryOptions</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/match(request, options), CacheStorage/match(request)" data-dfn-type="argument" data-export id="dom-cachestorage-match-request-options-options"><code><c- g>options</c-></code><a class="self-link" href="#dom-cachestorage-match-request-options-options"></a></dfn>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②⓪"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑧"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-has" id="ref-for-dom-cachestorage-has"><c- g>has</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①③"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/has(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-has-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-has-cachename-cachename"></a></dfn>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="n" data-link-type="idl-name" href="#cache" id="ref-for-cache①①"><c- n>Cache</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-open" id="ref-for-dom-cachestorage-open"><c- g>open</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①④"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/open(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-open-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-open-cachename-cachename"></a></dfn>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②②"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑨"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-delete" id="ref-for-dom-cachestorage-delete"><c- g>delete</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑤"><c- b>DOMString</c-></a> <dfn class="idl-code" data-dfn-for="CacheStorage/delete(cacheName)" data-dfn-type="argument" data-export id="dom-cachestorage-delete-cachename-cachename"><code><c- g>cacheName</c-></code><a class="self-link" href="#dom-cachestorage-delete-cachename-cachename"></a></dfn>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②③"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑥"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-keys" id="ref-for-dom-cachestorage-keys"><c- g>keys</c-></a>();
+};
+
+<c- b>dictionary</c-> <dfn class="dfn-paneled idl-code" data-dfn-type="dictionary" data-export id="dictdef-multicachequeryoptions"><code><c- g>MultiCacheQueryOptions</c-></code></dfn> : <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑤"><c- n>CacheQueryOptions</c-></a> {
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑦"><c- b>DOMString</c-></a> <dfn class="dfn-paneled idl-code" data-dfn-for="MultiCacheQueryOptions" data-dfn-type="dict-member" data-export data-type="DOMString " id="dom-multicachequeryoptions-cachename"><code><c- g>cacheName</c-></code></dfn>;
 };
 </pre>
      <p class="note" role="note"><span>Note:</span> <code class="idl"><a data-link-type="idl" href="#cachestorage" id="ref-for-cachestorage③">CacheStorage</a></code> interface is designed to largely conform to <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-map-objects" id="ref-for-sec-map-objects">ECMAScript 6 Map objects</a> but entirely async, and with additional convenience methods. The methods, <code>clear</code>, <code>forEach</code>, <code>entries</code> and <code>values</code>, are intentionally excluded from the scope of the first version resorting to the ongoing discussion about the async iteration by TC39.</p>
@@ -3926,7 +3930,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <p><dfn class="dfn-paneled idl-code" data-dfn-for="CacheStorage" data-dfn-type="method" data-export data-lt="match(request, options)|match(request)" id="dom-cachestorage-match"><code>match(<var>request</var>, <var>options</var>)</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
-        <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-cachename" id="ref-for-dom-cachequeryoptions-cachename">cacheName</a></code> is <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-present" id="ref-for-dfn-present①">present</a>, then:</p>
+        <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-multicachequeryoptions-cachename" id="ref-for-dom-multicachequeryoptions-cachename">cacheName</a></code> is <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-present" id="ref-for-dfn-present①">present</a>, then:</p>
         <ol>
          <li data-md>
           <p>Return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise①②">a new promise</a> <var>promise</var> and run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel②③">in parallel</a>:</p>
@@ -3935,7 +3939,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-iterate" id="ref-for-map-iterate①">For each</a> <var>cacheName</var> → <var>cache</var> of the <a data-link-type="dfn" href="#dfn-relevant-name-to-cache-map" id="ref-for-dfn-relevant-name-to-cache-map">relevant name to cache map</a>:</p>
             <ol>
              <li data-md>
-              <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-cachename" id="ref-for-dom-cachequeryoptions-cachename①">cacheName</a></code> matches <var>cacheName</var>, then:</p>
+              <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-multicachequeryoptions-cachename" id="ref-for-dom-multicachequeryoptions-cachename①">cacheName</a></code> matches <var>cacheName</var>, then:</p>
               <ol>
                <li data-md>
                 <p>Resolve <var>promise</var> with the result of running the algorithm specified in <code class="idl"><a data-link-type="idl" href="#dom-cache-match" id="ref-for-dom-cache-match②">match(request, options)</a></code> method of <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①②">Cache</a></code> interface with <var>request</var> and <var>options</var> (providing <var>cache</var> as thisArgument to the <code>[[Call]]</code> internal method of <code class="idl"><a data-link-type="idl" href="#dom-cache-match" id="ref-for-dom-cache-match③">match(request, options)</a></code>.)</p>
@@ -5911,7 +5915,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
      <dl>
       <dt data-md>Input
       <dd data-md>
-       <p><var>request</var>, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request⑤">request</a></p>
+       <p><var>requestQuery</var>, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request⑤">request</a></p>
       <dd data-md>
        <p><var>options</var>, a <code class="idl"><a data-link-type="idl" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑥">CacheQueryOptions</a></code> object, optional</p>
       <dd data-md>
@@ -5928,10 +5932,6 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p>Let <var>resultList</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②②">list</a>.</p>
       <li data-md>
-       <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoremethod" id="ref-for-dom-cachequeryoptions-ignoremethod">ignoreMethod</a></code> is false and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method⑥">method</a> is not `<code>GET</code>`, return <var>resultList</var>.</p>
-      <li data-md>
-       <p>Let <var>cachedURL</var> and <var>requestURL</var> be null.</p>
-      <li data-md>
        <p>Let <var>storage</var> be null.</p>
       <li data-md>
        <p>If the optional argument <var>targetStorage</var> is omitted, set <var>storage</var> to the <a data-link-type="dfn" href="#dfn-relevant-request-response-list" id="ref-for-dfn-relevant-request-response-list②">relevant request response list</a>.</p>
@@ -5941,64 +5941,69 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate①③">For each</a> <var>requestResponse</var> of <var>storage</var>:</p>
        <ol>
         <li data-md>
-         <p>Set <var>cachedURL</var> to <var>requestResponse</var>’s request’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑤">url</a>.</p>
+         <p>Let <var>cachedRequest</var> be <var>requestResponse</var>’s request.</p>
         <li data-md>
-         <p>Set <var>requestURL</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑥">url</a>.</p>
+         <p>Let <var>cachedResponse</var> be <var>requestResponse</var>’s response.</p>
         <li data-md>
-         <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoresearch" id="ref-for-dom-cachequeryoptions-ignoresearch">ignoreSearch</a></code> is true, then:</p>
+         <p>If <a data-link-type="dfn" href="#request-matches-cached-item" id="ref-for-request-matches-cached-item">Request Matches Cached Item</a> with <var>requestQuery</var>, <var>cachedRequest</var>, <var>cachedResponse</var>, and <var>options</var> returns true, then:</p>
          <ol>
           <li data-md>
-           <p>Set <var>cachedURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-query" id="ref-for-concept-url-query">query</a> to the empty string.</p>
+           <p>Let <var>requestCopy</var> be a copy of <var>cachedRequest</var>.</p>
           <li data-md>
-           <p>Set <var>requestURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-query" id="ref-for-concept-url-query①">query</a> to the empty string.</p>
+           <p>Let <var>responseCopy</var> be a copy of <var>cachedResponse</var>.</p>
+          <li data-md>
+           <p>Add <var>requestCopy</var>/<var>responseCopy</var> to <var>resultList</var>.</p>
          </ol>
-        <li data-md>
-         <p>If <var>cachedURL</var> <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals" id="ref-for-concept-url-equals②">equals</a> <var>requestURL</var> with the <em>exclude fragment flag</em> set, then:</p>
-         <ol>
-          <li data-md>
-           <p>Add a copy of <var>requestResponse</var>’s request to <var>requests</var>.</p>
-          <li data-md>
-           <p>Add a copy of <var>requestResponse</var>’s response to <var>responses</var>.</p>
-         </ol>
-       </ol>
-      <li data-md>
-       <p>Let <var>index</var> be zero.</p>
-      <li data-md>
-       <p>For each <var>cachedResponse</var> in <var>responses</var>:</p>
-       <ol>
-        <li data-md>
-         <p>Let <var>cachedRequest</var> be <var>requests</var>[<var>index</var>].</p>
-        <li data-md>
-         <p>Increment <var>index</var> by one.</p>
-        <li data-md>
-         <p>If <var>cachedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list⑥">header list</a> contains no <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header③">header</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name" id="ref-for-concept-header-name③">named</a> `<code>Vary</code>`, or <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignorevary" id="ref-for-dom-cachequeryoptions-ignorevary">ignoreVary</a></code> is true, then:</p>
-         <ol>
-          <li data-md>
-           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑦">Append</a> <var>cachedRequest</var>/<var>cachedResponse</var> to <var>resultList</var>.</p>
-          <li data-md>
-           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-continue" id="ref-for-iteration-continue⑥">Continue</a>.</p>
-         </ol>
-        <li data-md>
-         <p>Let <var>fieldValues</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②③">list</a> containing the elements corresponding to the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7230#section-3.2" id="ref-for-section-3.2②">field-values</a> of the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7231#section-7.1.4" id="ref-for-section-7.1.4②">Vary</a> header.</p>
-        <li data-md>
-         <p>Let <var>isMatched</var> be true.</p>
-        <li data-md>
-         <p>For each <var>fieldValue</var> in <var>fieldValues</var>:</p>
-         <ol>
-          <li data-md>
-           <p>If <var>fieldValue</var> matches "<code>*</code>", or the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value-combined" id="ref-for-concept-header-value-combined">combined value</a> given <var>fieldValue</var> and <var>cachedRequest</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list" id="ref-for-concept-request-header-list②">header list</a> does not match the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value-combined" id="ref-for-concept-header-value-combined①">combined value</a> given <var>fieldValue</var> and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list" id="ref-for-concept-request-header-list③">header list</a>, then:</p>
-           <ol>
-            <li data-md>
-             <p>Set <var>isMatched</var> to false.</p>
-            <li data-md>
-             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#iteration-break" id="ref-for-iteration-break">Break</a>.</p>
-           </ol>
-         </ol>
-        <li data-md>
-         <p>If <var>isMatched</var> is true, <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑧">append</a> <var>cachedRequest</var>/<var>cachedResponse</var> to <var>resultList</var>.</p>
        </ol>
       <li data-md>
        <p>Return <var>resultList</var>.</p>
+     </ol>
+    </section>
+    <section class="algorithm" data-algorithm="Request Matches Cached Item">
+     <h3 class="heading settled" id="request-matches-cached-item-algorithm"><span class="content"><dfn class="dfn-paneled" data-dfn-type="dfn" data-export id="request-matches-cached-item">Request Matches Cached Item</dfn></span><a class="self-link" href="#request-matches-cached-item-algorithm"></a></h3>
+     <dl>
+      <dt data-md>Input
+      <dd data-md>
+       <p><var>requestQuery</var>, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request⑥">request</a></p>
+      <dd data-md>
+       <p><var>request</var>, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request⑦">request</a></p>
+      <dd data-md>
+       <p><var>response</var>, a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response⑨">response</a> or null, optional, defaulting to null</p>
+      <dd data-md>
+       <p><var>options</var>, a <code class="idl"><a data-link-type="idl" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑦">CacheQueryOptions</a></code> object, optional</p>
+      <dt data-md>Output
+      <dd data-md>
+       <p>a boolean</p>
+     </dl>
+     <ol>
+      <li data-md>
+       <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoremethod" id="ref-for-dom-cachequeryoptions-ignoremethod">ignoreMethod</a></code> is false and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method⑥">method</a> is not `<code>GET</code>`, return false.</p>
+      <li data-md>
+       <p>Let <var>queryURL</var> be <var>requestQuery</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑤">url</a>.</p>
+      <li data-md>
+       <p>Let <var>cachedURL</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑥">url</a>.</p>
+      <li data-md>
+       <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoresearch" id="ref-for-dom-cachequeryoptions-ignoresearch">ignoreSearch</a></code> is true, then:</p>
+       <ol>
+        <li data-md>
+         <p>Set <var>cachedURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-query" id="ref-for-concept-url-query">query</a> to the empty string.</p>
+        <li data-md>
+         <p>Set <var>requestURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-query" id="ref-for-concept-url-query①">query</a> to the empty string.</p>
+       </ol>
+      <li data-md>
+       <p>If <var>queryURL</var> does not <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-equals" id="ref-for-concept-url-equals②">equal</a> <var>cachedURL</var> with the <em>exclude fragment flag</em> set, then return false.</p>
+      <li data-md>
+       <p>If <var>response</var> is null, <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignorevary" id="ref-for-dom-cachequeryoptions-ignorevary">ignoreVary</a></code> is true, or <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list⑥">header list</a> does not <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#header-list-contains" id="ref-for-header-list-contains">contain</a> `<code>Vary</code>`, then return true.</p>
+      <li data-md>
+       <p>Let <var>fieldValues</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②③">list</a> containing the elements corresponding to the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7230#section-3.2" id="ref-for-section-3.2②">field-values</a> of the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7231#section-7.1.4" id="ref-for-section-7.1.4②">Vary</a> header for the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value" id="ref-for-concept-header-value①">value</a> of the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header③">header</a> with <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name" id="ref-for-concept-header-name③">name</a> `<code>Vary</code>`.</p>
+      <li data-md>
+       <p>For each <var>fieldValue</var> in <var>fieldValues</var>:</p>
+       <ol>
+        <li data-md>
+         <p>If <var>fieldValue</var> matches "<code>*</code>", or the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value-combined" id="ref-for-concept-header-value-combined">combined value</a> given <var>fieldValue</var> and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list" id="ref-for-concept-request-header-list②">header list</a> does not match the <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-value-combined" id="ref-for-concept-header-value-combined①">combined value</a> given <var>fieldValue</var> and <var>requestQuery</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-header-list" id="ref-for-concept-request-header-list③">header list</a>, then return false.</p>
+       </ol>
+      <li data-md>
+       <p>Return true.</p>
      </ol>
     </section>
     <section class="algorithm" data-algorithm="Batch Cache Operations">
@@ -6068,14 +6073,14 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
                <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-remove" id="ref-for-list-remove③">Remove</a> the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item" id="ref-for-list-item⑨">item</a> whose value matches <var>requestResponse</var> from <var>cache</var>.</p>
              </ol>
             <li data-md>
-             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑨">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑦">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response④">response</a> to <var>cache</var>.</p>
+             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑦">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑦">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response④">response</a> to <var>cache</var>.</p>
             <li data-md>
              <p>If the cache write operation in the previous two steps failed due to exceeding the granted quota limit, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②③">throw</a> a "<code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#quotaexceedederror" id="ref-for-quotaexceedederror①">QuotaExceededError</a></code>" <code class="idl"><a data-link-type="idl" href="https://heycam.github.io/webidl/#idl-DOMException" id="ref-for-idl-DOMException②⑤">DOMException</a></code>.</p>
             <li data-md>
-             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append①⓪">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑧">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response⑤">response</a> to <var>addedItems</var>.</p>
+             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑧">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑧">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response⑤">response</a> to <var>addedItems</var>.</p>
            </ol>
           <li data-md>
-           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append①①">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑨">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response⑥">response</a> to <var>resultList</var>.</p>
+           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append⑨">Append</a> <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑨">request</a>/<var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response⑥">response</a> to <var>resultList</var>.</p>
          </ol>
         <li data-md>
          <p>Return <var>resultList</var>.</p>
@@ -6089,7 +6094,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
          <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate①⑦">For each</a> <var>requestResponse</var> of <var>backupCache</var>:</p>
          <ol>
           <li data-md>
-           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append①②">Append</a> <var>requestResponse</var> to the <a data-link-type="dfn" href="#dfn-relevant-request-response-list" id="ref-for-dfn-relevant-request-response-list⑤">relevant request response list</a>.</p>
+           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-append" id="ref-for-list-append①⓪">Append</a> <var>requestResponse</var> to the <a data-link-type="dfn" href="#dfn-relevant-request-response-list" id="ref-for-dfn-relevant-request-response-list⑤">relevant request response list</a>.</p>
          </ol>
         <li data-md>
          <p><a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②⑤">Throw</a> the exception.</p>
@@ -6307,7 +6312,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li><a href="#dfn-service-worker-client-browsing-context">browsing context</a><span>, in §4.2</span>
    <li><a href="#cache">Cache</a><span>, in §5.4</span>
    <li><a href="#dfn-cache-batch-operation">cache batch operation</a><span>, in §5.4</span>
-   <li><a href="#dom-cachequeryoptions-cachename">cacheName</a><span>, in §5.4</span>
+   <li><a href="#dom-multicachequeryoptions-cachename">cacheName</a><span>, in §5.5</span>
    <li><a href="#dictdef-cachequeryoptions">CacheQueryOptions</a><span>, in §5.4</span>
    <li><a href="#global-caches-attribute">caches</a><span>, in §5.3.1</span>
    <li><a href="#cachestorage">CacheStorage</a><span>, in §5.5</span>
@@ -6452,6 +6457,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li><a href="#match-service-worker-registration">Match Service Worker Registration</a><span>, in §Unnumbered section</span>
    <li><a href="#eventdef-serviceworkerglobalscope-message">message</a><span>, in §4.7</span>
    <li><a href="#eventdef-serviceworkerglobalscope-messageerror">messageerror</a><span>, in §4.7</span>
+   <li><a href="#dictdef-multicachequeryoptions">MultiCacheQueryOptions</a><span>, in §5.5</span>
    <li><a href="#dfn-name-to-cache-map">name to cache map</a><span>, in §5.1</span>
    <li><a href="#dom-windowclient-navigate①">navigate()</a><span>, in §4.2.9</span>
    <li><a href="#dom-windowclient-navigate">navigate(url)</a><span>, in §4.2</span>
@@ -6550,6 +6556,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><a href="#dfn-cache-batch-operation-request">dfn for cache batch operation</a><span>, in §5.4</span>
      <li><a href="#dom-fetcheventinit-request">dict-member for FetchEventInit</a><span>, in §4.5</span>
     </ul>
+   <li><a href="#request-matches-cached-item">Request Matches Cached Item</a><span>, in §Unnumbered section</span>
    <li><a href="#dfn-request-response-list">request response list</a><span>, in §5.1</span>
    <li><a href="#resolve-get-client-promise">Resolve Get Client Promise</a><span>, in §Unnumbered section</span>
    <li><a href="#resolve-job-promise">Resolve Job Promise</a><span>, in §Unnumbered section</span>
@@ -7047,13 +7054,19 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-header-value-combined">
    <a href="https://fetch.spec.whatwg.org/#concept-header-value-combined">https://fetch.spec.whatwg.org/#concept-header-value-combined</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-header-value-combined">Query Cache</a> <a href="#ref-for-concept-header-value-combined①">(2)</a>
+    <li><a href="#ref-for-concept-header-value-combined">Request Matches Cached Item</a> <a href="#ref-for-concept-header-value-combined①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-construct-readablestream">
    <a href="https://fetch.spec.whatwg.org/#concept-construct-readablestream">https://fetch.spec.whatwg.org/#concept-construct-readablestream</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-construct-readablestream">4.5.6. event.respondWith(r)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-header-list-contains">
+   <a href="https://fetch.spec.whatwg.org/#header-list-contains">https://fetch.spec.whatwg.org/#header-list-contains</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-header-list-contains">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-filtered-response-cors">
@@ -7154,7 +7167,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-header">5.4.4. addAll(requests)</a>
     <li><a href="#ref-for-concept-header①">5.4.5. put(request, response)</a>
     <li><a href="#ref-for-concept-header②">Handle Fetch</a>
-    <li><a href="#ref-for-concept-header③">Query Cache</a>
+    <li><a href="#ref-for-concept-header③">Request Matches Cached Item</a>
     <li><a href="#ref-for-concept-header④">Service Worker Script Request</a>
     <li><a href="#ref-for-concept-header⑤">Service Worker Script Response</a>
    </ul>
@@ -7166,7 +7179,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-response-header-list①">5.4.5. put(request, response)</a>
     <li><a href="#ref-for-concept-response-header-list②">6.3.2. importScripts(urls)</a>
     <li><a href="#ref-for-concept-response-header-list③">Update</a> <a href="#ref-for-concept-response-header-list④">(2)</a> <a href="#ref-for-concept-response-header-list⑤">(3)</a>
-    <li><a href="#ref-for-concept-response-header-list⑥">Query Cache</a>
+    <li><a href="#ref-for-concept-response-header-list⑥">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-http-fetch">
@@ -7215,7 +7228,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-request-method③">5.4.6. delete(request, options)</a>
     <li><a href="#ref-for-concept-request-method④">5.4.7. keys(request, options)</a>
     <li><a href="#ref-for-concept-request-method⑤">Handle Fetch</a>
-    <li><a href="#ref-for-concept-request-method⑥">Query Cache</a>
+    <li><a href="#ref-for-concept-request-method⑥">Request Matches Cached Item</a>
     <li><a href="#ref-for-concept-request-method⑦">Batch Cache Operations</a>
    </ul>
   </aside>
@@ -7225,7 +7238,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-header-name">5.4.4. addAll(requests)</a>
     <li><a href="#ref-for-concept-header-name①">5.4.5. put(request, response)</a>
     <li><a href="#ref-for-concept-header-name②">Handle Fetch</a>
-    <li><a href="#ref-for-concept-header-name③">Query Cache</a>
+    <li><a href="#ref-for-concept-header-name③">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-navigation-request">
@@ -7408,7 +7421,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-concept-request-url⑦">6.3.2. importScripts(urls)</a> <a href="#ref-for-concept-request-url⑧">(2)</a>
     <li><a href="#ref-for-concept-request-url⑨">Update</a> <a href="#ref-for-concept-request-url①⓪">(2)</a> <a href="#ref-for-concept-request-url①①">(3)</a> <a href="#ref-for-concept-request-url①②">(4)</a>
     <li><a href="#ref-for-concept-request-url①③">Handle Fetch</a> <a href="#ref-for-concept-request-url①④">(2)</a>
-    <li><a href="#ref-for-concept-request-url①⑤">Query Cache</a> <a href="#ref-for-concept-request-url①⑥">(2)</a>
+    <li><a href="#ref-for-concept-request-url①⑤">Request Matches Cached Item</a> <a href="#ref-for-concept-request-url①⑥">(2)</a>
     <li><a href="#ref-for-concept-request-url①⑦">Batch Cache Operations</a>
    </ul>
   </aside>
@@ -7422,6 +7435,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://fetch.spec.whatwg.org/#concept-header-value">https://fetch.spec.whatwg.org/#concept-header-value</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-header-value">Handle Fetch</a>
+    <li><a href="#ref-for-concept-header-value①">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-abstractworker">
@@ -8295,12 +8309,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-ascii-case-insensitive">Start Register</a> <a href="#ref-for-ascii-case-insensitive①">(2)</a> <a href="#ref-for-ascii-case-insensitive②">(3)</a> <a href="#ref-for-ascii-case-insensitive③">(4)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-iteration-break">
-   <a href="https://infra.spec.whatwg.org/#iteration-break">https://infra.spec.whatwg.org/#iteration-break</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-iteration-break">Query Cache</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-byte-sequence">
    <a href="https://infra.spec.whatwg.org/#byte-sequence">https://infra.spec.whatwg.org/#byte-sequence</a><b>Referenced in:</b>
    <ul>
@@ -8320,7 +8328,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-iteration-continue">4.3.1. get(id)</a>
     <li><a href="#ref-for-iteration-continue①">4.3.2. matchAll(options)</a> <a href="#ref-for-iteration-continue②">(2)</a> <a href="#ref-for-iteration-continue③">(3)</a> <a href="#ref-for-iteration-continue④">(4)</a>
     <li><a href="#ref-for-iteration-continue⑤">Reject Job Promise</a>
-    <li><a href="#ref-for-iteration-continue⑥">Query Cache</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-queue-dequeue">
@@ -8409,7 +8416,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-list①⑥">5.4.6. delete(request, options)</a>
     <li><a href="#ref-for-list①⑦">5.4.7. keys(request, options)</a> <a href="#ref-for-list①⑧">(2)</a>
     <li><a href="#ref-for-list①⑨">Activate</a>
-    <li><a href="#ref-for-list②⓪">Query Cache</a> <a href="#ref-for-list②①">(2)</a> <a href="#ref-for-list②②">(3)</a> <a href="#ref-for-list②③">(4)</a>
+    <li><a href="#ref-for-list②⓪">Query Cache</a> <a href="#ref-for-list②①">(2)</a> <a href="#ref-for-list②②">(3)</a>
+    <li><a href="#ref-for-list②③">Request Matches Cached Item</a>
     <li><a href="#ref-for-list②④">Batch Cache Operations</a> <a href="#ref-for-list②⑤">(2)</a> <a href="#ref-for-list②⑥">(3)</a> <a href="#ref-for-list②⑦">(4)</a>
    </ul>
   </aside>
@@ -8592,7 +8600,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-section-3.2">5.4.4. addAll(requests)</a>
     <li><a href="#ref-for-section-3.2①">5.4.5. put(request, response)</a>
-    <li><a href="#ref-for-section-3.2②">Query Cache</a>
+    <li><a href="#ref-for-section-3.2②">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-section-7.1.4">
@@ -8600,7 +8608,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-section-7.1.4">5.4.4. addAll(requests)</a>
     <li><a href="#ref-for-section-7.1.4①">5.4.5. put(request, response)</a>
-    <li><a href="#ref-for-section-7.1.4②">Query Cache</a>
+    <li><a href="#ref-for-section-7.1.4②">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-potentially-trustworthy-origin">
@@ -8639,7 +8647,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-url-equals">Register</a>
     <li><a href="#ref-for-concept-url-equals①">Update</a>
-    <li><a href="#ref-for-concept-url-equals②">Query Cache</a>
+    <li><a href="#ref-for-concept-url-equals②">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url-fragment">
@@ -8668,7 +8676,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <aside class="dfn-panel" data-for="term-for-concept-url-query">
    <a href="https://url.spec.whatwg.org/#concept-url-query">https://url.spec.whatwg.org/#concept-url-query</a><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-concept-url-query">Query Cache</a> <a href="#ref-for-concept-url-query①">(2)</a>
+    <li><a href="#ref-for-concept-url-query">Request Matches Cached Item</a> <a href="#ref-for-concept-url-query①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url-scheme">
@@ -8773,8 +8781,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-idl-DOMString②">4.4. ExtendableEvent</a>
     <li><a href="#ref-for-idl-DOMString③">4.5. FetchEvent</a> <a href="#ref-for-idl-DOMString④">(2)</a> <a href="#ref-for-idl-DOMString⑤">(3)</a> <a href="#ref-for-idl-DOMString⑥">(4)</a> <a href="#ref-for-idl-DOMString⑦">(5)</a> <a href="#ref-for-idl-DOMString⑧">(6)</a> <a href="#ref-for-idl-DOMString⑨">(7)</a>
     <li><a href="#ref-for-idl-DOMString①⓪">4.6. ExtendableMessageEvent</a> <a href="#ref-for-idl-DOMString①①">(2)</a> <a href="#ref-for-idl-DOMString①②">(3)</a>
-    <li><a href="#ref-for-idl-DOMString①③">5.4. Cache</a>
-    <li><a href="#ref-for-idl-DOMString①④">5.5. CacheStorage</a> <a href="#ref-for-idl-DOMString①⑤">(2)</a> <a href="#ref-for-idl-DOMString①⑥">(3)</a> <a href="#ref-for-idl-DOMString①⑦">(4)</a>
+    <li><a href="#ref-for-idl-DOMString①③">5.5. CacheStorage</a> <a href="#ref-for-idl-DOMString①④">(2)</a> <a href="#ref-for-idl-DOMString①⑤">(3)</a> <a href="#ref-for-idl-DOMString①⑥">(4)</a> <a href="#ref-for-idl-DOMString①⑦">(5)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-Exposed">
@@ -9042,6 +9049,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="term-for-concept-readablestream-closed" style="color:initial">closed</span>
      <li><span class="dfn-paneled" id="term-for-concept-header-value-combined" style="color:initial">combined value</span>
      <li><span class="dfn-paneled" id="term-for-concept-construct-readablestream" style="color:initial">construct a readablestream object</span>
+     <li><span class="dfn-paneled" id="term-for-header-list-contains" style="color:initial">contains</span>
      <li><span class="dfn-paneled" id="term-for-concept-filtered-response-cors" style="color:initial">cors filtered response</span>
      <li><span class="dfn-paneled" id="term-for-concept-request-destination" style="color:initial">destination</span>
      <li><span class="dfn-paneled" id="term-for-concept-body-disturbed" style="color:initial">disturbed</span>
@@ -9197,7 +9205,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <ul>
      <li><span class="dfn-paneled" id="term-for-set-append" style="color:initial">append <small>(for set)</small></span>
      <li><span class="dfn-paneled" id="term-for-ascii-case-insensitive" style="color:initial">ascii case-insensitive</span>
-     <li><span class="dfn-paneled" id="term-for-iteration-break" style="color:initial">break</span>
      <li><span class="dfn-paneled" id="term-for-byte-sequence" style="color:initial">byte sequence</span>
      <li><span class="dfn-paneled" id="term-for-list-contain" style="color:initial">contain</span>
      <li><span class="dfn-paneled" id="term-for-iteration-continue" style="color:initial">continue</span>
@@ -9561,7 +9568,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SecureContext" id="ref-for-SecureContext⑦①"><c- g>SecureContext</c-></a>, <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①①①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <a href="#cache"><code><c- g>Cache</c-></code></a> {
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cache-match" id="ref-for-dom-cache-match⑥"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑧"><c- n>RequestInfo</c-></a> <a href="#dom-cache-match-request-options-request"><code><c- g>request</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑦"><c- n>CacheQueryOptions</c-></a> <a href="#dom-cache-match-request-options-options"><code><c- g>options</c-></code></a>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cache-match" id="ref-for-dom-cache-match⑥"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑧"><c- n>RequestInfo</c-></a> <a href="#dom-cache-match-request-options-request"><code><c- g>request</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑧"><c- n>CacheQueryOptions</c-></a> <a href="#dom-cache-match-request-options-options"><code><c- g>options</c-></code></a>);
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①③①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>FrozenArray</c->&lt;<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response⑥①"><c- n>Response</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-cache-matchall" id="ref-for-dom-cache-matchall③"><c- g>matchAll</c-></a>(<c- b>optional</c-> <a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo①①"><c- n>RequestInfo</c-></a> <a href="#dom-cache-matchall-request-options-request"><code><c- g>request</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions①①"><c- n>CacheQueryOptions</c-></a> <a href="#dom-cache-matchall-request-options-options"><code><c- g>options</c-></code></a>);
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①④①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-cache-add" id="ref-for-dom-cache-add②"><c- g>add</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo②①"><c- n>RequestInfo</c-></a> <a href="#dom-cache-add-request-request"><code><c- g>request</c-></code></a>);
   [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①⑤①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>void</c->> <a class="idl-code" data-link-type="method" href="#dom-cache-addall" id="ref-for-dom-cache-addall③"><c- g>addAll</c-></a>(<c- b>sequence</c->&lt;<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo③①"><c- n>RequestInfo</c-></a>> <a href="#dom-cache-addall-requests-requests"><code><c- g>requests</c-></code></a>);
@@ -9574,16 +9581,19 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑤①"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean " href="#dom-cachequeryoptions-ignoresearch"><code><c- g>ignoreSearch</c-></code></a> = <c- b>false</c->;
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑥①"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean " href="#dom-cachequeryoptions-ignoremethod"><code><c- g>ignoreMethod</c-></code></a> = <c- b>false</c->;
   <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑦①"><c- b>boolean</c-></a> <a data-default="false" data-type="boolean " href="#dom-cachequeryoptions-ignorevary"><code><c- g>ignoreVary</c-></code></a> = <c- b>false</c->;
-  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①③①"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-cachequeryoptions-cachename"><code><c- g>cacheName</c-></code></a>;
 };
 
 [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#SecureContext" id="ref-for-SecureContext⑧①"><c- g>SecureContext</c-></a>, <a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#Exposed" id="ref-for-Exposed①②①"><c- g>Exposed</c-></a>=(<c- n>Window</c->,<c- n>Worker</c->)]
 <c- b>interface</c-> <a href="#cachestorage"><code><c- g>CacheStorage</c-></code></a> {
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①⑨①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-match" id="ref-for-dom-cachestorage-match②"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑦①"><c- n>RequestInfo</c-></a> <a href="#dom-cachestorage-match-request-options-request"><code><c- g>request</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑤①"><c- n>CacheQueryOptions</c-></a> <a href="#dom-cachestorage-match-request-options-options"><code><c- g>options</c-></code></a>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②⓪①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑧①"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-has" id="ref-for-dom-cachestorage-has③"><c- g>has</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①④①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-has-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②①①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="n" data-link-type="idl-name" href="#cache" id="ref-for-cache①①①"><c- n>Cache</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-open" id="ref-for-dom-cachestorage-open②"><c- g>open</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑤①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-open-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑨①"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-delete" id="ref-for-dom-cachestorage-delete②"><c- g>delete</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑥①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-delete-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
-  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②③①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑦①"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-keys" id="ref-for-dom-cachestorage-keys②"><c- g>keys</c-></a>();
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject①⑨①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>any</c->> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-match" id="ref-for-dom-cachestorage-match②"><c- g>match</c-></a>(<a class="n" data-link-type="idl-name" href="https://fetch.spec.whatwg.org/#requestinfo" id="ref-for-requestinfo⑦①"><c- n>RequestInfo</c-></a> <a href="#dom-cachestorage-match-request-options-request"><code><c- g>request</c-></code></a>, <c- b>optional</c-> <a class="n" data-link-type="idl-name" href="#dictdef-multicachequeryoptions" id="ref-for-dictdef-multicachequeryoptions①"><c- n>MultiCacheQueryOptions</c-></a> <a href="#dom-cachestorage-match-request-options-options"><code><c- g>options</c-></code></a>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②⓪①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑧①"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-has" id="ref-for-dom-cachestorage-has③"><c- g>has</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①③①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-has-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②①①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="n" data-link-type="idl-name" href="#cache" id="ref-for-cache①①①"><c- n>Cache</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-open" id="ref-for-dom-cachestorage-open②"><c- g>open</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①④①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-open-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②②①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-boolean" id="ref-for-idl-boolean⑨①"><c- b>boolean</c-></a>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-delete" id="ref-for-dom-cachestorage-delete②"><c- g>delete</c-></a>(<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑤①"><c- b>DOMString</c-></a> <a href="#dom-cachestorage-delete-cachename-cachename"><code><c- g>cacheName</c-></code></a>);
+  [<a class="idl-code" data-link-type="extended-attribute" href="https://heycam.github.io/webidl/#NewObject" id="ref-for-NewObject②③①"><c- g>NewObject</c-></a>] <c- b>Promise</c->&lt;<c- b>sequence</c->&lt;<a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑥①"><c- b>DOMString</c-></a>>> <a class="idl-code" data-link-type="method" href="#dom-cachestorage-keys" id="ref-for-dom-cachestorage-keys②"><c- g>keys</c-></a>();
+};
+
+<c- b>dictionary</c-> <a href="#dictdef-multicachequeryoptions"><code><c- g>MultiCacheQueryOptions</c-></code></a> : <a class="n" data-link-type="idl-name" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑤①"><c- n>CacheQueryOptions</c-></a> {
+  <a class="idl-code" data-link-type="interface" href="https://heycam.github.io/webidl/#idl-DOMString" id="ref-for-idl-DOMString①⑦①"><c- b>DOMString</c-></a> <a data-type="DOMString " href="#dom-multicachequeryoptions-cachename"><code><c- g>cacheName</c-></code></a>;
 };
 
 </pre>
@@ -11134,30 +11144,25 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dictdef-cachequeryoptions">5.4. Cache</a> <a href="#ref-for-dictdef-cachequeryoptions①">(2)</a> <a href="#ref-for-dictdef-cachequeryoptions②">(3)</a> <a href="#ref-for-dictdef-cachequeryoptions③">(4)</a> <a href="#ref-for-dictdef-cachequeryoptions④">(5)</a>
     <li><a href="#ref-for-dictdef-cachequeryoptions⑤">5.5. CacheStorage</a>
     <li><a href="#ref-for-dictdef-cachequeryoptions⑥">Query Cache</a>
+    <li><a href="#ref-for-dictdef-cachequeryoptions⑦">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-cachequeryoptions-ignoresearch">
    <b><a href="#dom-cachequeryoptions-ignoresearch">#dom-cachequeryoptions-ignoresearch</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-cachequeryoptions-ignoresearch">Query Cache</a>
+    <li><a href="#ref-for-dom-cachequeryoptions-ignoresearch">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-cachequeryoptions-ignoremethod">
    <b><a href="#dom-cachequeryoptions-ignoremethod">#dom-cachequeryoptions-ignoremethod</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-cachequeryoptions-ignoremethod">Query Cache</a>
+    <li><a href="#ref-for-dom-cachequeryoptions-ignoremethod">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dom-cachequeryoptions-ignorevary">
    <b><a href="#dom-cachequeryoptions-ignorevary">#dom-cachequeryoptions-ignorevary</a></b><b>Referenced in:</b>
    <ul>
-    <li><a href="#ref-for-dom-cachequeryoptions-ignorevary">Query Cache</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="dom-cachequeryoptions-cachename">
-   <b><a href="#dom-cachequeryoptions-cachename">#dom-cachequeryoptions-cachename</a></b><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-dom-cachequeryoptions-cachename">5.5.1. match(request, options)</a> <a href="#ref-for-dom-cachequeryoptions-cachename①">(2)</a>
+    <li><a href="#ref-for-dom-cachequeryoptions-ignorevary">Request Matches Cached Item</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="dfn-cache-batch-operation">
@@ -11260,6 +11265,18 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-cachestorage">5.3. self.caches</a>
     <li><a href="#ref-for-cachestorage①">5.3.1. caches</a>
     <li><a href="#ref-for-cachestorage②">5.5. CacheStorage</a> <a href="#ref-for-cachestorage③">(2)</a> <a href="#ref-for-cachestorage④">(3)</a> <a href="#ref-for-cachestorage⑤">(4)</a> <a href="#ref-for-cachestorage⑥">(5)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dictdef-multicachequeryoptions">
+   <b><a href="#dictdef-multicachequeryoptions">#dictdef-multicachequeryoptions</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dictdef-multicachequeryoptions">5.5. CacheStorage</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="dom-multicachequeryoptions-cachename">
+   <b><a href="#dom-multicachequeryoptions-cachename">#dom-multicachequeryoptions-cachename</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-dom-multicachequeryoptions-cachename">5.5.1. match(request, options)</a> <a href="#ref-for-dom-multicachequeryoptions-cachename①">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="cachestorage-global-object">
@@ -11748,6 +11765,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-query-cache">5.4.2. matchAll(request, options)</a>
     <li><a href="#ref-for-query-cache①">5.4.7. keys(request, options)</a>
     <li><a href="#ref-for-query-cache②">Batch Cache Operations</a> <a href="#ref-for-query-cache③">(2)</a> <a href="#ref-for-query-cache④">(3)</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="request-matches-cached-item">
+   <b><a href="#request-matches-cached-item">#request-matches-cached-item</a></b><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-request-matches-cached-item">Query Cache</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="batch-cache-operations">
