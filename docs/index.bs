@@ -1675,7 +1675,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         boolean ignoreSearch = false;
         boolean ignoreMethod = false;
         boolean ignoreVary = false;
-        DOMString cacheName;
       };
     </pre>
 
@@ -1916,11 +1915,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl">
       [SecureContext, Exposed=(Window,Worker)]
       interface CacheStorage {
-        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional CacheQueryOptions options);
+        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional MultiCacheQueryOptions options);
         [NewObject] Promise&lt;boolean&gt; has(DOMString cacheName);
         [NewObject] Promise&lt;Cache&gt; open(DOMString cacheName);
         [NewObject] Promise&lt;boolean&gt; delete(DOMString cacheName);
         [NewObject] Promise&lt;sequence&lt;DOMString&gt;&gt; keys();
+      };
+
+      dictionary MultiCacheQueryOptions : CacheQueryOptions {
+        DOMString cacheName;
       };
     </pre>
     <!--FIXME(jungkees): set method is not entirely dropped yet. Promise&lt;any&gt; set(DOMString key, Cache val);-->
@@ -1936,10 +1939,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="CacheStorage"><code>match(|request|, |options|)</code></dfn> method *must* run these steps:
 
-        1. If |options|.{{CacheQueryOptions/cacheName}} is [=present=], then:
+        1. If |options|.{{MultiCacheQueryOptions/cacheName}} is [=present=], then:
             1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
                 1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
-                    1. If |options|.{{CacheQueryOptions/cacheName}} matches |cacheName|, then:
+                    1. If |options|.{{MultiCacheQueryOptions/cacheName}} matches |cacheName|, then:
                         1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
                         1. Abort these steps.
                 1. Resolve |promise| with undefined.
@@ -3187,7 +3190,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="query-cache-algorithm"><dfn>Query Cache</dfn></h3>
 
       : Input
-      :: |request|, a [=/request=]
+      :: |requestQuery|, a [=/request=]
       :: |options|, a {{CacheQueryOptions}} object, optional
       :: |targetStorage|, a [=request response list=], optional
       : Output
@@ -3196,35 +3199,42 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |requests| be an empty [=list=].
       1. Let |responses| be an empty [=list=].
       1. Let |resultList| be an empty [=list=].
-      1. If |options|.{{CacheQueryOptions/ignoreMethod}} is false and |request|'s [=request/method=] is not \`<code>GET</code>\`, return |resultList|.
-      1. Let |cachedURL| and |requestURL| be null.
       1. Let |storage| be null.
       1. If the optional argument |targetStorage| is omitted, set |storage| to the [=relevant request response list=].
       1. Else, set |storage| to |targetStorage|.
       1. [=list/For each=] |requestResponse| of |storage|:
-          1. Set |cachedURL| to |requestResponse|'s request's [=request/url=].
-          1. Set |requestURL| to |request|'s [=request/url=].
-          1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
-              1. Set |cachedURL|'s [=url/query=] to the empty string.
-              1. Set |requestURL|'s [=url/query=] to the empty string.
-          1. If |cachedURL| [=url/equals=] |requestURL| with the *exclude fragment flag* set, then:
-              1. Add a copy of |requestResponse|'s request to |requests|.
-              1. Add a copy of |requestResponse|'s response to |responses|.
-      1. Let |index| be zero.
-      1. For each |cachedResponse| in |responses|:
-          1. Let |cachedRequest| be |requests|[|index|].
-          1. Increment |index| by one.
-          1. If |cachedResponse|'s [=response/header list=] contains no <a>header</a> [=header/named=] \`<code>Vary</code>\`, or |options|.{{CacheQueryOptions/ignoreVary}} is true, then:
-              1. [=list/Append=] |cachedRequest|/|cachedResponse| to |resultList|.
-              1. [=Continue=].
-          1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the <a>Vary</a> header.
-          1. Let |isMatched| be true.
-          1. For each |fieldValue| in |fieldValues|:
-              1. If |fieldValue| matches "`*`", or the [=combined value=] given |fieldValue| and |cachedRequest|'s [=request/header list=] does not match the [=combined value=] given |fieldValue| and |request|'s [=request/header list=], then:
-                  1. Set |isMatched| to false.
-                  1. [=Break=].
-          1. If |isMatched| is true, [=list/append=] |cachedRequest|/|cachedResponse| to |resultList|.
+          1. Let |cachedRequest| be |requestResponse|'s request.
+          1. Let |cachedResponse| be |requestResponse|'s response.
+          1. If [=Request Matches Cached Item=] with |requestQuery|, |cachedRequest|, |cachedResponse|, and |options| returns true, then:
+            1. Let |requestCopy| be a copy of |cachedRequest|.
+            1. Let |responseCopy| be a copy of |cachedResponse|.
+            1. Add |requestCopy|/|responseCopy| to |resultList|.
       1. Return |resultList|.
+  </section>
+
+  <section algorithm>
+    <h3 id="request-matches-cached-item-algorithm"><dfn export>Request Matches Cached Item</dfn></h3>
+
+      : Input
+      :: |requestQuery|, a [=/request=]
+      :: |request|, a [=/request=]
+      :: |response|, a [=/response=] or null, optional, defaulting to null
+      :: |options|, a {{CacheQueryOptions}} object, optional
+      : Output
+      :: a boolean
+
+      1. If |options|.{{CacheQueryOptions/ignoreMethod}} is false and |request|'s [=request/method=] is not \``GET`\`, return false.
+      1. Let |queryURL| be |requestQuery|'s [=request/url=].
+      1. Let |cachedURL| be |request|'s [=request/url=].
+      1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
+          1. Set |cachedURL|'s [=url/query=] to the empty string.
+          1. Set |requestURL|'s [=url/query=] to the empty string.
+      1. If |queryURL| does not [=url/equal=] |cachedURL| with the *exclude fragment flag* set, then return false.
+      1. If |response| is null, |options|.{{CacheQueryOptions/ignoreVary}} is true, or |response|'s [=response/header list=] does not [=header list/contain=] \``Vary`\`, then return true.
+      1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header for the [=header/value=] of the [=header=] with [=header/name=] \``Vary`\`.
+      1. For each |fieldValue| in |fieldValues|:
+          1. If |fieldValue| matches "`*`", or the [=combined value=] given |fieldValue| and |request|'s [=request/header list=] does not match the [=combined value=] given |fieldValue| and |requestQuery|'s [=request/header list=], then return false.
+      1. Return true.
   </section>
 
   <section algorithm>
