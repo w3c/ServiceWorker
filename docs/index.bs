@@ -60,6 +60,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: InitializeHostDefinedRealm; url: sec-initializehostdefinedrealm
         text: execution context; url: sec-execution-contexts
         text: abrupt completion; url: sec-completion-record-specification-type
+        text: Completion; url: sec-completion-record-specification-type
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -2488,13 +2489,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |worker|'s [=script resource map=][|url|] to |response|.
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-      1. Let |promise| be the result of invoking the [=Run Service Worker=] algorithm given |worker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
-      1. [=upon fulfillment|Upon fulfillment=] of |promise| with value |evaluationStatus|:
+      1. Invoke [=Run Service Worker=] algorithm given |worker|, with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set, and with the following callback steps given |evaluationStatus|:
           1. If |evaluationStatus| is an [=abrupt completion=] or |evaluationStatus|.\[[Value]] is empty, then:
               1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-              1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
-              1. Invoke <a>Finish Job</a> with |job|.
-          1. Else, invoke <a>Install</a> algorithm with |job|, |worker|, and |registration| as its arguments.
+              1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
+              1. Invoke [=Finish Job=] with |job|.
+          1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
 
   <section algorithm>
@@ -2635,13 +2635,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |serviceWorker|, a [=/service worker=]
       :: *force bypass cache for importscripts flag*, an optional flag unset by default
-      : Output
-      :: |promise|, a [=promise=]
+      :: optional |callbackSteps|, an algorithm which takes a [=Completion=]
 
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
-      1. If |serviceWorker| is already running, this algorithm must have been invoked previously. Return the same promise as the previous time.
-      1. Let |promise| be [=a new promise=].
+      1. If |serviceWorker| is already running, this algorithm must have been invoked previously. If |callbackSteps| is provided, run them with the same value as the previous time.
       1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following substeps in that context:
           1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
@@ -2676,10 +2674,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for importscripts flag=] if the *force bypass cache for importscripts flag* is set.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
-          1. Resolve |promise| with the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
+          1. Let |evaluationStatus| be the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
 
               Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
-
+          1. If |callbackSteps| is provided, run them with |evaluationStatus| on the original thread that invoked this algorithm, while continuing in parallel with these steps.
           1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
               1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
                   1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
@@ -2689,7 +2687,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Set |script|'s <a>has ever been evaluated flag</a>.
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
-      1. Return |promise|.
   </section>
 
   <section algorithm>
