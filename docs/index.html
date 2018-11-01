@@ -1213,9 +1213,9 @@ Possible extra rowspan handling
 	}
 </style>
   <link href="https://www.w3.org/StyleSheets/TR/2016/W3C-ED" rel="stylesheet" type="text/css">
-  <meta content="Bikeshed version 018be3f805d3272ce699a232398d6e3902d1ea8d" name="generator">
+  <meta content="Bikeshed version 04b354547d55896d854a81cffb3965bd6f8758ec" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="bafcd97bd36978f74a3bea72fded73763e76f668" name="document-revision">
+  <meta content="595e504219f83300e2294dfa38e1e364882a0cf7" name="document-revision">
 <style>/* style-md-lists */
 
 /* This is a weird hack for me not yet following the commonmark spec
@@ -1473,7 +1473,7 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2016/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2018-10-19">19 October 2018</time></span></h2>
+   <h2 class="no-num no-toc no-ref heading settled" id="subtitle"><span class="content">Editor’s Draft, <time class="dt-updated" datetime="2018-11-01">1 November 2018</time></span></h2>
    <div data-fill-with="spec-metadata">
     <dl>
      <dt>This version:
@@ -4716,19 +4716,21 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p>Set <var>worker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource⑦">script resource</a>’s <a data-link-type="dfn" href="#dfn-referrer-policy" id="ref-for-dfn-referrer-policy">referrer policy</a> to <var>referrerPolicy</var>.</p>
       <li data-md>
-       <p>Invoke <a data-link-type="dfn" href="#run-service-worker" id="ref-for-run-service-worker②">Run Service Worker</a> algorithm given <var>worker</var>, and with the <em>force bypass cache for importscripts flag</em> set if <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag②">force bypass cache flag</a> is set.</p>
-      <li data-md>
-       <p>If an uncaught runtime script error occurs during the above step, then:</p>
+       <p>Invoke <a data-link-type="dfn" href="#run-service-worker" id="ref-for-run-service-worker②">Run Service Worker</a> algorithm given <var>worker</var>, with the <em>force bypass cache for importscripts flag</em> set if <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-force-bypass-cache-flag" id="ref-for-dfn-job-force-bypass-cache-flag②">force bypass cache flag</a> is set, and with the following callback steps given <var>evaluationStatus</var>:</p>
        <ol>
         <li data-md>
-         <p>Invoke <a data-link-type="dfn" href="#reject-job-promise" id="ref-for-reject-job-promise⑨">Reject Job Promise</a> with <var>job</var> and <code>TypeError</code>.</p>
+         <p>If <var>evaluationStatus</var> is an <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-completion-record-specification-type" id="ref-for-sec-completion-record-specification-type">abrupt completion</a> or <var>evaluationStatus</var>.[[Value]] is empty, then:</p>
+         <ol>
+          <li data-md>
+           <p>Invoke <a data-link-type="dfn" href="#reject-job-promise" id="ref-for-reject-job-promise⑨">Reject Job Promise</a> with <var>job</var> and <code>TypeError</code>.</p>
+          <li data-md>
+           <p>If <var>newestWorker</var> is null, invoke <a data-link-type="dfn" href="#clear-registration" id="ref-for-clear-registration①">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</p>
+          <li data-md>
+           <p>Invoke <a data-link-type="dfn" href="#finish-job" id="ref-for-finish-job⑧">Finish Job</a> with <var>job</var>.</p>
+         </ol>
         <li data-md>
-         <p>If <var>newestWorker</var> is null, invoke <a data-link-type="dfn" href="#clear-registration" id="ref-for-clear-registration①">Clear Registration</a> algorithm passing <var>registration</var> as its argument.</p>
-        <li data-md>
-         <p>Invoke <a data-link-type="dfn" href="#finish-job" id="ref-for-finish-job⑧">Finish Job</a> with <var>job</var> and abort these steps.</p>
+         <p>Else, invoke <a data-link-type="dfn" href="#install" id="ref-for-install②">Install</a> algorithm with <var>job</var>, <var>worker</var>, and <var>registration</var> as its arguments.</p>
        </ol>
-      <li data-md>
-       <p>Invoke <a data-link-type="dfn" href="#install" id="ref-for-install②">Install</a> algorithm with <var>job</var>, <var>worker</var>, and <var>registration</var> as its arguments.</p>
      </ol>
     </section>
     <section class="algorithm" data-algorithm="Soft Update">
@@ -4964,9 +4966,8 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <p><var>serviceWorker</var>, a <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker⑧⑧">service worker</a></p>
       <dd data-md>
        <p><em>force bypass cache for importscripts flag</em>, an optional flag unset by default</p>
-      <dt data-md>Output
       <dd data-md>
-       <p>None</p>
+       <p>optional <var>callbackSteps</var>, an algorithm which takes a <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-completion-record-specification-type" id="ref-for-sec-completion-record-specification-type①">Completion</a></p>
      </dl>
      <ol>
       <li data-md>
@@ -4974,88 +4975,90 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p class="assertion">Assert: <var>script</var> is not null.</p>
       <li data-md>
-       <p>If <var>serviceWorker</var> is already running, abort these steps.</p>
+       <p>If <var>serviceWorker</var> is already running, this algorithm must have been invoked previously. If <var>callbackSteps</var> is provided, run them with the same value as the previous time, and abort these steps.</p>
       <li data-md>
-       <p>Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the rest of these steps in that context.</p>
-      <li data-md>
-       <p>Call the JavaScript <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-initializehostdefinedrealm" id="ref-for-sec-initializehostdefinedrealm">InitializeHostDefinedRealm()</a> abstract operation with the following customizations:</p>
-       <ul>
-        <li data-md>
-         <p>For the global object, create a new <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope①⑥">ServiceWorkerGlobalScope</a></code> object. Let <var>workerGlobalScope</var> be the created object.</p>
-        <li data-md>
-         <p>Let <var>realmExecutionContext</var> be the created <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-execution-contexts" id="ref-for-sec-execution-contexts">JavaScript execution context</a>.</p>
-       </ul>
-      <li data-md>
-       <p>Set <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-service-worker-global-object" id="ref-for-dfn-service-worker-global-object②">global object</a> to <var>workerGlobalScope</var>.</p>
-      <li data-md>
-       <p>Let <var>workerEventLoop</var> be a newly created <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop⑨">event loop</a>.</p>
-      <li data-md>
-       <p>Let <var>settingsObject</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object①②">environment settings object</a> whose algorithms are defined as follows:</p>
-       <dl>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context" id="ref-for-realm-execution-context">realm execution context</a>
-        <dd data-md>
-         <p>Return <var>realmExecutionContext</var>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global①④">global object</a>
-        <dd data-md>
-         <p>Return <var>workerGlobalScope</var>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop①⑥">responsible event loop</a>
-        <dd data-md>
-         <p>Return <var>workerEventLoop</var>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-referrer-policy" id="ref-for-concept-settings-object-referrer-policy">referrer policy</a>
-        <dd data-md>
-         <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy" id="ref-for-concept-workerglobalscope-referrer-policy">referrer policy</a>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#api-url-character-encoding" id="ref-for-api-url-character-encoding">API URL character encoding</a>
-        <dd data-md>
-         <p>Return UTF-8.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url" id="ref-for-api-base-url⑤">API base URL</a>
-        <dd data-md>
-         <p>Return <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url⑥">script url</a>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②④">origin</a>
-        <dd data-md>
-         <p>Return its registering <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client④⑤">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②⑤">origin</a>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url" id="ref-for-concept-environment-creation-url①①">creation URL</a>
-        <dd data-md>
-         <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url" id="ref-for-concept-workerglobalscope-url">url</a>.</p>
-        <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#https-state" id="ref-for-https-state">HTTPS state</a>
-        <dd data-md>
-         <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state" id="ref-for-concept-workerglobalscope-https-state">HTTPS state</a>.</p>
-       </dl>
-      <li data-md>
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url" id="ref-for-concept-workerglobalscope-url①">url</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url⑦">script url</a>.</p>
-      <li data-md>
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state" id="ref-for-concept-workerglobalscope-https-state①">HTTPS state</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource⑨">script resource</a>’s <a data-link-type="dfn" href="#dfn-https-state" id="ref-for-dfn-https-state①">HTTPS state</a>.</p>
-      <li data-md>
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy" id="ref-for-concept-workerglobalscope-referrer-policy①">referrer policy</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource①⓪">script resource</a>’s <a data-link-type="dfn" href="#dfn-referrer-policy" id="ref-for-dfn-referrer-policy①">referrer policy</a>.</p>
-      <li data-md>
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-type" id="ref-for-concept-workerglobalscope-type">type</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type③">type</a>.</p>
-      <li data-md>
-       <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag" id="ref-for-serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag①">force bypass cache for importscripts flag</a> if the <em>force bypass cache for importscripts flag</em> is set.</p>
-      <li data-md>
-       <p>Create a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerlocation" id="ref-for-workerlocation">WorkerLocation</a></code> object and associate it with <var>workerGlobalScope</var>.</p>
-      <li data-md>
-       <p>If <var>serviceWorker</var> is an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker③⑤">active worker</a>, and there are any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">tasks</a> queued in <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration①③">containing service worker registration</a>’s <a data-link-type="dfn" href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue②">task queues</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task③①">queue</a> them to <var>serviceWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①⓪">event loop</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue③">task queues</a> in the same order using their original <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source⑤">task sources</a>.</p>
-      <li data-md>
-       <p>If <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script" id="ref-for-classic-script">classic script</a>, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-classic-script" id="ref-for-run-a-classic-script">run the classic script</a> <var>script</var>. Otherwise, it is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#module-script" id="ref-for-module-script">module script</a>; <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-module-script" id="ref-for-run-a-module-script">run the module script</a> <var>script</var>.</p>
-       <p class="note" role="note"><span>Note:</span> In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker⑦">terminate service worker</a> algorithm.</p>
-      <li data-md>
-       <p>If <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</a> is unset, then:</p>
+       <p>Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following substeps in that context:</p>
        <ol>
         <li data-md>
-         <p>For each <var>eventType</var> of <var>settingsObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global①⑤">global object</a>'s associated list of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener" id="ref-for-concept-event-listener①">event listeners</a>' event types:</p>
+         <p>Call the JavaScript <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-initializehostdefinedrealm" id="ref-for-sec-initializehostdefinedrealm">InitializeHostDefinedRealm()</a> abstract operation with the following customizations:</p>
+         <ul>
+          <li data-md>
+           <p>For the global object, create a new <code class="idl"><a data-link-type="idl" href="#serviceworkerglobalscope" id="ref-for-serviceworkerglobalscope①⑥">ServiceWorkerGlobalScope</a></code> object. Let <var>workerGlobalScope</var> be the created object.</p>
+          <li data-md>
+           <p>Let <var>realmExecutionContext</var> be the created <a data-link-type="dfn" href="http://tc39.github.io/ecma262/#sec-execution-contexts" id="ref-for-sec-execution-contexts">JavaScript execution context</a>.</p>
+         </ul>
+        <li data-md>
+         <p>Set <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-service-worker-global-object" id="ref-for-dfn-service-worker-global-object②">global object</a> to <var>workerGlobalScope</var>.</p>
+        <li data-md>
+         <p>Let <var>workerEventLoop</var> be a newly created <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop⑨">event loop</a>.</p>
+        <li data-md>
+         <p>Let <var>settingsObject</var> be a new <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object" id="ref-for-environment-settings-object①②">environment settings object</a> whose algorithms are defined as follows:</p>
+         <dl>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context" id="ref-for-realm-execution-context">realm execution context</a>
+          <dd data-md>
+           <p>Return <var>realmExecutionContext</var>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global①④">global object</a>
+          <dd data-md>
+           <p>Return <var>workerGlobalScope</var>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop①⑥">responsible event loop</a>
+          <dd data-md>
+           <p>Return <var>workerEventLoop</var>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-referrer-policy" id="ref-for-concept-settings-object-referrer-policy">referrer policy</a>
+          <dd data-md>
+           <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy" id="ref-for-concept-workerglobalscope-referrer-policy">referrer policy</a>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#api-url-character-encoding" id="ref-for-api-url-character-encoding">API URL character encoding</a>
+          <dd data-md>
+           <p>Return UTF-8.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#api-base-url" id="ref-for-api-base-url⑤">API base URL</a>
+          <dd data-md>
+           <p>Return <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url⑥">script url</a>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②④">origin</a>
+          <dd data-md>
+           <p>Return its registering <a data-link-type="dfn" href="#dfn-service-worker-client" id="ref-for-dfn-service-worker-client④⑤">service worker client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin②⑤">origin</a>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-environment-creation-url" id="ref-for-concept-environment-creation-url①①">creation URL</a>
+          <dd data-md>
+           <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url" id="ref-for-concept-workerglobalscope-url">url</a>.</p>
+          <dt data-md>The <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#https-state" id="ref-for-https-state">HTTPS state</a>
+          <dd data-md>
+           <p>Return <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state" id="ref-for-concept-workerglobalscope-https-state">HTTPS state</a>.</p>
+         </dl>
+        <li data-md>
+         <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-url" id="ref-for-concept-workerglobalscope-url①">url</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-url" id="ref-for-dfn-script-url⑦">script url</a>.</p>
+        <li data-md>
+         <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-https-state" id="ref-for-concept-workerglobalscope-https-state①">HTTPS state</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource⑨">script resource</a>’s <a data-link-type="dfn" href="#dfn-https-state" id="ref-for-dfn-https-state①">HTTPS state</a>.</p>
+        <li data-md>
+         <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-referrer-policy" id="ref-for-concept-workerglobalscope-referrer-policy①">referrer policy</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource" id="ref-for-dfn-script-resource①⓪">script resource</a>’s <a data-link-type="dfn" href="#dfn-referrer-policy" id="ref-for-dfn-referrer-policy①">referrer policy</a>.</p>
+        <li data-md>
+         <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/workers.html#concept-workerglobalscope-type" id="ref-for-concept-workerglobalscope-type">type</a> to <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-type" id="ref-for-dfn-type③">type</a>.</p>
+        <li data-md>
+         <p>Set <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="#serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag" id="ref-for-serviceworkerglobalscope-force-bypass-cache-for-importscripts-flag①">force bypass cache for importscripts flag</a> if the <em>force bypass cache for importscripts flag</em> is set.</p>
+        <li data-md>
+         <p>Create a new <code class="idl"><a data-link-type="idl" href="https://html.spec.whatwg.org/multipage/workers.html#workerlocation" id="ref-for-workerlocation">WorkerLocation</a></code> object and associate it with <var>workerGlobalScope</var>.</p>
+        <li data-md>
+         <p>If <var>serviceWorker</var> is an <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker③⑤">active worker</a>, and there are any <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-task" id="ref-for-concept-task⑤">tasks</a> queued in <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-containing-service-worker-registration" id="ref-for-dfn-containing-service-worker-registration①③">containing service worker registration</a>’s <a data-link-type="dfn" href="#dfn-service-worker-registration-task-queue" id="ref-for-dfn-service-worker-registration-task-queue②">task queues</a>, <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task③①">queue</a> them to <var>serviceWorker</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#event-loop" id="ref-for-event-loop①⓪">event loop</a>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-queue" id="ref-for-task-queue③">task queues</a> in the same order using their original <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#task-source" id="ref-for-task-source⑤">task sources</a>.</p>
+        <li data-md>
+         <p>Let <var>evaluationStatus</var> be the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-classic-script" id="ref-for-run-a-classic-script">running the classic script</a> <var>script</var> if <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#classic-script" id="ref-for-classic-script">classic script</a>, otherwise, the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#run-a-module-script" id="ref-for-run-a-module-script">running the module script</a> <var>script</var> if <var>script</var> is a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#module-script" id="ref-for-module-script">module script</a>.</p>
+         <p class="note" role="note"><span>Note:</span> In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a data-link-type="dfn" href="#terminate-service-worker" id="ref-for-terminate-service-worker⑦">terminate service worker</a> algorithm.</p>
+        <li data-md>
+         <p>If <var>callbackSteps</var> is provided, run them with <var>evaluationStatus</var> on the original thread that invoked this algorithm, while continuing in parallel with these steps.</p>
+        <li data-md>
+         <p>If <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</a> is unset, then:</p>
          <ol>
           <li data-md>
-           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append">Append</a> <var>eventType</var> to <var>workerGlobalScope</var>’s associated <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker②③">service worker</a>'s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle">set of event types to handle</a>.</p>
+           <p>For each <var>eventType</var> of <var>settingsObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global①⑤">global object</a>'s associated list of <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#concept-event-listener" id="ref-for-concept-event-listener①">event listeners</a>' event types:</p>
+           <ol>
+            <li data-md>
+             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#set-append" id="ref-for-set-append">Append</a> <var>eventType</var> to <var>workerGlobalScope</var>’s associated <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker②③">service worker</a>'s <a data-link-type="dfn" href="#dfn-set-of-event-types-to-handle" id="ref-for-dfn-set-of-event-types-to-handle">set of event types to handle</a>.</p>
+           </ol>
+           <p class="note" role="note"><span>Note:</span> If the global object’s associated list of event listeners does not have any event listener added at this moment, the service worker’s set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.</p>
+          <li data-md>
+           <p>Set <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag①">has ever been evaluated flag</a>.</p>
          </ol>
-       </ol>
-       <p class="note" role="note"><span>Note:</span> If the global object’s associated list of event listeners does not have any event listener added at this moment, the service worker’s set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.</p>
-       <ol>
         <li data-md>
-         <p>Set <var>script</var>’s <a data-link-type="dfn" href="#dfn-has-ever-been-evaluated-flag" id="ref-for-dfn-has-ever-been-evaluated-flag①">has ever been evaluated flag</a>.</p>
+         <p>Run the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop①⑦">responsible event loop</a> specified by <var>settingsObject</var> until it is destroyed.</p>
+        <li data-md>
+         <p>Empty <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#list-of-active-timers" id="ref-for-list-of-active-timers">list of active timers</a>.</p>
        </ol>
-      <li data-md>
-       <p>Run the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop①⑦">responsible event loop</a> specified by <var>settingsObject</var> until it is destroyed.</p>
-      <li data-md>
-       <p>Empty <var>workerGlobalScope</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/timers-and-user-prompts.html#list-of-active-timers" id="ref-for-list-of-active-timers">list of active timers</a>.</p>
      </ol>
     </section>
     <section class="algorithm" data-algorithm="Terminate Service Worker">
@@ -6887,6 +6890,20 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-dom-event-type">Install</a>
     <li><a href="#ref-for-dom-event-type①">Activate</a>
     <li><a href="#ref-for-dom-event-type②">Handle Fetch</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-sec-completion-record-specification-type">
+   <a href="http://tc39.github.io/ecma262/#sec-completion-record-specification-type">http://tc39.github.io/ecma262/#sec-completion-record-specification-type</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-sec-completion-record-specification-type">Update</a>
+    <li><a href="#ref-for-sec-completion-record-specification-type①">Run Service Worker</a>
+   </ul>
+  </aside>
+  <aside class="dfn-panel" data-for="term-for-sec-completion-record-specification-type">
+   <a href="http://tc39.github.io/ecma262/#sec-completion-record-specification-type">http://tc39.github.io/ecma262/#sec-completion-record-specification-type</a><b>Referenced in:</b>
+   <ul>
+    <li><a href="#ref-for-sec-completion-record-specification-type">Update</a>
+    <li><a href="#ref-for-sec-completion-record-specification-type①">Run Service Worker</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-sec-detacharraybuffer">
@@ -9041,6 +9058,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <li>
     <a data-link-type="biblio">[ECMASCRIPT]</a> defines the following terms:
     <ul>
+     <li><span class="dfn-paneled" id="term-for-sec-completion-record-specification-type" style="color:initial">abrupt completion</span>
+     <li><span class="dfn-paneled" id="term-for-sec-completion-record-specification-type①" style="color:initial">completion</span>
      <li><span class="dfn-paneled" id="term-for-sec-detacharraybuffer" style="color:initial">detacharraybuffer</span>
      <li><span class="dfn-paneled" id="term-for-sec-execution-contexts" style="color:initial">execution context</span>
      <li><span class="dfn-paneled" id="term-for-sec-initializehostdefinedrealm" style="color:initial">initializehostdefinedrealm</span>
