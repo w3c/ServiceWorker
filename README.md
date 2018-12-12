@@ -40,27 +40,17 @@ This is to explain how we use labels and milestones to triage the issues. Note: 
 
 
 ### Actions
-**needs spec**: a decision has been made and the spec needs to be updated.
-
-**spec detail**: has no significant implications for implementers nor web developers.
-
-**decided**: to record that a decision has been made.
-
-**invalid**: when something doesn’t constitute a valid issue.
-
-**wontfix**: a decision has been made not to pursue this issue further.
-
-**duplicate**: when a similar issue has already been filed.
-
-**bug**: an oversight that needs to be fixed.
+- **needs spec**: a decision has been made and the spec needs to be updated.
+- **spec detail**: has no significant implications for implementers nor web developers.
+- **decided**: to record that a decision has been made.
+- **invalid**: when something doesn’t constitute a valid issue.
+- **wontfix**: a decision has been made not to pursue this issue further.
+- **duplicate**: when a similar issue has already been filed.
+- **bug**: an oversight that needs to be fixed.
 
 
 ### Areas
-
-**fetch**: relates to Fetch
-
-**lifecycle**: relates to lifecycle aspects of service worker
-
-**cache**: relevant to the Cache APIs
-
-**question**: not an actual issue. Items that have been filed in order to gain a better understanding of service worker.
+- **fetch**: relates to Fetch
+- **lifecycle**: relates to lifecycle aspects of service worker
+- **cache**: relevant to the Cache APIs
+- **question**: not an actual issue. Items that have been filed in order to gain a better understanding of service worker.
