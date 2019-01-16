@@ -161,17 +161,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-referrer-policy">referrer policy</dfn> (a [=/referrer policy=]). It is initially the empty string.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=pairs=] consisting of a [=/response=] and a <dfn export id="dfn-script-resource-used-flag">used flag</dfn>.
+    A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
 
-    Note: The [=used flag=] is only used to prune unused resources from a new worker's map after installation, that were populated based on the old worker's map during the update check.
+    A [=/service worker=] has an associated  <dfn export id="dfn-set-of-used-scripts">set of used scripts</dfn> (a [=ordered set|set=]) whose [=list/item=] is a [=/URL=]. It is initially empty.
+
+    Note: The [=set of used scripts=] is only used to prune unused resources from a new worker's map after installation, that were populated based on the old worker's map during the update check.
 
     A [=/service worker=] has an associated <dfn export id="dfn-skip-waiting-flag">skip waiting flag</dfn>. Unless stated otherwise it is unset.
 
     A [=/service worker=] has an associated <dfn export id="dfn-classic-scripts-imported-flag">classic scripts imported flag</dfn>. It is initially unset.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=list/item=] is an <a>event listener</a>'s event type. It is initially an empty set.
+    A [=/service worker=] has an associated <dfn export id="dfn-set-of-event-types-to-handle">set of event types to handle</dfn> (a [=ordered set|set=]) whose [=list/item=] is an <a>event listener</a>'s event type. It is initially empty.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=list/item=] is an {{ExtendableEvent}}. It is initially an empty set.
+    A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=list/item=] is an {{ExtendableEvent}}. It is initially empty.
 
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
@@ -2066,10 +2068,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. Let |map| be |serviceWorker|'s [=script resource map=] and |url| be |request|'s [=request/url=].
-        1. If |map|[|url|] exists:
-            1. Set |map|[|url|]'s [=used flag=].
-            1. Return |map|[|url|]'s [=/response=].
-        1. If |serviceWorker|'s [=state=] is not *parsed* or *installing*, return a [=network error=].
+        1. If |serviceWorker|'s [=state=] is not *parsed* or *installing*:
+            1. Return |map|[|url|] if it exists and a [=network error=] otherwise.
+        1. Set |serviceWorker|'s [=classic scripts imported flag=].
+        1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
         1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
         1. Set |request|'s [=service-workers mode=] to "`none`".
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
@@ -2464,10 +2466,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |url| be |request|'s [=request/url=].
-          1. Set |updatedResourceMap|[|url|] to the pair whose [=/response=] is |response| and [=used flag=] is set.
+          1. Set |updatedResourceMap|[|url|] to |response|.
           1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
           1. Let |map| be |newestWorker|'s [=script resource map=] if |newestWorker| is not null, and null otherwise.
-          1. If |map| is null or |map|[|url|]'s [=/response=]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=], set |hasUpdatedResources| to true.
+          1. If |map| is null or |map|[|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=], set |hasUpdatedResources| to true.
           1. Else if |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
               Note: The following checks to see if an imported script has been updated, since the main script has not changed.
@@ -2503,9 +2505,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. Let |worker| be a new [=/service worker=].
-      1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s <a>script resource</a> to |script|, and |worker|'s [=service worker/type=] to |job|'s <a>worker type</a>.
-      1. [=map/For each=] |url| → |entry| of |updatedResourceMap|:
-          1. Set |worker|'s [=script resource map=][|url|] to |entry|.
+      1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
+      1. Append |url| to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
       1. Invoke [=Run Service Worker=] algorithm given |worker|, with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set, and with the following callback steps given |evaluationStatus|:
@@ -2575,8 +2576,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |map| be |registration|'s [=installing worker=]'s [=script resource map=].
-      1. [=map/For each=] |url| → |entry| of |map|:
-          1. If |entry|'s [=used flag=] is unset, then [=map/remove=] |map|[|url|].
+      1. Let |usedSet| be |registration|'s [=installing worker=]'s [=set of used scripts=].
+      1. [=map/For each=] |url| of |map|:
+          1. If |usedSet| does not [=list/contain=] |url|, then [=map/remove=] |map|[|url|].
       1. If |registration|'s <a>waiting worker</a> is not null, then:
           1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
           1. Run the [=Update Worker State=] algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
