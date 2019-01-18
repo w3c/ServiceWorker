@@ -2074,9 +2074,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. Let |unsafeResponse| be |response|'s [=unsafe response=].
         1. If |unsafeResponse|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
-        1. If |unsafeResponse| is not a [=network error import script=]:
-            1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
-            1. Set |serviceWorker|'s [=classic scripts imported flag=].
+        1. If |unsafeResponse| is a [=network error import script=], then return a [=network error=].
+        1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
+        1. Set |serviceWorker|'s [=classic scripts imported flag=].
         1. Return |response|.
     </section>
   </section>
@@ -2478,7 +2478,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
                   1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
                   1. If |fetchedResponse| is a [=network error import script=], then asynchronously complete these steps with a [=network error=].
-                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=response/body=], set |hasUpdatedResources| to true.
+                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
 
                       Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
           1. Asynchronously complete these steps with |response|.
