@@ -1841,7 +1841,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/response=] to |clonedResponse|.
         1. [=list/Append=] |operation| to |operations|.
         1. Let |realm| be the [=context object=]'s [=relevant realm=].
-        1. [=Upon fulfillment of=] |bodyReadPromise|:
+        1. Return the result of the [=Upon fulfillment|fulfillment=] of |bodyReadPromise|:
             1. Let |cacheJobPromise| be [=a new promise=].
             1. Return |bodyReadPromise| and run the following substeps [=in parallel=]:
                 1. Let |errorData| be null.
@@ -1849,7 +1849,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
                     1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
                     1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
-        1. Return |bodyReadPromise|.
     </section>
 
     <section algorithm="cache-delete">
