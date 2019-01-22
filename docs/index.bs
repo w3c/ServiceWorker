@@ -1843,13 +1843,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |realm| be the [=context object=]'s [=relevant realm=].
         1. [=Upon fulfillment of=] |bodyReadPromise|:
             1. Let |cacheJobPromise| be [=a new promise=].
-            1. Run the following substeps [=in parallel=]:
+            1. Return |bodyReadPromise| and run the following substeps [=in parallel=]:
                 1. Let |errorData| be null.
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
                     1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
                     1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
-                1. Return |cacheJobPromise|.
         1. Return |bodyReadPromise|.
     </section>
 
