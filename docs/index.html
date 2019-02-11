@@ -3655,27 +3655,25 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <p><dfn class="dfn-paneled idl-code" data-dfn-for="Cache" data-dfn-type="method" data-export id="dom-cache-put"><code>put(<var>request</var>, <var>response</var>)</code></dfn> method <em>must</em> run these steps:</p>
       <ol>
        <li data-md>
-        <p>Let <var>r</var> be null.</p>
+        <p>Let <var>innerRequest</var> be null.</p>
        <li data-md>
-        <p>If <var>request</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request⑦">Request</a></code> object, then:</p>
+        <p>If <var>request</var> is a <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request⑦">Request</a></code> object, then set <var>innerRequest</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request④">request</a>.</p>
+       <li data-md>
+        <p>Else:</p>
         <ol>
          <li data-md>
-          <p>Set <var>r</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request④">request</a>.</p>
+          <p>Let <var>requestObj</var> be the result of invoking <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request⑧">Request</a></code>'s constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①①">throws</a> an <var>exception</var>, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑥">a promise rejected with</a> <var>exception</var>.</p>
          <li data-md>
-          <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑤">url</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme②">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", or <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method②">method</a> is not `<code>GET</code>`, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑥">a promise rejected with</a> a <code>TypeError</code>.</p>
+          <p>Set <var>innerRequest</var> to <var>requestObj</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑤">request</a>.</p>
         </ol>
        <li data-md>
-        <p>Else if <var>request</var> is a string, then:</p>
-        <ol>
-         <li data-md>
-          <p>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑤">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request⑧">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①①">throws</a> an exception, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑦">a promise rejected with</a> that exception.</p>
-         <li data-md>
-          <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑥">url</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme③">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑧">a promise rejected with</a> a <code>TypeError</code>.</p>
-        </ol>
+        <p>If <var>innerRequest</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑤">url</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme②">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", or <var>innerRequest</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method②">method</a> is not `<code>GET</code>`, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑦">a promise rejected with</a> a <code>TypeError</code>.</p>
        <li data-md>
-        <p>If <var>response</var>’s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response①">response</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status①">status</a> is <code>206</code>, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑨">a promise rejected with</a> a <code>TypeError</code>.</p>
+        <p>Let <var>innerResponse</var> be <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response①">response</a>.</p>
        <li data-md>
-        <p>If <var>response</var>’s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response②">response</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list①">header list</a> contains a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header①">header</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name" id="ref-for-concept-header-name①">named</a> `<code>Vary</code>`, then:</p>
+        <p>If <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status①">status</a> is <code>206</code>, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑧">a promise rejected with</a> a <code>TypeError</code>.</p>
+       <li data-md>
+        <p>If <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list①">header list</a> contains a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header" id="ref-for-concept-header①">header</a> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-name" id="ref-for-concept-header-name①">named</a> `<code>Vary</code>`, then:</p>
         <ol>
          <li data-md>
           <p>Let <var>fieldValues</var> be the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①④">list</a> containing the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-item" id="ref-for-list-item②">items</a> corresponding to the <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7231#section-7.1.4" id="ref-for-section-7.1.4①">Vary</a> header’s <a data-link-type="dfn" href="https://tools.ietf.org/html/rfc7230#section-3.2" id="ref-for-section-3.2①">field-values</a>.</p>
@@ -3683,25 +3681,26 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list-iterate" id="ref-for-list-iterate⑦">For each</a> <var>fieldValue</var> in <var>fieldValues</var>:</p>
           <ol>
            <li data-md>
-            <p>If <var>fieldValue</var> matches "<code>*</code>", return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①⓪">a promise rejected with</a> a <code>TypeError</code>.</p>
+            <p>If <var>fieldValue</var> matches "<code>*</code>", return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with⑨">a promise rejected with</a> a <code>TypeError</code>.</p>
           </ol>
         </ol>
        <li data-md>
-        <p>If <var>response</var> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed" id="ref-for-concept-body-disturbed①">disturbed</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked" id="ref-for-concept-body-locked①">locked</a>, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①①">a promise rejected with</a> a <code>TypeError</code>.</p>
+        <p>If <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑦">body</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-disturbed" id="ref-for-concept-body-disturbed①">disturbed</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked" id="ref-for-concept-body-locked①">locked</a>, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①⓪">a promise rejected with</a> a <code>TypeError</code>.</p>
        <li data-md>
-        <p>Let <var>clonedResponse</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-clone" id="ref-for-concept-response-clone">cloning</a> <var>response</var>’s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response③">response</a>.</p>
+        <p>Let <var>clonedResponse</var> be a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-clone" id="ref-for-concept-response-clone">clone</a> of <var>innerResponse</var>.</p>
        <li data-md>
-        <p>If <var>response</var>’s body is non-null, run these substeps:</p>
+        <p>Let <var>bodyReadPromise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with②">a promise resolved with</a> undefined.</p>
+       <li data-md>
+        <p>If <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑧">body</a> is non-null, run these substeps:</p>
         <ol>
          <li data-md>
-          <p>Let <var>dummyStream</var> be an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-empty-readablestream" id="ref-for-concept-empty-readablestream">empty</a> <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#concept-readablestream" id="ref-for-concept-readablestream">ReadableStream</a></code> object.</p>
+          <p>Let <var>stream</var> be <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑨">body</a>'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream" id="ref-for-concept-body-stream⑤">stream</a>.</p>
          <li data-md>
-          <p>Set <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑦">body</a> to a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body" id="ref-for-concept-body①">body</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-stream" id="ref-for-concept-body-stream⑤">stream</a> is <var>dummyStream</var>.</p>
+          <p>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader" id="ref-for-concept-get-reader①">getting a reader</a> for <var>stream</var>.</p>
          <li data-md>
-          <p>Let <var>reader</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-get-reader" id="ref-for-concept-get-reader①">getting a reader</a> from <var>dummyStream</var>.</p>
-         <li data-md>
-          <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream" id="ref-for-concept-read-all-bytes-from-readablestream">Read all bytes</a> from <var>dummyStream</var> with <var>reader</var>.</p>
+          <p>Set <var>bodyReadPromise</var> to the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-read-all-bytes-from-readablestream" id="ref-for-concept-read-all-bytes-from-readablestream">reading all bytes</a> from <var>stream</var> with <var>reader</var>.</p>
         </ol>
+        <p class="note" role="note"><span>Note:</span> This ensures that <var>innerResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①⓪">body</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-body-locked" id="ref-for-concept-body-locked②">locked</a>, and we have a full buffered copy of the body in <var>clonedResponse</var>. An implementation could optimize by streaming directly to disk rather than memory.</p>
        <li data-md>
         <p>Let <var>operations</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①⑤">list</a>.</p>
        <li data-md>
@@ -3709,7 +3708,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <li data-md>
         <p>Set <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-type" id="ref-for-dfn-cache-batch-operation-type①">type</a> to "<code>put</code>".</p>
        <li data-md>
-        <p>Set <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request①">request</a> to <var>r</var>.</p>
+        <p>Set <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request①">request</a> to <var>innerRequest</var>.</p>
        <li data-md>
         <p>Set <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-response" id="ref-for-dfn-cache-batch-operation-response①">response</a> to <var>clonedResponse</var>.</p>
        <li data-md>
@@ -3717,25 +3716,27 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <li data-md>
         <p>Let <var>realm</var> be the <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#context-object" id="ref-for-context-object⑤①">context object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm⑦">relevant realm</a>.</p>
        <li data-md>
-        <p>Let <var>cacheJobPromise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise⑨">a new promise</a>.</p>
-       <li data-md>
-        <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①⑧">in parallel</a>:</p>
+        <p>Return the result of the <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#upon-fulfillment" id="ref-for-upon-fulfillment②">fulfillment</a> of <var>bodyReadPromise</var>:</p>
         <ol>
          <li data-md>
-          <p>Let <var>errorData</var> be null.</p>
+          <p>Let <var>cacheJobPromise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-new-promise" id="ref-for-a-new-promise⑨">a new promise</a>.</p>
          <li data-md>
-          <p>Invoke <a data-link-type="dfn" href="#batch-cache-operations" id="ref-for-batch-cache-operations①">Batch Cache Operations</a> with <var>operations</var>. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①②">throws</a> an exception, set <var>errorData</var> to the exception.</p>
-         <li data-md>
-          <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task①⑧">Queue a task</a>, on <var>cacheJobPromise</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object" id="ref-for-relevant-settings-object①⑥">relevant settings object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop⑧">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source" id="ref-for-dom-manipulation-task-source①②">DOM manipulation task source</a>, to perform the following substeps:</p>
+          <p>Return <var>cacheJobPromise</var> and run these steps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel①⑧">in parallel</a>:</p>
           <ol>
            <li data-md>
-            <p>If <var>errorData</var> is null, resolve <var>cacheJobPromise</var> with undefined.</p>
+            <p>Let <var>errorData</var> be null.</p>
            <li data-md>
-            <p>Else, reject <var>cacheJobPromise</var> with a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception①">new</a> <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-exception" id="ref-for-dfn-exception①">exception</a> with <var>errorData</var> and a user agent-defined <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-exception-message" id="ref-for-dfn-exception-message①">message</a>, in <var>realm</var>.</p>
+            <p>Invoke <a data-link-type="dfn" href="#batch-cache-operations" id="ref-for-batch-cache-operations①">Batch Cache Operations</a> with <var>operations</var>. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①②">throws</a> an exception, set <var>errorData</var> to the exception.</p>
+           <li data-md>
+            <p><a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#queue-a-task" id="ref-for-queue-a-task①⑧">Queue a task</a>, on <var>cacheJobPromise</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#relevant-settings-object" id="ref-for-relevant-settings-object①⑥">relevant settings object</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#responsible-event-loop" id="ref-for-responsible-event-loop⑧">responsible event loop</a> using the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#dom-manipulation-task-source" id="ref-for-dom-manipulation-task-source①②">DOM manipulation task source</a>, to perform the following substeps:</p>
+            <ol>
+             <li data-md>
+              <p>If <var>errorData</var> is null, resolve <var>cacheJobPromise</var> with undefined.</p>
+             <li data-md>
+              <p>Else, reject <var>cacheJobPromise</var> with a <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-create-exception" id="ref-for-dfn-create-exception①">new</a> <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-exception" id="ref-for-dfn-exception①">exception</a> with <var>errorData</var> and a user agent-defined <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-exception-message" id="ref-for-dfn-exception-message①">message</a>, in <var>realm</var>.</p>
+            </ol>
           </ol>
         </ol>
-       <li data-md>
-        <p>Return <var>cacheJobPromise</var>.</p>
       </ol>
      </section>
      <section class="algorithm" data-algorithm="cache-delete">
@@ -3750,13 +3751,13 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
          <li data-md>
           <p>Set <var>r</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑥">request</a>.</p>
          <li data-md>
-          <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method③">method</a> is not `<code>GET</code>` and <var>options</var>.ignoreMethod is false, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with②">a promise resolved with</a> false.</p>
+          <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method③">method</a> is not `<code>GET</code>` and <var>options</var>.ignoreMethod is false, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with③">a promise resolved with</a> false.</p>
         </ol>
        <li data-md>
         <p>Else if <var>request</var> is a string, then:</p>
         <ol>
          <li data-md>
-          <p>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑦">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request①⓪">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①③">throws</a> an exception, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①②">a promise rejected with</a> that exception.</p>
+          <p>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑦">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request①⓪">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①③">throws</a> an exception, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①①">a promise rejected with</a> that exception.</p>
         </ol>
        <li data-md>
         <p>Let <var>operations</var> be an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list①⑥">list</a>.</p>
@@ -3815,13 +3816,13 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
            <li data-md>
             <p>Set <var>r</var> to <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑧">request</a>.</p>
            <li data-md>
-            <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method④">method</a> is not `<code>GET</code>` and <var>options</var>.ignoreMethod is false, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with③">a promise resolved with</a> an empty array.</p>
+            <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method④">method</a> is not `<code>GET</code>` and <var>options</var>.ignoreMethod is false, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with④">a promise resolved with</a> an empty array.</p>
           </ol>
          <li data-md>
           <p>Else if <var>request</var> is a string, then:</p>
           <ol>
            <li data-md>
-            <p>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑨">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request①②">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑤">throws</a> an exception, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①③">a promise rejected with</a> that exception.</p>
+            <p>Set <var>r</var> to the associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request⑨">request</a> of the result of invoking the initial value of <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#request" id="ref-for-request①②">Request</a></code> as constructor with <var>request</var> as its argument. If this <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw①⑤">throws</a> an exception, return <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-rejected-with" id="ref-for-a-promise-rejected-with①②">a promise rejected with</a> that exception.</p>
           </ol>
         </ol>
        <li data-md>
@@ -3923,7 +3924,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
         <p>Else:</p>
         <ol>
          <li data-md>
-          <p>Let <var>promise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with④">a promise resolved with</a> undefined.</p>
+          <p>Let <var>promise</var> be <a data-link-type="dfn" href="https://www.w3.org/2001/tag/doc/promises-guide/#a-promise-resolved-with" id="ref-for-a-promise-resolved-with⑤">a promise resolved with</a> undefined.</p>
          <li data-md>
           <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-iterate" id="ref-for-map-iterate②">For each</a> <var>cacheName</var> → <var>cache</var> of the <a data-link-type="dfn" href="#dfn-relevant-name-to-cache-map" id="ref-for-dfn-relevant-name-to-cache-map①">relevant name to cache map</a>:</p>
           <ol>
@@ -4079,7 +4080,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <li data-md>
         <p>Let <var>serviceWorker</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client①">client</a>'s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-global" id="ref-for-concept-settings-object-global①①">global object</a>'s <a data-link-type="dfn" href="#serviceworkerglobalscope-service-worker" id="ref-for-serviceworkerglobalscope-service-worker②②">service worker</a>.</p>
        <li data-md>
-        <p>If <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑦">url</a>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>, return the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-entry" id="ref-for-map-entry①">entry</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-value" id="ref-for-map-value①">value</a>.</p>
+        <p>If <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑥">url</a>] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists">exists</a>, return the <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-entry" id="ref-for-map-entry①">entry</a>'s <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-value" id="ref-for-map-value①">value</a>.</p>
        <li data-md>
         <p>If <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-state" id="ref-for-dfn-state⑤">state</a> is not <em>parsed</em> or <em>installing</em>, return a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error②">network error</a>.</p>
        <li data-md>
@@ -4108,7 +4109,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
         <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-type" id="ref-for-concept-response-type①">type</a> is not "<code>error</code>", and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status②">status</a> is an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status①">ok status</a>, then:</p>
         <ol>
          <li data-md>
-          <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set①">Set</a> <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map①">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑧">url</a>] to <var>response</var>.</p>
+          <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-set" id="ref-for-map-set①">Set</a> <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map①">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑦">url</a>] to <var>response</var>.</p>
          <li data-md>
           <p>Set <var>serviceWorker</var>’s <a data-link-type="dfn" href="#dfn-classic-scripts-imported-flag" id="ref-for-dfn-classic-scripts-imported-flag">classic scripts imported flag</a>.</p>
         </ol>
@@ -4120,7 +4121,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
     <section>
      <h3 class="heading settled" data-level="6.4" id="cross-origin-resources"><span class="secno">6.4. </span><span class="content">Cross-Origin Resources and CORS</span><a class="self-link" href="#cross-origin-resources"></a></h3>
      <p><em>This section is non-normative.</em></p>
-     <p>Applications tend to cache items that come from a CDN or other <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑦">origin</a>. It is possible to request many of them directly using <code>&lt;script></code>, <code>&lt;img></code>, <code>&lt;video></code> and <code>&lt;link></code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch⑨">fetch</a> many sorts of off-<a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑧">origin</a> resources when appropriate CORS headers are set. <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker⑦⑧">Service workers</a> enable this by allowing <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑥">Caches</a></code> to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①⓪">fetch</a> and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑦">Cache</a></code> as <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response⑨">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response④">responses</a> are <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic" id="ref-for-concept-filtered-response-basic">basic filtered response</a>, the objects stored are <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response①⓪">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response⑤">responses</a> are either <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors" id="ref-for-concept-filtered-response-cors">CORS filtered responses</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque" id="ref-for-concept-filtered-response-opaque">opaque filtered responses</a>. They can be passed to <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-respondwith" id="ref-for-dom-fetchevent-respondwith③">event.respondWith(r)</a></code> method in the same manner as the <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response①①">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response⑥">responses</a> are <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic" id="ref-for-concept-filtered-response-basic①">basic filtered responses</a>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑧">Caches</a></code> to store them allows applications to avoid re-architecting in most cases.</p>
+     <p>Applications tend to cache items that come from a CDN or other <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑦">origin</a>. It is possible to request many of them directly using <code>&lt;script></code>, <code>&lt;img></code>, <code>&lt;video></code> and <code>&lt;link></code> elements. It would be hugely limiting if this sort of runtime collaboration broke when offline. Similarly, it is possible to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch⑨">fetch</a> many sorts of off-<a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑧">origin</a> resources when appropriate CORS headers are set. <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker⑦⑧">Service workers</a> enable this by allowing <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑥">Caches</a></code> to <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①⓪">fetch</a> and cache off-origin items. Some restrictions apply, however. First, unlike same-origin resources which are managed in the <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑦">Cache</a></code> as <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response⑨">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response②">responses</a> are <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic" id="ref-for-concept-filtered-response-basic">basic filtered response</a>, the objects stored are <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response①⓪">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response③">responses</a> are either <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-cors" id="ref-for-concept-filtered-response-cors">CORS filtered responses</a> or <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-opaque" id="ref-for-concept-filtered-response-opaque">opaque filtered responses</a>. They can be passed to <code class="idl"><a data-link-type="idl" href="#dom-fetchevent-respondwith" id="ref-for-dom-fetchevent-respondwith③">event.respondWith(r)</a></code> method in the same manner as the <code class="idl"><a data-link-type="idl" href="https://fetch.spec.whatwg.org/#response" id="ref-for-response①①">Response</a></code> objects whose corresponding <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-response" id="ref-for-concept-response-response④">responses</a> are <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-filtered-response-basic" id="ref-for-concept-filtered-response-basic①">basic filtered responses</a>, but cannot be meaningfully created programmatically. These limitations are necessary to preserve the security invariants of the platform. Allowing <code class="idl"><a data-link-type="idl" href="#cache" id="ref-for-cache①⑧">Caches</a></code> to store them allows applications to avoid re-architecting in most cases.</p>
     </section>
     <section>
      <h3 class="heading settled" data-level="6.5" id="implementer-concerns"><span class="secno">6.5. </span><span class="content">Implementer Concerns</span><a class="self-link" href="#implementer-concerns"></a></h3>
@@ -4423,7 +4424,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <p>Set <var>scriptURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment①">fragment</a> to null.</p>
        <p class="note" role="note"><span>Note:</span> The user agent does not store the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment②">fragment</a> of the script’s url. This means that the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment③">fragment</a> does not have an effect on identifying <a data-link-type="dfn" href="#dfn-service-worker" id="ref-for-dfn-service-worker⑧④">service workers</a>.</p>
       <li data-md>
-       <p>If <var>scriptURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme④">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
+       <p>If <var>scriptURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme③">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
       <li data-md>
        <p>If any of the strings in <var>scriptURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path" id="ref-for-concept-url-path">path</a> contains either <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive">ASCII case-insensitive</a> "<code>%2f</code>" or <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive①">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
       <li data-md>
@@ -4435,7 +4436,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <p>Set <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment④">fragment</a> to null.</p>
        <p class="note" role="note"><span>Note:</span> The user agent does not store the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment⑤">fragment</a> of the scope url. This means that the <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-fragment" id="ref-for-concept-url-fragment⑥">fragment</a> does not have an effect on identifying <a data-link-type="dfn" href="#dfn-service-worker-registration" id="ref-for-dfn-service-worker-registration⑤⑥">service worker registrations</a>.</p>
       <li data-md>
-       <p>If <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme⑤">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
+       <p>If <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme④">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
       <li data-md>
        <p>If any of the strings in <var>scopeURL</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-path" id="ref-for-concept-url-path①">path</a> contains either <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive②">ASCII case-insensitive</a> "<code>%2f</code>" or <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#ascii-case-insensitive" id="ref-for-ascii-case-insensitive③">ASCII case-insensitive</a> "<code>%5c</code>", reject <var>promise</var> with a <code>TypeError</code> and abort these steps.</p>
       <li data-md>
@@ -4638,11 +4639,11 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
            <p>Asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error⑥">network error</a>.</p>
          </ol>
         <li data-md>
-         <p>Set <var>updatedResourceMap</var>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑨">url</a>] to <var>response</var>.</p>
+         <p>Set <var>updatedResourceMap</var>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑧">url</a>] to <var>response</var>.</p>
         <li data-md>
          <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-cache-state" id="ref-for-concept-response-cache-state①">cache state</a> is not "<code>local</code>", set <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time⑤">last update check time</a> to the current time.</p>
         <li data-md>
-         <p>If <var>newestWorker</var> is null, or <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map③">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⓪">url</a>]'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑧">body</a> is not byte-for-byte identical with <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body⑨">body</a>, set <var>hasUpdatedResources</var> to true.</p>
+         <p>If <var>newestWorker</var> is null, or <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map③">script resource map</a>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url⑨">url</a>]'s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①①">body</a> is not byte-for-byte identical with <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①②">body</a>, set <var>hasUpdatedResources</var> to true.</p>
         <li data-md>
          <p>Else if <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-classic-scripts-imported-flag" id="ref-for-dfn-classic-scripts-imported-flag①">classic scripts imported flag</a> is set, then:</p>
          <ol>
@@ -4650,7 +4651,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
            <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-iterate" id="ref-for-map-iterate⑤">For each</a> <var>url</var> → <var>storedResponse</var> of <var>newestWorker</var>’s <a data-link-type="dfn" href="#dfn-script-resource-map" id="ref-for-dfn-script-resource-map④">script resource map</a>:</p>
            <ol>
             <li data-md>
-             <p>Let <var>request</var> be a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request③">request</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①①">url</a> is <var>url</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client②">client</a> is <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-client" id="ref-for-dfn-job-client①⑦">client</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination①">destination</a> is "<code>script</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-parser-metadata" id="ref-for-concept-request-parser-metadata">parser metadata</a> is "<code>not parser-inserted</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#synchronous-flag" id="ref-for-synchronous-flag">synchronous flag</a> is set, and whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-use-url-credentials-flag" id="ref-for-concept-request-use-url-credentials-flag">use-URL-credentials flag</a> is set.</p>
+             <p>Let <var>request</var> be a new <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request" id="ref-for-concept-request③">request</a> whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⓪">url</a> is <var>url</var>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-client" id="ref-for-concept-request-client②">client</a> is <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-client" id="ref-for-dfn-job-client①⑦">client</a>, <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination①">destination</a> is "<code>script</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-parser-metadata" id="ref-for-concept-request-parser-metadata">parser metadata</a> is "<code>not parser-inserted</code>", <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#synchronous-flag" id="ref-for-synchronous-flag">synchronous flag</a> is set, and whose <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-use-url-credentials-flag" id="ref-for-concept-request-use-url-credentials-flag">use-URL-credentials flag</a> is set.</p>
             <li data-md>
              <p>Set <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-cache-mode" id="ref-for-concept-request-cache-mode②">cache mode</a> to "<code>no-cache</code>" if any of the following are true:</p>
              <ul>
@@ -4666,7 +4667,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>Set <var>fetchedResponse</var> to <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/urls-and-fetching.html#unsafe-response" id="ref-for-unsafe-response①">unsafe response</a>.</p>
             <li data-md>
-             <p>Set <var>updatedResourceMap</var>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①②">url</a>] to <var>fetchedResponse</var>.</p>
+             <p>Set <var>updatedResourceMap</var>[<var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①①">url</a>] to <var>fetchedResponse</var>.</p>
             <li data-md>
              <p>If <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-cache-state" id="ref-for-concept-response-cache-state②">cache state</a> is not "<code>local</code>", set <var>registration</var>’s <a data-link-type="dfn" href="#dfn-last-update-check-time" id="ref-for-dfn-last-update-check-time⑧">last update check time</a> to the current time.</p>
             <li data-md>
@@ -4674,7 +4675,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>If <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-type" id="ref-for-concept-response-type②">type</a> is "<code>error</code>", or <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status③">status</a> is not an <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status②">ok status</a>, asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error⑧">network error</a>.</p>
             <li data-md>
-             <p>If <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①⓪">body</a> is not byte-for-byte identical with <var>storedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①①">body</a>, set <var>hasUpdatedResources</var> to true.</p>
+             <p>If <var>fetchedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①③">body</a> is not byte-for-byte identical with <var>storedResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-body" id="ref-for-concept-response-body①④">body</a>, set <var>hasUpdatedResources</var> to true.</p>
              <p class="note" role="note"><span>Note:</span> The control does not break the loop in this step to continue with all the imported scripts to populate the cache.</p>
            </ol>
          </ol>
@@ -5138,12 +5139,12 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
          <p>Else:</p>
          <ol>
           <li data-md>
-           <p>If <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①③">url</a> is not a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-secure-contexts/#potentially-trustworthy-url" id="ref-for-potentially-trustworthy-url">potentially trustworthy URL</a>, return null.</p>
+           <p>If <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①②">url</a> is not a <a data-link-type="dfn" href="https://w3c.github.io/webappsec-secure-contexts/#potentially-trustworthy-url" id="ref-for-potentially-trustworthy-url">potentially trustworthy URL</a>, return null.</p>
          </ol>
         <li data-md>
          <p>If <var>request</var> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#navigation-request" id="ref-for-navigation-request">navigation request</a> and the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsing-the-web.html#navigate" id="ref-for-navigate③">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.</p>
         <li data-md>
-         <p>Set <var>registration</var> to the result of running <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration⑨">Match Service Worker Registration</a> algorithm passing <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①④">url</a> as the argument.</p>
+         <p>Set <var>registration</var> to the result of running <a data-link-type="dfn" href="#match-service-worker-registration" id="ref-for-match-service-worker-registration⑨">Match Service Worker Registration</a> algorithm passing <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①③">url</a> as the argument.</p>
         <li data-md>
          <p>If <var>registration</var> is null or <var>registration</var>’s <a data-link-type="dfn" href="#dfn-active-worker" id="ref-for-dfn-active-worker③⑥">active worker</a> is null, return null.</p>
         <li data-md>
@@ -6045,9 +6046,9 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoremethod" id="ref-for-dom-cachequeryoptions-ignoremethod">ignoreMethod</a></code> is false and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method⑥">method</a> is not `<code>GET</code>`, return false.</p>
       <li data-md>
-       <p>Let <var>queryURL</var> be <var>requestQuery</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑤">url</a>.</p>
+       <p>Let <var>queryURL</var> be <var>requestQuery</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①④">url</a>.</p>
       <li data-md>
-       <p>Let <var>cachedURL</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑥">url</a>.</p>
+       <p>Let <var>cachedURL</var> be <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑤">url</a>.</p>
       <li data-md>
        <p>If <var>options</var>.<code class="idl"><a data-link-type="idl" href="#dom-cachequeryoptions-ignoresearch" id="ref-for-dom-cachequeryoptions-ignoresearch">ignoreSearch</a></code> is true, then:</p>
        <ol>
@@ -6125,7 +6126,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>Let <var>r</var> be <var>operation</var>’s <a data-link-type="dfn" href="#dfn-cache-batch-operation-request" id="ref-for-dfn-cache-batch-operation-request⑤">request</a>'s associated <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-request" id="ref-for-concept-request-request①⓪">request</a>.</p>
             <li data-md>
-             <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑦">url</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme⑥">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②⓪">throw</a> a <code>TypeError</code>.</p>
+             <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-url" id="ref-for-concept-request-url①⑥">url</a>'s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-scheme" id="ref-for-concept-url-scheme⑤">scheme</a> is not one of "<code>http</code>" and "<code>https</code>", <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②⓪">throw</a> a <code>TypeError</code>.</p>
             <li data-md>
              <p>If <var>r</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method⑦">method</a> is not `<code>GET</code>`, <a data-link-type="dfn" href="https://heycam.github.io/webidl/#dfn-throw" id="ref-for-dfn-throw②①">throw</a> a <code>TypeError</code>.</p>
             <li data-md>
@@ -6969,12 +6970,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-headers②">Handle Fetch</a> <a href="#ref-for-headers③">(2)</a>
    </ul>
   </aside>
-  <aside class="dfn-panel" data-for="term-for-concept-readablestream">
-   <a href="https://fetch.spec.whatwg.org/#concept-readablestream">https://fetch.spec.whatwg.org/#concept-readablestream</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-concept-readablestream">5.4.5. put(request, response)</a>
-   </ul>
-  </aside>
   <aside class="dfn-panel" data-for="term-for-request">
    <a href="https://fetch.spec.whatwg.org/#request">https://fetch.spec.whatwg.org/#request</a><b>Referenced in:</b>
    <ul>
@@ -7029,8 +7024,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://fetch.spec.whatwg.org/#concept-response-body">https://fetch.spec.whatwg.org/#concept-response-body</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-response-body">4.5.6. event.respondWith(r)</a> <a href="#ref-for-concept-response-body①">(2)</a> <a href="#ref-for-concept-response-body②">(3)</a> <a href="#ref-for-concept-response-body③">(4)</a> <a href="#ref-for-concept-response-body④">(5)</a> <a href="#ref-for-concept-response-body⑤">(6)</a> <a href="#ref-for-concept-response-body⑥">(7)</a>
-    <li><a href="#ref-for-concept-response-body⑦">5.4.5. put(request, response)</a>
-    <li><a href="#ref-for-concept-response-body⑧">Update</a> <a href="#ref-for-concept-response-body⑨">(2)</a> <a href="#ref-for-concept-response-body①⓪">(3)</a> <a href="#ref-for-concept-response-body①①">(4)</a>
+    <li><a href="#ref-for-concept-response-body⑦">5.4.5. put(request, response)</a> <a href="#ref-for-concept-response-body⑧">(2)</a> <a href="#ref-for-concept-response-body⑨">(3)</a> <a href="#ref-for-concept-response-body①⓪">(4)</a>
+    <li><a href="#ref-for-concept-response-body①①">Update</a> <a href="#ref-for-concept-response-body①②">(2)</a> <a href="#ref-for-concept-response-body①③">(3)</a> <a href="#ref-for-concept-response-body①④">(4)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-request-cache-mode">
@@ -7105,12 +7100,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-body-disturbed">4.5.6. event.respondWith(r)</a>
     <li><a href="#ref-for-concept-body-disturbed①">5.4.5. put(request, response)</a>
-   </ul>
-  </aside>
-  <aside class="dfn-panel" data-for="term-for-concept-empty-readablestream">
-   <a href="https://fetch.spec.whatwg.org/#concept-empty-readablestream">https://fetch.spec.whatwg.org/#concept-empty-readablestream</a><b>Referenced in:</b>
-   <ul>
-    <li><a href="#ref-for-concept-empty-readablestream">5.4.5. put(request, response)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-enqueue-readablestream">
@@ -7233,7 +7222,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://fetch.spec.whatwg.org/#concept-body-locked">https://fetch.spec.whatwg.org/#concept-body-locked</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-body-locked">4.5.6. event.respondWith(r)</a>
-    <li><a href="#ref-for-concept-body-locked①">5.4.5. put(request, response)</a>
+    <li><a href="#ref-for-concept-body-locked①">5.4.5. put(request, response)</a> <a href="#ref-for-concept-body-locked②">(2)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-request-method">
@@ -7366,8 +7355,8 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://fetch.spec.whatwg.org/#concept-response-response">https://fetch.spec.whatwg.org/#concept-response-response</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-response-response">4.5.6. event.respondWith(r)</a>
-    <li><a href="#ref-for-concept-response-response①">5.4.5. put(request, response)</a> <a href="#ref-for-concept-response-response②">(2)</a> <a href="#ref-for-concept-response-response③">(3)</a>
-    <li><a href="#ref-for-concept-response-response④">6.4. Cross-Origin Resources and CORS</a> <a href="#ref-for-concept-response-response⑤">(2)</a> <a href="#ref-for-concept-response-response⑥">(3)</a>
+    <li><a href="#ref-for-concept-response-response①">5.4.5. put(request, response)</a>
+    <li><a href="#ref-for-concept-response-response②">6.4. Cross-Origin Resources and CORS</a> <a href="#ref-for-concept-response-response③">(2)</a> <a href="#ref-for-concept-response-response④">(3)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-request-service-workers-mode">
@@ -7434,12 +7423,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-concept-request-url">2.4. Selection and Use</a> <a href="#ref-for-concept-request-url①">(2)</a> <a href="#ref-for-concept-request-url②">(3)</a>
     <li><a href="#ref-for-concept-request-url③">5.4.4. addAll(requests)</a> <a href="#ref-for-concept-request-url④">(2)</a>
-    <li><a href="#ref-for-concept-request-url⑤">5.4.5. put(request, response)</a> <a href="#ref-for-concept-request-url⑥">(2)</a>
-    <li><a href="#ref-for-concept-request-url⑦">6.3.2. importScripts(urls)</a> <a href="#ref-for-concept-request-url⑧">(2)</a>
-    <li><a href="#ref-for-concept-request-url⑨">Update</a> <a href="#ref-for-concept-request-url①⓪">(2)</a> <a href="#ref-for-concept-request-url①①">(3)</a> <a href="#ref-for-concept-request-url①②">(4)</a>
-    <li><a href="#ref-for-concept-request-url①③">Handle Fetch</a> <a href="#ref-for-concept-request-url①④">(2)</a>
-    <li><a href="#ref-for-concept-request-url①⑤">Request Matches Cached Item</a> <a href="#ref-for-concept-request-url①⑥">(2)</a>
-    <li><a href="#ref-for-concept-request-url①⑦">Batch Cache Operations</a>
+    <li><a href="#ref-for-concept-request-url⑤">5.4.5. put(request, response)</a>
+    <li><a href="#ref-for-concept-request-url⑥">6.3.2. importScripts(urls)</a> <a href="#ref-for-concept-request-url⑦">(2)</a>
+    <li><a href="#ref-for-concept-request-url⑧">Update</a> <a href="#ref-for-concept-request-url⑨">(2)</a> <a href="#ref-for-concept-request-url①⓪">(3)</a> <a href="#ref-for-concept-request-url①①">(4)</a>
+    <li><a href="#ref-for-concept-request-url①②">Handle Fetch</a> <a href="#ref-for-concept-request-url①③">(2)</a>
+    <li><a href="#ref-for-concept-request-url①④">Request Matches Cached Item</a> <a href="#ref-for-concept-request-url①⑤">(2)</a>
+    <li><a href="#ref-for-concept-request-url①⑥">Batch Cache Operations</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-request-use-url-credentials-flag">
@@ -8561,9 +8550,9 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <li><a href="#ref-for-a-promise-rejected-with">3.2.7. update()</a> <a href="#ref-for-a-promise-rejected-with①">(2)</a>
     <li><a href="#ref-for-a-promise-rejected-with②">5.4.2. matchAll(request, options)</a>
     <li><a href="#ref-for-a-promise-rejected-with③">5.4.4. addAll(requests)</a> <a href="#ref-for-a-promise-rejected-with④">(2)</a> <a href="#ref-for-a-promise-rejected-with⑤">(3)</a>
-    <li><a href="#ref-for-a-promise-rejected-with⑥">5.4.5. put(request, response)</a> <a href="#ref-for-a-promise-rejected-with⑦">(2)</a> <a href="#ref-for-a-promise-rejected-with⑧">(3)</a> <a href="#ref-for-a-promise-rejected-with⑨">(4)</a> <a href="#ref-for-a-promise-rejected-with①⓪">(5)</a> <a href="#ref-for-a-promise-rejected-with①①">(6)</a>
-    <li><a href="#ref-for-a-promise-rejected-with①②">5.4.6. delete(request, options)</a>
-    <li><a href="#ref-for-a-promise-rejected-with①③">5.4.7. keys(request, options)</a>
+    <li><a href="#ref-for-a-promise-rejected-with⑥">5.4.5. put(request, response)</a> <a href="#ref-for-a-promise-rejected-with⑦">(2)</a> <a href="#ref-for-a-promise-rejected-with⑧">(3)</a> <a href="#ref-for-a-promise-rejected-with⑨">(4)</a> <a href="#ref-for-a-promise-rejected-with①⓪">(5)</a>
+    <li><a href="#ref-for-a-promise-rejected-with①①">5.4.6. delete(request, options)</a>
+    <li><a href="#ref-for-a-promise-rejected-with①②">5.4.7. keys(request, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-a-promise-resolved-with">
@@ -8571,9 +8560,10 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-a-promise-resolved-with">4.5.2. event.preloadResponse</a>
     <li><a href="#ref-for-a-promise-resolved-with①">5.4.2. matchAll(request, options)</a>
-    <li><a href="#ref-for-a-promise-resolved-with②">5.4.6. delete(request, options)</a>
-    <li><a href="#ref-for-a-promise-resolved-with③">5.4.7. keys(request, options)</a>
-    <li><a href="#ref-for-a-promise-resolved-with④">5.5.1. match(request, options)</a>
+    <li><a href="#ref-for-a-promise-resolved-with②">5.4.5. put(request, response)</a>
+    <li><a href="#ref-for-a-promise-resolved-with③">5.4.6. delete(request, options)</a>
+    <li><a href="#ref-for-a-promise-resolved-with④">5.4.7. keys(request, options)</a>
+    <li><a href="#ref-for-a-promise-resolved-with⑤">5.5.1. match(request, options)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-reject-promise">
@@ -8598,6 +8588,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <ul>
     <li><a href="#ref-for-upon-fulfillment">4.4.1. event.waitUntil(f)</a>
     <li><a href="#ref-for-upon-fulfillment①">4.5.6. event.respondWith(r)</a>
+    <li><a href="#ref-for-upon-fulfillment②">5.4.5. put(request, response)</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-upon-rejection">
@@ -8712,9 +8703,9 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <a href="https://url.spec.whatwg.org/#concept-url-scheme">https://url.spec.whatwg.org/#concept-url-scheme</a><b>Referenced in:</b>
    <ul>
     <li><a href="#ref-for-concept-url-scheme">5.4.4. addAll(requests)</a> <a href="#ref-for-concept-url-scheme①">(2)</a>
-    <li><a href="#ref-for-concept-url-scheme②">5.4.5. put(request, response)</a> <a href="#ref-for-concept-url-scheme③">(2)</a>
-    <li><a href="#ref-for-concept-url-scheme④">Start Register</a> <a href="#ref-for-concept-url-scheme⑤">(2)</a>
-    <li><a href="#ref-for-concept-url-scheme⑥">Batch Cache Operations</a>
+    <li><a href="#ref-for-concept-url-scheme②">5.4.5. put(request, response)</a>
+    <li><a href="#ref-for-concept-url-scheme③">Start Register</a> <a href="#ref-for-concept-url-scheme④">(2)</a>
+    <li><a href="#ref-for-concept-url-scheme⑤">Batch Cache Operations</a>
    </ul>
   </aside>
   <aside class="dfn-panel" data-for="term-for-concept-url">
@@ -9064,7 +9055,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
     <ul>
      <li><span class="dfn-paneled" id="term-for-dom-requestdestination-report" style="color:initial">"report"</span>
      <li><span class="dfn-paneled" id="term-for-headers" style="color:initial">Headers</span>
-     <li><span class="dfn-paneled" id="term-for-concept-readablestream" style="color:initial">ReadableStream</span>
      <li><span class="dfn-paneled" id="term-for-request" style="color:initial">Request</span>
      <li><span class="dfn-paneled" id="term-for-requestinfo" style="color:initial">RequestInfo</span>
      <li><span class="dfn-paneled" id="term-for-response" style="color:initial">Response</span>
@@ -9083,7 +9073,6 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="term-for-concept-filtered-response-cors" style="color:initial">cors filtered response</span>
      <li><span class="dfn-paneled" id="term-for-concept-request-destination" style="color:initial">destination</span>
      <li><span class="dfn-paneled" id="term-for-concept-body-disturbed" style="color:initial">disturbed</span>
-     <li><span class="dfn-paneled" id="term-for-concept-empty-readablestream" style="color:initial">empty</span>
      <li><span class="dfn-paneled" id="term-for-concept-enqueue-readablestream" style="color:initial">enqueue</span>
      <li><span class="dfn-paneled" id="term-for-concept-readablestream-errored" style="color:initial">errored</span>
      <li><span class="dfn-paneled" id="term-for-concept-header-extract-mime-type" style="color:initial">extract a mime type</span>
