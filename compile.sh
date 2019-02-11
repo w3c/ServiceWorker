@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e # Exit with nonzero exit code if anything fails
 
-INPUT_FILE=$(find . -maxdepth 2 -name "*.bs" -print -quit)
-
 curlretry() {
     curl --retry 2 "$@"
 }
 
 curlbikeshed() {
+    INPUT_FILE=$(find . -maxdepth 1 -name "*.bs" -print -quit)
+
     # The Accept: header ensures we get the error output even when warnings are produced, per
     # https://github.com/whatwg/whatwg.org/issues/227#issuecomment-419969339.
     HTTP_STATUS=$(curlretry https://api.csswg.org/bikeshed/ \
@@ -25,7 +25,7 @@ curlbikeshed() {
     fi
 }
 
-curlbikeshed "index.html"
+cd docs && curlbikeshed "index.html"
 
 if [ -d out ]; then
   echo Copy the generated spec into out/index.html
