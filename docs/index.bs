@@ -1811,40 +1811,43 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="Cache"><code>put(|request|, |response|)</code></dfn> method *must* run these steps:
 
-        1. Let |r| be null.
-        1. If |request| is a {{Request}} object, then:
-            1. Set |r| to |request|'s [=Request/request=].
-            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", or |r|'s [=request/method=] is not \`<code>GET</code>\`, return [=a promise rejected with=] a `TypeError`.
-        1. Else if |request| is a string, then:
-            1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
-            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", return [=a promise rejected with=] a `TypeError`.
-        1. If |response|'s associated [=Response/response=]'s [=response/status=] is `206`, return [=a promise rejected with=] a `TypeError`.
-        1. If |response|'s associated [=Response/response=]'s [=response/header list=] contains a <a>header</a> [=header/named=] \`<code>Vary</code>\`, then:
+        1. Let |innerRequest| be null.
+        1. If |request| is a {{Request}} object, then set |innerRequest| to |request|'s [=Request/request=].
+        1. Else:
+            1. Let |requestObj| be the result of invoking {{Request}}'s constructor with |request| as its argument. If this [=throws=] an |exception|, return [=a promise rejected with=] |exception|.
+            1. Set |innerRequest| to |requestObj|'s [=Request/request=].
+        1. If |innerRequest|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", or |innerRequest|'s [=request/method=] is not \`<code>GET</code>\`, return [=a promise rejected with=] a `TypeError`.
+        1. Let |innerResponse| be |response|'s [=Response/response=].
+        1. If |innerResponse|'s [=response/status=] is `206`, return [=a promise rejected with=] a `TypeError`.
+        1. If |innerResponse|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
             1. Let |fieldValues| be the [=list=] containing the [=list/items=] corresponding to the  [=Vary=] header's [=http/field-values=].
             1. [=list/For each=] |fieldValue| in |fieldValues|:
                 1. If |fieldValue| matches "`*`", return [=a promise rejected with=] a `TypeError`.
-        1. If |response| is [=Body/disturbed=] or [=Body/locked=], return [=a promise rejected with=] a `TypeError`.
-        1. Let |clonedResponse| be the result of [=response/clone|cloning=] |response|'s associated [=Response/response=].
-        1. If |response|'s body is non-null, run these substeps:
-            1. Let |dummyStream| be an [=empty=] {{ReadableStream}} object.
-            1. Set |response|'s [=response/body=] to a new [=/body=] whose [=stream=] is |dummyStream|.
-            1. Let |reader| be the result of [=get a reader|getting a reader=] from |dummyStream|.
-            1. [=Read all bytes=] from |dummyStream| with |reader|.
+        1. If |innerResponse|'s [=response/body=] is [=Body/disturbed=] or [=Body/locked=], return [=a promise rejected with=] a `TypeError`.
+        1. Let |clonedResponse| be a [=response/clone=] of |innerResponse|.
+        1. Let |bodyReadPromise| be [=a promise resolved with=] undefined.
+        1. If |innerResponse|'s [=response/body=] is non-null, run these substeps:
+            1. Let |stream| be |innerResponse|'s [=response/body=]'s [=body/stream=].
+            1. Let |reader| be the result of [=ReadableStream/get a reader|getting a reader=] for |stream|.
+            1. Set |bodyReadPromise| to the result of [=Read all bytes|reading all bytes=] from |stream| with |reader|.
+
+            Note: This ensures that |innerResponse|'s [=response/body=] is [=Body/locked=], and we have a full buffered copy of the body in |clonedResponse|. An implementation could optimize by streaming directly to disk rather than memory.
+
         1. Let |operations| be an empty [=list=].
         1. Let |operation| be a [=cache batch operation=].
         1. Set |operation|'s [=cache batch operation/type=] to "`put`".
-        1. Set |operation|'s [=cache batch operation/request=] to |r|.
+        1. Set |operation|'s [=cache batch operation/request=] to |innerRequest|.
         1. Set |operation|'s [=cache batch operation/response=] to |clonedResponse|.
         1. [=list/Append=] |operation| to |operations|.
         1. Let |realm| be the [=context object=]'s [=relevant realm=].
-        1. Let |cacheJobPromise| be [=a new promise=].
-        1. Run the following substeps [=in parallel=]:
-            1. Let |errorData| be null.
-            1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
-            1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
-                1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
-                1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
-        1. Return |cacheJobPromise|.
+        1. Return the result of the [=Upon fulfillment|fulfillment=] of |bodyReadPromise|:
+            1. Let |cacheJobPromise| be [=a new promise=].
+            1. Return |cacheJobPromise| and run these steps [=in parallel=]:
+                1. Let |errorData| be null.
+                1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
+                1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
+                    1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
+                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
     </section>
 
     <section algorithm="cache-delete">
