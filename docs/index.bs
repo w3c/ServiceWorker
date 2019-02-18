@@ -2068,10 +2068,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. Let |map| be |serviceWorker|'s [=script resource map=] and |url| be |request|'s [=request/url=].
-        1. If |serviceWorker|'s [=state=] is not *parsed* or *installing*:
-            1. Return |map|[|url|] if it exists and a [=network error=] otherwise.
-        1. Set |serviceWorker|'s [=classic scripts imported flag=].
-        1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
+        1. If |map|[|url|] [=map/exists=], return the [=map/entry=]'s [=map/value=].
+        1. If |serviceWorker|'s [=state=] is not *parsed* or *installing*, return a [=network error=].
         1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
         1. Set |request|'s [=service-workers mode=] to "`none`".
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
@@ -2081,7 +2079,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
         1. If |response|'s [=unsafe response=] is a [=bad import script response=], then return a [=network error=].
-        1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
+        1. [=map/Set=] |map|[|url|] to |response|.
+        1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
         1. Set |serviceWorker|'s [=classic scripts imported flag=].
         1. Return |response|.
     </section>
@@ -2485,8 +2484,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
                   1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
-                  1. If |fetchedResponse| is a [=bad import script response=], set |hasUpdatedResources| to true.
-                  1. Else if |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
+                  1. If |fetchedResponse| is a [=bad import script response=], continue.
+
+                    Note: Bad responses for <a>importScripts()</a> are ignored for the purpose of the byte-to-byte check. Only good responses for the incumbent worker and good responses for the potential update worker are considered. See <a href="https://github.com/w3c/ServiceWorker/issues/1374">issue #1374</a> for some rationale.
+
+                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
 
                       Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
           1. Asynchronously complete these steps with |response|.
