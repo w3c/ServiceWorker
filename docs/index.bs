@@ -2072,12 +2072,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
             * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
         1. Let |response| be the result of [=fetch|fetching=] |request|.
-        1. Set |response| to |response|'s [=unsafe response=].
         1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
-        1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], return a [=network error=].
-        1. If |response|'s [=response/type=] is not "`error`", and |response|'s [=response/status=] is an <a>ok status</a>, then:
-            1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
-            1. Set |serviceWorker|'s [=classic scripts imported flag=].
+        1. If |response|'s [=unsafe response=] is a [=bad import script response=], then return a [=network error=].
+        1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
+        1. Set |serviceWorker|'s [=classic scripts imported flag=].
         1. Return |response|.
     </section>
   </section>
@@ -2203,6 +2201,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe [=queue=] used to synchronize the set of concurrent [=jobs=]. The [=job queue=] contains [=jobs=] as its [=queue/items=]. A [=job queue=] is initially empty.
 
   A <dfn id="dfn-scope-to-job-queue-map">scope to job queue map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=job queues=].
+
+  A <dfn id="dfn-bad-import-script-response">bad import script response</dfn> is a [=/response=] for which any of the following conditions are met:
+
+    * |response|'s [=response/type=] is "`error`"
+    * |response|'s [=response/status=] is not an [=ok status=]
+    * The result of [=Extract a MIME type|extracting a MIME type=] from |response|'s [=response/header list=] is not a [=JavaScript MIME type=]
+
+        Note: Keep this definition in sync with [=fetch a classic worker-imported script=].
 
   <section algorithm>
     <h3 id="create-job-algorithm"><dfn>Create Job</dfn></h3>
@@ -2456,22 +2462,25 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
           1. If |newestWorker| is null, or |newestWorker|'s [=script resource map=][|request|'s [=request/url=]]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=], set |hasUpdatedResources| to true.
           1. Else if |newestWorker|'s [=classic scripts imported flag=] is set, then:
-              1. [=map/For each=] |url| → |storedResponse| of |newestWorker|'s [=script resource map=]:
-                  1. Let |request| be a new [=/request=] whose [=request/url=] is |url|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
-                  1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
+
+              Note: The following checks to see if an imported script has been updated, since the main script has not changed.
+
+              1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
+                  1. If |importUrl| is |request|'s [=request/url=], then continue.
+                  1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
+                  1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
                       * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
                       * |job|'s [=force bypass cache flag=] is set.
                       * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
-                  1. Let |fetchedResponse| be the result of [=fetch|fetching=] |request|.
+                  1. Let |fetchedResponse| be the result of [=fetch|fetching=] |importRequest|.
+                  1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
-                  1. Set |updatedResourceMap|[|request|'s [=request/url=]] to |fetchedResponse|.
                   1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
-                  1. [=Extract a MIME type=] from the |fetchedResponse|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], asynchronously complete these steps with a [=network error=].
-                  1. If |fetchedResponse|'s [=response/type=] is "`error`", or |fetchedResponse|'s [=response/status=] is not an [=ok status=], asynchronously complete these steps with a [=network error=].
-                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=response/body=], set |hasUpdatedResources| to true.
+                  1. If |fetchedResponse| is a [=bad import script response=], then asynchronously complete these steps with a [=network error=].
+                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
 
                       Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
-          1. Return true.
+          1. Asynchronously complete these steps with |response|.
 
           If the algorithm asynchronously completes with null, then:
 
