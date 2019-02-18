@@ -2072,9 +2072,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
             * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
         1. Let |response| be the result of [=fetch|fetching=] |request|.
-        1. Let |unsafeResponse| be |response|'s [=unsafe response=].
-        1. If |unsafeResponse|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
-        1. If |unsafeResponse| is a [=network error import script=], then return a [=network error=].
+        1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
+        1. If |response|'s [=unsafe response=] is a [=bad import script response=], then return a [=network error=].
         1. [=map/Set=] |serviceWorker|'s [=script resource map=][|request|'s [=request/url=]] to |response|.
         1. Set |serviceWorker|'s [=classic scripts imported flag=].
         1. Return |response|.
@@ -2203,7 +2202,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
   A <dfn id="dfn-scope-to-job-queue-map">scope to job queue map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=job queues=].
 
-  A <dfn id="dfn-network-error-import-script">network error import script</dfn> is a [=/response=] for which any of the following conditions are met:
+  A <dfn id="dfn-bad-import-script-response">bad import script response</dfn> is a [=/response=] for which any of the following conditions are met:
 
     * |response|'s [=response/type=] is "`error`"
     * |response|'s [=response/status=] is not an [=ok status=]
@@ -2477,7 +2476,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
                   1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
-                  1. If |fetchedResponse| is a [=network error import script=], then asynchronously complete these steps with a [=network error=].
+                  1. If |fetchedResponse| is a [=bad import script response=], then asynchronously complete these steps with a [=network error=].
                   1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
 
                       Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
