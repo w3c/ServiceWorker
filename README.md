@@ -28,41 +28,29 @@ This is to explain how we use labels and milestones to triage the issues. Note: 
 
 
 ### Prioritization
-**enhancement**: is for anything that was assessed as not having any impact on the decisions for the current milestone and can therefore be safely discussed, rejected or prioritized later.
-
-**milestone**: is used to mark issues we agreed to get done in principle by a given revision. For the sake of efficiency, we tend to only focus on the current milestone and leave everything else without specific milestones.
-
-**impacts MVP**: is used to mark issues impacting the “Minimal Viable Product”. The MVP is the minimal scope of API that can solve actual use cases. These issues have the highest priority.
+- **enhancement**: is for anything that was assessed as not having any impact on the decisions for the current milestone and can therefore be safely discussed, rejected or prioritized later.
+- **milestone**: is used to mark issues we agreed to get done in principle by a given revision. For the sake of efficiency, we tend to only focus on the current milestone and leave everything else without specific milestones.
+- **impacts MVP**: is used to mark issues impacting the “Minimal Viable Product”. The MVP is the minimal scope of API that can solve actual use cases. These issues have the highest priority.
 
 *Risk labels for impacts MVP issues*
-**medium risk**: to further refine the “impacts MVP” issues. It indicates that the issue is moderately complex and that reaching a conclusion might take some time. These are of higher priority than issues with no risk label but are of lower priority than issues with a “high risk” label.
 
-**high risk**: to further refine the “impacts MVP” issues. It indicates that the issue is significantly complex and that reaching a conclusion might take a lot of time and effort. These are of higher priority than issues with no risk label or a “medium risk” label.
+- **medium risk**: to further refine the “impacts MVP” issues. It indicates that the issue is moderately complex and that reaching a conclusion might take some time. These are of higher priority than issues with no risk label but are of lower priority than issues with a “high risk” label.
+- **high risk**: to further refine the “impacts MVP” issues. It indicates that the issue is significantly complex and that reaching a conclusion might take a lot of time and effort. These are of higher priority than issues with no risk label or a “medium risk” label.
 
 
 
 ### Actions
-**needs spec**: a decision has been made and the spec needs to be updated.
-
-**spec detail**: has no significant implications for implementers nor web developers.
-
-**decided**: to record that a decision has been made.
-
-**invalid**: when something doesn’t constitute a valid issue.
-
-**wontfix**: a decision has been made not to pursue this issue further.
-
-**duplicate**: when a similar issue has already been filed.
-
-**bug**: an oversight that needs to be fixed.
+- **needs spec**: a decision has been made and the spec needs to be updated.
+- **spec detail**: has no significant implications for implementers nor web developers.
+- **decided**: to record that a decision has been made.
+- **invalid**: when something doesn’t constitute a valid issue.
+- **wontfix**: a decision has been made not to pursue this issue further.
+- **duplicate**: when a similar issue has already been filed.
+- **bug**: an oversight that needs to be fixed.
 
 
 ### Areas
-
-**fetch**: relates to Fetch
-
-**lifecycle**: relates to lifecycle aspects of service worker
-
-**cache**: relevant to the Cache APIs
-
-**question**: not an actual issue. Items that have been filed in order to gain a better understanding of service worker.
+- **fetch**: relates to Fetch
+- **lifecycle**: relates to lifecycle aspects of service worker
+- **cache**: relevant to the Cache APIs
+- **question**: not an actual issue. Items that have been filed in order to gain a better understanding of service worker.
