@@ -1027,8 +1027,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       The <dfn method for="Client"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
 
+        1. Let |options| be «[ "transfer" → |transfer| ]».
+        1. Invoke {{Client/postMessage(message, options)}} with |message| and |options| as the arguments.
+    </section>
+
+    <section algorithm="client-postmessage-options">
+      <h4 id="client-postmessage-options">{{Client/postMessage(message, options)}}</h4>
+
+      The <dfn method for="Client"><code>postMessage(|message|, |options|)</code></dfn> method *must* run these steps:
+
         1. Let |sourceSettings| be the [=context object=]'s [=relevant settings object=].
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |transfer|). Rethrow any exceptions.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
         1. Run the following steps [=in parallel=]:
             1. Let |targetClient| be null.
             1. For each [=/service worker client=] |client|:
@@ -1091,7 +1100,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="client-navigate">
       <h4 id="client-navigate">{{WindowClient/navigate(url)}}</h4>
 
-      The <dfn method for="WindowClient"><code>navigate(|url|)</code></dfn> method *must* run these steps:
+      The <dfn method for="WindowClient"><code>navigate(url)</code></dfn> method *must* run these steps:
 
         1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
