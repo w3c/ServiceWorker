@@ -2128,9 +2128,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     *This section is non-normative.*
 
-    In addition to the [[#origin-restriction|origin restriction]], service workers are restricted by the [=url/path=] of the service worker script. For example, a service worker script at <code>https://www.example.com/~bob/sw.js</code> can be registered for the [=scope=] <code>https://www.example.com/~bob</code> but not for the scope <code>https://www.example.com</code> or <code>https://www.example.com/~alice</code>. This provides some protection for sites that host multiple-user content in separated directories on the same origin. However, the path restriction is not considered a hard security boundary, as only origins are. Sites are encouraged to use different origins to securely isolate segments of the site if appropriate.
+    In addition to the [[#origin-restriction|origin restriction]], service workers are restricted by the [=url/path=] of the service worker script. For example, a service worker script at <code>https://www.example.com/~bob/sw.js</code> can be registered for the [=scope=] <code>https://www.example.com/~bob/</code> but not for the scope <code>https://www.example.com/</code> or <code>https://www.example.com/~alice/</code>. This provides some protection for sites that host multiple-user content in separated directories on the same origin. However, the path restriction is not considered a hard security boundary, as only origins are. Sites are encouraged to use different origins to securely isolate segments of the site if appropriate.
 
-    Servers can break the path restriction by setting a [=Service-Worker-Allowed=] header on the service worker script.
+    Servers can remove the path restriction by setting a [=Service-Worker-Allowed=] header on the service worker script.
   </section>
 
   <section>
@@ -2506,11 +2506,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s [=job/script url=]'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Else:
               1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s [=job/script url=].
-              1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=]:
+              1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
                 1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
-          1. If |maxScopeString| is not null and |scopeString| starts with |maxScopeString|, do nothing.
-          1. Else:
+          1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |url| be |request|'s [=request/url=].
