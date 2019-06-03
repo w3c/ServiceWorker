@@ -518,12 +518,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigator-service-worker-unregister">
       <h4 id="navigator-service-worker-unregister">{{ServiceWorkerRegistration/unregister()}}</h4>
 
-      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently <a>controlled</a> [=/service worker client=]'s <a>active service worker</a>'s <a>containing service worker registration</a> is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.
+      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently [=controlled=] [=/service worker client=]'s [=active service worker=]'s [=containing service worker registration=] is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent [=navigate|navigations=].
 
       <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method *must* run these steps:
 
-        1. Let |promise| be a <a>promise</a>.
-        1. Let |job| be the result of running <a>Create Job</a> with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
+        1. Let |promise| be [=a new promise=].
+        1. Let |job| be the result of running [=Create Job=] with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
     </section>
@@ -1336,28 +1336,35 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="wait-until-method">
       <h4 id="wait-until-method">{{ExtendableEvent/waitUntil()|event.waitUntil(f)}}</h4>
 
-      {{ExtendableEvent/waitUntil()}} method extends the lifetime of the event.
+      Note: {{ExtendableEvent/waitUntil()}} method extends the lifetime of the event.
 
       <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
 
-        1. If the {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. Let |event| be the [=context object=].
+        1. [=ExtendableEvent/Add lifetime promise=] |f| to |event|.
+    </section>
 
-        1. If not [=ExtendableEvent/active=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+    <section algorithm="add-lifetime-promise">
+      To <dfn for="ExtendableEvent" export>add lifetime promise</dfn> |promise| (a [=promise=]) to |event| (an {{ExtendableEvent}}), run these steps:
+
+        1. If |event|'s {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If |event| is not [=ExtendableEvent/active=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
             Note: If no lifetime extension promise has been added in the task that called the event handlers, calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
 
-        1. Add |f| to the [=ExtendableEvent/extend lifetime promises=].
-        1. Increment the [=ExtendableEvent/pending promises count=] by one.
+        1. Add |promise| to |event|'s [=ExtendableEvent/extend lifetime promises=].
+        1. Increment |event|'s [=ExtendableEvent/pending promises count=] by one.
 
             Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
 
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |f|, [=queue a microtask=] to run these substeps:
-            1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
-            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |promise|, [=queue a microtask=] to run these substeps:
+            1. Decrement |event|'s [=ExtendableEvent/pending promises count=] by one.
+            1. If |event|'s [=ExtendableEvent/pending promises count=] is 0, then:
+                1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+                1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
+                1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
 
-        The user agent *should not* [=terminate service worker|terminate=] a [=/service worker=] if [=Service Worker Has No Pending Events=] returns false for that [=/service worker=].
+      The user agent *should not* [=terminate service worker|terminate=] a [=/service worker=] if [=Service Worker Has No Pending Events=] returns false for that [=/service worker=].
     </section>
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
@@ -1435,18 +1442,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
 
+        1. Let |event| be the [=context object=].
         1. If the <a>dispatch flag</a> is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. If the [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. Add |r| to the <a>extend lifetime promises</a>.
-        1. Increment the [=ExtendableEvent/pending promises count=] by one.
-
-            Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
-
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a microtask=] to run these substeps:
-            1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
-            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
+        1. [=ExtendableEvent/Add lifetime promise=] |r| to |event|.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
