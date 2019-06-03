@@ -2005,6 +2005,26 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section>
+    <h3 id="path-restriction">Path restriction</h3>
+
+    *This section is non-normative.*
+
+    In addition to the [[#origin-restriction|origin restriction]], service workers are restricted by the [=url/path=] of the service worker script. For example, a service worker script at <code>https://www.example.com/~bob/sw.js</code> can be registered for the [=service worker registration/scope url=] <code>https://www.example.com/~bob/</code> but not for the scope <code>https://www.example.com/</code> or <code>https://www.example.com/~alice/</code>. This provides some protection for sites that host multiple-user content in separated directories on the same origin. However, the path restriction is not considered a hard security boundary, as only origins are. Sites are encouraged to use different origins to securely isolate segments of the site if appropriate.
+
+    Servers can remove the path restriction by setting a [=Service-Worker-Allowed=] header on the service worker script.
+  </section>
+
+  <section>
+    <h3 id="script-request">Service worker script request</h3>
+
+    *This section is non-normative.*
+
+    To further defend against malicious registration of a service worker on a site, this specification requires that:
+    * The [=Service-Worker=] header is present on service worker script requests, and
+    * Service worker scripts are served with a [=JavaScript MIME type=].
+  </section>
+
+  <section>
     <h3 id="implementer-concerns">Implementer Concerns</h3>
 
     *This section is non-normative.*
@@ -2305,7 +2325,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Asynchronously complete these steps with a [=network error=].
           1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
-              Note: See the definition of the Service-Worker-Allowed header in Appendix B: Extended HTTP headers.
+              Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
 
           1. Set |httpsState| to |response|'s [=response/HTTPS state=].
           1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
@@ -2317,10 +2337,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s [=job/script url=]'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Else:
               1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s [=job/script url=].
-              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
+              1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
+                1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
           1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
-          1. If |scopeString| starts with |maxScopeString|, do nothing.
-          1. Else:
+          1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Set |updatedResourceMap|[|request|'s [=request/url=]] to |response|.
