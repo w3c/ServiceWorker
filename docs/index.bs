@@ -2516,9 +2516,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |updatedResourceMap|[|url|] to |response|.
           1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
           1. Set |hasUpdatedResources| to true if any of the following are true:
-            1. |newestWorker| is null.
-            1. |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
-            1. |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
+            * |newestWorker| is null.
+            * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
+            * |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
           1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
               Note: The following checks to see if an imported script has been updated, since the main script has not changed.
@@ -2554,6 +2554,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
       1. If |hasUpdatedResources| is false, then:
+          1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. Let |worker| be a new [=/service worker=].
