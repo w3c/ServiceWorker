@@ -637,7 +637,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: The {{ServiceWorkerContainer/register(scriptURL, options)}} method creates or updates a [=/service worker registration=] for the given [=service worker registration/scope url=]. If successful, a [=/service worker registration=] ties the provided |scriptURL| to a [=service worker registration/scope url=], which is subsequently used for <a lt="handle fetch">navigation matching</a>.
 
-      <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method *must* run these steps:
 
         1. Let |p| be a <a>promise</a>.
         1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
@@ -2249,7 +2249,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
   Two <a>jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a>job type</a> is the same and:
 
-    * For *register* and *update* <a>jobs</a>, both their [=job/scope url=] and the [=job/script url=] are the same.
+    * For *register* and *update* <a>jobs</a>, their [=job/scope url=], [=job/script url=], [=job/worker type=], and [=job/update via cache mode=] are the same.
     * For *unregister* <a>jobs</a>, their [=job/scope url=] is the same.
 
   A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe [=queue=] used to synchronize the set of concurrent [=jobs=]. The [=job queue=] contains [=jobs=] as its [=queue/items=]. A [=job queue=] is initially empty.
@@ -2437,7 +2437,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |registration| is not null, then:
           1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
-          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=], and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
+          1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=], |job|'s [=job/worker type=] equals |newestWorker|'s [=service worker/type=], and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
               1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
@@ -2465,7 +2465,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |referrerPolicy| be the empty string.
       1. Let |hasUpdatedResources| be false.
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
-      1. Switching on |job|'s <a>worker type</a>, run these substeps with the following options:
+      1. Switching on |job|'s [=worker type=], run these substeps with the following options:
           <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
           : "<code>classic</code>"
           :: <a>Fetch a classic worker script</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", and the to-be-created <a>environment settings object</a> for this service worker.
@@ -2515,14 +2515,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |url| be |request|'s [=request/url=].
           1. Set |updatedResourceMap|[|url|] to |response|.
           1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
-          1. Let |map| be |newestWorker|'s [=script resource map=] if |newestWorker| is not null, and null otherwise.
-          1. If |map| is null or |map|[|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=], set |hasUpdatedResources| to true.
-          1. Else if |newestWorker|'s [=classic scripts imported flag=] is set, then:
+          1. Set |hasUpdatedResources| to true if any of the following are true:
+            1. |newestWorker| is null.
+            1. |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
+            1. |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
+          1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
               Note: The following checks to see if an imported script has been updated, since the main script has not changed.
 
               1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
-                  1. If |importUrl| is |request|'s [=request/url=], then continue.
+                  1. If |importUrl| is |url|, then continue.
                   1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
                   1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
                       * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
@@ -2601,6 +2603,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Let |installFailed| be false.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
+      1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
       1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
