@@ -201,7 +201,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has one or more <dfn export id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a>active worker</a>'s <a>event loop</a>'s corresponding [=/task queues=]. (The target task sources for this back up operation are the <a>handle fetch task source</a> and the <a>handle functional event task source</a>.) The user agent dumps the <a>active worker</a>'s <a>tasks</a> to the [=/service worker registration=]'s [=service worker registration/task queues=] when the <a>active worker</a> is <a lt="terminate service worker">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a>active worker</a>'s <a>event loop</a>'s corresponding [=/task queues=] when the <a>active worker</a> spins off. Unlike the [=/task queues=] owned by <a>event loops</a>, the [=/service worker registration=]'s [=service worker registration/task queues=] are not processed by any <a>event loops</a> in and of itself.
 
-    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=scope to registration map=][[=service worker registration/scope url=]] is not this [=/service worker registration=].
+    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=scope to registration map=][this [=/service worker registration=]'s [=service worker registration/scope url=]] is not this [=/service worker registration=].
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -1329,63 +1329,59 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="fetch-event-respondwith">
       <h4 id="fetch-event-respondwith">{{FetchEvent/respondWith(r)|event.respondWith(r)}}</h4>
 
-      Note: Developers can set the argument |r| with either a <a>promise</a> that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a <a>network error</a> is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of <a>filtered responses</a> defined in [=/Fetch=].
+      Note: Developers can set the argument |r| with either a [=promise=] that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a [=network error=] is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of [=filtered responses=] defined in [=/Fetch=].
 
       <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
 
         1. Let |event| be the [=context object=].
-        1. If the <a>dispatch flag</a> is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. If the [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If |event|'s [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If |event|'s [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. [=ExtendableEvent/Add lifetime promise=] |r| to |event|.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
-        1. Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.
-        1. Set the [=FetchEvent/respond-with entered flag=].
-        1. Set the [=FetchEvent/wait to respond flag=].
-        1. Let |targetRealm| be the <a>relevant Realm</a> of the <a>context object</a>.
-        1. Run the following substeps <a>in parallel</a>:
-            1. Wait until |r| settles.
-            1. If |r| rejected, then:
-                1. Set the [=FetchEvent/respond-with error flag=].
-            1. If |r| resolved with |response|, then:
-                1. If |response| is a {{Response}} object, then:
-                    1. If |response| is [=Body/disturbed=] or [=Body/locked=], then:
-                        1. Set the [=FetchEvent/respond-with error flag=].
-                    1. Else:
-                        1. Let |bytes| be an empty byte sequence.
-                        1. Let |end-of-body| be false.
-                        1. Let |done| be false.
-                        1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
-                        1. If |response|'s [=response/body=] is non-null, run these substeps:
-                            1. Let |reader| be the result of <a lt="get a reader">getting a reader</a> from |response|'s [=response/body=]'s <a>stream</a>.
-                            1. Let |strategy| be an object created in |targetRealm|. The user agent may choose any object.
-                            1. Let |pull| be an action that runs these subsubsteps:
-                                1. Let |promise| be the result of <a lt="read a chunk">reading a chunk</a> from |response|'s [=response/body=]'s <a>stream</a> with |reader|.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to |bytes| and perform ! <a>DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is true, set |end-of-body| to true.
-                                1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a <code>TypeError</code>.
-                            1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s <a>stream</a> with |reader|.
-                            1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |strategy|, |pull| and |cancel| in |targetRealm|.
-                            1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose <a>stream</a> is |newStream|.
-                            1. Run these subsubsteps repeatedly <a>in parallel</a> while |done| is false:
-                                1. If |newStream| is <a>errored</a>, then set |done| to true.
-                                1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
-                                1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
-                                    1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
-                                    1. Remove |chunk| from |bytes|.
-                                    1. Let |buffer| be an <code>ArrayBuffer</code> object created in |targetRealm| and containing |chunk|.
-                                    1. [=ReadableStream/Enqueue=] a <code>Uint8Array</code> object created in |targetRealm| and wrapping |buffer| to |newStream|.
+        1. Set |event|'s [=stop propagation flag=] and [=stop immediate propagation flag=].
+        1. Set |event|'s [=FetchEvent/respond-with entered flag=].
+        1. Set |event|'s [=FetchEvent/wait to respond flag=].
+        1. Let |targetRealm| be |event|'s [=relevant Realm=].
+        1. [=Upon rejection=] of |r|:
+            1. Set |event|'s [=FetchEvent/respond-with error flag=].
+            1. Unset |event|'s [=FetchEvent/wait to respond flag=].
+        1. [=Upon fulfillment=] of |r| with |response|:
+            1. If |response| is not a {{Response}} object, then set the [=FetchEvent/respond-with error flag=].
 
-                            Note: These substeps are meant to produce the observable equivalent of "piping" |response|'s [=response/body=]'s <a>stream</a> into |potentialResponse|.
+                Note: If the [=FetchEvent/respond-with error flag=] is set, a [=network error=] is returned to [=/Fetch=] through [=Handle Fetch=] algorithm. (See the step 21.1.) Otherwise, the value |response| is returned to [=/Fetch=] through [=Handle Fetch=] algorithm. (See the step 22.1.)
 
-                        1. Set the [=FetchEvent/potential response=] to |potentialResponse|.
-                1. Else:
-                    1. Set the [=FetchEvent/respond-with error flag=].
+            1. Else:
+                1. Let |bytes| be an empty byte sequence.
+                1. Let |end-of-body| be false.
+                1. Let |done| be false.
+                1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
+                1. If |response|'s [=response/body=] is non-null, run these substeps:
+                    1. Let |reader| be the result of [=get a reader|getting a reader=] from |response|'s [=response/body=]'s [=stream=].
+                    1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
+                    1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
+                    1. Let |pull| be an action that runs these subsubsteps:
+                        1. Let |promise| be the result of [=read a chunk|reading a chunk=] from |response|'s [=response/body=]'s [=stream=] with |reader|.
+                        1. When |promise| is fulfilled with an object whose `done` property is false and whose `value` property is a `Uint8Array` object, append the bytes represented by the `value` property to |bytes| and perform ! [=DetachArrayBuffer=] with the `ArrayBuffer` object wrapped by the `value` property.
+                        1. When |promise| is fulfilled with an object whose `done` property is true, set |end-of-body| to true.
+                        1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a `TypeError`.
+                    1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s [=stream=] with |reader|.
+                    1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |highWaterMark|, |sizeAlgorithm|, |pull|, and |cancel| in |targetRealm|.
+                    1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose [=stream=] is |newStream|.
+                    1. Run these subsubsteps repeatedly [=in parallel=] while |done| is false:
+                        1. If |newStream| is [=errored=], then set |done| to true.
+                        1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
+                        1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
+                            1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
+                            1. Remove |chunk| from |bytes|.
+                            1. Let |buffer| be an `ArrayBuffer` object created in |targetRealm| and containing |chunk|.
+                            1. [=ReadableStream/Enqueue=] a `Uint8Array` object created in |targetRealm| and wrapping |buffer| to |newStream|.
 
-                    Note: If the [=FetchEvent/respond-with error flag=] is set, a <a>network error</a> is returned to [=/Fetch=] through <a>Handle Fetch</a> algorithm. (See the step 21.1.) Otherwise, the value |response| is returned to [=/Fetch=] through <a>Handle Fetch</a> algorithm. (See the step 22.1.)
+                    Note: These substeps are meant to produce the observable equivalent of "piping" |response|'s [=response/body=]'s [=stream=] into |potentialResponse|.
 
-            1. Unset the [=FetchEvent/wait to respond flag=].
+                1. Set |event|'s [=FetchEvent/potential response=] to |potentialResponse|.
+            1. Unset |event|'s [=FetchEvent/wait to respond flag=].
     </section>
   </section>
 
@@ -2266,7 +2262,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
-      1. If |registration| is null or |registration| is [=service worker registration/unregistered=], then:
+      1. If |registration| is null, then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
@@ -2411,7 +2407,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
       1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s origin.
-      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject| to run the following steps:
+      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
           1. Let |registrationObjects| be every {{ServiceWorkerRegistration}} object in |settingsObject|'s [=environment settings object/realm execution context=], whose [=ServiceWorkerRegistration/service worker registration=] is |registration|.
           1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
@@ -2952,7 +2948,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |matchingScopeString| is not the empty string, then:
           1. Set |matchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScopeString|.
           1. Assert: |matchingScope|'s [=url/origin=] and |clientURL|'s [=url/origin=] are [=same origin=].
-      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |matchingScope| as the argument.
+      1. Return the result of running [=Get Registration=] algorithm passing |matchingScope| as the argument.
       1. Return |registration|.
   </section>
 
