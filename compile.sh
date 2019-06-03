@@ -26,8 +26,3 @@ curlbikeshed() {
 }
 
 cd docs && curlbikeshed "index.html"
-
-if [ -d out ]; then
-  echo Copy the generated spec into out/index.html
-  cp index.html out/index.html
-fi
