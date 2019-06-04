@@ -629,7 +629,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=].
         1. Return |readyPromise|.
 
-      Note: The returned [=ServiceWorkerContainer/ready promise=] will never reject. If it does not resolve in this algorithm, it will eventually resolve when a matching [=/service worker registration=] is registered and its [=active worker=] is set. (See the relevant [Activate algorithm step](#activate-resolve-ready-step).)
+      Note: The returned [=ServiceWorkerContainer/ready promise=] will never reject. If it does not resolve in this algorithm, it will eventually resolve when a matching [=/service worker registration=] is registered and its [=active worker=] is set. (See the relevant [Update State step](#update-state-resolve-ready-step).)
     </section>
 
     <section algorithm="navigator-service-worker-register">
@@ -3116,7 +3116,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |settingsObject| [=/uses=] |registration|, then:
                   1. Set |settingsObject|'s [=environment/active service worker=] to |activeWorker|.
                   1. [=fire an event=] named `controllerchange` on |container|.
-              1. If the [=Match Service Worker Registration|matching=] [=/service worker registration=] for |settingsObject|'s [=environment/creation URL=] is |registration|, and |readyPromise| is pending, then [=/resolve=] |readyPromise| with a new {{ServiceWorkerRegistration}} object representing |registration| in |readyPromise|'s [=relevant Realm=].
+              1. <span id="update-state-resolve-ready-step">If the [=Match Service Worker Registration|matching=] [=/service worker registration=] for |settingsObject|'s [=environment/creation URL=] is |registration|, and |readyPromise| is pending, then [=/resolve=] |readyPromise| with a new {{ServiceWorkerRegistration}} object representing |registration| in |readyPromise|'s [=relevant Realm=].</span>
   </section>
 
   <section algorithm>
