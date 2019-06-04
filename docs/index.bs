@@ -1303,7 +1303,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |client|'s <a>active service worker</a> is not the [=ServiceWorkerGlobalScope/service worker=], then:
                     1. Invoke <a>Handle Service Worker Client Unload</a> with |client| as the argument.
                     1. Set |client|'s <a>active service worker</a> to [=ServiceWorkerGlobalScope/service worker=].
-                    1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
+                    1. [=Queue a task=] on |client|'s [=responsible event loop=] using the [=DOM manipulation task source=] to [=fire an event=] named `controllerchange` at the {{ServiceWorkerContainer}} object that |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
@@ -2589,53 +2589,45 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="installation-algorithm"><dfn>Install</dfn></h3>
 
       : Input
-      :: |job|, a <a>job</a>
+      :: |job|, a [=job=]
       :: |worker|, a [=/service worker=]
       :: |registration|, a [=/service worker registration=]
       : Output
       :: none
 
       1. Let |installFailed| be false.
-      1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
-      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and |worker| as the arguments.
-      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
+      1. Let |newestWorker| be the result of running [=Get Newest Worker=] algorithm passing |registration| as its argument.
+      1. Invoke [=Update State=] with «[ |worker| → *installing* ]».
       1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
-      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s origin.
-      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
-          1. Let |registrationObjects| be every {{ServiceWorkerRegistration}} object in |settingsObject|'s [=environment settings object/realm execution context=], whose [=ServiceWorkerRegistration/service worker registration=] is |registration|.
-          1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
-      1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
-      1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
-      1. <a>Queue a task</a> |task| to run the following substeps:
-          1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+      1. Let |installingWorker| be |registration|'s [=installing worker=].
+      1. Invoke [=Run Service Worker=] algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+      1. [=Queue a task=] |task| to run the following substeps:
+          1. Let |e| be the result of [=creating an event=] with {{ExtendableEvent}}.
           1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
-          1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
-          1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
+          1. [=Dispatch=] |e| at |installingWorker|'s [=service worker/global object=].
+          1. *WaitForAsynchronousExtensions*: Run the following substeps [=in parallel=]:
               1. <span id="install-settle-step">Wait until |e| is not [=ExtendableEvent/active=].</span>
               1. If |e|'s [=ExtendableEvent/timed out flag=] is set, or the result of [=waiting for all=] of |e|'s [=extend lifetime promises=] rejected, set |installFailed| to true.
 
-          If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
+          If |task| is discarded or the script has been aborted by the [=Terminate Service Worker|termination=] of |installingWorker|, set |installFailed| to true.
 
       1. Wait for |task| to have executed or been discarded.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. If |installFailed| is true, then:
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and *redundant* as the arguments.
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
-          1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |map| be |registration|'s [=installing worker=]'s [=script resource map=].
-      1. Let |usedSet| be |registration|'s [=installing worker=]'s [=set of used scripts=].
+          1. Invoke [=Update State=] with «[ |worker| → *redundant* ]».
+          1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
+          1. Invoke [=Finish Job=] with |job| and abort these steps.
+      1. Let |map| be |worker|'s [=script resource map=].
+      1. Let |usedSet| be |worker|'s [=set of used scripts=].
       1. [=map/For each=] |url| of |map|:
           1. If |usedSet| does not [=list/contain=] |url|, then [=map/remove=] |map|[|url|].
-      1. If |registration|'s <a>waiting worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
-          1. Run the [=Update Worker State=] algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
-      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and |registration|'s <a>installing worker</a> as the arguments.
-      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>waiting worker</a> and *installed* as the arguments.
-      1. Invoke <a>Finish Job</a> with |job|.
-      1. Wait for all the <a>tasks</a> <a lt="queue a task">queued</a> by <a>Update Worker State</a> invoked in this algorithm to have executed.
+      1. Let |newState| be «[ |worker| → *installed* ]».
+      1. If |registration|'s [=waiting worker=] is not null, then:
+          1. Set |newState|[|registration|'s [=waiting worker=]] to *redundant*.
+      1. Invoke [=Update State=] with |newState|.
+      1. Invoke [=Finish Job=] with |job|.
+      1. Wait for all the [=tasks=] [=queue a task|queued=] by [=Update State=] invoked in this algorithm to have executed.
       1. Invoke [=Try Activate=] with |registration|.
 
           Note: If [=Try Activate=] does not trigger [=Activate=] here, [=Activate=] is tried again when the last client controlled by the existing [=active worker=] is [=Handle Service Worker Client Unload|unloaded=], {{ServiceWorkerGlobalScope/skipWaiting()}} is asynchronously called, or the [=extend lifetime promises=] for the existing [=active worker=] settle.
@@ -2650,12 +2642,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. If |registration|'s <a>waiting worker</a> is null, abort these steps.
+      1. Let |newState| be «[ |registration|'s [=waiting worker=] → *activating* ]».
       1. If |registration|'s [=active worker=] is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
-          1. Run the [=Update Worker State=] algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
-      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and |registration|'s <a>waiting worker</a> as the arguments.
-      1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activating* as the arguments.
+          1. Set |newState|[|registration|'s [=active worker=]] to *redundant*.
+      1. Invoke [=Update State=] with |newState|.
 
           Note: Once an active worker is activating, neither a runtime script error nor a force termination of the active worker prevents the active worker from getting activated.
 
@@ -2669,9 +2659,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Note: Resources will now use the service worker registration instead of the existing application cache.
 
-      1. For each [=/service worker client=] |client| who is <a>using</a> |registration|:
-          1. Set |client|'s <a>active worker</a> to |registration|'s <a>active worker</a>.
-          1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
@@ -2681,7 +2668,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e| is not [=ExtendableEvent/active=].</span>
       1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
       1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
-      1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
+      1. Invoke [=Update State=] with «[ |registration|'s [=active worker=] → *activated* ]».
   </section>
 
   <section algorithm>
@@ -3039,18 +3026,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. Run the following steps atomically.
-      1. If |registration|'s <a>installing worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=installing worker=].
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and *redundant* as the arguments.
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-      1. If |registration|'s <a>waiting worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=waiting worker=] and *redundant* as the arguments.
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-      1. If |registration|'s <a>active worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
+      1. Let |newState| be a new [=/map=].
+      1. If |registration|'s [=installing worker=] is not null, then:
+          1. Set |newState|[|registration|'s [=installing worker=]] to *redundant*.
+      1. If |registration|'s [=waiting worker=] is not null, then:
+          1. Set |newState|[|registration|'s [=waiting worker=]] to *redundant*.
+      1. If |registration|'s [=active worker=] is not null, then:
+          1. Set |newState|[|registration|'s [=active worker=]] to *redundant*.
+      1. Invoke [=Update State=] with |newState|.
   </section>
 
   <section algorithm>
@@ -3068,88 +3051,74 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   </section>
 
   <section algorithm>
-    <h3 id="update-registration-state-algorithm"><dfn>Update Registration State</dfn></h3>
+    <h3 id="update-state-algorithm"><dfn>Update State</dfn></h3>
+
+    Note: This algorithm updates the state of [=/service workers=] and their position within a [=/service worker registration=]. It ensures related events are dispatched at a consistent time and in a consistent order.
 
       : Input
-      :: |registration|, a [=/service worker registration=]
-      :: |target|, a string (one of "<code>installing</code>", "<code>waiting</code>", and "<code>active</code>")
-      :: |source|, a [=/service worker=] or null
+      :: |workerUpdates|, a [=/map=] where the [=map/keys=] are [=/service workers=] and the [=map/values=] are [=service worker/states=]
       : Output
       :: None
 
-      1. Let |registrationObjects| be an array containing all the {{ServiceWorkerRegistration}} objects associated with |registration|.
-      1. If |target| is "<code>installing</code>", then:
-          1. Set |registration|'s <a>installing worker</a> to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/installing}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>installing worker</a>, or null if |registration|’s <a>installing worker</a> is null.
-      1. Else if |target| is "<code>waiting</code>", then:
-          1. Set |registration|'s <a>waiting worker</a> to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/waiting}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s <a>waiting worker</a>, or null if |registration|’s <a>waiting worker</a> is null.
-      1. Else if |target| is "<code>active</code>", then:
-          1. Set |registration|'s [=service worker registration/active worker=] to |source|.
-          1. For each |registrationObject| in |registrationObjects|:
-              1. <a>Queue a task</a> to set the {{ServiceWorkerRegistration/active}} attribute of |registrationObject| to the {{ServiceWorker}} object that represents |registration|’s [=service worker registration/active worker=], or null if |registration|’s [=service worker registration/active worker=] is null.
+      1. If |workerUpdates| [=map/is empty=], then return.
+      1. Assert: Every [=map/value=] in |workerUpdates| has the same [=service worker/containing service worker registration=].
+      1. Let |registration| be the [=service worker/containing service worker registration=] of any [=map/value=] in |workerUpdates|.
+      1. Let |updateFound| be false.
+      1. Let |newActiveWorker| be false.
+      1. Let |newestWorker| be the result of invoking [=Get Newest Worker=] with |registration|.
+      1. [=map/For each=] |worker| → |state| of |workerUpdates|:
+          1. Set |worker|'s [=service worker/state=] to |state|.
+          1. Switch on |state|:
+              : *installing*
+              ::
+                  1. If |newestWorker| is not null, |worker| is not null, then set |updateFound| to true.
+                  1. Set |registration|'s [=service worker registration/installing worker=] to |worker|.
+              : *installed*
+              ::
+                  1. Set |registration|'s [=service worker registration/waiting worker=] to |worker|.
+                  1. If |registration|'s [=service worker registration/installing worker=] is |worker|, then set |registration|'s [=service worker registration/installing worker=] to null.
+              : *activating*
+              ::
+                  1. If |worker| is not null and |registration|'s [=service worker registration/active worker=] is not null, then set |newActiveWorker| to true.
+                  1. Set |registration|'s [=service worker registration/active worker=] to |worker|.
+                  1. If |registration|'s [=service worker registration/waiting worker=] is |worker|, then set |registration|'s [=service worker registration/waiting worker=] to null.
+              : *redundant*
+              ::
+                  1. If |registration|'s [=service worker registration/installing worker=] is |worker|, then set |registration|'s [=service worker registration/installing worker=] to null.
+                  1. Else, if |registration|'s [=service worker registration/waiting worker=] is |worker|, then set |registration|'s [=service worker registration/waiting worker=] to null.
+                  1. Else, if |registration|'s [=service worker registration/active worker=] is |worker|, then set |registration|'s [=service worker registration/active worker=] to null.
+                  1. [=Terminate Service Worker|Terminate=] |worker|.
+      1. Let |installingWorker| be |registration|'s [=service worker registration/installing worker=].
+      1. Let |waitingWorker| be |registration|'s [=service worker registration/waiting worker=].
+      1. Let |activeWorker| be |registration|'s [=service worker registration/active worker=].
 
-        The <a>task</a> *must* use |registrationObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
-  </section>
+          Note: These values are 'cached' as the actual values on |registration| may have changed by the time we queue a task.
 
-  <section algorithm>
-    <h3 id="update-state-algorithm"><dfn>Update Worker State</dfn></h3>
+      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s origin.
+      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
+          1. Let |changedWorkers| be an empty [=/list=].
+          1. Let |registrationObjects| be a [=/list=] of every {{ServiceWorkerRegistration}} object in |settingsObject|'s [=environment settings object/realm execution context=], whose [=ServiceWorkerRegistration/service worker registration=] is |registration|.
+          1. [=map/For each=] |worker| → |state| of |workerUpdates|:
+              1. Let |workerObject| be the {{ServiceWorker}} that represents |worker| within |settingsObject|'s [=environment settings object/realm execution context=].
+              1. If |workerObject|'s {{ServiceWorker/state}} is not |state|, then:
+                  1. Set |workerObject|'s {{ServiceWorker/state}} to |state|.
+                  1. If |state| is not *installing*, then [=list/append=] |workerObject| to |changedWorkers|.
 
-      : Input
-      :: |worker|, a [=/service worker=]
-      :: |state|, a [=/service worker=]'s <a>state</a>
-      : Output
-      :: None
+                      Note: *installing* is the initial script-exposed state, so it doesn't count as a change.
 
-      1. Set |worker|'s <a>state</a> to |state|.
-      1. Let |workerObjects| be an array containing all the {{ServiceWorker}} objects associated with |worker|.
-      1. For each |workerObject| in |workerObjects|:
-          1. <a>Queue a task</a> to run these substeps:
-              1. Set the {{ServiceWorker/state}} attribute of |workerObject| to the value (in {{ServiceWorkerState}} enumeration) corresponding to the first matching statement, switching on |worker|'s <a>state</a>:
-                  : *installing*
-                  :: {{"installing"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>installing worker</a>. During this state, {{ExtendableEvent/waitUntil()}} can be called inside the {{ServiceWorkerGlobalScope/oninstall}} <a>event handler</a> to extend the life of the <a>installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the [=/service worker=] is not active until all of the core caches are populated.
-
-                  : *installed*
-                  :: {{"installed"}}
-
-                      Note: The [=/service worker=] in this state is considered a <a>waiting worker</a>.
-
-                  : *activating*
-                  :: {{"activating"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>active worker</a>. During this state, {{ExtendableEvent/waitUntil()}} can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a>active worker</a> until the passed <a>promise</a> resolves successfully. No <a>functional events</a> are dispatched until the state becomes *activated*.
-
-                  : *activated*
-                  :: {{"activated"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>active worker</a> ready to handle <a>functional events</a>.
-
-                  : *redundant*
-                  :: {{"redundant"}}
-
-                      Note: A new [=/service worker=] is replacing the current [=/service worker=], or the current [=/service worker=] is being discarded due to an install failure.
-
-              1. <a>Fire an event</a> named <code>statechange</code> at |workerObject|.
-
-        The <a>task</a> *must* use |workerObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
-  </section>
-
-  <section algorithm>
-    <h3 id="notify-controller-change-algorithm"><dfn>Notify Controller Change</dfn></h3>
-
-      : Input
-      :: |client|, a [=/service worker client=]
-      : Output
-      :: None
-
-      1. Assert: |client| is not null.
-      1. If |client| is an [=environment settings object=], <a>queue a task</a> to [=fire an event=] named <code>controllerchange</code> at the {{ServiceWorkerContainer}} object that |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
-
-    The <a>task</a> *must* use |client|'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
+          1. [=list/For each=] |registrationObject| of |registrationObjects|:
+              1. Set |registrationObject|'s {{ServiceWorkerRegistration/installing}} to null if |installingWorker| is null, otherwise set it to the {{ServiceWorker}} that represents |installingWorker| within |settingsObject|'s [=environment settings object/realm execution context=].
+              1. Set |registrationObject|'s {{ServiceWorkerRegistration/waiting}} to null if |waitingWorker| is null, otherwise set it to the {{ServiceWorker}} that represents |waitingWorker| within |settingsObject|'s [=environment settings object/realm execution context=].
+              1. Set |registrationObject|'s {{ServiceWorkerRegistration/active}} to null if |activeWorker| is null, otherwise set it to the {{ServiceWorker}} that represents |activeWorker| within |settingsObject|'s [=environment settings object/realm execution context=].
+          1. [=list/For each=] |workerObject| of |changedWorkers|, [=fire an event=] on |workerObject| named `statechange`.
+          1. If `updateFound` is true, then [=list/for each=] |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
+          1. If |newActiveWorker| is true:
+              1. Let |container| be the {{ServiceWorkerContainer}} object within |settingsObject|'s [=environment settings object/realm execution context=].
+              1. Let |readyPromise| be |container|'s [=ServiceWorkerContainer/ready promise=].
+              1. If |settingsObject| [=/uses=] |registration|, then:
+                  1. Set |settingsObject|'s [=environment/active service worker=] to |activeWorker|.
+                  1. [=fire an event=] named `controllerchange` on |container|.
+              1. If the [=Match Service Worker Registration|matching=] [=/service worker registration=] for |settingsObject|'s [=environment/creation URL=] is |registration|, and |readyPromise| is pending, then [=/resolve=] |readyPromise| with a new {{ServiceWorkerRegistration}} object representing |registration| in |readyPromise|'s [=relevant Realm=].
   </section>
 
   <section algorithm>
@@ -3158,7 +3127,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |clientURL|, a [=/URL=]
       : Output
-      :: |registration|, a [=/service worker registration=]
+      :: A [=/service worker registration=]
 
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
