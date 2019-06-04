@@ -1302,8 +1302,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
                 1. If |client|'s <a>active service worker</a> is not the [=ServiceWorkerGlobalScope/service worker=], then:
                     1. Invoke <a>Handle Service Worker Client Unload</a> with |client| as the argument.
-                    1. Set |client|'s <a>active service worker</a> to [=ServiceWorkerGlobalScope/service worker=].
-                    1. [=Queue a task=] on |client|'s [=responsible event loop=] using the [=DOM manipulation task source=] to [=fire an event=] named `controllerchange` at the {{ServiceWorkerContainer}} object that |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
+                    1. [=Queue a task=] on |client|'s [=responsible event loop=] using the [=DOM manipulation task source=] to run the following steps:
+                      1. Set |client|'s [=active service worker=] to [=ServiceWorkerGlobalScope/service worker=].
+                      1. [=Fire an event=] named `controllerchange` on the {{ServiceWorkerContainer}} object that |client| is [=ServiceWorkerContainer/service worker client|associated=] with.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
     </section>
