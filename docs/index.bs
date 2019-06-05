@@ -208,6 +208,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-last-update-check-time">last update check time</dfn>. It is initially set to null.
 
+    A [=/service worker registration=] is said to be <dfn>stale</dfn> if the registration's [=last update check time=] is non-null and the time difference in seconds calculated by the current time minus the registration's [=last update check time=] is greater than 86400.
+
     A [=/service worker registration=] has an associated <dfn export id="dfn-update-via-cache">update via cache mode</dfn>, which is "`imports`", "`all`", or "`none`". It is initially set to "`imports`".
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.
@@ -374,6 +376,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
+        1. If the result of running the [=Should Skip Event=] algorithm with "message" and |serviceWorker|, is true, then return.
         1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
         1. Let |incumbentSettings| be the <a>incumbent settings object</a>, and |incumbentGlobal| its [=environment settings object/global object=].
         1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
@@ -2103,7 +2106,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
             * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
             * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
-            * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
+            * |registration| is [=stale=].
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
         1. If |response|'s [=unsafe response=] is a [=bad import script response=], then return a [=network error=].
@@ -2481,7 +2484,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
               * |registration|'s [=service worker registration/update via cache mode=] is not "`all`".
               * |job|'s [=force bypass cache flag=] is set.
-              * |newestWorker| is not null, and |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
+              * |newestWorker| is not null and |registration| is [=stale=].
 
               Note: Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
 
@@ -2529,7 +2532,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
                       * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
                       * |job|'s [=force bypass cache flag=] is set.
-                      * |registration|'s [=last update check time=] is not null and the time difference in seconds calculated by the current time minus |registration|’s [=last update check time=] is greater than 86400.
+                      * |registration| is [=stale=].
                   1. Let |fetchedResponse| be the result of [=fetch|fetching=] |importRequest|.
                   1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
                   1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
@@ -2789,7 +2792,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section algorithm>
     <h3 id="on-fetch-request-algorithm"><dfn export>Handle Fetch</dfn></h3>
 
-    The <a>Handle Fetch</a> algorithm is the entry point for the [=/fetch=] handling handed to the [=/service worker=] context.
+    The [=Handle Fetch=] algorithm is the entry point for the [=/fetch=] handling handed to the [=/service worker=] context.
 
       : Input
       :: |request|, a [=/request=]
@@ -2846,13 +2849,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
-      1. If |activeWorker|'s <a>set of event types to handle</a> does not [=set/contain=] <code>fetch</code>, then:
-          1. Return null and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
-          1. Abort these steps.
-
-          Note: To avoid unnecessary delays, the Handle Fetch enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.
-
+      1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
+          * |request| is a [=non-subresource request=].
+          * |request| is a [=subresource request=] and |registration| is [=stale=].
+      1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true:
+          1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+          1. Return.
       1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
       1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
       1. <a>Queue a task</a> |task| to run the following substeps:
@@ -2880,17 +2882,24 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
 
       1. Wait for |task| to have executed or been discarded.
-      1. If |respondWithEntered| is false, then:
-          1. If |eventCanceled| is true, return a <a>network error</a> and continue running these steps <a>in parallel</a>.
-          1. Else, return null and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
-          1. Abort these steps.
-      1. If |handleFetchFailed| is true, then:
-          1. Return a <a>network error</a> and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
-      1. Else:
-          1. Return |response| and continue running these steps <a>in parallel</a>.
-          1. If |request| is a <a>non-subresource request</a>, or |request| is a <a>subresource request</a> and the time difference in seconds calculated by the current time minus |registration|'s <a>last update check time</a> is greater than 86400, invoke <a>Soft Update</a> algorithm with |registration|.
+      1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+      1. If |respondWithEntered| is false, then return a [=network error=] if |eventCanceled| is true and null otherwise.
+      1. If |handleFetchFailed| is true, then return a [=network error=].
+      1. Return |response|.
+  </section>
+
+  <section algorithm>
+    <h3 id="should-skip-event"><dfn>Should Skip Event</dfn></h3>
+      : Input
+      :: |eventName|, a string
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      Note: To avoid unnecessary delays, this specification permits skipping event dispatch when no event listeners for the event have been deterministically added in the service worker's global during the very first script execution.
+
+      1. If |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] |eventName|, then the user agent *may* return true.
+      1. Return false.
   </section>
 
   <section algorithm>
@@ -2908,12 +2917,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Assert: [=scope to registration map=] contains a value equal to |registration|.
       1. Assert: |registration|'s [=active worker=] is not null.
       1. Let |activeWorker| be |registration|'s [=active worker=].
-      1. If |activeWorker|'s [=set of event types to handle=] does not [=set/contain=] |eventName|, then return and run the following steps [=in parallel=]:
-          1. If the time difference in seconds calculated by the current time minus |registration|'s [=last update check time=] is greater than 86400, invoke [=Soft Update=] algorithm with |registration|.
-          1. Abort these steps.
-
-          Note: To avoid unnecessary delays, the Handle Functional Event enforces early return when no event listeners have been deterministically added in the service worker's global during the very first script execution.
-
+      1. If the result of running [=Should Skip Event=] with |eventName| and |activeWorker| is true, then:
+          1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+          2. Return.
       1. If |activeWorker|'s [=state=] is *activating*, wait for |activeWorker|'s [=state=] to become *activated*.
       1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
       1. [=Queue a task=] |task| to run these substeps:
@@ -2926,7 +2932,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           The |task| *must* use |activeWorker|'s [=event loop=] and the [=handle functional event task source=].
 
       1. Wait for |task| to have executed or been discarded.
-      1. If the time difference in seconds calculated by the current time minus |registration|'s [=last update check time=] is greater than 86400, invoke [=Soft Update=] algorithm with |registration|.
+      1. If |registration| is [=stale=], then run the [=Soft Update=] algorithm with |registration|.
 
       <div class="example">
         To fire an "`amazingthing`" event (which is of type `AmazingThingEvent`) on a particular |serviceWorkerRegistration|, and initialize the event object's properties, the prose would be:
