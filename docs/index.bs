@@ -175,6 +175,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=list/item=] is an {{ExtendableEvent}}. It is initially a new [=ordered set|set=].
 
+    A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running and its [=service worker/global object=]'s [=WorkerGlobalScope/closing=] flag is false.
+
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
@@ -391,32 +393,34 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. If the {{ServiceWorker/state}} attribute value of the <a>context object</a> is {{"redundant"}}, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |serviceWorker| be the [=/service worker=] represented by the <a>context object</a>.
         1. If the result of running the [=Should Skip Event=] algorithm with "message" and |serviceWorker|, is true, then return.
-        1. Invoke <a>Run Service Worker</a> algorithm with |serviceWorker| as the argument.
-        1. Let |incumbentSettings| be the [=incumbent settings object=].
-        1. Let |incumbentGlobal| be |incumbentSettings|'s [=environment settings object/global object=].
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
-        1. [=Queue a task=] on the [=DOM manipulation task source=] to run the following steps:
-            1. Let |source| be determined by switching on the type of |incumbentGlobal|:
-                <dl class="switch">
-                    <dt>{{ServiceWorkerGlobalScope}}</dt>
-                    <dd>The result of [=getting the service worker object=] that represents |incumbentGlobal|'s [=ServiceWorkerGlobalScope/service worker=] in the [=relevant settings object=] of |serviceWorker|'s [=service worker/global object=].</dd>
+        1. Run these substeps [=in parallel=]:
+            1. Run the [=Run Service Worker=] algorithm with |serviceWorker|.
+            1. If |serviceWorker| is not [=running=], return.
+            1. Let |incumbentSettings| be the [=incumbent settings object=].
+            1. Let |incumbentGlobal| be |incumbentSettings|'s [=environment settings object/global object=].
+            1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
+            1. [=Queue a task=] on the [=DOM manipulation task source=] to run the following steps:
+                1. Let |source| be determined by switching on the type of |incumbentGlobal|:
+                    <dl class="switch">
+                        <dt>{{ServiceWorkerGlobalScope}}</dt>
+                        <dd>The result of [=getting the service worker object=] that represents |incumbentGlobal|'s [=ServiceWorkerGlobalScope/service worker=] in the [=relevant settings object=] of |serviceWorker|'s [=service worker/global object=].</dd>
 
-                    <dt>{{Window}}</dt>
-                    <dd>a new {{WindowClient}} object that represents |incumbentGlobal|'s [=relevant settings object=].</dd>
+                        <dt>{{Window}}</dt>
+                        <dd>a new {{WindowClient}} object that represents |incumbentGlobal|'s [=relevant settings object=].</dd>
 
-                    <dt>Otherwise</dt>
-                    <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker
-                </dd>
-            1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
-            1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
-            1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
+                        <dt>Otherwise</dt>
+                        <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker
+                    </dd>
+                1. Let |origin| be the [=Unicode serialization of an origin|Unicode serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
+                1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
+                1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
 
-                If this throws an exception, catch it, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
-            1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
-            1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
-            1. Let |e| be the result of [=creating an event=] named {{message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
-            1. [=Dispatch=] |e| at |destination|.
-            1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
+                    If this throws an exception, catch it, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
+                1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
+                1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
+                1. Let |e| be the result of [=creating an event=] named {{message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
+                1. [=Dispatch=] |e| at |destination|.
+                1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
     </section>
 
     <section>
@@ -2082,7 +2086,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
   <section>
     <h3 id="content-security-policy">Content Security Policy</h3>
 
-    Whenever a user agent invokes <a>Run Service Worker</a> algorithm with a [=/service worker=] |serviceWorker|:
+    Whenever a user agent invokes the [=Run Service Worker=] algorithm with a [=/service worker=] |serviceWorker|:
 
       * If |serviceWorker|'s <a>script resource</a> was delivered with a <code>Content-Security-Policy</code> HTTP header containing the value |policy|, the user agent *must* <a>enforce</a> |policy| for |serviceWorker|.
       * If |serviceWorker|'s <a>script resource</a> was delivered with a <code>Content-Security-Policy-Report-Only</code> HTTP header containing the value |policy|, the user agent *must* <a>monitor</a> |policy| for |serviceWorker|.
@@ -2581,12 +2585,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Append |url| to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-      1. Invoke [=Run Service Worker=] algorithm given |worker|, with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set, and with the following callback steps given |evaluationStatus|:
-          1. If |evaluationStatus| is an [=abrupt completion=] or |evaluationStatus|.\[[Value]] is empty, then:
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-              1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
-              1. Invoke [=Finish Job=] with |job|.
-          1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
+      1. Set |evaluationStatus| to the result of running the [=Run Service Worker=] algorithm with |worker| and the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+      1. If |evaluationStatus| is an [=abrupt completion=] or |evaluationStatus|.\[[Value]] is empty, then:
+          1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+          1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
+          1. Invoke [=Finish Job=] with |job|.
+      1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
 
   <section algorithm>
@@ -2634,19 +2638,21 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. If the result of running the [=Should Skip Event=] algorithm with |installingWorker| and "install" is false, then:
-          1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
-          1. <a>Queue a task</a> |task| to run the following substeps:
-              1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
-              1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
-              1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
-              1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
-                  1. <span id="install-settle-step">Wait until |e| is not [=ExtendableEvent/active=].</span>
-                  1. If |e|'s [=ExtendableEvent/timed out flag=] is set, or the result of [=waiting for all=] of |e|'s [=extend lifetime promises=] rejected, set |installFailed| to true.
+          1. Run the [=Run Service Worker=] algorithm with |installingWorker| and the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+          1. If |installingWorker| is not [=running=], then set |installFailed| to true.
+          1. Else:
+              1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
+                  1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+                  1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
+                  1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
+                  1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
+                      1. <span id="install-settle-step">Wait until |e| is not [=ExtendableEvent/active=].</span>
+                      1. If |e|'s [=ExtendableEvent/timed out flag=] is set, or the result of [=waiting for all=] of |e|'s [=extend lifetime promises=] rejected, set |installFailed| to true.
 
-              If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
+                  If |task| is discarded or the script has been aborted by the <a lt="Terminate Service Worker">termination</a> of |installingWorker|, set |installFailed| to true.
 
-          1. Wait for |task| to have executed or been discarded.
-          1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
+              1. Wait for |task| to have executed or been discarded.
+              1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. If |installFailed| is true, then:
           1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
@@ -2702,14 +2708,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. If the result of running the [=Should Skip Event=] algorithm with |activeWorker| and "activate" is false, then:
-          1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
-          1. <a>Queue a task</a> |task| to run the following substeps:
-              1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
-              1. Initialize |e|’s {{Event/type}} attribute to {{activate!!event}}.
-              1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-              1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e| is not [=ExtendableEvent/active=].</span>
-          1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
-          1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
+          1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
+          1. If |activeWorker| is [=running=], then:
+              1. [=Queue a task=] |task| on |activeWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
+                  1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+                  1. Initialize |e|’s {{Event/type}} attribute to {{activate!!event}}.
+                  1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
+                  1. <span id="activate-settle-step">*WaitForAsynchronousExtensions*: Wait, [=in parallel=], until |e| is not [=ExtendableEvent/active=].</span>
+              1. Wait for |task| to have executed or been discarded, or the script to have been aborted by the <a lt="terminate service worker">termination</a> of |activeWorker|.
+              1. Wait for the step labeled *WaitForAsynchronousExtensions* to complete.
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>active worker</a> and *activated* as the arguments.
   </section>
 
@@ -2737,12 +2744,25 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |serviceWorker|, a [=/service worker=]
       :: *force bypass cache for importscripts flag*, an optional flag unset by default
-      :: optional |callbackSteps|, an algorithm which takes a [=Completion=]
+      : Output
+      :: a [=Completion=]
+
+      <div class="note">
+        Note: This algorithm typically blocks until initial script evaluation of the service worker finishes, and returns when the service worker starts its event loop. The return value may be:
+        * an evaluation status whose \[[Value]] is empty if the worker was not attempted to start at all because the worker was redundant or the [=run a classic script=] or [=run a module script=] algorithm determined not to start the worker.
+        * an evaluation status whose \[[Value]] is a "QuotaExceededError" DOMException if the script was [=abort a running script|aborted prematurely=] during evaluation. In this case, the worker's [=global object=]'s [=WorkerGlobalScope/closing=] flag is true.
+        * some other [=abrupt completion=] if, e.g., a uncaught exception occurred during evalution.
+        * a normal completion.
+
+        This specification generally treats an [=abrupt completion=] due to an uncaught exception the same as a normal completion. That is, if the worker throws an exception during initial script evaluation, it is still considering running and can receive events. However, some callsites distinguish between them using the return value. Other callsites simply check if the service worker is [=running=] after this algorithm returns.
+      </div>
 
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
-      1. If |serviceWorker| is already running, this algorithm must have been invoked previously. If |callbackSteps| is provided, run them with the same value as the previous time, and abort these steps.
-      1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following substeps in that context:
+      1. If |serviceWorker| is already running, this algorithm must have been invoked previously. Return the same value as the previous time.
+      1. If |serviceWorker|'s [=state=] is *redundant*, then return NormalCompletion(empty).
+      1. Let |evaluationStatus| be null.
+      1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following substeps in that context [=in parallel=]:
           1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
               * Let |realmExecutionContext| be the created [=execution context|JavaScript execution context=].
@@ -2777,9 +2797,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
-
-              Note: In addition to the usual possibilities of returning a value or failing due to an exception, this could be prematurely aborted by the <a>terminate service worker</a> algorithm.
-          1. If |callbackSteps| is provided, run them with |evaluationStatus| on the original thread that invoked this algorithm, while continuing in parallel with these steps.
           1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
               1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
                   1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
@@ -2789,6 +2806,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Set |script|'s <a>has ever been evaluated flag</a>.
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
+      1. Wait for |serviceWorker|'s [=event loop=] to start running, or to be destroyed, whichever comes first.
+      1. Return |evaluationStatus|.
   </section>
 
   <section algorithm>
@@ -2877,7 +2896,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
       1. If |activeWorker|'s <a>state</a> is *activating*, wait for |activeWorker|'s <a>state</a> to become *activated*.
-      1. Invoke <a>Run Service Worker</a> algorithm with |activeWorker| as the argument.
+      1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
+      1. If |activeWorker| is not [=running=], then return null.
       1. <a>Queue a task</a> |task| to run the following substeps:
           1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
           1. Let |requestObject| be a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
@@ -2941,7 +2961,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           2. Return.
       1. If |activeWorker|'s [=state=] is *activating*, wait for |activeWorker|'s [=state=] to become *activated*.
-      1. Invoke [=Run Service Worker=] algorithm with |activeWorker| as the argument.
+      1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
+      1. If |activeWorker| is not [=running=], then:
+          1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+          2. Return.
       1. [=Queue a task=] |task| to run these substeps:
           1. Let |event| be the result of [=creating an event=] with |eventConstructor| and the [=relevant realm=] of |activeWorker|'s [=service worker/global object=].
           1. If |initialization| is not null, then initialize |event| with |initialization|.
