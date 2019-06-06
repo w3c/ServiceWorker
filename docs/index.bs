@@ -212,8 +212,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-update-via-cache">update via cache mode</dfn>, which is "`imports`", "`all`", or "`none`". It is initially set to "`imports`".
 
-    A [=/service worker registration=] has an associated <dfn export id="dfn-uninstalling-flag">uninstalling flag</dfn>. It is initially unset.
-
     A [=/service worker registration=] has one or more <dfn export id="dfn-service-worker-registration-task-queue">task queues</dfn> that back up the <a>tasks</a> from its <a>active worker</a>'s <a>event loop</a>'s corresponding [=/task queues=]. (The target task sources for this back up operation are the <a>handle fetch task source</a> and the <a>handle functional event task source</a>.) The user agent dumps the <a>active worker</a>'s <a>tasks</a> to the [=/service worker registration=]'s [=service worker registration/task queues=] when the <a>active worker</a> is <a lt="terminate service worker">terminated</a> and <a lt="queue a task">re-queues those tasks</a> to the <a>active worker</a>'s <a>event loop</a>'s corresponding [=/task queues=] when the <a>active worker</a> spins off. Unlike the [=/task queues=] owned by <a>event loops</a>, the [=/service worker registration=]'s [=service worker registration/task queues=] are not processed by any <a>event loops</a> in and of itself.
 
     A [=/service worker registration=] has an associated <dfn export>{{NavigationPreloadManager}}</dfn> object.
@@ -221,6 +219,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker registration=] has an associated <dfn export>navigation preload enabled flag</dfn>. It is initially unset.
 
     A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a [=byte sequence=]. It is initially set to \`<code>true</code>\`.
+
+    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=scope to registration map=][this [=/service worker registration=]'s [=service worker registration/scope url=]] is not this [=/service worker registration=].
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -521,12 +521,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigator-service-worker-unregister">
       <h4 id="navigator-service-worker-unregister">{{ServiceWorkerRegistration/unregister()}}</h4>
 
-      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently <a>controlled</a> [=/service worker client=]'s <a>active service worker</a>'s <a>containing service worker registration</a> is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent <a lt="navigate">navigations</a>.
+      Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently [=controlled=] [=/service worker client=]'s [=active service worker=]'s [=containing service worker registration=] is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent [=navigate|navigations=].
 
       <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method *must* run these steps:
 
-        1. Let |promise| be a <a>promise</a>.
-        1. Let |job| be the result of running <a>Create Job</a> with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
+        1. Let |promise| be [=a new promise=].
+        1. Let |job| be the result of running [=Create Job=] with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
     </section>
@@ -681,7 +681,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Run the following steps [=in parallel=]:
             1. Let |registrations| be a new [=list=].
             1. [=map/For each=] |scope| → |registration| of [=scope to registration map=]:
-                1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |client|'s [=environment settings object/origin=], and |registration|'s [=uninstalling flag=] is unset, then [=append=] |registration| to |registrations|.
+                1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |client|'s [=environment settings object/origin=], then [=append=] |registration| to |registrations|.
             1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
                 1. Let |registrationObjects| be a new [=list=].
                 1. [=list/For each=] |registration| of |registrations|, [=append=] the {{ServiceWorkerRegistration}} object associated with |registration| to |registrationObjects|.
@@ -1300,6 +1300,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |client| is not a [=secure context=], [=continue=].
                 1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm passing |client|'s <a>creation URL</a> as the argument.
                 1. If |registration| is not the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>, [=continue=].
+
+                    Note: |registration| will be null if the [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=] is [=service worker registration/unregistered=].
+
                 1. If |client|'s <a>active service worker</a> is not the [=ServiceWorkerGlobalScope/service worker=], then:
                     1. Invoke <a>Handle Service Worker Client Unload</a> with |client| as the argument.
                     1. Set |client|'s <a>active service worker</a> to [=ServiceWorkerGlobalScope/service worker=].
@@ -1339,28 +1342,35 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="wait-until-method">
       <h4 id="wait-until-method">{{ExtendableEvent/waitUntil()|event.waitUntil(f)}}</h4>
 
-      {{ExtendableEvent/waitUntil()}} method extends the lifetime of the event.
+      Note: {{ExtendableEvent/waitUntil()}} method extends the lifetime of the event.
 
       <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
 
-        1. If the {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. Let |event| be the [=context object=].
+        1. [=ExtendableEvent/Add lifetime promise=] |f| to |event|.
+    </section>
 
-        1. If not [=ExtendableEvent/active=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+    <section algorithm="add-lifetime-promise">
+      To <dfn for="ExtendableEvent" export>add lifetime promise</dfn> |promise| (a [=promise=]) to |event| (an {{ExtendableEvent}}), run these steps:
+
+        1. If |event|'s {{Event/isTrusted}} attribute is false, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If |event| is not [=ExtendableEvent/active=], [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
 
             Note: If no lifetime extension promise has been added in the task that called the event handlers, calling {{ExtendableEvent/waitUntil()}} in subsequent asynchronous tasks will throw.
 
-        1. Add |f| to the [=ExtendableEvent/extend lifetime promises=].
-        1. Increment the [=ExtendableEvent/pending promises count=] by one.
+        1. Add |promise| to |event|'s [=ExtendableEvent/extend lifetime promises=].
+        1. Increment |event|'s [=ExtendableEvent/pending promises count=] by one.
 
             Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
 
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |f|, [=queue a microtask=] to run these substeps:
-            1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
-            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |promise|, [=queue a microtask=] to run these substeps:
+            1. Decrement |event|'s [=ExtendableEvent/pending promises count=] by one.
+            1. If |event|'s [=ExtendableEvent/pending promises count=] is 0, then:
+                1. Let |registration| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
+                1. If |registration| is [=service worker registration/unregistered=], invoke [=Try Clear Registration=] with |registration|.
+                1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
 
-        The user agent *should not* [=terminate service worker|terminate=] a [=/service worker=] if [=Service Worker Has No Pending Events=] returns false for that [=/service worker=].
+      The user agent *should not* [=terminate service worker|terminate=] a [=/service worker=] if [=Service Worker Has No Pending Events=] returns false for that [=/service worker=].
     </section>
 
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
@@ -1434,72 +1444,59 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="fetch-event-respondwith">
       <h4 id="fetch-event-respondwith">{{FetchEvent/respondWith(r)|event.respondWith(r)}}</h4>
 
-      Note: Developers can set the argument |r| with either a <a>promise</a> that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a <a>network error</a> is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of <a>filtered responses</a> defined in [=/Fetch=].
+      Note: Developers can set the argument |r| with either a [=promise=] that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a [=network error=] is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of [=filtered responses=] defined in [=/Fetch=].
 
       <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
 
-        1. If the <a>dispatch flag</a> is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. If the [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
-        1. Add |r| to the <a>extend lifetime promises</a>.
-        1. Increment the [=ExtendableEvent/pending promises count=] by one.
-
-            Note: The [=ExtendableEvent/pending promises count=] is incremented even if the given promise has already been settled. The corresponding count decrement is done in the microtask queued by the reaction to the promise.
-
-        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |r|, [=queue a microtask=] to run these substeps:
-            1. Decrement the [=ExtendableEvent/pending promises count=] by one.
-            1. Let |registration| be the [=context object=]'s [=relevant global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=].
-            1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-            1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
+        1. Let |event| be the [=context object=].
+        1. If |event|'s [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. If |event|'s [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
+        1. [=ExtendableEvent/Add lifetime promise=] |r| to |event|.
 
             Note: {{FetchEvent/respondWith(r)|event.respondWith(r)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(r)}} is called.
 
-        1. Set the <a>stop propagation flag</a> and <a>stop immediate propagation flag</a>.
-        1. Set the [=FetchEvent/respond-with entered flag=].
-        1. Set the [=FetchEvent/wait to respond flag=].
-        1. Let |targetRealm| be the <a>relevant Realm</a> of the <a>context object</a>.
-        1. Run the following substeps <a>in parallel</a>:
-            1. Wait until |r| settles.
-            1. If |r| rejected, then:
-                1. Set the [=FetchEvent/respond-with error flag=].
-            1. If |r| resolved with |response|, then:
-                1. If |response| is a {{Response}} object, then:
-                    1. If |response| is [=Body/disturbed=] or [=Body/locked=], then:
-                        1. Set the [=FetchEvent/respond-with error flag=].
-                    1. Else:
-                        1. Let |bytes| be an empty byte sequence.
-                        1. Let |end-of-body| be false.
-                        1. Let |done| be false.
-                        1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
-                        1. If |response|'s [=response/body=] is non-null, run these substeps:
-                            1. Let |reader| be the result of <a lt="get a reader">getting a reader</a> from |response|'s [=response/body=]'s <a>stream</a>.
-                            1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
-                            1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
-                            1. Let |pull| be an action that runs these subsubsteps:
-                                1. Let |promise| be the result of <a lt="read a chunk">reading a chunk</a> from |response|'s [=response/body=]'s <a>stream</a> with |reader|.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is false and whose <code>value</code> property is a <code>Uint8Array</code> object, append the bytes represented by the <code>value</code> property to |bytes| and perform ! <a>DetachArrayBuffer</a> with the <code>ArrayBuffer</code> object wrapped by the <code>value</code> property.
-                                1. When |promise| is fulfilled with an object whose <code>done</code> property is true, set |end-of-body| to true.
-                                1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a <code>TypeError</code>.
-                            1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s <a>stream</a> with |reader|.
-                            1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |highWaterMark|, |sizeAlgorithm|, |pull|, and |cancel| in |targetRealm|.
-                            1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose <a>stream</a> is |newStream|.
-                            1. Run these subsubsteps repeatedly <a>in parallel</a> while |done| is false:
-                                1. If |newStream| is <a>errored</a>, then set |done| to true.
-                                1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
-                                1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
-                                    1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
-                                    1. Remove |chunk| from |bytes|.
-                                    1. Let |buffer| be an <code>ArrayBuffer</code> object created in |targetRealm| and containing |chunk|.
-                                    1. [=ReadableStream/Enqueue=] a <code>Uint8Array</code> object created in |targetRealm| and wrapping |buffer| to |newStream|.
+        1. Set |event|'s [=stop propagation flag=] and [=stop immediate propagation flag=].
+        1. Set |event|'s [=FetchEvent/respond-with entered flag=].
+        1. Set |event|'s [=FetchEvent/wait to respond flag=].
+        1. Let |targetRealm| be |event|'s [=relevant Realm=].
+        1. [=Upon rejection=] of |r|:
+            1. Set |event|'s [=FetchEvent/respond-with error flag=].
+            1. Unset |event|'s [=FetchEvent/wait to respond flag=].
+        1. [=Upon fulfillment=] of |r| with |response|:
+            1. If |response| is not a {{Response}} object, then set the [=FetchEvent/respond-with error flag=].
 
-                            Note: These substeps are meant to produce the observable equivalent of "piping" |response|'s [=response/body=]'s <a>stream</a> into |potentialResponse|.
+                Note: If the [=FetchEvent/respond-with error flag=] is set, a [=network error=] is returned to [=/Fetch=] through [=Handle Fetch=] algorithm. (See the step 21.1.) Otherwise, the value |response| is returned to [=/Fetch=] through [=Handle Fetch=] algorithm. (See the step 22.1.)
 
-                        1. Set the [=FetchEvent/potential response=] to |potentialResponse|.
-                1. Else:
-                    1. Set the [=FetchEvent/respond-with error flag=].
+            1. Else:
+                1. Let |bytes| be an empty byte sequence.
+                1. Let |end-of-body| be false.
+                1. Let |done| be false.
+                1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
+                1. If |response|'s [=response/body=] is non-null, run these substeps:
+                    1. Let |reader| be the result of [=get a reader|getting a reader=] from |response|'s [=response/body=]'s [=stream=].
+                    1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
+                    1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
+                    1. Let |pull| be an action that runs these subsubsteps:
+                        1. Let |promise| be the result of [=read a chunk|reading a chunk=] from |response|'s [=response/body=]'s [=stream=] with |reader|.
+                        1. When |promise| is fulfilled with an object whose `done` property is false and whose `value` property is a `Uint8Array` object, append the bytes represented by the `value` property to |bytes| and perform ! [=DetachArrayBuffer=] with the `ArrayBuffer` object wrapped by the `value` property.
+                        1. When |promise| is fulfilled with an object whose `done` property is true, set |end-of-body| to true.
+                        1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a `TypeError`.
+                    1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s [=stream=] with |reader|.
+                    1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |highWaterMark|, |sizeAlgorithm|, |pull|, and |cancel| in |targetRealm|.
+                    1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose [=stream=] is |newStream|.
+                    1. Run these subsubsteps repeatedly [=in parallel=] while |done| is false:
+                        1. If |newStream| is [=errored=], then set |done| to true.
+                        1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
+                        1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
+                            1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
+                            1. Remove |chunk| from |bytes|.
+                            1. Let |buffer| be an `ArrayBuffer` object created in |targetRealm| and containing |chunk|.
+                            1. [=ReadableStream/Enqueue=] a `Uint8Array` object created in |targetRealm| and wrapping |buffer| to |newStream|.
 
-                    Note: If the [=FetchEvent/respond-with error flag=] is set, a <a>network error</a> is returned to [=/Fetch=] through <a>Handle Fetch</a> algorithm. (See the step 21.1.) Otherwise, the value |response| is returned to [=/Fetch=] through <a>Handle Fetch</a> algorithm. (See the step 22.1.)
+                    Note: These substeps are meant to produce the observable equivalent of "piping" |response|'s [=response/body=]'s [=stream=] into |potentialResponse|.
 
-            1. Unset the [=FetchEvent/wait to respond flag=].
+                1. Set |event|'s [=FetchEvent/potential response=] to |potentialResponse|.
+            1. Unset |event|'s [=FetchEvent/wait to respond flag=].
     </section>
   </section>
 
@@ -2438,7 +2435,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is not null, then:
-          1. If |registration|'s <a>uninstalling flag</a> is set, unset it.
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
           1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=], |job|'s [=job/worker type=] equals |newestWorker|'s [=service worker/type=], and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
               1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
@@ -2457,7 +2453,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
-      1. If |registration| is null or |registration|'s <a>uninstalling flag</a> is set, then:
+      1. If |registration| is null, then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
@@ -2612,7 +2608,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and *installing* as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
-      1. <a>Queue a task</a> to <a>fire an event</a> named <code>updatefound</code> at all the {{ServiceWorkerRegistration}} objects for all the [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=] and all the [=/service workers=] whose <a>containing service worker registration</a> is |registration|.
+      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s origin.
+      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
+          1. Let |registrationObjects| be every {{ServiceWorkerRegistration}} object in |settingsObject|'s [=environment settings object/realm execution context=], whose [=ServiceWorkerRegistration/service worker registration=] is |registration|.
+          1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. If the result of running the [=Should Skip Event=] algorithm with |installingWorker| and "install" is false, then:
           1. Invoke <a>Run Service Worker</a> algorithm given |installingWorker|, and with the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
@@ -2916,7 +2915,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: None
 
-      1. Assert: [=scope to registration map=] contains a value equal to |registration|.
       1. Assert: |registration|'s [=active worker=] is not null.
       1. Let |activeWorker| be |registration|'s [=active worker=].
       1. If the result of running [=Should Skip Event=] with |eventName| and |activeWorker| is true, then:
@@ -2969,8 +2967,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |registration| be the [=/service worker registration=] <a>used</a> by |client|.
       1. If |registration| is null, abort these steps.
       1. If any other [=/service worker client=] is <a>using</a> |registration|, abort these steps.
-      1. If |registration|'s [=uninstalling flag=] is set, invoke [=Try Clear Registration=] with |registration|.
-      1. If |registration| is not null, invoke [=Try Activate=] with |registration|.
+      1. If |registration| is [=service worker registration/unregistered=], invoke [=Try Clear Registration=] with |registration|.
+      1. Invoke [=Try Activate=] with |registration|.
   </section>
 
   <section algorithm>
@@ -3019,7 +3017,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |registration| is null, then:
           1. Invoke <a>Resolve Job Promise</a> with |job| and false.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Set |registration|'s <a>uninstalling flag</a>.
+      1. [=map/Remove=] [=scope to registration map=][|job|'s [=job/scope url=]].
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
       1. Invoke [=Try Clear Registration=] with |registration|.
 
@@ -3065,8 +3063,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
           1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=active worker=] and *redundant* as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
-      1. Let |scopeString| be |registration|'s [=URL serializer|serialized=] [=service worker registration/scope url=].
-      1. [=map/Remove=] <a>scope to registration map</a>[|scopeString|].
   </section>
 
   <section algorithm>
@@ -3188,9 +3184,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |matchingScopeString| is not the empty string, then:
           1. Set |matchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScopeString|.
           1. Assert: |matchingScope|'s [=url/origin=] and |clientURL|'s [=url/origin=] are [=same origin=].
-      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |matchingScope| as the argument.
-      1. If |registration| is not null and |registration|'s <a>uninstalling flag</a> is set, return null.
-      1. Return |registration|.
+      1. Return the result of running [=Get Registration=] algorithm passing |matchingScope| as the argument.
   </section>
 
   <section algorithm>
@@ -3199,15 +3193,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |scope|, a [=/URL=]
       : Output
-      :: |registration|, a [=/service worker registration=]
+      :: A [=/service worker registration=]
 
       1. Run the following steps atomically.
       1. Let |scopeString| be the empty string.
       1. If |scope| is not null, set |scopeString| to [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
-      1. Let |registration| be null.
       1. [=map/For each=] |key| → |value| of <a>scope to registration map</a>:
-          1. If |scopeString| matches |key|, set |registration| to |value|.
-      1. Return |registration|.
+          1. If |scopeString| matches |key|, then return |value|.
+      1. Return null.
   </section>
 
   <section algorithm>
