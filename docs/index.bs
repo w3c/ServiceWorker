@@ -2502,12 +2502,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
           1. Let |maxScopeString| be null.
           1. If |serviceWorkerAllowed| is null, then:
-              1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings, except the last string that denotes the script's file name, in |job|'s [=job/script url=]'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
+              1. Let |resolvedScope| be the result of [=URL parser|parsing=] "`./`" with a [=base URL=] of |job|'s [=job/script url=].
+              1. Set |maxScopeString| to "`/`", followed by the strings in |resolvedScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
           1. Else:
               1. Let |maxScope| be the result of <a lt="URL parser">parsing</a> |serviceWorkerAllowed| with |job|'s [=job/script url=].
               1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
-                1. Set |maxScopeString| to "<code>/</code>" concatenated with the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
-          1. Let |scopeString| be "<code>/</code>" concatenated with the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "<code>/</code>".
+                  1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+          1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
           1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a <a>network error</a>.
