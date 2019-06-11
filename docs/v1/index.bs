@@ -2003,7 +2003,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |request|'s [=service-workers mode=] to "`none`".
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
             * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
-            * The [=current global object=]'s [=force bypass cache for import scripts flag=] is set.
+            * The [=current global object=]'s [=force bypass cache for import scripts flag=] is true.
             * |registration| is [=stale=].
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. Set |response| to |response|'s [=unsafe response=].
@@ -2143,7 +2143,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a>jobs</a>). It is initially the empty list.
 
-    A <a>job</a> has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn>. It is initially unset.
+    A [=job=] has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn>. It is initially unset.
   </div>
 
 
@@ -2407,7 +2407,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |worker|'s [=script resource map=][|url|] to |response|.
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-      1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |job|'s [=job/force bypass cache flag=].
+      1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
+      1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
@@ -2424,7 +2425,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |registration|, a [=/service worker registration=]
       :: |forceBypassCache|, an optional boolean, false by default
 
-        Note: Implementers may use the |forceBypassCache| to aid debugging (e.g. invocations from developer tools), and other specifications that extend service workers may also use the flag on their own needs.
+        Note: Implementers may use |forceBypassCache| to aid debugging (e.g. invocations from developer tools), and other specifications that extend service workers may also use the flag on their own needs.
 
       : Output
       :: None
@@ -2459,7 +2460,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. If the result of running the [=Should Skip Event=] algorithm with |installingWorker| and "install" is false, then:
-          1. If the result of running the [=Run Service Worker=] algorithm with |installingWorker| and |job|'s [=job/force bypass cache flag=] is *failure*, then:
+          1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
+          1. If the result of running the [=Run Service Worker=] algorithm with |installingWorker| and |forceBypassCache| is *failure*, then:
               1. Set |installFailed| to true.
           1. Else:
               1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
