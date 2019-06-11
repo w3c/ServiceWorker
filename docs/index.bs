@@ -2636,7 +2636,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Run the <a>Update Worker State</a> algorithm passing |registration|'s <a>installing worker</a> and "`installing`" as the arguments.
       1. Assert: |job|'s [=job/job promise=] is not null.
       1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
-      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s origin.
+      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |registration|'s [=service worker registration/scope url=]'s [=url/origin=].
       1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
           1. Let |registrationObjects| be every {{ServiceWorkerRegistration}} object in |settingsObject|'s [=environment settings object/realm=], whose [=ServiceWorkerRegistration/service worker registration=] is |registration|.
           1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
@@ -3154,43 +3154,18 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |worker|, a [=/service worker=]
-      :: |state|, a [=/service worker=]'s <a>state</a>
+      :: |state|, a [=/service worker=] [=service worker/state=]
       : Output
       :: None
 
-      1. Set |worker|'s <a>state</a> to |state|.
-      1. Let |workerObjects| be an array containing all the {{ServiceWorker}} objects associated with |worker|.
-      1. For each |workerObject| in |workerObjects|:
-          1. <a>Queue a task</a> to run these substeps:
-              1. Set the {{ServiceWorker/state}} attribute of |workerObject| to the value (in {{ServiceWorkerState}} enumeration) corresponding to the first matching statement, switching on |worker|'s <a>state</a>:
-                  : "`installing`"
-                  :: {{"installing"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>installing worker</a>. During this state, {{ExtendableEvent/waitUntil()}} can be called inside the {{ServiceWorkerGlobalScope/oninstall}} <a>event handler</a> to extend the life of the <a>installing worker</a> until the passed <a>promise</a> resolves successfully. This is primarily used to ensure that the [=/service worker=] is not active until all of the core caches are populated.
-
-                  : "`installed`"
-                  :: {{"installed"}}
-
-                      Note: The [=/service worker=] in this state is considered a <a>waiting worker</a>.
-
-                  : "`activating`"
-                  :: {{"activating"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>active worker</a>. During this state, {{ExtendableEvent/waitUntil()}} can be called inside the {{ServiceWorkerGlobalScope/onactivate}} <a>event handler</a> to extend the life of the <a>active worker</a> until the passed <a>promise</a> resolves successfully. No <a>functional events</a> are dispatched until the state becomes "`activated`".
-
-                  : "`activated`"
-                  :: {{"activated"}}
-
-                      Note: The [=/service worker=] in this state is considered an <a>active worker</a> ready to handle <a>functional events</a>.
-
-                  : "`redundant`"
-                  :: {{"redundant"}}
-
-                      Note: A new [=/service worker=] is replacing the current [=/service worker=], or the current [=/service worker=] is being discarded due to an install failure.
-
-              1. <a>Fire an event</a> named <code>statechange</code> at |workerObject|.
-
-        The <a>task</a> *must* use |workerObject|'s <a>relevant settings object</a>'s <a>responsible event loop</a> and the <a>DOM manipulation task source</a>.
+      1. Set |worker|'s [=service worker/state=] to |state|.
+      1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |worker|'s [=service worker/script url=]'s [=url/origin=].
+      1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
+          1. Let |objectMap| be |settingsObject|'s [=environment settings object/service worker object map=].
+          1. If |objectMap|[|worker|] does not [=map/exist=], then abort these steps.
+          1. Let |workerObj| be |objectMap|[|worker|].
+          1. Set |workerObj|'s {{ServiceWorker/state}} to |state|.
+          1. [=Fire an event=] named {{statechange!!event}} at |workerObj|.
   </section>
 
   <section algorithm>
