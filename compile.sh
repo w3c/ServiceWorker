@@ -26,3 +26,4 @@ curlbikeshed() {
 }
 
 cd docs && curlbikeshed "index.html"
+cd v1 && curlbikeshed "index.html"
