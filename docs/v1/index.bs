@@ -857,7 +857,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for importscripts flag</dfn>. It is initially unset.
+    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for import scripts flag</dfn>. It is initially unset.
 
     Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/service worker clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
 
@@ -2003,7 +2003,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |request|'s [=service-workers mode=] to "`none`".
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
             * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
-            * The [=current global object=]'s [=force bypass cache for importscripts flag=] is set.
+            * The [=current global object=]'s [=force bypass cache for import scripts flag=] is set.
             * |registration| is [=stale=].
         1. Let |response| be the result of [=fetch|fetching=] |request|.
         1. Set |response| to |response|'s [=unsafe response=].
@@ -2407,7 +2407,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |worker|'s [=script resource map=][|url|] to |response|.
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
-      1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set.
+      1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |job|'s [=job/force bypass cache flag=].
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
@@ -2422,9 +2422,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |registration|, a [=/service worker registration=]
-      :: *force bypass cache flag*, an optional flag unset by default
+      :: |forceBypassCache|, an optional boolean, false by default
 
-        Note: Implementers may use the *force bypass cache flag* to aid debugging (e.g. invocations from developer tools), and other specifications that extend service workers may also use the flag on their own needs.
+        Note: Implementers may use the |forceBypassCache| to aid debugging (e.g. invocations from developer tools), and other specifications that extend service workers may also use the flag on their own needs.
 
       : Output
       :: None
@@ -2433,7 +2433,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |newestWorker| is null, abort these steps.
       1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], null, and null.
       1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
-      1. Set |job|'s <a>force bypass cache flag</a> if the *force bypass cache flag* is set.
+      1. Set |job|'s [=force bypass cache flag=] if |forceBypassCache| is true.
       1. Invoke <a>Schedule Job</a> with |job|.
   </section>
 
@@ -2459,7 +2459,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. For each |registrationObject| of |registrationObjects|, [=fire an event=] on |registrationObject| named `updatefound`.
       1. Let |installingWorker| be |registration|'s <a>installing worker</a>.
       1. If the result of running the [=Should Skip Event=] algorithm with |installingWorker| and "install" is false, then:
-          1. If the result of running the [=Run Service Worker=] algorithm with |installingWorker| and the *force bypass cache for importscripts flag* set if |job|'s [=job/force bypass cache flag=] is set is *failure*, then:
+          1. If the result of running the [=Run Service Worker=] algorithm with |installingWorker| and |job|'s [=job/force bypass cache flag=] is *failure*, then:
               1. Set |installFailed| to true.
           1. Else:
               1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
@@ -2559,7 +2559,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |serviceWorker|, a [=/service worker=]
-      :: *force bypass cache for importscripts flag*, an optional flag unset by default
+      :: |forceBypassCache|, an optional boolean, false by default
       : Output
       :: a [=Completion=] or *failure*
 
@@ -2602,7 +2602,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
-          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for importscripts flag=] if the *force bypass cache for importscripts flag* is set.
+          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
