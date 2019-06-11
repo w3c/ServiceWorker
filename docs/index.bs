@@ -350,7 +350,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         To <dfn lt="get the service worker object|getting the service worker object">get the service worker object</dfn> representing |serviceWorker| (a [=/service worker=]) in |environment| (an [=environment settings object=]), run these steps:
 
           1. Let |objectMap| be |environment|'s [=environment settings object/service worker object map=].
-          1. If |objectMap|[|serviceWorker|] does not [=map/exist=], then set |objectMap|[|serviceWorker|] to a new {{ServiceWorker}} in |environment|'s [=environment settings object/Realm=], and associate it with |serviceWorker|.
+          1. If |objectMap|[|serviceWorker|] does not [=map/exist=], then:
+            1. Let |serviceWorkerObj| be a new {{ServiceWorker}} in |environment|'s [=environment settings object/Realm=], and associate it with |serviceWorker|.
+            1. Set |serviceWorkerObj|'s {{ServiceWorker/state}} to |serviceWorker|'s [=service worker/state=].
+            1. Set |objectMap|[|serviceWorker|] to |serviceWorkerObj|.
           1. Return |objectMap|[|serviceWorker|].
       </section>
     </section>
