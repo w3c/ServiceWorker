@@ -2575,7 +2575,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
                   Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
-              1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+              1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|scopeURL|, [=URL serializer|serialized=]].
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
@@ -2592,7 +2592,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-          1. If |newestWorker| is null, invoke [=Clear Registration=] algorithm passing |registration| as its argument.
+          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
           1. Invoke [=Finish Job=] with |job|.
       1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
@@ -2661,7 +2661,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |installFailed| is true, then:
           1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and "`redundant`" as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. If |newestWorker| is null, invoke <a>Clear Registration</a> algorithm passing |registration| as its argument.
+          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |map| be |registration|'s [=installing worker=]'s [=script resource map=].
       1. Let |usedSet| be |registration|'s [=installing worker=]'s [=set of used scripts=].
