@@ -2883,18 +2883,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. Run the following steps atomically.
-      1. If |registration|'s <a>installing worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=installing worker=].
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and "`redundant`" as the arguments.
-      1. If |registration|'s <a>waiting worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=waiting worker=].
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>waiting</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=waiting worker=] and "`redundant`" as the arguments.
-      1. If |registration|'s <a>active worker</a> is not null, then:
-          1. [=Terminate Service Worker|Terminate=] |registration|'s [=active worker=].
-          1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>active</code>" and null as the arguments.
-          1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=active worker=] and "`redundant`" as the arguments.
+      1. Let |redundantWorkers| be a new [=/list=].
+      1. If |registration|'s [=installing worker=] is not null, then:
+          1. Run the [=Update Registration State=] algorithm passing |registration|, "`installing`" and null as the arguments.
+          1. [=list/Append=] |registration|'s [=installing worker=] to |redundantWorkers|.
+      1. If |registration|'s [=waiting worker=] is not null, then:
+          1. Run the [=Update Registration State=] algorithm passing |registration|, "`waiting`" and null as the arguments.
+          1. [=list/Append=] |registration|'s [=waiting worker=] to |redundantWorkers|.
+      1. If |registration|'s [=active worker=] is not null, then:
+          1. Run the [=Update Registration State=] algorithm passing |registration|, "`active`" and null as the arguments.
+          1. [=list/Append=] |registration|'s [=waiting worker=] to |redundantWorkers|.
+      1. [=list/For each=] |redundantWorker| of |redundantWorkers|, run [=Update Worker State=] with |redundantWorker| and "`redundant`".
   </section>
 
   <section algorithm>
@@ -2948,6 +2947,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: None
 
       1. Set |worker|'s [=service worker/state=] to |state|.
+      1. If |state| is "`redundant`", then [=Terminate Service Worker|terminate=] |worker|.
       1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |worker|'s [=service worker/script url=]'s [=url/origin=].
       1. For each |settingsObject| of |settingsObjects|, [=queue a task=] on |settingsObject|'s [=responsible event loop=] in the [=DOM manipulation task source=] to run the following steps:
           1. Let |objectMap| be |settingsObject|'s [=environment settings object/service worker object map=].
