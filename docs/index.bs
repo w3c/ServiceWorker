@@ -329,6 +329,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       ServiceWorker includes AbstractWorker;
 
       enum ServiceWorkerState {
+        "parsed",
         "installing",
         "installed",
         "activating",
@@ -926,6 +927,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface ServiceWorkerGlobalScope : WorkerGlobalScope {
         [SameObject] readonly attribute Clients clients;
         [SameObject] readonly attribute ServiceWorkerRegistration registration;
+        [SameObject] readonly attribute ServiceWorker serviceWorker;
 
         [NewObject] Promise&lt;void&gt; skipWaiting();
 
@@ -952,6 +954,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="service-worker-global-scope-registration">{{ServiceWorkerGlobalScope/registration}}</h4>
 
       The <dfn attribute for="ServiceWorkerGlobalScope"><code>registration</code></dfn> attribute *must* return the {{ServiceWorkerRegistration}} object that represents the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>.
+    </section>
+
+    <section>
+      <h4 id="service-worker-global-scope-serviceworker">{{ServiceWorkerGlobalScope/serviceWorker}}</h4>
+
+      The <dfn attribute for="ServiceWorkerGlobalScope"><code>serviceWorker</code></dfn> attribute *must* return the result of [=getting the service worker object=] that represents the [=context object=]'s [=ServiceWorkerGlobalScope/service worker=] in the [=context object=]'s [=relevant settings object=].
     </section>
 
     <section algorithm="service-worker-global-scope-skipwaiting">
@@ -3157,6 +3165,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |state|, a [=/service worker=] [=service worker/state=]
       : Output
       :: None
+
+      1. Assert: |state| is not "`parsed`".
+
+          Note: "`parsed`" is the initial state. A [=/service worker=] is never updated to this state.
 
       1. Set |worker|'s [=service worker/state=] to |state|.
       1. Let |settingsObjects| be all [=environment settings objects=] whose [=environment settings object/origin=] is |worker|'s [=service worker/script url=]'s [=url/origin=].
