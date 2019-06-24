@@ -51,6 +51,8 @@ spec: push; urlPrefix: https://w3c.github.io/push-api/
         text: push; url: h-the-push-event
 
 spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
+    type: abstract-op
+        text: NormalCompletion; url: sec-normalcompletion
     type: dfn
         text: Assert; url: sec-algorithm-conventions
         text: [[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
@@ -64,6 +66,8 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: execution context; url: sec-execution-contexts
         text: abrupt completion; url: sec-completion-record-specification-type
         text: Completion; url: sec-completion-record-specification-type
+        text: Module Record; url: sec-abstract-module-records
+        text: Cyclic Module Record; url: sec-cyclic-module-records
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -83,6 +87,9 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: delay the load event; for: document; url: delay-the-load-event
         urlPrefix: origin.html
             text: creating a policy container from a fetch response
+        urlPrefix: webappapis.html
+            text: module map; url: module-map
+            text: resolve a module specifier; url: resolve-a-module-specifier
 
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
@@ -2710,16 +2717,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                       Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
           1. Asynchronously complete these steps with |response|.
 
-          If the algorithm asynchronously completes with null, then:
+          When the algorithm asynchronously completes, continue the rest of these steps, with |script| being the asynchronous completion value.
 
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+      1. If |script| is null or [=Is Async Module=] with |script|'s [=script/record=], |script|'s [=script/base URL=], and « » is true, then:
+          1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
 
-                  Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
+              Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
-              1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|scopeURL|, [=URL serializer|serialized=]].
-              1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-
-          Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
+          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|scopeURL|, [=URL serializer|serialized=]].
+          1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. If |hasUpdatedResources| is false, then:
           1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
@@ -2940,8 +2946,17 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If the <a>run CSP initialization for a global object</a> algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
-          1. Let |evaluationStatus| be the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
-          1. If |evaluationStatus|.\[[Value]] is empty, this means the script was not evaluated. Set |startFailed| to true and abort these steps.
+          1. Let |evaluationStatus| be null.
+          1. If |script| is a [=classic script=], then:
+              1. Set |evaluationStatus| to the result of [=run a classic script|running the classic script=] |script|.
+              1. If |evaluationStatus|.\[[Value]] is empty, this means the script was not evaluated. Set |startFailed| to true and abort these steps.
+          1. Otherwise, if |script| is a [=module script=], then:
+              1. Let |evaluationPromise| be the result of [=run a module script|running the module script=] |script|, with report errors set to false.
+              1. Assert: |evaluationPromise|.\[[PromiseState]] is not "pending".
+              1. If |evaluationPromise|.\[[PromiseState]] is "rejected":
+                  1. Set |evaluationStatus| to [$ThrowCompletion$](|evaluationPromise|.\[[PromiseResult]]).
+              1. Otherwise:
+                  1. Set |evaluationStatus| to [$NormalCompletion$](undefined).
           1. If the script was aborted by the [=Terminate Service Worker=] algorithm, set |startFailed| to true and abort these steps.
           1. Set |serviceWorker|'s [=start status=] to |evaluationStatus|.
           1. If |script|'s <a>has ever been evaluated flag</a> is unset, then:
@@ -3602,6 +3617,32 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. [=Throw=] the exception.
 
           Note: When an exception is [=throw|thrown=], the implementation does undo (roll back) any changes made to the cache storage during the batch operation job.
+  </section>
+
+  <section algorithm>
+    <h3 id="is-async-module-algorithm"><dfn>Is Async Module</dfn></h3>
+
+      : Input
+      :: |record|, a [=Module Record=]
+      :: |moduleMap|, a [=/module map=]
+      :: |base|, a [=/URL=]
+      :: |seen|, a [=/set=] of [=/URLs=]
+      : Output
+      :: a boolean
+
+      1. If |record| is not a [=Cyclic Module Record=], then:
+          1. Return false.
+      1. If |record|.\[[Async]] is true, then:
+          1. Return true.
+      1. [=list/For each=] string |requested| of |record|.\[[RequestedModules]]:
+          1. Let |url| be the result of [=resolve a module specifier|resolving a module specifier=] given |base| and |requested|.
+          1. If |url| is *failure*:
+              1. Return false.
+          1. If |seen| does not [=set/contain=] |url|, then:
+              1. [=set/Append=] |url| to |seen|.
+              1. If [=Is Async Module=] for |moduleMap|[|url|]'s [=script/record=], |moduleMap|, |base|, and |seen| is true, then:
+                  1. Return true.
+      1. Return false.
   </section>
 </section>
 
