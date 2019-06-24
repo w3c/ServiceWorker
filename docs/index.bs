@@ -66,6 +66,10 @@ spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
     type: attribute; text: visibilityState; for: Document; url: dom-document-visibilitystate
 
+spec: page-lifecycle; urlPrefix: https://wicg.github.io/page-lifecycle/spec.html
+    type: dfn; text: frozen; url: frozen
+    type: dfn; text: owning document; url: dedicatedworkerglobalscope-owning-document
+
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: attribute
         urlPrefix: comms.html
@@ -1048,6 +1052,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute FrameType frameType;
         readonly attribute DOMString id;
         readonly attribute ClientType type;
+        readonly attribute ClientState state;
         void postMessage(any message, sequence&lt;object&gt; transfer);
         void postMessage(any message, optional PostMessageOptions options);
       };
@@ -1072,6 +1077,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A {{Client}} object has an associated <dfn id="dfn-service-worker-client-service-worker-client" for="Client">service worker client</dfn> (a [=/service worker client=]).
 
     A {{Client}} object has an associated <dfn id="dfn-service-worker-client-frame-type" for="Client">frame type</dfn>, which is one of "`auxiliary`", "`top-level`", "`nested`", and "`none`". Unless stated otherwise it is "`none`".
+
+    A {{Client}} object has an associated <dfn id="dfn-service-worker-client-state" for="Client">client state</dfn>, which is one of "`active`", and "`frozen`". Unless stated otherwise it is "`active`".
 
     A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-browsing-context" for="WindowClient">browsing context</dfn>, which is its [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
 
@@ -1111,6 +1118,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Else if |client| is a [=shared worker client=], return {{ClientType/"sharedworker"}}.
         1. Else:
             1. Return {{ClientType/"window"}}.
+    </section>
+
+    <section>
+      <h4 id="client-state">{{Client/state}}</h4>
+
+      The <dfn attribute for="Client"><code>state</code></dfn> attribute *must* return the <a>context object</a>'s <a>client state</a>.
     </section>
 
     <section algorithm="client-postmessage">
@@ -1176,11 +1189,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. [=Queue a task=] to run the following steps on the [=context object=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
             1. Run the [=focusing steps=] with the [=context object=]'s [=WindowClient/browsing context=].
             1. Let |frameType| be the result of running [=Get Frame Type=] with the [=context object=]'s [=WindowClient/browsing context=].
+            1. Let |state| be the result of running [=Get Client State=] with [=context object=]'s associated [=Client/service worker client=].
             1. Let |visibilityState| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
             1. Let |focusState| be the result of running the [=has focus steps=] with the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=].
             1. Let |ancestorOriginsList| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
-                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
+                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, |ancestorOriginsList|, and |state|.
                 1. If |windowClient|'s [=focus state=] is true, resolve |promise| with |windowClient|.
                 1. Else, reject |promise| with a `TypeError`.
         1. Return |promise|.
@@ -1203,12 +1217,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. *HandleNavigate*: [=Navigate=] |browsingContext| to |url| with [=exceptions enabled flag|exceptions enabled=]. The [=source browsing context=] must be |browsingContext|.
             1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
             1. Let |frameType| be the result of running [=Get Frame Type=] with |browsingContext|.
+            1. Let |state| be the result of running [=Get Client State=] with [=context object=]'s associated [=Client/service worker client=].
             1. Let |visibilityState| be |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
             1. Let |focusState| be the result of running the [=has focus steps=] with |browsingContext|'s [=active document=].
             1. Let |ancestorOriginsList| be |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                 1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s [=url/origin=] is not the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], resolve |promise| with null and abort these steps.
-                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
+                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, |ancestorOriginsList|, and |state|.
                 1. Resolve |promise| with |windowClient|.
         1. Return |promise|.
     </section>
@@ -1230,6 +1245,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl" id="serviceworker-client-query-options-dictionary">
       dictionary ClientQueryOptions {
         boolean includeUncontrolled = false;
+        ClientState state = "active";
         ClientType type = "window";
       };
     </pre>
@@ -1238,6 +1254,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         "window",
         "worker",
         "sharedworker",
+        "all"
+      };
+    </pre>
+    <pre class="idl" id="client-state-enum">
+      enum ClientState {
+        "active",
+        "frozen",
         "all"
       };
     </pre>
@@ -1273,10 +1296,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |options|["{{ClientQueryOptions/includeUncontrolled}}"] is false, and if |client|'s [=active service worker=] is not the associated [=ServiceWorkerGlobalScope/service worker=], [=continue=].
                 1. Add |client| to |targetClients|.
             1. Let |matchedWindowData| be a new [=list=].
-            1. Let |matchedClients| be a new [=list=].
+            1. Let |matchedClientData| be a new [=list=].
             1. For each [=/service worker client=] |client| in |targetClients|:
+                1. Let |state| be the result of running [=Get Client State=] with |client|.
+                1. If |options|["{{ClientQueryOptions/type}}"] is not {{ClientType/"all"}} and does not equal |state|, then [=continue=].
                 1. If |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is not an [=environment settings object=] or is a [=window client=], then:
-                    1. Let |windowData| be «[ "client" → |client|, "ancestorOriginsList" → a new [=list=] ]».
+                    1. Let |windowData| be «[ "client" → |client|, "ancestorOriginsList" → a new [=list=], "state" → |state| ]».
                     1. Let |browsingContext| be null.
                     1. Let |isClientEnumerable| be true.
                     1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
@@ -1295,14 +1320,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. If |isClientEnumerable| is true, then:
                         1. Add |windowData| to |matchedWindowData|.
                 1. Else if |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"worker"}} or {{ClientType/"all"}} and |client| is a [=dedicated worker client=], or |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"sharedworker"}} or {{ClientType/"all"}} and |client| is a [=shared worker client=], then:
-                    1. Add |client| to |matchedClients|.
+                    1. Add «[ "client" → |client|, "state" → |state| ]» to |matchedClientData|.
             1. [=Queue a task=] to run the following steps on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=]:
                 1. Let |clientObjects| be a new [=list=].
                 1. [=list/For each=] |windowData| in |matchedWindowData|:
-                    1. Let |windowClient| be the result of running [=Create Window Client=] algorithm with |windowData|["`client`"], |windowData|["`frameType`"], |windowData|["`visibilityState`"], |windowData|["`focusState`"], and |windowData|["`ancestorOriginsList`"] as the arguments.
+                    1. Let |windowClient| be the result of running [=Create Window Client=] algorithm with |windowData|["`client`"], |windowData|["`frameType`"], |windowData|["`visibilityState`"], |windowData|["`focusState`"], |windowData|["`ancestorOriginsList`"], and |windowData|["`state`"] as the arguments.
                     1. [=Append=] |windowClient| to |clientObjects|.
-                1. [=list/For each=] |client| in |matchedClients|:
-                    1. Let |clientObject| be the result of running [=Create Client=] algorithm with |client| as the argument.
+                1. [=list/For each=] |clientData| in |matchedClientData|:
+                    1. Let |clientObject| be the result of running [=Create Client=] algorithm with |clientData|["`client`"], and |clientData|["`state`"] as the arguments.
                     1. [=Append=] |clientObject| to |clientObjects|.
                 1. Sort |clientObjects| such that:
                     * {{WindowClient}} objects whose [=WindowClient/browsing context=] has been [=focusing steps|focused=] are placed first, sorted in the most recently [=focusing steps|focused=] order.
@@ -1332,11 +1357,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
+                1. Let |state| be the result of running [=Get Client State=] with [=context object=]'s associated [=Client/service worker client=].
                 1. Let |focusState| be the result of running the <a>has focus steps</a> with |newContext|'s <a>active document</a> as the argument.
                 1. Let |ancestorOriginsList| be |newContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
                 1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                     1. If |newContext|'s {{Window}} object's [=environment settings object=]'s [=creation URL=]'s [=environment settings object/origin=] is not the [=same origin|same=] as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], resolve |promise| with null and abort these steps.
-                    1. Let |client| be the result of running [=Create Window Client=] with |newContext|'s {{Window}} object's [=environment settings object=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
+                    1. Let |client| be the result of running [=Create Window Client=] with |newContext|'s {{Window}} object's [=environment settings object=], |frameType|, |visibilityState|, |focusState|, |ancestorOriginsList|, and |state| as the arguments.
                     1. Resolve |promise| with |client|.
         1. Return |promise|.
     </section>
@@ -3291,11 +3317,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |client|, a [=/service worker client=]
+      :: |state|, a string
       : Output
       :: |clientObject|, a {{Client}} object
 
       1. Let |clientObject| be a new {{Client}} object.
       1. Set |clientObject|'s [=Client/service worker client=] to |client|.
+      1. Set |clientObject|'s [=state=] to |state|.
       1. Return |clientObject|.
   </section>
 
@@ -3308,6 +3336,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |visibilityState|, a string
       :: |focusState|, a boolean
       :: |ancestorOriginsList|, a list
+      :: |state|, a string
       : Output
       :: |windowClient|, a {{WindowClient}} object
 
@@ -3316,6 +3345,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Set |windowClient|'s [=frame type=] to |frameType|.
       1. Set |windowClient|'s [=visibility state=] to |visibilityState|.
       1. Set |windowClient|'s [=focus state=] to |focusState|.
+      1. Set |windowClient|'s [=state=] to |state|.
       1. Set |windowClient|'s [=WindowClient/ancestor origins array=] to a [=frozen array type|frozen array=] created from |ancestorOriginsList|.
       1. Return |windowClient|.
   </section>
@@ -3353,8 +3383,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |client| is not a [=secure context=], [=queue a task=] to reject |promise| with a "{{SecurityError}}" {{DOMException}}, on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], and abort these steps.
       1. Else:
           1. If |client|’s [=creation URL=] is not a [=potentially trustworthy URL=], [=queue a task=] to reject |promise| with a "{{SecurityError}}" {{DOMException}}, on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], and abort these steps.
+      1. Let |state| be the result of running [=Get Client State=] with |client|.
       1. If |client| is an [=environment settings object=] and is not a [=window client=], then:
-          1. Let |clientObject| be the result of running [=Create Client=] algorithm with |client| as the argument.
+          1. Let |clientObject| be the result of running [=Create Client=] algorithm with |client|, and |state| as the arguments.
           1. [=Queue a task=] to resolve |promise| with |clientObject|, on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], and abort these steps.
       1. Else:
           1. Let |browsingContext| be null.
@@ -3368,7 +3399,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |client| is a [=window client=], set |ancestorOriginsList| to |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
               1. [=Queue a task=] to run the following steps on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=]:
                   1. If |client|'s [=discarded flag=] is set, resolve |promise| with undefined and abort these steps.
-                  1. Let |windowClient| be the result of running [=Create Window Client=] with |client|, |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
+                  1. Let |windowClient| be the result of running [=Create Window Client=] with |client|, |frameType|, |visibilityState|, |focusState|, |ancestorOriginsList| and |state|.
                   1. Resolve |promise| with |windowClient|.
   </section>
 
@@ -3465,6 +3496,20 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           Note: When an exception is [=throw|thrown=], the implementation does undo (roll back) any changes made to the cache storage during the batch operation job.
   </section>
+
+  <section algorithm>
+    <h3 id="get-client-state-algorithm"><dfn>Get Client State</dfn></h3>
+
+      : Input
+      :: |client|, a [=/service worker client=]
+      : Output
+      :: |state|, a string
+
+      1. Let |state| be {{ClientState/"active"}}.
+      1. If |client|'s [=environment settings object/global object=]'s [=owning document=] is [=frozen=], set |state| to be {{ClientState/"frozen"}}.
+      1. Return |state|.
+  </section>
+
 </section>
 
 <section>
