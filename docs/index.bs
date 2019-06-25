@@ -21,6 +21,19 @@ Abstract: The service worker is a generic entry point for event-driven backgroun
 Markup Shorthands: css no, markdown yes
 </pre>
 
+<style>
+.abort-step {
+  padding: .5em;
+  border: .5em;
+  border-left-style: solid;
+  page-break-inside: avoid;
+  margin: 1em auto;
+  border-color: orange;
+  background: #FFEECC;
+  overflow: auto;
+}
+</style>
+
 <pre class="link-defaults">
 spec: html;
     type: dfn; text: task queues; for: /
@@ -2275,6 +2288,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A <a>job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a>jobs</a>). It is initially the empty list.
 
     A [=job=] has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn>. It is initially unset.
+
+    A [=job=] has an <dfn id="dfn-job-abort-flag">abort flag</dfn>. It is initially unset.
   </div>
 
 
@@ -2294,6 +2309,71 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     * The result of [=Extract a MIME type|extracting a MIME type=] from |response|'s [=response/header list=] is not a [=JavaScript MIME type=]
 
         Note: Keep this definition in sync with [=fetch a classic worker-imported script=].
+
+  <section>
+    <h3 id="aborting-algorithms">Aborting algorithms</h3>
+
+    Algorithms may <dfn>throw abort</dfn>, which acts like "throw" in that it will also make the caller rethrow.
+
+    Algorithms may define <dfn>abort steps</dfn>. [=Abort steps=] blocks are not run as they are encountered, instead they are effectively appended to a list associated with the algorithm.
+
+    If an algorithm [=throw aborts=], the steps in the associated list are run starting with the last set in the list.
+
+    If any of the steps "return"s, all subsiquent [=abort steps=] in the associated list are skips, and the "throw" is "caught".
+
+    A set of steps may <dfn>throw abort when</dfn> a particular condition becomes true. This indicates that the specified steps must be evaluated, not as-written, but by additionally inserting a step before each of them that evaluates condition, and if condition evaluates to true, [=throw aborts=].
+
+    Note: This is based on the behaviour of [=abort when=].
+
+    <div class="example">
+      Imagine the following algorithm:
+
+        1. Run these steps, but [=throw abort when=] the user clicks the "Cancel" button:
+
+            <div class="abort-step">
+                [=Abort steps=]:
+
+                1. Reject promise with a {{TypeError}}.
+                1. Return.
+            </div>
+
+            1. Let |a| be the result of starting machine A.
+
+                <p class="abort-step">[=Abort step=]: Stop |a|.</p>
+
+            1. Let |b| be the result of starting machine B.
+
+                <p class="abort-step">[=Abort step=]: Stop |b|.</p>
+
+            1. Increment global counter by 1.
+
+                <p class="abort-step">[=Abort step=]: Decrement global counter by 1.</p>
+
+            1. Let |c| be the result of starting machine C.
+
+                <p class="abort-step">[=Abort step=]: Stop |c|.</p>
+
+            1. Resolve promise.
+
+      It may run like this:
+
+        1. Let |a| be the result of starting machine A.
+        1. Let |b| be the result of starting machine B.
+        1. Increment global counter by 1.
+
+      And if, at this point, the user clicks the "Cancel" button, the previous [=abort steps=] are processed in reverse order:
+
+        1. Decrement global counter by 1.
+        1. Stop |b|.
+        1. Stop |a|.
+        1. Reject promise with a {{TypeError}}.
+        1. Return.
+
+      Note that the blocks are processed in reverse order, but the steps within blocks are not.
+    </div>
+  </section>
+
+
 
   <section algorithm>
     <h3 id="create-job-algorithm"><dfn>Create Job</dfn></h3>
@@ -2347,8 +2427,15 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: none
 
       1. Assert: |jobQueue| [=queue/is not empty=].
-      1. [=Queue a task=] to run these steps:
-          1. Let |job| be the first [=queue/item=] in |jobQueue|.
+      1. Let |job| be the first [=queue/item=] in |jobQueue|.
+      1. Run these steps, but [=throw abort when=] |job|'s [=job/abort flag=] is set:
+
+          <div class="abort-step">
+            [=Abort steps=]:
+              1. Invoke [=Reject Job Promise=] with |job| and "{{AbortError}}" {{DOMException}}.
+              1. Invoke [=Finish Job=] with |job|.
+          </div>
+
           1. If |job|'s [=job type=] is *register*, run [=Register=] with |job| [=in parallel=].
           1. Else if |job|'s [=job type=] is *update*, run [=Update=] with |job| [=in parallel=].
 
@@ -2455,6 +2542,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
+      Run these steps, but [=throw abort when=] |job|'s [=job/abort flag=] is set:
+
       1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trusted</code>, then:
           1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
@@ -2472,6 +2561,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
           1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/update via cache mode=].
+
+              <p class="abort-step">[=Abort step=]: [=map/Remove=] [=scope to registration map=][|job|'s [=job/scope url=], [=URL serializer|serialized=]].</p>
+
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -2483,10 +2575,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
+      Run these steps, but [=throw abort when=] |job|'s [=job/abort flag=] is set:
+
       1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
       1. If |registration| is null, then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
+      1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
       1. If |job|'s <a>job type</a> is *update*, and |newestWorker| is not null and its [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
@@ -2518,68 +2613,71 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |request|'s [=service-workers mode=] to "`none`".
           1. If the [=fetching scripts/is top-level=] flag is unset, then return the result of [=/fetching=] |request|.
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
-          1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
-          1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
-              1. Asynchronously complete these steps with a [=network error=].
-          1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
+          1. [=/Fetch=] |request|. If |job|'s [=job/abort flag=] becomes set during this step, [=fetch/terminate=] the [=fetch=] with the abort flag set. Run the these steps as part of fetch's <a>process response</a> for the [=/response=] |response|, but [=throw abort when=] |job|'s [=job/abort flag=] is set.
 
-              Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
+              <p class="abort-step">[=Abort step=]: Asynchronously complete these steps with an [=aborted network error=].</p>
 
-          1. Set |httpsState| to |response|'s [=response/HTTPS state=].
-          1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
-          1. If |serviceWorkerAllowed| is failure, then:
-              1. Asynchronously complete these steps with a <a>network error</a>.
-          1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
-          1. Let |maxScopeString| be null.
-          1. If |serviceWorkerAllowed| is null, then:
-              1. Let |resolvedScope| be the result of [=URL parser|parsing=] "`./`" using |job|'s [=job/script url=] as the [=base URL=].
-              1. Set |maxScopeString| to "`/`", followed by the strings in |resolvedScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
+                  1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
+                  1. Asynchronously complete these steps with a [=network error=].
+              1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
-                  Note: The final item in |resolvedScope|'s [=url/path=] will always be an empty string, so |maxScopeString| will have a trailing "`/`".
+                  Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
 
-          1. Else:
-              1. Let |maxScope| be the result of [=URL parser|parsing=] |serviceWorkerAllowed| using |job|'s [=job/script url=] as the [=base URL=].
-              1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
-                  1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
-          1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
-          1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
-              1. Asynchronously complete these steps with a <a>network error</a>.
-          1. Let |url| be |request|'s [=request/url=].
-          1. Set |updatedResourceMap|[|url|] to |response|.
-          1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
-          1. Set |hasUpdatedResources| to true if any of the following are true:
-            * |newestWorker| is null.
-            * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
-            * |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
-          1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
+              1. Set |httpsState| to |response|'s [=response/HTTPS state=].
+              1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
+              1. If |serviceWorkerAllowed| is failure, then:
+                  1. Asynchronously complete these steps with a <a>network error</a>.
+              1. Let |maxScopeString| be null.
+              1. If |serviceWorkerAllowed| is null, then:
+                  1. Let |resolvedScope| be the result of [=URL parser|parsing=] "`./`" using |job|'s [=job/script url=] as the [=base URL=].
+                  1. Set |maxScopeString| to "`/`", followed by the strings in |resolvedScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
 
-              Note: The following checks to see if an imported script has been updated, since the main script has not changed.
+                      Note: The final item in |resolvedScope|'s [=url/path=] will always be an empty string, so |maxScopeString| will have a trailing "`/`".
 
-              1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
-                  1. If |importUrl| is |url|, then continue.
-                  1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
-                  1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
-                      * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
-                      * |job|'s [=force bypass cache flag=] is set.
-                      * |registration| is [=stale=].
-                  1. Let |fetchedResponse| be the result of [=fetch|fetching=] |importRequest|.
-                  1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
-                  1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
-                  1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
-                  1. If |fetchedResponse| is a [=bad import script response=], continue.
+              1. Else:
+                  1. Let |maxScope| be the result of [=URL parser|parsing=] |serviceWorkerAllowed| using |job|'s [=job/script url=] as the [=base URL=].
+                  1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
+                      1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
+                  1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
+                  1. Asynchronously complete these steps with a <a>network error</a>.
+              1. Let |url| be |request|'s [=request/url=].
+              1. Set |updatedResourceMap|[|url|] to |response|.
+              1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
+              1. Set |hasUpdatedResources| to true if any of the following are true:
+                * |newestWorker| is null.
+                * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
+                * |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
+              1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
-                    Note: Bad responses for <a>importScripts()</a> are ignored for the purpose of the byte-to-byte check. Only good responses for the incumbent worker and good responses for the potential update worker are considered. See <a href="https://github.com/w3c/ServiceWorker/issues/1374">issue #1374</a> for some rationale.
+                  Note: The following checks to see if an imported script has been updated, since the main script has not changed.
 
-                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
+                  1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
+                      1. If |importUrl| is |url|, then continue.
+                      1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
+                      1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
+                          * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
+                          * |job|'s [=force bypass cache flag=] is set.
+                          * |registration| is [=stale=].
+                      1. Let |fetchedResponse| be the result of [=fetch|fetching=] |importRequest|. If |job|'s [=job/abort flag=] becomes set during this step, [=fetch/terminate=] the [=fetch=] with the abort flag set.
+                      1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
+                      1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
+                      1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
+                      1. If |fetchedResponse| is a [=bad import script response=], continue.
 
-                      Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
-          1. Asynchronously complete these steps with |response|.
+                        Note: Bad responses for <a>importScripts()</a> are ignored for the purpose of the byte-to-byte check. Only good responses for the incumbent worker and good responses for the potential update worker are considered. See <a href="https://github.com/w3c/ServiceWorker/issues/1374">issue #1374</a> for some rationale.
 
-          If the algorithm asynchronously completes with null, then:
+                      1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
 
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+                          Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
+              1. Asynchronously complete these steps with |response|.
+
+          If the algorithm asynchronously completes with a [=network error=] (|response|), then:
+
+              1. If |response| is an [=abort network error=], then invoke [=Reject Job Promise=] with |job| and "{{AbortError}}" {{DOMException}}.
+              1. Else, invoke [=Reject Job Promise=] with |job| and `TypeError`.
 
                   Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
@@ -2587,20 +2685,21 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
 
           Else, continue the rest of these steps after the algorithm's asynchronous completion, with |script| being the asynchronous completion value.
+
       1. If |hasUpdatedResources| is false, then:
           1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. Let |worker| be a new [=/service worker=].
       1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
-      1. Append |url| to |worker|'s [=set of used scripts=].
+      1. Append |job|'s [=job/script url=] to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
       1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
       1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
+          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|scopeURL|, [=URL serializer|serialized=]].
           1. Invoke [=Finish Job=] with |job|.
       1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
@@ -2636,6 +2735,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |registration|, a [=/service worker registration=]
       : Output
       :: none
+
+      Run these steps, but [=throw abort when=] |job|'s [=job/abort flag=] is set:
+
+      TODO: I need to make this abortable too.
 
       1. Let |installFailed| be false.
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
