@@ -477,7 +477,30 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    A {{ServiceWorkerRegistration}} object represents a [=/service worker registration=]. Each {{ServiceWorkerRegistration}} object is associated with a <dfn for="ServiceWorkerRegistration">service worker registration</dfn> (a [=/service worker registration=]). Multiple separate objects implementing the {{ServiceWorkerRegistration}} interface across documents and workers can all be associated with the same [=/service worker registration=] simultaneously.
+    A {{ServiceWorkerRegistration}} has a <dfn for="ServiceWorkerRegistration">service worker registration</dfn> (a [=/service worker registration=]).
+
+    <section>
+      <h4 id="service-worker-registration-creation">Getting {{ServiceWorkerRegistration}} instances</h4>
+
+      An [=environment settings object=] has a <dfn for="environment settings object">service worker registration object map</dfn>, a [=/map=] where the [=map/keys=] are [=/service worker registrations=] and the [=map/values=] are {{ServiceWorkerRegistration}} objects.
+
+      <section algorithm="service-worker-registration-creation-algorithm">
+        To <dfn lt="get the service worker registration object|getting the service worker registration object">get the service worker registration object</dfn> representing |registration| (a [=/service worker registration=]) in |environment| (an [=environment settings object=]), run these steps:
+
+          1. Let |objectMap| be |environment|'s [=environment settings object/service worker registration object map=].
+          1. If |objectMap|[|registration|] does not [=map/exist=], then:
+            1. Let |registrationObject| be a new {{ServiceWorkerRegistration}} in |environment|'s [=environment settings object/Realm=].
+            1. Set |registrationObject|'s [=ServiceWorkerRegistration/service worker registration=] to |registration|.
+            1. Set |registrationObject|'s {{ServiceWorkerRegistration/installing}} attribute to null.
+            1. Set |registrationObject|'s {{ServiceWorkerRegistration/waiting}} attribute to null.
+            1. Set |registrationObject|'s {{ServiceWorkerRegistration/active}} attribute to null.
+            1. If |registration|'s [=service worker registration/installing worker=] is not null, then set |registrationObject|'s {{ServiceWorkerRegistration/installing}} attribute to the result of [=getting the service worker object=] that represents |registration|'s [=service worker registration/installing worker=] in |environment|.
+            1. If |registration|'s [=service worker registration/waiting worker=] is not null, then set |registrationObject|'s {{ServiceWorkerRegistration/waiting}} attribute to the result of [=getting the service worker object=] that represents |registration|'s [=service worker registration/waiting worker=] in |environment|.
+            1. If |registration|'s [=service worker registration/active worker=] is not null, then set |registrationObject|'s {{ServiceWorkerRegistration/active}} attribute to the result of [=getting the service worker object=] that represents |registration|'s [=service worker registration/active worker=] in |environment|.
+            1. Set |objectMap|[|registration|] to |registrationObject|.
+          1. Return |objectMap|[|registration|].
+      </section>
+    </section>
 
     <section algorithm="navigator-service-worker-installing">
       <h4 id="navigator-service-worker-installing">{{ServiceWorkerRegistration/installing}}</h4>
@@ -653,7 +676,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |readyPromise| be the [=context object=]'s [=ServiceWorkerContainer/ready promise=].
         1. If |readyPromise| is pending, run the following substeps [=in parallel=]:
             1. Let |registration| be the result of running [=Match Service Worker Registration=] with the [=context object=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
-            1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=].
+            1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the result of [=getting the service worker registration object=] that represents |registration| in |readyPromise|'s [=relevant settings object=].
         1. Return |readyPromise|.
 
       Note: The returned [=ServiceWorkerContainer/ready promise=] will never reject. If it does not resolve in this algorithm, it will eventually resolve when a matching [=/service worker registration=] is registered and its [=active worker=] is set. (See the relevant [Activate algorithm step](#activate-resolve-ready-step).)
@@ -688,10 +711,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
             1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL| as its argument.
-            1. If |registration| is not null, then:
-                1. Resolve |promise| with the {{ServiceWorkerRegistration}} object which represents |registration|.
-            1. Else:
-                1. Resolve |promise| with undefined.
+            1. If |registration| is null, resolve |promise| with undefined and abort these steps.
+            1. Resolve |promise| with the result of [=getting the service worker registration object=] that represents |registration| in |promise|'s [=relevant settings object=].
         1. Return |promise|.
     </section>
 
@@ -708,7 +729,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |client|'s [=environment settings object/origin=], then [=append=] |registration| to |registrations|.
             1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
                 1. Let |registrationObjects| be a new [=list=].
-                1. [=list/For each=] |registration| of |registrations|, [=append=] the {{ServiceWorkerRegistration}} object associated with |registration| to |registrationObjects|.
+                1. [=list/For each=] |registration| of |registrations|:
+                    1. Let |registrationObj| be the result of [=getting the service worker registration object=] that represents |registration| in |promise|'s [=relevant settings object=].
+                    1. [=list/Append=] |registrationObj| to |registrationObjects|.
                 1. Resolve |promise| with [=create a frozen array|a new frozen array of=] |registrationObjects| in |promise|'s [=relevant Realm=].
         1. Return |promise|.
     </section>
@@ -953,7 +976,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-global-scope-registration">{{ServiceWorkerGlobalScope/registration}}</h4>
 
-      The <dfn attribute for="ServiceWorkerGlobalScope"><code>registration</code></dfn> attribute *must* return the {{ServiceWorkerRegistration}} object that represents the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>.
+      The <dfn attribute for="ServiceWorkerGlobalScope"><code>registration</code></dfn> attribute *must* return the result of [=getting the service worker registration object=] representing the [=context object=]'s [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=] in [=context object=]'s [=relevant settings object=].
     </section>
 
     <section>
@@ -2380,15 +2403,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: none
 
-      1. Let |convertedValue| be null.
       1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to run the following substeps:
-          1. If |job|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the {{ServiceWorkerRegistration}} object that represents |value|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+          1. Let |convertedValue| be null.
+          1. If |job|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the result of [=getting the service worker registration object=] that represents |value| in |job|'s [=job/client=].
           1. Else, set |convertedValue| to |value|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
           1. Resolve |job|'s [=job/job promise=] with |convertedValue|.
       1. For each |equivalentJob| in |job|'s <a>list of equivalent jobs</a>:
           1. If |equivalentJob|'s [=job/client=] is null, continue to the next iteration of the loop.
           1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to run the following substeps:
-              1. If |equivalentJob|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the {{ServiceWorkerRegistration}} object that represents |value|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
+              1. Let |convertedValue| be null.
+              1. If |equivalentJob|'s [=job/job type=] is either *register* or *update*, set |convertedValue| to the result of [=getting the service worker registration object=] that represents |value| in |equivalentJob|'s [=job/client=].
               1. Else, set |convertedValue| to |value|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
               1. Resolve |equivalentJob|'s [=job/job promise=] with |convertedValue|.
   </section>
@@ -2709,7 +2733,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=].
       1. [=list/For each=] |client| of |matchedClients|, [=queue a task=] on |client|'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following substeps:
           1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
-          1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, resolve |readyPromise| with the {{ServiceWorkerRegistration}} object that represents |registration| in |readyPromise|'s [=relevant Realm=]</span>.
+          1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, resolve |readyPromise| with the the result of [=getting the service worker registration object=] that represents |registration| in |readyPromise|'s [=relevant settings object=]</span>.
       1. [=list/For each=] |client| of |matchedClients|:
           1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
           1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
