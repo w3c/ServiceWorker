@@ -321,7 +321,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
         void postMessage(any message, sequence&lt;object&gt; transfer);
-        void postMessage(any message, optional PostMessageOptions options);
+        void postMessage(any message, optional PostMessageOptions options = {});
 
         // event
         attribute EventHandler onstatechange;
@@ -624,7 +624,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute ServiceWorker? controller;
         readonly attribute Promise&lt;ServiceWorkerRegistration&gt; ready;
 
-        [NewObject] Promise&lt;ServiceWorkerRegistration&gt; register(USVString scriptURL, optional RegistrationOptions options);
+        [NewObject] Promise&lt;ServiceWorkerRegistration&gt; register(USVString scriptURL, optional RegistrationOptions options = {});
 
         [NewObject] Promise&lt;any&gt; getRegistration(optional USVString clientURL = "");
         [NewObject] Promise&lt;FrozenArray&lt;ServiceWorkerRegistration&gt;&gt; getRegistrations();
@@ -1049,7 +1049,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute DOMString id;
         readonly attribute ClientType type;
         void postMessage(any message, sequence&lt;object&gt; transfer);
-        void postMessage(any message, optional PostMessageOptions options);
+        void postMessage(any message, optional PostMessageOptions options = {});
       };
 
       [Exposed=ServiceWorker]
@@ -1222,7 +1222,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       interface Clients {
         // The objects returned will be new instances every time
         [NewObject] Promise&lt;any&gt; get(DOMString id);
-        [NewObject] Promise&lt;FrozenArray&lt;Client&gt;&gt; matchAll(optional ClientQueryOptions options);
+        [NewObject] Promise&lt;FrozenArray&lt;Client&gt;&gt; matchAll(optional ClientQueryOptions options = {});
         [NewObject] Promise&lt;WindowClient?&gt; openWindow(USVString url);
         [NewObject] Promise&lt;void&gt; claim();
       };
@@ -1370,7 +1370,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="extendableevent-interface">{{ExtendableEvent}}</h3>
 
     <pre class="idl">
-      [Constructor(DOMString type, optional ExtendableEventInit eventInitDict), Exposed=ServiceWorker]
+      [Constructor(DOMString type, optional ExtendableEventInit eventInitDict = {}), Exposed=ServiceWorker]
       interface ExtendableEvent : Event {
         void waitUntil(Promise&lt;any&gt; f);
       };
@@ -1558,7 +1558,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <h3 id="extendablemessageevent-interface">{{ExtendableMessageEvent}}</h3>
 
     <pre class="idl">
-      [Constructor(DOMString type, optional ExtendableMessageEventInit eventInitDict), Exposed=ServiceWorker]
+      [Constructor(DOMString type, optional ExtendableMessageEventInit eventInitDict = {}), Exposed=ServiceWorker]
       interface ExtendableMessageEvent : ExtendableEvent {
         readonly attribute any data;
         readonly attribute USVString origin;
@@ -1743,13 +1743,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl">
       [SecureContext, Exposed=(Window,Worker)]
       interface Cache {
-        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional CacheQueryOptions options);
-        [NewObject] Promise&lt;FrozenArray&lt;Response&gt;&gt; matchAll(optional RequestInfo request, optional CacheQueryOptions options);
+        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional CacheQueryOptions options = {});
+        [NewObject] Promise&lt;FrozenArray&lt;Response&gt;&gt; matchAll(optional RequestInfo request, optional CacheQueryOptions options = {});
         [NewObject] Promise&lt;void&gt; add(RequestInfo request);
         [NewObject] Promise&lt;void&gt; addAll(sequence&lt;RequestInfo&gt; requests);
         [NewObject] Promise&lt;void&gt; put(RequestInfo request, Response response);
-        [NewObject] Promise&lt;boolean&gt; delete(RequestInfo request, optional CacheQueryOptions options);
-        [NewObject] Promise&lt;FrozenArray&lt;Request&gt;&gt; keys(optional RequestInfo request, optional CacheQueryOptions options);
+        [NewObject] Promise&lt;boolean&gt; delete(RequestInfo request, optional CacheQueryOptions options = {});
+        [NewObject] Promise&lt;FrozenArray&lt;Request&gt;&gt; keys(optional RequestInfo request, optional CacheQueryOptions options = {});
       };
     </pre>
     <pre class="idl" id="cache-query-options-dictionary">
@@ -2000,7 +2000,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl">
       [SecureContext, Exposed=(Window,Worker)]
       interface CacheStorage {
-        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional MultiCacheQueryOptions options);
+        [NewObject] Promise&lt;any&gt; match(RequestInfo request, optional MultiCacheQueryOptions options = {});
         [NewObject] Promise&lt;boolean&gt; has(DOMString cacheName);
         [NewObject] Promise&lt;Cache&gt; open(DOMString cacheName);
         [NewObject] Promise&lt;boolean&gt; delete(DOMString cacheName);
