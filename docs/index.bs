@@ -66,10 +66,6 @@ spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
     type: attribute; text: visibilityState; for: Document; url: dom-document-visibilitystate
 
-spec: page-lifecycle; urlPrefix: https://wicg.github.io/page-lifecycle/spec.html
-    type: dfn; text: frozen; url: frozen
-    type: dfn; text: owning document; url: dedicatedworkerglobalscope-owning-document
-
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: attribute
         urlPrefix: comms.html
@@ -1073,12 +1069,18 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         "none"
       };
     </pre>
+    <pre class="idl" id="client-state-enum">
+      enum ClientState {
+        "active",
+        "frozen",
+      };
+    </pre>
 
     A {{Client}} object has an associated <dfn id="dfn-service-worker-client-service-worker-client" for="Client">service worker client</dfn> (a [=/service worker client=]).
 
     A {{Client}} object has an associated <dfn id="dfn-service-worker-client-frame-type" for="Client">frame type</dfn>, which is one of "`auxiliary`", "`top-level`", "`nested`", and "`none`". Unless stated otherwise it is "`none`".
 
-    A {{Client}} object has an associated <dfn id="dfn-service-worker-client-state" for="Client">client state</dfn>, which is one of "`active`", and "`frozen`". Unless stated otherwise it is "`active`".
+    A {{Client}} object has an associated <dfn id="dfn-service-worker-client-state" for="Client">state</dfn>, which is one of {{ClientState}} attribute value.
 
     A {{WindowClient}} object has an associated <dfn id="dfn-service-worker-client-browsing-context" for="WindowClient">browsing context</dfn>, which is its [=Client/service worker client=]'s [=environment settings object/global object=]'s [=/browsing context=].
 
@@ -1123,7 +1125,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-state">{{Client/state}}</h4>
 
-      The <dfn attribute for="Client"><code>state</code></dfn> attribute *must* return the <a>context object</a>'s <a>client state</a>.
+      The <dfn attribute for="Client">state</dfn> attribute *must* return the [=context object=]'s [=Client/state=].
     </section>
 
     <section algorithm="client-postmessage">
@@ -1245,7 +1247,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <pre class="idl" id="serviceworker-client-query-options-dictionary">
       dictionary ClientQueryOptions {
         boolean includeUncontrolled = false;
-        ClientState state = "active";
+        ClientStateQuery state = "active";
         ClientType type = "window";
       };
     </pre>
@@ -1257,8 +1259,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         "all"
       };
     </pre>
-    <pre class="idl" id="client-state-enum">
-      enum ClientState {
+    <pre class="idl" id="client-state-query-enum">
+      enum ClientStateQuery {
         "active",
         "frozen",
         "all"
@@ -1299,7 +1301,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |matchedClientData| be a new [=list=].
             1. For each [=/service worker client=] |client| in |targetClients|:
                 1. Let |state| be the result of running [=Get Client State=] with |client|.
-                1. If |options|["{{ClientQueryOptions/type}}"] is not {{ClientType/"all"}} and does not equal |state|, then [=continue=].
+                1. If |options|["{{ClientQueryOptions/type}}"] is not {{ClientStateQuery/"all"}} and does not equal |state|, then [=continue=].
                 1. If |options|["{{ClientQueryOptions/type}}"] is {{ClientType/"window"}} or {{ClientType/"all"}}, and |client| is not an [=environment settings object=] or is a [=window client=], then:
                     1. Let |windowData| be «[ "client" → |client|, "ancestorOriginsList" → a new [=list=], "state" → |state| ]».
                     1. Let |browsingContext| be null.
@@ -3345,7 +3347,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Set |windowClient|'s [=frame type=] to |frameType|.
       1. Set |windowClient|'s [=visibility state=] to |visibilityState|.
       1. Set |windowClient|'s [=focus state=] to |focusState|.
-      1. Set |windowClient|'s [=state=] to |state|.
+      1. Set |windowClient|'s [=Client/state=] to |state|.
       1. Set |windowClient|'s [=WindowClient/ancestor origins array=] to a [=frozen array type|frozen array=] created from |ancestorOriginsList|.
       1. Return |windowClient|.
   </section>
@@ -3506,7 +3508,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       :: |state|, a string
 
       1. Let |state| be {{ClientState/"active"}}.
-      1. If |client|'s [=environment settings object/global object=]'s [=owning document=] is [=frozen=], set |state| to be {{ClientState/"frozen"}}.
+      1. If |client|'s [=responsible document=] is [=frozen=], set |state| to be {{ClientState/"frozen"}}.
       1. Return |state|.
   </section>
 
