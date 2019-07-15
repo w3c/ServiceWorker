@@ -2350,6 +2350,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           : "<code>module</code>"
           :: <a>Fetch a module worker script graph</a> given |job|’s <a lt="URL serializer">serialized</a> [=job/script url=], |job|’s [=job/client=], "<code>serviceworker</code>", "<code>omit</code>", and the to-be-created <a>environment settings object</a> for this service worker.
 
+          <div class="note">
+              <p>Note: This step has two known issues.</p>
+              <p>First, using the to-be-created [=environment settings object=] rather than a concrete [=environment settings object=]. This is used due to the unique processing model of service workers compared to the processing model of other [=web workers=]. The script fetching algorithms of HTML standard originally designed for other [=web workers=] require an [=environment settings object=] of the execution environment, but service workers fetch a script separately in the [=Update=] algorithm before the script later runs multiple times through the [=Run Service Worker=] algorithm.</p>
+              <p>Second, the [=fetch a classic worker script=] algorithm and the [=fetch a module worker script graph=] algorithm in HTML take |job|’s [=job/client=] as an argument. |job|’s [=job/client=] is null when passed from the [=Soft Update=] algorithm.</p>
+              <p>These issues are tracked in the [issue #1013](https://github.com/w3c/ServiceWorker/issues/1013) of the ServiceWorkers GitHub repository. We will address these issues in [Service Workers Nightly](https://w3c.github.io/ServiceWorker/).</p>
+          </div>
+
           To [=fetching scripts/perform the fetch=] given |request|, run the following steps:
 
           1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
