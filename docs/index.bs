@@ -287,7 +287,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: For an initial [=navigate|navigation=] with [=replacement enabled=], the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
 
-      Note: [Sandboxed](https://html.spec.whatwg.org/#attr-iframe-sandbox) [=iframes=] without the sandboxing directives, `allow-same-origin` and `allow-scripts`, result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=].
+      Note: <{iframe/sandbox|Sandboxed}> <{iframe}>s without the sandboxing directives, `allow-same-origin` and `allow-scripts`, result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=].
     </section>
 
     <section>
@@ -299,7 +299,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       When the [=fetch=] is routed through [=/HTTP fetch=], the [=worker client=]'s [=active service worker=] is set to the result of the <a lt="Match Service Worker Registration">service worker registration matching</a>.
       Otherwise, if the [=worker client=]'s [=service worker client/origin=] is an [=opaque origin=], or the [=/request=]'s [=request/URL=] is a [=blob URL=] and the [=worker client=]'s [=service worker client/origin=] is not the [=same origin|same=] as the [=/origin=] of the last item in the [=worker client=]'s [=/global object=]'s [=owner set=], the [=worker client=]'s [=active service worker=] is set to null.
-      Otherwise, it is set to the [=active service worker=] of the [=environment settings object=] of the last [=item=] in the [=worker client=]'s [=/global object=]'s [=owner set=].
+      Otherwise, it is set to the [=active service worker=] of the [=environment settings object=] of the last [=set/item=] in the [=worker client=]'s [=/global object=]'s [=owner set=].
     </section>
 
     Note: [=Window clients=] and [=worker clients=] with a [data: URL](https://tools.ietf.org/html/rfc2397#section-2) result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=]. [=Window clients=] and [=worker clients=] with a [=blob URL=] can inherit the [=active service worker=] of their creator [=document=] or owner, but if the [=/request=]'s [=request/origin=] is not the [=same origin|same=] as the [=/origin=] of their creator [=document=] or owner, the [=active service worker=] is set to null.
@@ -1319,7 +1319,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
                     1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. [=Queue a task=] |task| to run the following substeps on |browsingContext|'s [=event loop=] using the [=user interaction task source=]:
-                        1. If |browsingContext| has been [=a browsing context is discarded|discarded=], then set |isClientEnumerable| to false and abort these steps.
+                        1. If |browsingContext| has been [=discard|discarded=], then set |isClientEnumerable| to false and abort these steps.
                         1. If |client| is a window client and |client|'s [=responsible document=] is not |browsingContext|'s [=active document=], then set |isClientEnumerable| to false and abort these steps.
                         1. Set |windowData|["`frameType`"] to the result of running [=Get Frame Type=] with |browsingContext|.
                         1. Set |windowData|["`visibilityState`"] to |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
@@ -3458,7 +3458,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |response| is null, |options|.{{CacheQueryOptions/ignoreVary}} is true, or |response|'s [=response/header list=] does not [=header list/contain=] \``Vary`\`, then return true.
       1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header for the [=header/value=] of the [=header=] with [=header/name=] \``Vary`\`.
       1. For each |fieldValue| in |fieldValues|:
-          1. If |fieldValue| matches "`*`", or the [=combined value=] given |fieldValue| and |request|'s [=request/header list=] does not match the [=combined value=] given |fieldValue| and |requestQuery|'s [=request/header list=], then return false.
+          1. If |fieldValue| matches "`*`", or the [=header list/combine|combined value=] given |fieldValue| and |request|'s [=request/header list=] does not match the [=header list/combine|combined value=] given |fieldValue| and |requestQuery|'s [=request/header list=], then return false.
       1. Return true.
   </section>
 
