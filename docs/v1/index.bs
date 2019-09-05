@@ -1743,7 +1743,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
         1. Let |requests| be an array containing only |request|.
         1. Let |responseArrayPromise| be the result of running the algorithm specified in {{Cache/addAll(requests)}} passing |requests| as the argument.
-        1. Return the result of [=upon settling|transforming=] |responseArrayPromise| with a fulfillment handler that returns undefined.
+        1. Return the result of [=promise/reacting=] to |responseArrayPromise| with a fulfillment handler that returns undefined.
     </section>
 
     <section algorithm="cache-addAll">
@@ -1785,7 +1785,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
             1. Add |responsePromise| to |responsePromises|.
         1. Let |p| be the result of [=getting a promise to wait for all=] of |responsePromises|.
-        1. Return the result of [=upon settling|transforming=] |p| with a fulfillment handler that, when called with argument |responses|, performs the following substeps:
+        1. Return the result of [=promise/reacting=] to |p| with a fulfillment handler that, when called with argument |responses|, performs the following substeps:
             1. Let |operations| be an empty [=list=].
             1. Let |index| be zero.
             1. For each |response| in |responses|:
@@ -1949,7 +1949,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Else:
             1. Let |promise| be [=a promise resolved with=] undefined.
             1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
-                1. Set |promise| to the result of [=upon settling|transforming=] itself with a fulfillment handler that, when called with argument |response|, performs the following substeps:
+                1. Set |promise| to the result of [=promise/reacting=] to itself with a fulfillment handler that, when called with argument |response|, performs the following substeps:
                     1. If |response| is not undefined, return |response|.
                     1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
             1. Return |promise|.
@@ -1991,7 +1991,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <dfn method for="CacheStorage"><code>delete(|cacheName|)</code></dfn> method *must* run these steps:
 
         1. Let |promise| be the result of running the algorithm specified in {{CacheStorage/has(cacheName)}} method with |cacheName|.
-        1. Return the result of [=upon settling|transforming=] |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps:
+        1. Return the result of [=promise/reacting=] to |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps:
             1. If |cacheExists| is false, then:
                 1. Return false.
             1. Let |cacheJobPromise| be [=a new promise=].
