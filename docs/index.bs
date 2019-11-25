@@ -2244,7 +2244,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     The implementers are encouraged to note:
 
-      * Plug-ins should not load via [=/service workers=]. As plug-ins may get their security origins from their own urls, the embedding [=/service worker=] cannot handle it. For this reason, the <a>Handle Fetch</a> algorithm makes the <a>potential-navigation-or-subresource request</a> (whose context is either <code>&lt;embed&gt;</code> or <code>&lt;object&gt;</code>) immediately fallback to the network without dispatching {{fetch!!event}} event.
+      * Plug-ins should not load via [=/service workers=]. As plug-ins may get their security origins from their own urls, the embedding [=/service worker=] cannot handle it. For this reason, the <a>Handle Fetch</a> algorithm makes <code>&lt;embed&gt;</code> and <code>&lt;object&gt;</code> requests immediately fallback to the network without dispatching {{fetch!!event}} event.
       * Some of the legacy networking stack code may need to be carefully audited to understand the ramifications of interactions with [=/service workers=].
   </section>
 
@@ -2931,7 +2931,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |preloadResponse| be a new [=promise=].
       1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
-      1. If |request| is a <a>potential-navigation-or-subresource request</a>, then:
+      1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
 
