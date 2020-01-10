@@ -40,6 +40,9 @@ spec: infra;
         text: list;
         for: set; text: append
         for: list; text: append
+spec: webidl;
+    type: dfn;
+        text: resolve;
 </pre>
 
 <pre class="anchors">
@@ -1484,6 +1487,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         readonly attribute DOMString clientId;
         readonly attribute DOMString resultingClientId;
         readonly attribute DOMString replacesClientId;
+        readonly attribute Promise&lt;void&gt; handled;
 
         void respondWith(Promise&lt;Response&gt; r);
       };
@@ -1495,6 +1499,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         DOMString clientId = "";
         DOMString resultingClientId = "";
         DOMString replacesClientId = "";
+        Promise&lt;void&gt; handled;
       };
     </pre>
 
@@ -1534,6 +1539,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       <h4 id="fetch-event-replacesClientId">{{FetchEvent/replacesClientId|event.replacesClientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>replacesClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
+    </section>
+
+    <section>
+      <h4 id="fetch-event-handled">{{FetchEvent/handled|event.handled}}</h4>
+
+      <dfn attribute for="FetchEvent"><code>handled</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to a pending [=promise=].
     </section>
 
     <section algorithm="fetch-event-respondwith">
@@ -2932,6 +2943,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |client| be |request|'s [=request/client=].
       1. Let |reservedClient| be |request|'s [=request/reserved client=].
       1. Let |preloadResponse| be a new [=promise=].
+      1. Let |workerRealm| be null.
+      1. Let |eventHandled| be null.
       1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
@@ -2982,34 +2995,46 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Return null.
       1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
-      1. Else [=queue a task=] |task| to run the following substeps:
-          1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
-          1. Let |requestObject| be a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
-          1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
-          1. Initialize |e|’s {{Event/cancelable}} attribute to true.
-          1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
-          1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
-          1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
-          1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
-          1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
-          1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
-          1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
-          1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
-          1. If |e|'s [=FetchEvent/wait to respond flag=] is set, then:
-              1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
-              1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
-              1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
-          1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-          1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
+      1. Else:
+          1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
+          1. Set |eventHandled| to [=a new promise=] in |workerRealm|.
+          1. [=Queue a task=] |task| to run the following substeps:
+              1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
+              1. Let |requestObject| be a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
+              1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
+              1. Initialize |e|’s {{Event/cancelable}} attribute to true.
+              1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
+              1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
+              1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
+              1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
+              1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
+              1. Initialize |e|’s {{FetchEvent/handled}} to |eventHandled|.
+              1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
+              1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
+              1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
+              1. If |e|'s [=FetchEvent/wait to respond flag=] is set, then:
+                  1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
+                  1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
+                  1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
+              1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
+              1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
 
-          If |task| is discarded, set |handleFetchFailed| to true.
+             If |task| is discarded, set |handleFetchFailed| to true.
 
-          The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
+             The |task| *must* use |activeWorker|'s <a>event loop</a> and the <a>handle fetch task source</a>.
 
       1. Wait for |task| to have executed or for |handleFetchFailed| to be true.
       1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-      1. If |respondWithEntered| is false, then return a [=network error=] if |eventCanceled| is true and null otherwise.
-      1. If |handleFetchFailed| is true, then return a [=network error=].
+      1. If |respondWithEntered| is false, then:
+          1. If |eventCanceled| is true, then:
+              1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
+              2. Return a [=network error=].
+          1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
+          1. Return null.
+      1. If |handleFetchFailed| is true, then:
+          1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
+          2. Return a [=network error=].
+      1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
   </section>
 
