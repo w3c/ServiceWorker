@@ -3172,7 +3172,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. [=map/Remove=] [=scope to registration map=][|job|'s [=job/scope url=]].
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
-      1. If |job|'s [=immediate unregister flag=] is set, invoke [=Clear Registration=] with |registration|.
+      1. If |job|'s [=immediate unregister flag=] is set, then:
+          1. Invoke [=Clear Registration=] with |registration|.
+          1. For each [=/service worker client=] |client| [=using=] |registration|:
+              1. Assert: |client|'s [=active service worker=] is not null.
+              1. Set |client|'s [=active service worker=] to null.
+              1. Invoke [=Notify Controller Change=] with |client|.
       1. Else, invoke [=Try Clear Registration=] with |registration|.
 
           Note: If [=Try Clear Registration=] does not trigger [=Clear Registration=] here, [=Clear Registration=] is tried again when the last client [=using=] the registration is [=Handle Service Worker Client Unload|unloaded=] or the [=extend lifetime promises=] for the registration's service workers settle.
@@ -3238,29 +3243,21 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |origin|, an [=/origin=]
-      :: |unclaim|, an optional boolean, false by default
       : Output
       :: None
 
       1. [=map/For each=] <var ignore=''>scope</var> → |registration| of [=scope to registration map=]:
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
-          1. If |scopeURL|'s [=/origin=] is |origin|, then:
-              1. Let |job| be the result of running [=Create Job=] with *unregister*, |scopeURL|, null, null, and null.
-              1. Set |job|'s [=immediate unregister flag=].
-              1. Let |jobQueue| be [=scope to job queue map=][|job|'s [=job/scope url=], [=URL serializer|serialized=]].
-              1. Assert: |jobQueue| is not null.
-              1. [=While=] |jobQueue| is not empty:
-                  1. Let |job| be the first item in |jobQueue|.
-                  1. Invoke [=Reject Job Promise=] with |job| and "{{AbortError}}" {{DOMException}}.
-                  1. [=queue/Dequeue=] from |jobQueue|.
-              1. Invoke [=Schedule Job=] with |job|.
-              1. Wait until |job|'s [=job promise=] settles.
-              1. If |unclaim| is true, then:
-                  1. For each [=/service worker client=] |client| [=using=] |registration|:
-                      1. Assert: |client|'s [=active service worker=] is not null.
-                      1. Invoke [=Handle Service Worker Client Unload=] with |client|.
-                      1. Set |client|'s [=active service worker=] to null.
-                      1. Invoke [=Notify Controller Change=] with |client|.
+          1. If |scopeURL|'s [=/origin=] is not |origin|, [=continue=].
+          1. Let |job| be the result of running [=Create Job=] with *unregister*, |scopeURL|, null, null, and null.
+          1. Set |job|'s [=immediate unregister flag=].
+          1. Let |jobQueue| be [=scope to job queue map=][|job|'s [=job/scope url=], [=URL serializer|serialized=]].
+          1. Assert: |jobQueue| is not null.
+          1. [=While=] |jobQueue| is not empty:
+              1. Let |job| be the first item in |jobQueue|.
+              1. Invoke [=Reject Job Promise=] with |job| and a <code>TypeError</code>.
+              1. [=queue/Dequeue=] from |jobQueue|.
+          1. Invoke [=Schedule Job=] with |job|.
   </section>
 
   <section algorithm>
