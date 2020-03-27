@@ -2853,12 +2853,11 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
-      1. Create a separate parallel execution environment (i.e. a separate thread or process or equivalent construct), and run the following steps in that context:
-          1. Call the JavaScript [=InitializeHostDefinedRealm|InitializeHostDefinedRealm()=] abstract operation with the following customizations:
+      1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
+          1. Let |realmExecutionContext| be the result of [=create a new JavaScript realm|creating a new JavaScript realm=] given <var>agent</var> and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
-              * Let |realmExecutionContext| be the created [=execution context|JavaScript execution context=].
           1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
-          1. Let |workerEventLoop| be a newly created <a>event loop</a>.
+          1. Let |workerEventLoop| be <var>agent</var>'s <a>event loop</a>.
           1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
 
               : The [=environment settings object/realm execution context=]
