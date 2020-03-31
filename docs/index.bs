@@ -2857,28 +2857,24 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Let |realmExecutionContext| be the result of [=create a new JavaScript realm|creating a new JavaScript realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
           1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
-          1. Let |workerEventLoop| be |agent|'s [=agent/event loop=].
           1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
 
               : The [=environment settings object/realm execution context=]
               :: Return |realmExecutionContext|.
-              : The [=environment settings object/global object=]
-              :: Return |workerGlobalScope|.
-              : The <a>responsible event loop</a>
-              :: Return |workerEventLoop|.
-              : The [=environment settings object/referrer policy=]
-              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
+              : The [=environment settings object/module map=]
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/module map=].
               : The <a>API URL character encoding</a>
-              :: Return UTF-8.
+              :: Return [=UTF-8=].
               : The <a>API base URL</a>
               :: Return |serviceWorker|'s [=service worker/script url=].
               : The [=environment settings object/origin=]
               :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
-              : The <a>creation URL</a>
-              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/url=].
               : The [=environment settings object/HTTPS state=]
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=].
+              : The [=environment settings object/referrer policy=]
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
 
+          1. Set |settingsObject|'s [=environment/id=] to a new unique opaque string, its [=creation URL=] to |serviceWorker|'s [=service worker/script url=], its [=environment/target browsing context=] to null, and its [=active service worker=] to null.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
