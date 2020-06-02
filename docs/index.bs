@@ -164,6 +164,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-referrer-policy">referrer policy</dfn> (a [=/referrer policy=]). It is initially the empty string.
 
+    A [=/service worker=] has an associated <dfn>embedder policy</dfn> (an [=/embedder policy=]). It is initially set to a new [=/embedder policy=].
+
     A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
 
     A [=/service worker=] has an associated  <dfn export id="dfn-set-of-used-scripts">set of used scripts</dfn> (a [=ordered set|set=]) whose [=list/item=] is a [=/URL=]. It is initially a new [=ordered set|set=].
@@ -1861,7 +1863,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. Else:
                 1. Let |requestResponses| be the result of running [=Query Cache=] with |r| and |options|.
+                1. Let |request for CORP check| be a copy of |r|.
+                1. Set |request for CORP check|'s [=request/mode=] to "<code>no-cors</code>".
+                1. Set |request for CORP check|'s [=request/origin=] to |promise|'s [=relevant settings object=]'s [=environment settings object/origin=].
+                1. Set |request for CORP check|'s [=request/client=] to |promise|'s [=relevant settings object=].
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
+                    1. If |requestResponse|'s [=response/type=] is "<code>opaque</code>" and [=cross-origin resource policy check=] with |request for CORP check| and |requestResponse| returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
                 1. Let |responseList| be a [=list=].
@@ -2570,6 +2577,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
+      1. Let |embedder policy| be a new [=/embedder policy=].
       1. Let |hasUpdatedResources| be false.
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
       1. Switching on |job|'s [=worker type=], run these substeps with the following options:
@@ -2609,6 +2617,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           1. Set |httpsState| to |response|'s [=response/HTTPS state=].
           1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
+          1. Set |embedder policy| be the result of [=obtain an embedder policy|obtaining an embedder policy=] from |response|.
           1. If |serviceWorkerAllowed| is failure, then:
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
@@ -2677,6 +2686,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Append |url| to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
+      1. Set |worker|'s [=service worker/embedder policy=] to |embedder policy|.
       1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
       1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
@@ -2873,11 +2883,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=].
               : The [=environment settings object/referrer policy=]
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
+              : The [=environment settings object/embedder policy=]
+              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/embedder policy=].
 
           1. Set |settingsObject|'s [=environment/id=] to a new unique opaque string, its [=creation URL=] to |serviceWorker|'s [=service worker/script url=], its [=environment/target browsing context=] to null, and its [=active service worker=] to null.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/embedder policy=] to |serviceWorker|'s [=service worker/embedder policy=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
