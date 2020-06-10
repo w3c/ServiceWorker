@@ -1864,8 +1864,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Else:
                 1. Let |requestResponses| be the result of running [=Query Cache=] with |r| and |options|.
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
-                    1. If [=Cross-Origin Resource Policy Check for Cached Resource=] with |requestResponse|'s request, |requestResponse|'s response and |promise|'s [=relevant settings object=] returns false, then reject |promise| with a `TypeError` and abort these steps.
                     1. Add a copy of |requestResponse|'s response to |responses|.
+            1. [=list/For each=] |response| of |responses|:
+                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |response|'s [=internal/internal response=], |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], and |promise|'s [=relevant settings object=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
                 1. Let |responseList| be a [=list=].
                 1. [=list/For each=] |response| of |responses|:
@@ -3474,24 +3475,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |responseCopy| be a copy of |cachedResponse|.
             1. Add |requestCopy|/|responseCopy| to |resultList|.
       1. Return |resultList|.
-  </section>
-
-  <section algorithm>
-    <h3 id="cross-origin-resource-policy-check-for-cached-resource-algorithm"><dfn>Cross-Origin Resource Policy Check for Cached Resource</dfn></h3>
-
-      : Input
-      :: |passed request|, a [=/request=]
-      :: |response|, a [=/response=]
-      :: |settings object|, an [=/environment settings object=]
-      : Output
-      :: a boolean
-
-      1. If |response|'s [=response/type=] is not "<code>opaque</code>", then return true.
-      1. Let |request| be a copy of |passed request|.
-      1. Set |request|'s [=request/mode=] to "<code>no-cors</code>".
-      1. Set |request|'s [=request/origin=] to |settings object|'s [=environment settings object/origin=].
-      1. Set |request|'s [=request/client=] to |settings object|.
-      1. Return true if [=cross-origin resource policy check=] with |request| and |response| returns <b>allowed</b>, and false otherwise.
   </section>
 
   <section algorithm>
