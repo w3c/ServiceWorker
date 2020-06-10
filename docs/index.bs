@@ -164,7 +164,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-referrer-policy">referrer policy</dfn> (a [=/referrer policy=]). It is initially the empty string.
 
-    A [=/service worker=] has an associated <dfn>embedder policy</dfn> (an [=/embedder policy=]). It is initially set to a new [=/embedder policy=].
+    A [=/service worker=] has an associated <dfn>embedder policy</dfn> (an [=/embedder policy=]).
 
     A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
 
@@ -1866,7 +1866,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. [=list/For each=] |response| of |responses|:
-                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |response|'s [=internal/internal response=], |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], and |promise|'s [=relevant settings object=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
+                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], |promise|'s [=relevant settings object=], and |response|'s [=internal/internal response=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
                 1. Let |responseList| be a [=list=].
                 1. [=list/For each=] |response| of |responses|:
@@ -2574,7 +2574,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
-      1. Let |embedder policy| be a new [=/embedder policy=].
+      1. Let |embedder policy| be null.
       1. Let |hasUpdatedResources| be false.
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
       1. Switching on |job|'s [=worker type=], run these substeps with the following options:
@@ -2614,7 +2614,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
           1. Set |httpsState| to |response|'s [=response/HTTPS state=].
           1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
-          1. Set |embedder policy| be the result of [=obtain an embedder policy|obtaining an embedder policy=] from |response|.
+          1. Set |embedder policy| to be the result of [=obtain an embedder policy|obtaining an embedder policy=] from |response|.
           1. If |serviceWorkerAllowed| is failure, then:
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
@@ -2683,6 +2683,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Append |url| to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
+      1. Assert: |embedder policy| is not null.
       1. Set |worker|'s [=service worker/embedder policy=] to |embedder policy|.
       1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
       1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
