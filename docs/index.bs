@@ -404,7 +404,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-url">{{ServiceWorker/scriptURL}}</h4>
 
-      The <dfn attribute for="ServiceWorker"><code>scriptURL</code></dfn> attribute *must* return the [=/service worker=]'s <a lt="URL serializer">serialized</a> [=service worker/script url=].
+      The <dfn attribute for="ServiceWorker"><code>scriptURL</code></dfn> getter steps  are to return the [=/service worker=]'s <a lt="URL serializer">serialized</a> [=service worker/script url=].
 
       <div class="example">
         For example, consider a document created by a navigation to <code>https://example.com/app.html</code> which <a lt="Match Service Worker Registration">matches</a> via the following registration call which has been previously executed:
@@ -427,7 +427,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-postmessage">
       <h4 id="service-worker-postmessage">{{ServiceWorker/postMessage(message, transfer)}}</h4>
 
-      The <dfn method for="ServiceWorker"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorker"><code>postMessage(|message|, |transfer|)</code></dfn> method steps are:
 
         1. Let |options| be «[ "transfer" → |transfer| ]».
         1. Invoke {{ServiceWorker/postMessage(message, options)}} with |message| and |options| as the arguments.
@@ -436,9 +436,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-postmessage-options">
       <h4 id="service-worker-postmessage-options">{{ServiceWorker/postMessage(message, options)}}</h4>
 
-      The <dfn method for="ServiceWorker"><code>postMessage(|message|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorker"><code>postMessage(|message|, |options|)</code></dfn> method steps are:
 
-        1. Let |serviceWorker| be the [=/service worker=] represented by the [=context object=].
+        1. Let |serviceWorker| be the [=/service worker=] represented by [=this=].
         1. Let |incumbentSettings| be the [=incumbent settings object=].
         1. Let |incumbentGlobal| be |incumbentSettings|'s [=environment settings object/global object=].
         1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
@@ -572,13 +572,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-registration-navigationpreload">
       <h4 id="service-worker-registration-navigationpreload">{{ServiceWorkerRegistration/navigationPreload}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>navigationPreload</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s {{NavigationPreloadManager}} object.
+      The <dfn attribute for="ServiceWorkerRegistration"><code>navigationPreload</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s {{NavigationPreloadManager}} object.
     </section>
 
     <section algorithm="service-worker-registration-scope">
       <h4 id="service-worker-registration-scope">{{ServiceWorkerRegistration/scope}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s <a lt="URL serializer">serialized</a> [=service worker registration/scope url=].
+      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s <a lt="URL serializer">serialized</a> [=service worker registration/scope url=].
 
       <div class="example">
         In the example in [[#service-worker-url]], the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(registration => console.log(registration.scope))</code> for example, will be "<code>https://example.com/</code>".
@@ -588,20 +588,20 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="service-worker-registration-updateviacache">
       <h4 id="service-worker-registration-updateviacache">{{ServiceWorkerRegistration/updateViaCache}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>updateViaCache</code></dfn> attribute *must* return [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/update via cache mode=].
+      The <dfn attribute for="ServiceWorkerRegistration"><code>updateViaCache</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/update via cache mode=].
     </section>
 
     <section algorithm="service-worker-registration-update">
       <h4 id="service-worker-registration-update">{{ServiceWorkerRegistration/update()}}</h4>
 
-      <dfn method for="ServiceWorkerRegistration"><code>update()</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorkerRegistration"><code>update()</code></dfn> method steps are:
 
         1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
         1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
-        1. If the <a>context object</a>'s <a>relevant settings object</a>'s [=environment settings object/global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
+        1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |promise| be a <a>promise</a>.
-        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
+        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
@@ -612,10 +612,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: The {{ServiceWorkerRegistration/unregister()}} method unregisters the [=/service worker registration=]. It is important to note that the currently [=controlled=] [=/service worker client=]'s [=active service worker=]'s [=containing service worker registration=] is effective until all the [=/service worker clients=] (including itself) using this [=/service worker registration=] unload. That is, the {{ServiceWorkerRegistration/unregister()}} method only affects subsequent [=navigate|navigations=].
 
-      <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
-        1. Let |job| be the result of running [=Create Job=] with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and the <a>context object</a>'s <a>relevant settings object</a>.
+        1. Let |job| be the result of running [=Create Job=] with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
     </section>
@@ -655,7 +655,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       };
     </pre>
 
-    The <dfn attribute for="Navigator,WorkerNavigator" id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> attribute *must* return the {{ServiceWorkerContainer}} object that is associated with the <a>context object</a>.
+    The <dfn attribute for="Navigator,WorkerNavigator" id="navigator-service-worker-attribute"><code>serviceWorker</code></dfn> getter steps are to return the {{ServiceWorkerContainer}} object that is associated with [=this=].
   </section>
 
   <section>
@@ -704,9 +704,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn attribute for="ServiceWorkerContainer"><code>controller</code></dfn> attribute *must* run these steps:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
         1. If |client|'s [=active service worker=] is null, then return null.
-        1. Return the result of [=getting the service worker object=] that represents |client|'s [=active service worker=] in the [=context object=]'s [=relevant settings object=].
+        1. Return the result of [=getting the service worker object=] that represents |client|'s [=active service worker=] in the [=this=]'s [=relevant settings object=].
 
       Note: {{ServiceWorkerContainer/controller|navigator.serviceWorker.controller}} returns <code>null</code> if the request is a force refresh (shift+refresh).
     </section>
@@ -716,10 +716,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       <dfn attribute for="ServiceWorkerContainer"><code>ready</code></dfn> attribute *must* run these steps:
 
-        1. If the [=context object=]'s [=ServiceWorkerContainer/ready promise=] is null, then set the [=context object=]'s [=ServiceWorkerContainer/ready promise=] to [=a new promise=].
-        1. Let |readyPromise| be the [=context object=]'s [=ServiceWorkerContainer/ready promise=].
+        1. If [=this=]'s [=ServiceWorkerContainer/ready promise=] is null, then set [=this=]'s [=ServiceWorkerContainer/ready promise=] to [=a new promise=].
+        1. Let |readyPromise| be [=this=]'s [=ServiceWorkerContainer/ready promise=].
         1. If |readyPromise| is pending, run the following substeps [=in parallel=]:
-            1. Let |registration| be the result of running [=Match Service Worker Registration=] with the [=context object=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
+            1. Let |registration| be the result of running [=Match Service Worker Registration=] with [=this=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
             1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the result of [=getting the service worker registration object=] that represents |registration| in |readyPromise|'s [=relevant settings object=].
         1. Return |readyPromise|.
 
@@ -731,24 +731,24 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: The {{ServiceWorkerContainer/register(scriptURL, options)}} method creates or updates a [=/service worker registration=] for the given [=service worker registration/scope url=]. If successful, a [=/service worker registration=] ties the provided |scriptURL| to a [=service worker registration/scope url=], which is subsequently used for <a lt="handle fetch">navigation matching</a>.
 
-      The <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method steps are:
 
         1. Let |p| be a <a>promise</a>.
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
-        1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
+        1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. Let |scopeURL| be null.
-        1. If |options|.{{RegistrationOptions/scope}} is <a>present</a>, set |scopeURL| to the result of <a lt="URL parser">parsing</a> |options|.{{RegistrationOptions/scope}} with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
-        1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |p|, |client|, |client|'s <a>creation URL</a>, |options|.{{RegistrationOptions/type}}, and |options|.{{RegistrationOptions/updateViaCache}}.
+        1. If |options|["{{RegistrationOptions/scope}}"] [=map/exists=], set |scopeURL| to the result of <a lt="URL parser">parsing</a> |options|["{{RegistrationOptions/scope}}"] with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
+        1. Invoke [=Start Register=] with |scopeURL|, |scriptURL|, |p|, |client|, |client|'s <a>creation URL</a>, |options|["{{RegistrationOptions/type}}"], and |options|["{{RegistrationOptions/updateViaCache}}"].
         1. Return |p|.
     </section>
 
     <section algorithm="navigator-service-worker-getRegistration">
       <h4 id="navigator-service-worker-getRegistration">{{ServiceWorkerContainer/getRegistration(clientURL)}}</h4>
 
-      <dfn method for="ServiceWorkerContainer"><code>getRegistration(|clientURL|)</code></dfn> method *must* run these steps:
+      <dfn method for="ServiceWorkerContainer"><code>getRegistration(|clientURL|)</code></dfn> method steps are:
 
-        1. Let |client| be the <a>context object</a>'s [=ServiceWorkerContainer/service worker client=].
-        1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
+        1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |clientURL| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. Set |clientURL|'s [=url/fragment=] to null.
         1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" {{DOMException}}.
@@ -763,9 +763,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigator-service-worker-getRegistrations">
       <h4 id="navigator-service-worker-getRegistrations">{{ServiceWorkerContainer/getRegistrations()}}</h4>
 
-      <dfn method for="ServiceWorkerContainer"><code>getRegistrations()</code></dfn> method *must* run these steps:
+      <dfn method for="ServiceWorkerContainer"><code>getRegistrations()</code></dfn> method steps are:
 
-        1. Let |client| be the [=context object=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
         1. Let |promise| be [=a new promise=].
         1. Run the following steps [=in parallel=]:
             1. Let |registrations| be a new [=list=].
@@ -783,7 +783,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigator-service-worker-startMessages">
       <h4 id="navigator-service-worker-startMessages">{{ServiceWorkerContainer/startMessages()}}</h4>
 
-      <dfn method for="ServiceWorkerContainer"><code>startMessages()</code></dfn> method *must* enable the <a>context object</a>'s [=ServiceWorkerContainer/client message queue=] if it is not enabled.
+      The <dfn method for="ServiceWorkerContainer"><code>startMessages()</code></dfn> method steps are to enable [=this=]'s [=ServiceWorkerContainer/client message queue=] if it is not enabled.
     </section>
 
     <section>
@@ -814,7 +814,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         </tbody>
       </table>
 
-      The first time the <a>context object</a>'s {{ServiceWorkerContainer/onmessage}} IDL attribute is set, its [=ServiceWorkerContainer/client message queue=] *must* be enabled.
+      The first time the {{ServiceWorkerContainer/onmessage}} setter steps are performed, [=this=]'s [=ServiceWorkerContainer/client message queue=] *must* be enabled.
     </section>
   </section>
   <section>
@@ -900,46 +900,58 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="navigation-preload-manager-enable">
       <h4 id="navigation-preload-manager-enable">{{NavigationPreloadManager/enable()}}</h4>
 
-      The <dfn method for="NavigationPreloadManager"><code>enable()</code></dfn> method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
+      The <dfn method for="NavigationPreloadManager"><code>enable()</code></dfn> method steps are:
 
-        1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
-        1. Set |registration|'s [=navigation preload enabled flag=].
-        1. Resolve |promise| with undefined.
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+          1. Let |registration| be [=this=]'s associated [=/service worker registration=].
+          1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
+          1. Set |registration|'s [=navigation preload enabled flag=].
+          1. Resolve |promise| with undefined.
+        1. Return |promise|.
     </section>
 
     <section algorithm="navigation-preload-manager-disable">
       <h4 id="navigation-preload-manager-disable">{{NavigationPreloadManager/disable()}}</h4>
 
-      The <dfn method for="NavigationPreloadManager"><code>disable()</code></dfn> method, when invoked, *must* return a new [=promise=] |promise| and run the following steps [=in parallel=]:
+      The <dfn method for="NavigationPreloadManager"><code>disable()</code></dfn> method steps are:
 
-        1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
-        1. Unset |registration|'s [=navigation preload enabled flag=].
-        1. Resolve |promise| with undefined.
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+          1. Let |registration| be [=this=]'s associated [=/service worker registration=].
+          1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
+          1. Unset |registration|'s [=navigation preload enabled flag=].
+          1. Resolve |promise| with undefined.
+        1. Return |promise|.
     </section>
 
     <section algorithm="navigation-preload-manager-setheadervalue">
       <h4 id="navigation-preload-manager-setheadervalue">{{NavigationPreloadManager/setHeaderValue(value)}}</h4>
 
-      The <dfn method for="NavigationPreloadManager"><code>setHeaderValue(|value|)</code></dfn> method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
+      The <dfn method for="NavigationPreloadManager"><code>setHeaderValue(|value|)</code></dfn> method steps are:
 
-        1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
-        1. Set |registration|'s [=navigation preload header value=] to |value|.
-        1. Resolve |promise| with undefined.
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+          1. Let |registration| be [=this=]'s associated [=/service worker registration=].
+          1. If |registration|'s [=active worker=] is null, [=reject=] |promise| with an "{{InvalidStateError}}" {{DOMException}}, and abort these steps.
+          1. Set |registration|'s [=navigation preload header value=] to |value|.
+          1. Resolve |promise| with undefined.
+        1. Return |promise|.
     </section>
 
     <section algorithm="navigation-preload-manager-getstate">
       <h4 id="navigation-preload-manager-getstate">{{NavigationPreloadManager/getState()}}</h4>
 
-      The <dfn method for="NavigationPreloadManager"><code>getState()</code></dfn> method, when invoked, *must* return [=a new promise=] |promise| and run the following steps [=in parallel=]:
+      The <dfn method for="NavigationPreloadManager"><code>getState()</code></dfn> method steps are:
 
-        1. Let |registration| be the [=context object=]'s associated [=/service worker registration=].
-        1. Let |state| be a new {{NavigationPreloadState}} dictionary.
-        1. If |registration|'s [=navigation preload enabled flag=] is set, set |state|'s {{NavigationPreloadState/enabled}} dictionary member to true.
-        1. Set |state|'s {{NavigationPreloadState/headerValue}} dictionary member to the |registration|'s [=navigation preload header value=].
-        1. Resolve |promise| with |state|.
+        1. Let |promise| be [=a new promise=].
+        1. Run the following steps [=in parallel=]:
+          1. Let |registration| be [=this=]'s associated [=/service worker registration=].
+          1. Let |state| be a new {{NavigationPreloadState}} dictionary.
+          1. If |registration|'s [=navigation preload enabled flag=] is set, set |state|["{{NavigationPreloadState/enabled}}"] to true.
+          1. Set |state|["{{NavigationPreloadState/headerValue}}"] to |registration|'s [=navigation preload header value=].
+          1. Resolve |promise| with |state|.
+        1. Return |promise|.
     </section>
 
   </section>
@@ -1014,19 +1026,19 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="service-worker-global-scope-clients">{{ServiceWorkerGlobalScope/clients}}</h4>
 
-      The <dfn attribute for="ServiceWorkerGlobalScope"><code>clients</code></dfn> attribute *must* return the {{Clients}} object that is associated with the <a>context object</a>.
+      The <dfn attribute for="ServiceWorkerGlobalScope"><code>clients</code></dfn> getter steps are to return the {{Clients}} object that is associated with [=this=].
     </section>
 
     <section>
       <h4 id="service-worker-global-scope-registration">{{ServiceWorkerGlobalScope/registration}}</h4>
 
-      The <dfn attribute for="ServiceWorkerGlobalScope"><code>registration</code></dfn> attribute *must* return the result of [=getting the service worker registration object=] representing the [=context object=]'s [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=] in [=context object=]'s [=relevant settings object=].
+      The <dfn attribute for="ServiceWorkerGlobalScope"><code>registration</code></dfn> getter steps are to return the result of [=getting the service worker registration object=] representing [=this=]'s [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=] in [=this=]'s [=relevant settings object=].
     </section>
 
     <section>
       <h4 id="service-worker-global-scope-serviceworker">{{ServiceWorkerGlobalScope/serviceWorker}}</h4>
 
-      The <dfn attribute for="ServiceWorkerGlobalScope"><code>serviceWorker</code></dfn> attribute *must* return the result of [=getting the service worker object=] that represents the [=context object=]'s [=ServiceWorkerGlobalScope/service worker=] in the [=context object=]'s [=relevant settings object=].
+      The <dfn attribute for="ServiceWorkerGlobalScope"><code>serviceWorker</code></dfn> getter steps are to return the result of [=getting the service worker object=] that represents [=this=]'s [=ServiceWorkerGlobalScope/service worker=] in [=this=]'s [=relevant settings object=].
     </section>
 
     <section algorithm="service-worker-global-scope-skipwaiting">
@@ -1034,7 +1046,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: The {{ServiceWorkerGlobalScope/skipWaiting()}} method allows this [=/service worker=] to progress from the [=service worker/registration=]'s <a lt="waiting worker">waiting</a> position to <a lt="active worker">active</a> even while [=/service worker clients=] are <a>using</a> the [=service worker/registration=].
 
-      <dfn method for="ServiceWorkerGlobalScope"><code>skipWaiting()</code></dfn> method *must* run these steps:
+      The <dfn method for="ServiceWorkerGlobalScope"><code>skipWaiting()</code></dfn> method steps are:
 
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
@@ -1128,27 +1140,27 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-url">{{Client/url}}</h4>
 
-      The <dfn attribute for="Client"><code>url</code></dfn> attribute *must* return the <a>context object</a>'s associated [=Client/service worker client=]'s <a lt="URL serializer">serialized</a> <a>creation URL</a>.
+      The <dfn attribute for="Client"><code>url</code></dfn> getter steps are to return [=this=]'s associated [=Client/service worker client=]'s <a lt="URL serializer">serialized</a> <a>creation URL</a>.
     </section>
 
     <section>
       <h4 id="client-frametype">{{Client/frameType}}</h4>
 
-      The <dfn attribute for="Client"><code>frameType</code></dfn> attribute *must* return the [=context object=]'s [=frame type=].
+      The <dfn attribute for="Client"><code>frameType</code></dfn> getter steps are to return [=this=]'s [=frame type=].
     </section>
 
     <section>
       <h4 id="client-id">{{Client/id}}</h4>
 
-      The <dfn attribute for="Client"><code>id</code></dfn> attribute *must* return its associated [=Client/service worker client=]'s [=environment/id=].
+      The <dfn attribute for="Client"><code>id</code></dfn> getter steps are to return [=this=]'s associated [=Client/service worker client=]'s [=environment/id=].
     </section>
 
     <section>
       <h4 id="client-type">{{Client/type}}</h4>
 
-      The <dfn attribute for="Client"><code>type</code></dfn> attribute *must* run these steps:
+      The <dfn attribute for="Client"><code>type</code></dfn> getter steps are:
 
-        1. Let |client| be [=context object=]'s [=Client/service worker client=].
+        1. Let |client| be [=this=]'s [=Client/service worker client=].
         1. If |client| is an [=environment settings object=], then:
             1. If |client| is a [=window client=], return {{ClientType/"window"}}.
             1. Else if |client| is a [=dedicated worker client=], return {{ClientType/"worker"}}.
@@ -1160,7 +1172,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="client-postmessage">
       <h4 id="client-postmessage">{{Client/postMessage(message, transfer)}}</h4>
 
-      The <dfn method for="Client"><code>postMessage(|message|, |transfer|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Client"><code>postMessage(|message|, |transfer|)</code></dfn> method steps are:
 
         1. Let |options| be «[ "transfer" → |transfer| ]».
         1. Invoke {{Client/postMessage(message, options)}} with |message| and |options| as the arguments.
@@ -1169,9 +1181,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="client-postmessage-options">
       <h4 id="client-postmessage-options">{{Client/postMessage(message, options)}}</h4>
 
-      The <dfn method for="Client"><code>postMessage(|message|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Client"><code>postMessage(|message|, |options|)</code></dfn> method steps are:
 
-        1. Let |contextObject| be the [=context object=].
+        1. Let |contextObject| be [=this=].
         1. Let |sourceSettings| be the |contextObject|'s [=relevant settings object=].
         1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
         1. Run the following steps [=in parallel=]:
@@ -1194,37 +1206,37 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="client-visibilitystate">{{WindowClient/visibilityState}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>visibilityState</code></dfn> attribute *must* return the <a>context object</a>'s <a>visibility state</a>.
+      The <dfn attribute for="WindowClient"><code>visibilityState</code></dfn> getter steps are to return [=this=]'s <a>visibility state</a>.
     </section>
 
     <section>
       <h4 id="client-focused">{{WindowClient/focused}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>focused</code></dfn> attribute *must* return the <a>context object</a>'s <a>focus state</a>.
+      The <dfn attribute for="WindowClient"><code>focused</code></dfn> getter steps are to return [=this=]'s <a>focus state</a>.
     </section>
 
     <section>
       <h4 id="client-ancestororigins">{{WindowClient/ancestorOrigins}}</h4>
 
-      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> attribute *must* return the <a>context object</a>'s associated [=WindowClient/ancestor origins array=].
+      The <dfn attribute for="WindowClient"><code>ancestorOrigins</code></dfn> getter steps are to return [=this=]'s associated [=WindowClient/ancestor origins array=].
     </section>
 
     <section algorithm="client-focus">
       <h4 id="client-focus">{{WindowClient/focus()}}</h4>
 
-      The <dfn method for="WindowClient"><code>focus()</code></dfn> method *must* run these steps:
+      The <dfn method for="WindowClient"><code>focus()</code></dfn> method steps are:
 
         1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
-        1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
+        1. Let |serviceWorkerEventLoop| be the [=surrounding agent=]'s [=agent/event loop=].
         1. Let |promise| be a new <a>promise</a>.
-        1. [=Queue a task=] to run the following steps on the [=context object=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
-            1. Run the [=focusing steps=] with the [=context object=]'s [=WindowClient/browsing context=].
-            1. Let |frameType| be the result of running [=Get Frame Type=] with the [=context object=]'s [=WindowClient/browsing context=].
-            1. Let |visibilityState| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
-            1. Let |focusState| be the result of running the [=has focus steps=] with the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=].
-            1. Let |ancestorOriginsList| be the [=context object=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+        1. [=Queue a task=] to run the following steps on [=this=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
+            1. Run the [=focusing steps=] with [=this=]'s [=WindowClient/browsing context=].
+            1. Let |frameType| be the result of running [=Get Frame Type=] with [=this=]'s [=WindowClient/browsing context=].
+            1. Let |visibilityState| be [=this=]'s [=WindowClient/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
+            1. Let |focusState| be the result of running the [=has focus steps=] with [=this=]'s [=WindowClient/browsing context=]'s [=active document=].
+            1. Let |ancestorOriginsList| be [=this=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
-                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
+                1. Let |windowClient| be the result of running [=Create Window Client=] with [=this=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
                 1. If |windowClient|'s [=focus state=] is true, resolve |promise| with |windowClient|.
                 1. Else, reject |promise| with a `TypeError`.
         1. Return |promise|.
@@ -1233,16 +1245,16 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="client-navigate">
       <h4 id="client-navigate">{{WindowClient/navigate(url)}}</h4>
 
-      The <dfn method for="WindowClient"><code>navigate(url)</code></dfn> method *must* run these steps:
+      The <dfn method for="WindowClient"><code>navigate(url)</code></dfn> method steps are:
 
-        1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
+        1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |url| is <code>about:blank</code>, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. If the <a>context object</a>'s associated [=Client/service worker client=]'s <a>active service worker</a> is not the <a>context object</a>'s <a>relevant global object</a>'s [=ServiceWorkerGlobalScope/service worker=], return a <a>promise</a> rejected with a <code>TypeError</code>.
+        1. If [=this=]'s associated [=Client/service worker client=]'s <a>active service worker</a> is not [=this=]'s <a>relevant global object</a>'s [=ServiceWorkerGlobalScope/service worker=], return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
         1. Let |promise| be a new <a>promise</a>.
-        1. [=Queue a task=] to run the following steps on the [=context object=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
-            1. Let |browsingContext| be the [=context object=]'s [=WindowClient/browsing context=].
+        1. [=Queue a task=] to run the following steps on [=this=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
+            1. Let |browsingContext| be [=this=]'s [=WindowClient/browsing context=].
             1. If |browsingContext| has [=discard a document|discarded=] its {{Document}}, [=queue a task=] to reject |promise| with a `TypeError`, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
             1. *HandleNavigate*: [=Navigate=] |browsingContext| to |url| with [=exceptions enabled flag|exceptions enabled=]. The [=source browsing context=] must be |browsingContext|.
             1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
@@ -1252,7 +1264,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
             1. Let |ancestorOriginsList| be |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                 1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s [=url/origin=] is not the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], resolve |promise| with null and abort these steps.
-                1. Let |windowClient| be the result of running [=Create Window Client=] with the [=context object=]'s [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
+                1. Let |windowClient| be the result of running [=Create Window Client=] with [=this=]'s [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
                 1. Resolve |promise| with |windowClient|.
         1. Return |promise|.
     </section>
@@ -1291,7 +1303,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="clients-get">
       <h4 id="clients-get">{{Clients/get(id)}}</h4>
 
-      The <dfn method for="Clients"><code>get(|id|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Clients"><code>get(|id|)</code></dfn> method steps are:
 
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
@@ -1306,7 +1318,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="clients-matchall">
       <h4 id="clients-matchall">{{Clients/matchAll(options)}}</h4>
 
-      The <dfn method for="Clients"><code>matchAll(|options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Clients"><code>matchAll(|options|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
         1. Run the following steps [=in parallel=]:
@@ -1362,8 +1374,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="clients-openwindow">
       <h4 id="clients-openwindow">{{Clients/openWindow(url)}}</h4>
 
-      The <dfn method for="Clients"><code>openWindow(|url|)</code></dfn> method *must* run these steps:
-        1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with the <a>context object</a>'s <a>relevant settings object</a>'s <a>API base URL</a>.
+      The <dfn method for="Clients"><code>openWindow(|url|)</code></dfn> method steps are:
+        1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |url| is <code>about:blank</code>, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
@@ -1388,7 +1400,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="clients-claim">
       <h4 id="clients-claim">{{Clients/claim()}}</h4>
 
-      The <dfn method for="Clients"><code>claim()</code></dfn> method *must* run these steps:
+      The <dfn method for="Clients"><code>claim()</code></dfn> method steps are:
 
         1. If the [=ServiceWorkerGlobalScope/service worker=] is not an <a>active worker</a>, return a <a>promise</a> rejected with an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
@@ -1443,10 +1455,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: {{ExtendableEvent/waitUntil()}} method extends the lifetime of the event.
 
-      <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method *must* run these steps:
-
-        1. Let |event| be the [=context object=].
-        1. [=ExtendableEvent/Add lifetime promise=] |f| to |event|.
+      The <dfn method for="ExtendableEvent"><code>waitUntil(|f|)</code></dfn> method steps are to [=ExtendableEvent/add lifetime promise=] |f| to [=this=].
     </section>
 
     <section algorithm="add-lifetime-promise">
@@ -1554,9 +1563,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       Note: Developers can set the argument |r| with either a [=promise=] that resolves with a {{Response}} object or a {{Response}} object (which is automatically cast to a promise). Otherwise, a [=network error=] is returned to [=/Fetch=]. Renderer-side security checks about tainting for cross-origin content are tied to the types of [=filtered responses=] defined in [=/Fetch=].
 
-      <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method *must* run these steps:
+      <dfn method for="FetchEvent"><code>respondWith(|r|)</code></dfn> method steps are:
 
-        1. Let |event| be the [=context object=].
+        1. Let |event| be [=this=].
         1. If |event|'s [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. If |event|'s [=FetchEvent/respond-with entered flag=] is set, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. [=ExtendableEvent/Add lifetime promise=] |r| to |event|.
@@ -1761,13 +1770,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A <dfn id="dfn-request-response-list">request response list</dfn> is a [=list=] of [=pairs=] consisting of a request (a [=/request=]) and a response (a [=/response=]).
 
-    The <dfn id="dfn-relevant-request-response-list">relevant request response list</dfn> is the instance that the [=context object=] represents.
+    The <dfn id="dfn-relevant-request-response-list">relevant request response list</dfn> is the instance that [=this=] represents.
 
     A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is an <a>ordered map</a> whose [=map/entry=] consists of a [=map/key=] (a string that represents the name of a [=request response list=]) and a [=map/value=] (a [=request response list=]).
 
     Each [=/origin=] has an associated [=name to cache map=].
 
-    The <dfn id="dfn-relevant-name-to-cache-map">relevant name to cache map</dfn> is the instance of the [=context object=]'s associated [=CacheStorage/global object=]'s [=environment settings object=]'s [=environment settings object/origin=].
+    The <dfn id="dfn-relevant-name-to-cache-map">relevant name to cache map</dfn> is the instance of [=this=]'s associated [=CacheStorage/global object=]'s [=environment settings object=]'s [=environment settings object/origin=].
   </section>
 
   <section>
@@ -1788,7 +1797,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section>
       <h4 id="global-caches">{{WindowOrWorkerGlobalScope/caches}}</h4>
 
-      <dfn attribute for="WindowOrWorkerGlobalScope" id="global-caches-attribute"><code>caches</code></dfn> attribute *must* return this object's associated {{CacheStorage}} object.
+      <dfn attribute for="WindowOrWorkerGlobalScope" id="global-caches-attribute"><code>caches</code></dfn> getter steps are to return [=this=]'s associated {{CacheStorage}} object.
     </section>
   </section>
 
@@ -1826,7 +1835,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-match">
       <h4 id="cache-match">{{Cache/match(request, options)}}</h4>
 
-      <dfn method for="Cache"><code>match(|request|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>match(|request|, |options|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
@@ -1845,7 +1854,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-matchall">
       <h4 id="cache-matchall">{{Cache/matchAll(request, options)}}</h4>
 
-      <dfn method for="Cache"><code>matchAll(|request|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>matchAll(|request|, |options|)</code></dfn> method steps are:
 
         1. Let |r| be null.
         1. If the optional argument |request| is not omitted, then:
@@ -1854,7 +1863,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |r|'s [=request/method=] is not \`<code>GET</code>\` and |options|.ignoreMethod is false, return [=a promise resolved with=] an empty array.
             1. Else if |request| is a string, then:
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
-        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |realm| be the [=this=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
             1. Let |responses| be an empty [=list=].
@@ -1878,7 +1887,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-add">
       <h4 id="cache-add">{{Cache/add(request)}}</h4>
 
-      <dfn method for="Cache"><code>add(|request|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>add(|request|)</code></dfn> method steps are:
 
         1. Let |requests| be an array containing only |request|.
         1. Let |responseArrayPromise| be the result of running the algorithm specified in {{Cache/addAll(requests)}} passing |requests| as the argument.
@@ -1888,7 +1897,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-addAll">
       <h4 id="cache-addAll">{{Cache/addAll(requests)}}</h4>
 
-      <dfn method for="Cache"><code>addAll(|requests|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>addAll(|requests|)</code></dfn> method steps are:
 
         1. Let |responsePromises| be an empty [=list=].
         1. Let |requestList| be an empty [=list=].
@@ -1934,7 +1943,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Set |operation|'s [=cache batch operation/response=] to |response|.
                 1. [=list/Append=] |operation| to |operations|.
                 1. Increment |index| by one.
-            1. Let |realm| be the [=context object=]'s [=relevant realm=].
+            1. Let |realm| be the [=this=]'s [=relevant realm=].
             1. Let |cacheJobPromise| be [=a new promise=].
             1. Run the following substeps [=in parallel=]:
                 1. Let |errorData| be null.
@@ -1948,7 +1957,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-put">
       <h4 id="cache-put">{{Cache/put(request, response)}}</h4>
 
-      <dfn method for="Cache"><code>put(|request|, |response|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>put(|request|, |response|)</code></dfn> method steps are:
 
         1. Let |innerRequest| be null.
         1. If |request| is a {{Request}} object, then set |innerRequest| to |request|'s [=Request/request=].
@@ -1978,7 +1987,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/request=] to |innerRequest|.
         1. Set |operation|'s [=cache batch operation/response=] to |clonedResponse|.
         1. [=list/Append=] |operation| to |operations|.
-        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |realm| be the [=this=]'s [=relevant realm=].
         1. Return the result of the [=Upon fulfillment|fulfillment=] of |bodyReadPromise|:
             1. Let |cacheJobPromise| be [=a new promise=].
             1. Return |cacheJobPromise| and run these steps [=in parallel=]:
@@ -1992,7 +2001,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-delete">
       <h4 id="cache-delete">{{Cache/delete(request, options)}}</h4>
 
-      <dfn method for="Cache"><code>delete(|request|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>delete(|request|, |options|)</code></dfn> method steps are:
 
         1. Let |r| be null.
         1. If |request| is a {{Request}} object, then:
@@ -2006,7 +2015,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Set |operation|'s [=cache batch operation/request=] to |r|.
         1. Set |operation|'s [=cache batch operation/options=] to |options|.
         1. [=list/Append=] |operation| to |operations|.
-        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |realm| be the [=this=]'s [=relevant realm=].
         1. Let |cacheJobPromise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
             1. Let |errorData| be null.
@@ -2022,7 +2031,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-keys">
       <h4 id="cache-keys">{{Cache/keys(request, options)}}</h4>
 
-      <dfn method for="Cache"><code>keys(|request|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="Cache"><code>keys(|request|, |options|)</code></dfn> method steps are:
 
         1. Let |r| be null.
         1. If the optional argument |request| is not omitted, then:
@@ -2031,7 +2040,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. If |r|'s [=request/method=] is not \`<code>GET</code>\` and |options|.ignoreMethod is false, return [=a promise resolved with=] an empty array.
             1. Else if |request| is a string, then:
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
-        1. Let |realm| be the [=context object=]'s [=relevant realm=].
+        1. Let |realm| be the [=this=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
             1. Let |requests| be an empty [=list=].
@@ -2079,12 +2088,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-storage-match">
       <h4 id="cache-storage-match">{{CacheStorage/match(request, options)}}</h4>
 
-      <dfn method for="CacheStorage"><code>match(|request|, |options|)</code></dfn> method *must* run these steps:
+      The <dfn method for="CacheStorage"><code>match(|request|, |options|)</code></dfn> method steps are:
 
-        1. If |options|.{{MultiCacheQueryOptions/cacheName}} is [=present=], then:
+        1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] [=map/exists=], then:
             1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
                 1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
-                    1. If |options|.{{MultiCacheQueryOptions/cacheName}} matches |cacheName|, then:
+                    1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] matches |cacheName|, then:
                         1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
                         1. Abort these steps.
                 1. Resolve |promise| with undefined.
@@ -2100,7 +2109,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-storage-has">
       <h4 id="cache-storage-has">{{CacheStorage/has(cacheName)}}</h4>
 
-      <dfn method for="CacheStorage"><code>has(|cacheName|)</code></dfn> method *must* run these steps:
+      The <dfn method for="CacheStorage"><code>has(|cacheName|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
@@ -2113,7 +2122,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-storage-open">
       <h4 id="cache-storage-open">{{CacheStorage/open(cacheName)}}</h4>
 
-      <dfn method for="CacheStorage"><code>open(|cacheName|)</code></dfn> method *must* run these steps:
+      The <dfn method for="CacheStorage"><code>open(|cacheName|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
@@ -2130,7 +2139,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-storage-delete">
       <h4 id="cache-storage-delete">{{CacheStorage/delete(cacheName)}}</h4>
 
-      <dfn method for="CacheStorage"><code>delete(|cacheName|)</code></dfn> method *must* run these steps:
+      The <dfn method for="CacheStorage"><code>delete(|cacheName|)</code></dfn> method steps are:
 
         1. Let |promise| be the result of running the algorithm specified in {{CacheStorage/has(cacheName)}} method with |cacheName|.
         1. Return the result of [=promise/reacting=] to |promise| with a fulfillment handler that, when called with argument |cacheExists|, performs the following substeps:
@@ -2149,7 +2158,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     <section algorithm="cache-storage-keys">
       <h4 id="cache-storage-keys">{{CacheStorage/keys()}}</h4>
 
-      <dfn method for="CacheStorage"><code>keys()</code></dfn> method *must* run these steps:
+      The <dfn method for="CacheStorage"><code>keys()</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
         1. Run the following substeps [=in parallel=]:
@@ -3489,14 +3498,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Output
       :: a boolean
 
-      1. If |options|.{{CacheQueryOptions/ignoreMethod}} is false and |request|'s [=request/method=] is not \``GET`\`, return false.
+      1. If |options|["{{CacheQueryOptions/ignoreMethod}}"] is false and |request|'s [=request/method=] is not \``GET`\`, return false.
       1. Let |queryURL| be |requestQuery|'s [=request/url=].
       1. Let |cachedURL| be |request|'s [=request/url=].
-      1. If |options|.{{CacheQueryOptions/ignoreSearch}} is true, then:
+      1. If |options|["{{CacheQueryOptions/ignoreSearch}}"] is true, then:
           1. Set |cachedURL|'s [=url/query=] to the empty string.
           1. Set |queryURL|'s [=url/query=] to the empty string.
       1. If |queryURL| does not [=url/equal=] |cachedURL| with the *exclude fragment flag* set, then return false.
-      1. If |response| is null, |options|.{{CacheQueryOptions/ignoreVary}} is true, or |response|'s [=response/header list=] does not [=header list/contain=] \``Vary`\`, then return true.
+      1. If |response| is null, |options|["{{CacheQueryOptions/ignoreVary}}"] is true, or |response|'s [=response/header list=] does not [=header list/contain=] \``Vary`\`, then return true.
       1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header for the [=header/value=] of the [=header=] with [=header/name=] \``Vary`\`.
       1. For each |fieldValue| in |fieldValues|:
           1. If |fieldValue| matches "`*`", or the [=header list/combine|combined value=] given |fieldValue| and |request|'s [=request/header list=] does not match the [=header list/combine|combined value=] given |fieldValue| and |requestQuery|'s [=request/header list=], then return false.
