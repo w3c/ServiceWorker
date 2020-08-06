@@ -25,6 +25,7 @@ Markup Shorthands: css no, markdown yes
 spec: html;
     type: dfn; text: task queues; for: /
     type: element; text: link
+    type: dfn; text: event loop; for: /
 
 spec: dom;
     type: interface; text: Document
@@ -37,7 +38,8 @@ spec: fetch;
         text: ReadableStream
 spec: infra;
     type: dfn;
-        text: list;
+        text: list
+        text: queue
         for: set; text: append
         for: list; text: append
 spec: webidl;
@@ -159,8 +161,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
     A [=/service worker=] has an associated <dfn export id="dfn-script-resource">script resource</dfn> (a <a>script</a>), which represents its own script resource. It is initially set to null.
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-has-ever-been-evaluated-flag">has ever been evaluated flag</dfn>. It is initially unset.
-
-    A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-https-state">HTTPS state</dfn> (an <a>HTTPS state value</a>). It is initially "<code>none</code>".
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-referrer-policy">referrer policy</dfn> (a [=/referrer policy=]). It is initially the empty string.
 
@@ -2581,7 +2581,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |job|'s <a>job type</a> is *update*, and |newestWorker| is not null and its [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |httpsState| be "<code>none</code>".
       1. Let |referrerPolicy| be the empty string.
       1. Let |embedder policy| be null.
       1. Let |hasUpdatedResources| be false.
@@ -2621,7 +2620,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
               Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
 
-          1. Set |httpsState| to |response|'s [=response/HTTPS state=].
           1. Set |referrerPolicy| to the result of <a>parse a referrer policy from a <code>Referrer-Policy</code> header</a> of |response|.
           1. Set |embedder policy| to the result of [=obtain an embedder policy|obtaining an embedder policy=] from |response|.
           1. If |serviceWorkerAllowed| is failure, then:
@@ -2690,7 +2688,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |worker| be a new [=/service worker=].
       1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
       1. Append |url| to |worker|'s [=set of used scripts=].
-      1. Set |worker|'s <a>script resource</a>'s <a>HTTPS state</a> to |httpsState|.
       1. Set |worker|'s <a>script resource</a>'s [=script resource/referrer policy=] to |referrerPolicy|.
       1. Assert: |embedder policy| is not null.
       1. Set |worker|'s [=service worker/embedder policy=] to |embedder policy|.
@@ -2886,16 +2883,13 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               :: Return |serviceWorker|'s [=service worker/script url=].
               : The [=environment settings object/origin=]
               :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
-              : The [=environment settings object/HTTPS state=]
-              :: Return |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=].
               : The [=environment settings object/referrer policy=]
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=].
               : The [=environment settings object/embedder policy=]
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/embedder policy=].
 
-          1. Set |settingsObject|'s [=environment/id=] to a new unique opaque string, its [=creation URL=] to |serviceWorker|'s [=service worker/script url=], its [=environment/target browsing context=] to null, and its [=active service worker=] to null.
+          1. Set |settingsObject|'s [=environment/id=] to a new unique opaque string, [=creation URL=] to |serviceWorker|'s [=service worker/script url=], [=environment/top-level creation URL=] to null, [=environment/top-level origin=] to an [=implementation-defined=] value, [=environment/target browsing context=] to null, and [=active service worker=] to null.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
-          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/HTTPS state=] to |serviceWorker|'s <a>script resource</a>'s <a>HTTPS state</a>.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/referrer policy=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/referrer policy=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/embedder policy=] to |serviceWorker|'s [=service worker/embedder policy=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
