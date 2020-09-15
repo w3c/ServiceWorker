@@ -34,8 +34,6 @@ spec: fetch;
     type: dfn
         for: /; text: fetch
         text: empty
-    type: interface
-        text: ReadableStream
 spec: infra;
     type: dfn;
         text: list
@@ -1590,25 +1588,34 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                 1. Let |done| be false.
                 1. Let |potentialResponse| be a copy of |response|'s associated [=Response/response=], except for its [=response/body=].
                 1. If |response|'s [=response/body=] is non-null, run these substeps:
-                    1. Let |reader| be the result of [=get a reader|getting a reader=] from |response|'s [=response/body=]'s [=stream=].
+                    1. Let |reader| be the result of [=ReadableStream/getting a reader=] from |response|'s [=response/body=]'s [=stream=].
+                    1. Let |pullAlgorithm| be an action that runs these steps:
+                        1. Let |readRequest| be a new [=read request=] with the following [=struct/items=]:
+                            : [=read request/chunk steps=], given |chunk|
+                            ::
+                                1. Assert: |chunk| is a {{Uint8Array}}.
+                                1. Append the bytes represented by |chunk| to |bytes|.
+                                1. Perform ! [=DetachArrayBuffer=](|chunk|.\[[ViewedArrayBuffer]]).
+                            : [=read request/close steps=]
+                            ::
+                                1. Set |end-of-body| to true.
+                            : [=read request/error steps=]
+                            ::
+                                1. [=ReadableStream/error=] |newStream| with a {{TypeError}}.
+                        1. [=ReadableStreamDefaultReader/Read a chunk=] from |reader| given |readRequest|.
+                    1. Let |cancelAlgorithm| be an action that [=ReadableStreamDefaultReader/cancels=] |reader|.
                     1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
                     1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
-                    1. Let |pull| be an action that runs these subsubsteps:
-                        1. Let |promise| be the result of [=read a chunk|reading a chunk=] from |response|'s [=response/body=]'s [=stream=] with |reader|.
-                        1. When |promise| is fulfilled with an object whose `done` property is false and whose `value` property is a `Uint8Array` object, append the bytes represented by the `value` property to |bytes| and perform ! [=DetachArrayBuffer=] with the `ArrayBuffer` object wrapped by the `value` property.
-                        1. When |promise| is fulfilled with an object whose `done` property is true, set |end-of-body| to true.
-                        1. When |promise| is fulfilled with a value that matches with neither of the above patterns, or |promise| is rejected, [=ReadableStream/error=] |newStream| with a `TypeError`.
-                    1. Let |cancel| be an action that [=ReadableStream/cancels=] |response|'s [=response/body=]'s [=stream=] with |reader|.
-                    1. Let |newStream| be the result of [=ReadableStream/construct a ReadableStream object=] with |highWaterMark|, |sizeAlgorithm|, |pull|, and |cancel| in |targetRealm|.
+                    1. Let |newStream| be the result of [=ReadableStream/creating=] a {{ReadableStream}} with <a for=ReadableStream/create><var ignore>pullAlgorithm</var></a> set to |pullAlgorithm|, <a for=ReadableStream/create><var ignore>cancelAlgorithm</var></a> set to |cancelAlgorithm|, <a for=ReadableStream/create><var ignore>highWaterMark</var></a> set to |highWaterMark|, and <a for=ReadableStream/create><var ignore>sizeAlgorithm</var></a> set to |sizeAlgorithm|, in |targetRealm|.
                     1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose [=stream=] is |newStream|.
                     1. Run these subsubsteps repeatedly [=in parallel=] while |done| is false:
-                        1. If |newStream| is [=errored=], then set |done| to true.
+                        1. If |newStream| is [=ReadableStream/errored=], then set |done| to true.
                         1. Otherwise, if |bytes| is empty and |end-of-body| is true, then [=ReadableStream/close=] |newStream| and set |done| to true.
                         1. Otherwise, if |bytes| is not empty, run these subsubsubsteps:
                             1. Let |chunk| be a subsequence of |bytes| starting from the beginning of |bytes|.
                             1. Remove |chunk| from |bytes|.
-                            1. Let |buffer| be an `ArrayBuffer` object created in |targetRealm| and containing |chunk|.
-                            1. [=ReadableStream/Enqueue=] a `Uint8Array` object created in |targetRealm| and wrapping |buffer| to |newStream|.
+                            1. Let |buffer| be an {{ArrayBuffer}} object created in |targetRealm| and containing |chunk|.
+                            1. [=ReadableStream/Enqueue=] a {{Uint8Array}} object created in |targetRealm| and wrapping |buffer| to |newStream|.
 
                     Note: These substeps are meant to produce the observable equivalent of "piping" |response|'s [=response/body=]'s [=stream=] into |potentialResponse|.
 
@@ -1976,8 +1983,8 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         1. Let |bodyReadPromise| be [=a promise resolved with=] undefined.
         1. If |innerResponse|'s [=response/body=] is non-null, run these substeps:
             1. Let |stream| be |innerResponse|'s [=response/body=]'s [=body/stream=].
-            1. Let |reader| be the result of [=ReadableStream/get a reader|getting a reader=] for |stream|.
-            1. Set |bodyReadPromise| to the result of [=Read all bytes|reading all bytes=] from |stream| with |reader|.
+            1. Let |reader| be the result of [=ReadableStream/getting a reader=] for |stream|.
+            1. Set |bodyReadPromise| to the result of [=ReadableStreamDefaultReader/reading all bytes=] from |reader|.
 
             Note: This ensures that |innerResponse|'s [=response/body=] is [=Body/locked=], and we have a full buffered copy of the body in |clonedResponse|. An implementation could optimize by streaming directly to disk rather than memory.
 
