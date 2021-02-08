@@ -3039,6 +3039,12 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
                   1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
                   1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
+              1. If |response| is null and |requestBody| is not null, then:
+                  1. If |requestBody|'s [=Body/source=] is null, then:
+                      1. If |requestBody|'s [=Body/stream=] is [=Body/disturbed=] or [=Body/locked=], then return a [=network error=] and null.
+                      1. Set |requestBody| to the result of [=ReadableStream/create a proxy|creating a proxy=] for |requestBody|'s [=Body/stream=].
+                  1. Else:
+                      1. Set |requestBody| to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |requestBody|'s [=Body/source=].
               1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
               1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
 
@@ -3048,12 +3054,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Wait for |task| to have executed or for |handleFetchFailed| to be true.
       1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-      1. If |response| is null and |requestBody| is not null, then:
-          1. If |requestBody|'s [=Body/source=] is null, then:
-              1. If |requestBody|'s [=Body/stream=] is [=Body/disturbed=] or [=Body/locked=], then return a [=network error=] and null.
-              1. Set |requestBody| to the result of [=ReadableStream/create a proxy|creating a proxy=] for |requestBody|'s [=Body/stream=].
-          1. Else:
-              1. Set |requestBody| to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |requestBody|'s [=Body/source=].
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
