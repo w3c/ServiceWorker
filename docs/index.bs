@@ -3048,6 +3048,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Wait for |task| to have executed or for |handleFetchFailed| to be true.
       1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+      1. If |requestBody| is not null and |requestBody|'s [=Body/stream=] is [=Body/disturbed=] or [=Body/locked=], then:
+          1. If |requestBody|'s [=Body/source=] is null, then return a [=network error=] and null.
+          1. Set |requestBody| to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |requestBody|'s [=Body/source=].
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
@@ -3057,9 +3060,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |handleFetchFailed| is true, then:
           1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
           2. Return a [=network error=] and null.
-      1. If |requestBody| is not null and |requestBody|'s [=Body/stream=] is [=Body/disturbed=] or [=Body/locked=], then:
-          1. If |requestBody|'s [=Body/source=] is null, then return a [=network error=] and null.
-          1. Set |requestBody| to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |requestBody|'s [=Body/source=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response| and |requestBody|.
   </section>
