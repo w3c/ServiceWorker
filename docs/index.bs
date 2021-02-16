@@ -2949,8 +2949,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       : Input
       :: |request|, a [=/request=]
       : Output
-      :: |response|, null or a [=/response=]
-      :: |requestBody|, null or a [=/body=]
+      :: |response|, a [=/response=]
 
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
@@ -2963,30 +2962,26 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |workerRealm| be null.
       1. Let |eventHandled| be null.
       1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
-      1. Let |requestBody| be |request|'s [=request/body=].
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
-          1. Return null and |requestBody|.
+          1. Return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
 
           Note: If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.
 
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
-              1. If |reservedClient| is not a <a>secure context</a>, return null and |requestBody|.
+              1. If |reservedClient| is not a <a>secure context</a>, return null.
           1. Else:
-              1. If |request|'s [=request/url=] is not a <a>potentially trustworthy URL</a>, return null and |requestBody|.
-          1. If |request| is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null and |requestBody|.
+              1. If |request|'s [=request/url=] is not a <a>potentially trustworthy URL</a>, return null.
+          1. If |request| is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
-          1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null and |requestBody|.
+          1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
           1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
-              1. Let |preloadRequest| be a copy of |request|, except for its [=request/body=].
-              1. If |request|'s [=request/body=] is not null, then:
-                  1. Assert: |request|'s [=request/body=]'s [=Body/source=] is not null.
-                  1. Set |preloadRequest|'s [=request/body=] to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |request|'s [=request/body=]'s [=Body/source=].
+              1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
               1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
               1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
               1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
@@ -3006,14 +3001,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       1. Else if |request| is a <a>subresource request</a>, then:
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
-          1. Else, return null and |requestBody|.
+          1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-          1. Return null and |requestBody|.
+          1. Return null.
       1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
       1. Else:
@@ -3021,8 +3016,6 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |eventHandled| to [=a new promise=] in |workerRealm|.
           1. [=Queue a task=] |task| to run the following substeps:
               1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
-              1. If |requestBody| is not null, then:
-                  1. Set |requestBody|'s [=Body/stream=] to the result of [=ReadableStream/create a proxy|creating a proxy=] for |requestBody|'s [=Body/stream=].
               1. Let |requestObject| be a new {{Request}} object associated with |request| and a new associated {{Headers}} object whose [=guard=] is "`immutable`".
               1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
               1. Initialize |e|’s {{Event/cancelable}} attribute to true.
@@ -3039,12 +3032,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
                   1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
                   1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
                   1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
-              1. If |response| is null and |requestBody| is not null, then:
-                  1. If |requestBody|'s [=Body/source=] is null, then:
-                      1. If |requestBody|'s [=Body/stream=] is [=Body/disturbed=] or [=Body/locked=], then return a [=network error=] and null.
-                      1. Set |requestBody| to the result of [=ReadableStream/create a proxy|creating a proxy=] for |requestBody|'s [=Body/stream=].
-                  1. Else:
-                      1. Set |requestBody| to the first component of the result of [=bodyinit/safely-extract|safely extracting=] |requestBody|'s [=Body/source=].
+              1. If |response| is null, |request|'s [=request/body=] is not null, and |request|'s [=request/body=] is [=Body/unusable=], set |handleFetchFailed| to true.
               1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
               1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
 
@@ -3057,14 +3045,14 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
-              2. Return a [=network error=] and null.
+              2. Return a [=network error=].
           1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
-          1. Return null and |requestBody|.
+          1. Return null.
       1. If |handleFetchFailed| is true, then:
           1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
-          2. Return a [=network error=] and null.
+          2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
-      1. Return |response| and |requestBody|.
+      1. Return |response|.
   </section>
 
   <section algorithm>
