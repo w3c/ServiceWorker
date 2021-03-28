@@ -184,6 +184,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
+    A [=/service worker=] has an associated <dfn export id="dfn-timing-info">start time</dfn> (a {{DOMHighResTimeStamp}}). It is initially set to 0.
+
+    A [=/service worker=] has an associated <dfn export id="dfn-timing-info">ready time</dfn> (a {{DOMHighResTimeStamp}}). It is initially set to 0.
+
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
     <section>
@@ -2998,6 +3002,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. Let |preloadResponse| be a new [=promise=].
       1. Let |workerRealm| be null.
       1. Let |eventHandled| be null.
+      1. Let |crossOriginIsolatedCapability| be |request|'s [=request/client=]'s [=environment settings object/cross-origin isolated capability=].
       1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
@@ -3047,6 +3052,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
       1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
+      1. Let |workerStartTime| be the  [=coarsened shared current time=] given <var>crossOriginIsolatedCapability</var>.
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
       1. Else:
           1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
@@ -3062,6 +3068,9 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
               1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
               1. Initialize |e|’s {{FetchEvent/handled}} to |eventHandled|.
+              1. If |request| is a <a>navigation request</a>, then:
+                  1. Set |activeWorker|'s [=service worker/start time=] to |workerStartTime|.
+                  1. Set |activeWorker|'s [=service worker/ready time=] to the [=coarsened shared current time=] given |crossOriginIsolatedCapability|.
               1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
               1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
               1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
