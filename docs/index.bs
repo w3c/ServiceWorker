@@ -197,7 +197,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
         * Detects abnormal operation: such as infinite loops and tasks exceeding imposed time limits (if any) while handling the events.
     </section>
 
-   <section>
+    <section>
       <h4 id="service-worker-events">Events</h4>
 
       The Service Workers specification defines <dfn export id="dfn-service-worker-events">service worker events</dfn> (each of which is an [=event=]) that include (see the <a href="#execution-context-events">list</a>):
@@ -2985,7 +2985,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
 
       : Input
       :: |request|, a [=/request=]
-      :: |crossOriginIsolatedCapability|, a boolean
+      :: |useHighResPerformanceTimers|, a boolean
       : Output
       :: |response|, a [=/response=]
 
@@ -3048,7 +3048,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
-      1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |crossOriginIsolatedCapability|.
+      1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
       1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
       1. Else:
@@ -3065,7 +3065,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
               1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
               1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
               1. Initialize |e|’s {{FetchEvent/handled}} to |eventHandled|.
-              1. Let |timingInfo|'s [=service worker timing info/fetch event dispatch time=] to the [=coarsened shared current time=] given |crossOriginIsolatedCapability|.
+              1. Let |timingInfo|'s [=service worker timing info/fetch event dispatch time=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
               1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
               1. Invoke [=Update Service Worker Extended Events Set=] with |activeWorker| and |e|.
               1. If |e|'s [=FetchEvent/respond-with entered flag=] is set, set |respondWithEntered| to true.
