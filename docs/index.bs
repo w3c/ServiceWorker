@@ -2938,6 +2938,7 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
+          1. If the <a>run CSP initialization for a global object</a> algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be the result of <a lt="run a classic script">running the classic script</a> |script| if |script| is a <a>classic script</a>, otherwise, the result of <a lt="run a module script">running the module script</a> |script| if |script| is a [=module script=].
           1. If |evaluationStatus|.\[[Value]] is empty, this means the script was not evaluated. Set |startFailed| to true and abort these steps.
