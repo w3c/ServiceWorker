@@ -3636,9 +3636,10 @@ spec: webappsec-referrer-policy; urlPrefix: https://w3c.github.io/webappsec-refe
           1. Return true.
       1. [=list/For each=] string |requested| of |record|.\[[RequestedModules]]:
           1. Let |url| be the result of [=resolve a module specifier|resolving a module specifier=] given |base| and |requested|.
+          1. Assert: |url| is never failure, because [=resolve a module specifier|resolving a module specifier=] must have been previously successful with these same two arguments.
           1. If |seen| does not [=set/contain=] |url|, then:
               1. [=set/Append=] |url| to |seen|.
-              1. If |moduleMap| does not [=map/contain=] |url|, then:
+              1. If |moduleMap|[|url|] does not have a [=script/record=], then:
                   1. Return false.
               1. If [=Is Async Module=] for |moduleMap|[|url|]'s [=script/record=], |moduleMap|, |base|, and |seen| is true, then:
                   1. Return true.
