@@ -381,7 +381,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
         undefined postMessage(any message, sequence&lt;object&gt; transfer);
-        undefined postMessage(any message, optional PostMessageOptions options = {});
+        undefined postMessage(any message, optional StructuredSerializeOptions options = {});
 
         // event
         attribute EventHandler onstatechange;
@@ -459,7 +459,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         1. Let |serviceWorker| be the [=/service worker=] represented by [=this=].
         1. Let |incumbentSettings| be the [=incumbent settings object=].
         1. Let |incumbentGlobal| be |incumbentSettings|'s [=environment settings object/global object=].
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|["{{StructuredSerializeOptions/transfer}}"]). Rethrow any exceptions.
         1. If the result of running the [=Should Skip Event=] algorithm with "message" and |serviceWorker| is true, then return.
         1. Run these substeps [=in parallel=]:
             1. If the result of running the [=Run Service Worker=] algorithm with |serviceWorker| is *failure*, then return.
@@ -1133,7 +1133,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         readonly attribute DOMString id;
         readonly attribute ClientType type;
         undefined postMessage(any message, sequence&lt;object&gt; transfer);
-        undefined postMessage(any message, optional PostMessageOptions options = {});
+        undefined postMessage(any message, optional StructuredSerializeOptions options = {});
       };
 
       [Exposed=ServiceWorker]
@@ -1213,7 +1213,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
         1. Let |contextObject| be [=this=].
         1. Let |sourceSettings| be the |contextObject|'s [=relevant settings object=].
-        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|.transfer). Rethrow any exceptions.
+        1. Let |serializeWithTransferResult| be <a abstract-op>StructuredSerializeWithTransfer</a>(|message|, |options|["{{StructuredSerializeOptions/transfer}}"]). Rethrow any exceptions.
         1. Run the following steps [=in parallel=]:
             1. Let |targetClient| be null.
             1. For each [=/service worker client=] |client|:
