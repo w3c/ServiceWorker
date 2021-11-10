@@ -1957,7 +1957,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                 * To [=process response=] for |response|, run these substeps:
                     1. If |response|'s [=response/type=] is "<code>error</code>", or |response|'s [=response/status=] is not an [=ok status=] or is `206`, reject |responsePromise| with a `TypeError`.
                     1. Else if |response|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
-                        1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header.
+                        1. Let |fieldValues| be the result of [=header list/getting, decoding, and splitting=] \``Vary`\` from |response|'s [=response/header list=].
                         1. [=list/For each=] |fieldValue| of |fieldValues|:
                             1. If |fieldValue| matches "`*`", then:
                                 1. Reject |responsePromise| with a `TypeError`.
@@ -2007,7 +2007,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         1. Let |innerResponse| be |response|'s [=Response/response=].
         1. If |innerResponse|'s [=response/status=] is `206`, return [=a promise rejected with=] a `TypeError`.
         1. If |innerResponse|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
-            1. Let |fieldValues| be the [=list=] containing the [=list/items=] corresponding to the  [=Vary=] header's [=http/field-values=].
+            1. Let |fieldValues| be the result of [=header list/getting, decoding, and splitting=] \``Vary`\` from |response|'s [=response/header list=].
             1. [=list/For each=] |fieldValue| in |fieldValues|:
                 1. If |fieldValue| matches "`*`", return [=a promise rejected with=] a `TypeError`.
         1. If |innerResponse|'s [=response/body=] is [=Body/disturbed=] or [=Body/locked=], return [=a promise rejected with=] a `TypeError`.
@@ -3550,7 +3550,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           1. Set |queryURL|'s [=url/query=] to the empty string.
       1. If |queryURL| does not [=url/equal=] |cachedURL| with the *exclude fragment flag* set, then return false.
       1. If |response| is null, |options|["{{CacheQueryOptions/ignoreVary}}"] is true, or |response|'s [=response/header list=] does not [=header list/contain=] \``Vary`\`, then return true.
-      1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header for the [=header/value=] of the [=header=] with [=header/name=] \``Vary`\`.
+      1. Let |fieldValues| be the result of [=header list/getting, decoding, and splitting=] \``Vary`\` from |response|'s [=response/header list=].
       1. For each |fieldValue| in |fieldValues|:
           1. If |fieldValue| matches "`*`", or the [=header list/combine|combined value=] given |fieldValue| and |request|'s [=request/header list=] does not match the [=header list/combine|combined value=] given |fieldValue| and |requestQuery|'s [=request/header list=], then return false.
       1. Return true.
