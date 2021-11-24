@@ -2895,6 +2895,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       Note: This algorithm blocks until the service worker is [=running=] or fails to start.
 
+      1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
       1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
       1. If |serviceWorker|'s [=state=] is "`redundant`", then return *failure*.
       1. Assert: |serviceWorker|'s [=start status=] is null.
@@ -2919,6 +2920,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
               :: Return its registering [=/service worker client=]'s [=environment settings object/origin=].
               : The [=environment settings object/policy container=]
               :: Return |workerGlobalScope|'s [=WorkerGlobalScope/policy container=].
+              : The [=environment settings object/time origin=]
+              :: Return the result of [=coarsen time|coarsening=] |unsafeCreationTime| given |workerGlobalScope|'s [=WorkerGlobalScope/cross-origin isolated capability=].
 
           1. Set |settingsObject|'s [=environment/id=] to a new unique opaque string, [=creation URL=] to |serviceWorker|'s [=service worker/script url=], [=environment/top-level creation URL=] to null, [=environment/top-level origin=] to an [=implementation-defined=] value, [=environment/target browsing context=] to null, and [=active service worker=] to null.
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
