@@ -254,7 +254,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a [=byte sequence=]. It is initially set to \`<code>true</code>\`.
 
-    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=registration map=][(|origin|,|id|)] is not this [=/service worker registration=], where |origin| and |id| are this [=service worker registration=]'s [=service worker registration/origin=] and [=service worker registration/id=] respectively.
+    A [=/service worker registration=] |registration| is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=registration map=][(|registration|'s [=service worker registration/origin=], |registration|'s [=service worker registration/id=])] is not |registration|.
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -775,7 +775,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
         1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. Let |scopeURL| be null.
-        1. If |options|["{{RegistrationOptions/scope}}"] is <a>present</a>, set |scopeURL| to the result of <a lt="URL parser">parsing</a> |options|["{{RegistrationOptions/scope}}"] with the [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
+        1. If |options|["{{RegistrationOptions/scope}}"] [=map/exists=], set |scopeURL| to the result of [=URL parser|parsing=] |options|["{{RegistrationOptions/scope}}"] with [=this=]'s [=relevant settings object=]'s [=API base URL=].
         1. Let |id| be null.
         1. If |options|.{{RegistrationOptions/id} is <a>present</a>, set |id| to |options|["{{RegistrationOptions/id}}"].
         1. Invoke [=Start Register=] with |id|, |scopeURL|, |scriptURL|, |p|, |client|, |client|'s <a>creation URL</a>, |options|["{{RegistrationOptions/type}}"], and |options|["{{RegistrationOptions/updateViaCache}}"].
@@ -806,9 +806,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <dfn method for="ServiceWorkerContainer"><code>getRegistrationById(|id|)</code></dfn> method steps are:
 
         1. Let |origin| be [=current settings object=]'s [=environment settings object/origin=].
-        1. Let |promise| be a new <a>promise</a>.
-        1. Run the following substeps <a>in parallel</a>
-            1. Let |registration| be the result of running the [=GetRegistration=] algorithm passing |origin| and |id| as the arguments.
+        1. Let |promise| be [=a new promise=].
+        1. Run the following substeps [=in parallel=].
+            1. Let |registration| be the result of running the [=Get Registration=] algorithm passing |origin| and |id| as the arguments.
             1. If |registration| is null, resolve |promise| with undefined and abort these steps.
             1. Resolve |promise| with the result of [=getting the service worker registration object=] that represents |registration| in |promise|'s [=relevant settings object=].
         1. Return |promise|.
@@ -2420,9 +2420,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <div dfn-for="job">
     A <a>job</a> has a <dfn id="dfn-job-type">job type</dfn>, which is one of *register*, *update*, and *unregister*.
 
-    A <a>job</a> has an <dfn id="dfn-job-id">origin</dfn>.
+    A <a>job</a> has an <dfn id="dfn-job-id">origin</dfn> (an [=/origin=]).
 
-    A <a>job</a> has an <dfn id="dfn-job-id">id</dfn>.
+    A <a>job</a> has an <dfn id="dfn-job-id">id</dfn> (a string).
 
     A <a>job</a> has a <dfn id="dfn-job-scope-url">scope url</dfn> (a [=/URL=]).
 
@@ -2618,7 +2618,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If |id| is null, set |id| to |scopeURL|.
-      1. Let |job| be the result of running [=Create Job=] with *register*, |client|' [=service worker client/origin=], |id|, |scopeURL|, |scriptURL|, |promise|, and |client|.
+      1. Let |job| be the result of running [=Create Job=] with *register*, |client|'s [=service worker client/origin=], |id|, |scopeURL|, |scriptURL|, |promise|, and |client|.
       1. Set |job|'s [=job/worker type=] to |workerType|.
       1. Set |job|'s [=job/update via cache mode=] to |updateViaCache|.
       1. Set |job|'s [=job/referrer=] to |referrer|.
@@ -3437,7 +3437,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
       1. Let |matchingScopeString| be the empty string.
-      1. Let |scopeMap| be the empty map.
+      1. Let |scopeMap| be a new [=/ordered map=].
       1. [=map/For each=] |key| → |value| of <a>registration map</a>:
           1. Let |activeWorker| be |value|'s [=service worker registration/active worker=],
           1. If |activeWorker| is null, then [=continue=].
@@ -3476,13 +3476,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       :: A [=/service worker registration=] or null.
 
       1. Run the following steps atomically.
-      1. [=map/For each=] |key| → |value| of <a>registration map</a>:
-          1. If |value|'s <a>active worker</a>'s [=service worker/scope url=] [=url/equals=] |scope|, then return |value|.
-          1. If |value|'s <a>waiting worker</a>'s [=service worker/scope url=] [=url/equals=] |scope|, then return |value|.
-          1. If |value|'s <a>installing worker</a>'s [=service worker/scope url=] [=url/equals=] |scope|, then return |value|.
+      1. [=map/For each=] |key| → |registration| of [=registration map=]:
+          1. [=list/For each=] |serviceWorker| of |registration|'s « [=active worker=], [=waiting worker=], [=installing worker=] »:
+              1. If |serviceWorker| is not null and |serviceWorker|'s [=service worker/scope url=] [=url/equals=] |scope|, then return |value|.
       1. Return null.
 
-      Note: Only one registration should be associated with a given scope at a time since we fail <a>Register</a> when there is a conflicting registration with the same scope.
+      Note: Only one registration should be associated with a given scope at a time since we fail [=Register=] when there is a conflicting registration with the same scope.
   </section>
 
   <section algorithm>
@@ -3509,12 +3508,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       : Output
       :: |oldestWorker|, a [=/service worker=]
 
-      1. Run the following steps atomically.
-      1. Let |oldestWorker| be null.
-      1. If |registration|'s <a>active worker</a> is not null, set |oldestWorker| to |registration|'s <a>active worker</a>.
-      1. Else if |registration|'s <a>waiting worker</a> is not null, set |oldestWorker| to |registration|'s <a>waiting worker</a>.
-      1. Else if |registration|'s <a>installing worker</a> is not null, set |oldestWorker| to |registration|'s <a>installing worker</a>.
-      1. Return |oldestWorker|.
+      1. Return the first of the following that is not null:
+          1. |registration|'s [=active worker=].
+          1. |registration|'s [=waiting worker=].
+          1. |registration|'s [=installing worker=].
+          
+          Otherwise, return null.
   </section>
 
   <section algorithm>
