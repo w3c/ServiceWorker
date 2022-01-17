@@ -2982,6 +2982,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       : Input
       :: |request|, a [=/request=]
+      :: |controller|, a [=fetch controller=]
       :: |useHighResPerformanceTimers|, a boolean
       : Output
       :: |response|, a [=/response=]
@@ -3022,15 +3023,16 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
               1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
               1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
               1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
-              1. Run the following substeps [=in parallel=]:
-                  1. [=Fetch=] |preloadRequest| and let |preloadFetchInstance| be the instance of the [=/fetch=] algorithm.
+              1. Let |preloadFetchController| be null.
+              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+                  1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
 
                       To [=process response=] for |navigationPreloadResponse|, run these substeps:
 
                       1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                       1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
                       1. Resolve |preloadResponse| with |preloadResponseObject|.
-                  1. If |fetchInstance| is [=fetch/terminated=], then [=fetch/terminate=] |preloadFetchInstance| with the aborted flag set.
+              1. [=If aborted=], then [=fetch controller/abort=] |preloadFetchController|.
           1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
@@ -3076,7 +3078,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
                   1. Else, [=ReadableStream/cancel=] |request|'s [=request/body=] with undefined.
               1. If |response| is not null, then set |response|'s [=response/service worker timing info=] to |timingInfo|.
               1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-              1. If |fetchInstance| is [=fetch/terminated=], then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
+              1. If |controller| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
 
              If |task| is discarded, set |handleFetchFailed| to true.
 
