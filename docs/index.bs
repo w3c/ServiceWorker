@@ -234,6 +234,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-id">id</dfn>, a [=string=].
 
+    A [=/service worker registration=] has an associated <dfn id="dfn-last-relevant-scope">last relevant scope</dfn>, a USVString.  While individual [=service worker=] instances may have different [=service worker/scope=] values, the [=service worker registration/last relevant scope=] contains the [=service worker/scope=] value last seen on the [=Get Oldest Worker|oldest worker=] associated with the registration.  In most cases this will be the scope of the last active [=service worker=] instance.
+
     A [=/service worker registration=] has an associated <dfn export id="dfn-installing-worker">installing worker</dfn> (a [=/service worker=] or null) whose [=service worker/state=] is "`installing`". It is initially set to null.
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-waiting-worker">waiting worker</dfn> (a [=/service worker=] or null) whose [=service worker/state=] is "`installed`". It is initially set to null.
@@ -607,12 +609,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <section algorithm="service-worker-registration-scope">
       <h4 id="service-worker-registration-scope">{{ServiceWorkerRegistration/scope}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> getter steps are:
-
-        1, Let |oldestWorker| be the result of running [=Get Oldest Worker=] passing |registration| as the argument.
-        1. If |oldestWorker| is null, then:
-            1. Return null.
-        1. Return |oldestWorker|'s [=service worker/scope url=].
+      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/last relevant scope=].
 
       <div class="example">
         In the example in [[#service-worker-url]], the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(registration => console.log(registration.scope))</code> for example, will be "<code>https://example.com/</code>".
@@ -2654,7 +2651,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
               1. Invoke [=Reject Job Promise=] with |job| and "{{InvalidStateError}}" {{DOMException}}.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/origin=], |job|'s [=job/id=], and |job|'s [=job/update via cache mode=].
+          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/origin=], |job|'s [=job/id=], |job|'s [=job/scope url=], and |job|'s [=job/update via cache mode=].
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -3313,13 +3310,14 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       : Input
       :: |origin|, an [=environment settings object/origin=]
       :: |id|, an [=service worker registration/id=]
+      :: |scope|, a USVString
       :: |updateViaCache|, an [=service worker registration/update via cache mode=]
       : Output
       :: |registration|, a [=/service worker registration=]
 
       1. Run the following steps atomically.
       1. Let |scopeString| be [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
-      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/origin=] is set to |origin|, [=service worker registration/id=] is set to |id|, and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
+      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/origin=] is set to |origin|, [=service worker registration/id=] is set to |id|, [=service worker registration/last relevant scope=] is set to |scope|, and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
       1. [=map/Set=] <a>registration map</a>[|id|] to |registration|.
       1. Return |registration|.
   </section>
@@ -3384,6 +3382,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           1. Set |registration|'s [=service worker registration/active worker=] to |source|.
           1. For each |registrationObject| in |registrationObjects|:
               1. [=Queue a task=] to set the {{ServiceWorkerRegistration/active}} attribute of |registrationObject| to null if |registration|’s [=active worker=] is null, or the result of [=getting the service worker object=] that represents |registration|’s [=active worker=] in |registrationObject|'s [=relevant settings object=].
+      1. Let |oldestWorker| be the result of running [=Get Oldest Worker=] given |registration|.
+      1. If |oldestWorker| is not null, then set |registration|'s [=last relevant scope=] to |oldestWorker|'s [=service worker/scope=].
 
         The [=task=] *must* use |registrationObject|'s [=relevant settings object=]'s [=responsible event loop=] and the [=DOM manipulation task source=].
   </section>
