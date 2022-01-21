@@ -384,6 +384,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <pre class="idl">
       [SecureContext, Exposed=(Window,Worker)]
       interface ServiceWorker : EventTarget {
+        readonly attribute USVString scope;
         readonly attribute USVString scriptURL;
         readonly attribute ServiceWorkerState state;
         undefined postMessage(any message, sequence&lt;object&gt; transfer);
@@ -423,6 +424,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             1. Set |objectMap|[|serviceWorker|] to |serviceWorkerObj|.
           1. Return |objectMap|[|serviceWorker|].
       </section>
+    </section>
+
+    <section>
+      <h4 id="service-worker-url">{{ServiceWorker/scope}}</h4>
+
+      The <dfn attribute for="ServiceWorker"><code>scope</code></dfn> getter steps are to return the [=/service worker=]'s <a lt="URL serialized">serialized</a> [=service worker/scope url=].
     </section>
 
     <section>
@@ -609,7 +616,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <section algorithm="service-worker-registration-scope">
       <h4 id="service-worker-registration-scope">{{ServiceWorkerRegistration/scope}}</h4>
 
-      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s [=service worker registration/last relevant scope=].
+      The <dfn attribute for="ServiceWorkerRegistration"><code>scope</code></dfn> getter steps are to return the [=ServiceWorkerRegistration/service worker registration=]'s <a lt="URL serialized">serialized</a> [=service worker registration/last relevant scope=].
 
       <div class="example">
         In the example in [[#service-worker-url]], the value of <code>registration.scope</code>, obtained from <code>navigator.serviceWorker.ready.then(registration => console.log(registration.scope))</code> for example, will be "<code>https://example.com/</code>".
