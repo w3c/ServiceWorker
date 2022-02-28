@@ -113,6 +113,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     type: dfn
         text: Vary; url: section-7.1.4
 
+spec: storage; urlPrefix: https://storage.spec.whatwg.org/
+    type: dfn
+        text: storage key; url: storage-key
+        text: obtain a storage key; url: obtain-a-storage-key
+        text: storage key/equals; url: storage-key-equals
+
 </pre>
 
 <pre class="biblio">
@@ -226,7 +232,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section dfn-for="service worker registration">
     <h3 id="service-worker-registration-concept">Service Worker Registration</h3>
 
-    A <dfn export id="dfn-service-worker-registration" for="">service worker registration</dfn> is a tuple of a [=service worker registration/scope url=] and a set of [=/service workers=], an <a>installing worker</a>, a <a>waiting worker</a>, and an <a>active worker</a>. A user agent *may* enable many [=/service worker registrations=] at a single origin so long as the [=service worker registration/scope url=] of the [=/service worker registration=] differs. A [=/service worker registration=] of an identical [=service worker registration/scope url=] when one already exists in the user agent causes the existing [=/service worker registration=] to be replaced.
+    A <dfn export id="dfn-service-worker-registration" for="">service worker registration</dfn> is a tuple of a [=service worker registration/scope url=], a [=/storage key=], and a set of [=/service workers=], an <a>installing worker</a>, a <a>waiting worker</a>, and an <a>active worker</a>. A user agent *may* enable many [=/service worker registrations=] at a single origin so long as the [=service worker registration/scope url=] of the [=/service worker registration=] differs. A [=/service worker registration=] of an identical [=service worker registration/scope url=] when one already exists in the user agent causes the existing [=/service worker registration=] to be replaced.
+
+    A [=/service worker registration=] has an associated <dfn export for="service worker registration">storage key</dfn> (a [=/storage key=]).
 
     A [=/service worker registration=] has an associated <dfn export id="dfn-scope-url">scope url</dfn> (a [=/URL=]).
 
@@ -250,12 +258,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
     A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a [=byte sequence=]. It is initially set to \`<code>true</code>\`.
 
-    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=scope to registration map=][this [=/service worker registration=]'s [=service worker registration/scope url=]] is not this [=/service worker registration=].
+    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=registration map=][this [=service worker registration=]'s ([=service worker registration/storage key=], [=URL serializer|serialized=] [=service worker registration/scope url=])] is not this [=/service worker registration=].
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
 
-      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>scope to registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s [=service worker registration/scope url=], [=URL serializer|serialized=], and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/service worker clients=].
+      A user agent *must* persistently keep a list of <a>registered</a> [=/service worker registrations=] unless otherwise they are explicitly <a>unregistered</a>. A user agent has a <a>registration map</a> that stores the entries of the tuple of [=/service worker registration=]'s ([=service worker registration/storage key=], [=URL serializer|serialized=] [=service worker registration/scope url=]) and the corresponding [=/service worker registration=]. The lifetime of [=/service worker registrations=] is beyond that of the {{ServiceWorkerRegistration}} objects which represent them within the lifetime of their corresponding [=/service worker clients=].
     </section>
   </section>
 
@@ -619,7 +627,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |promise| be a <a>promise</a>.
-        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and [=this=]'s <a>relevant settings object</a>.
+        1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/storage key=], |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
@@ -632,8 +640,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       The <dfn method for="ServiceWorkerRegistration"><code>unregister()</code></dfn> method steps are:
 
+        1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |promise| be [=a new promise=].
-        1. Let |job| be the result of running [=Create Job=] with *unregister*, the [=service worker registration/scope url=] of the [=ServiceWorkerRegistration/service worker registration=], null, |promise|, and [=this=]'s <a>relevant settings object</a>.
+        1. Let |job| be the result of running [=Create Job=] with *unregister*, |registration|'s [=service worker registration/storage key=], |registration|'s [=service worker registration/scope url=], null, |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Invoke <a>Schedule Job</a> with |job|.
         1. Return |promise|.
     </section>
@@ -737,7 +746,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
         1. If [=this=]'s [=ServiceWorkerContainer/ready promise=] is null, then set [=this=]'s [=ServiceWorkerContainer/ready promise=] to [=a new promise=].
         1. Let |readyPromise| be [=this=]'s [=ServiceWorkerContainer/ready promise=].
         1. If |readyPromise| is pending, run the following substeps [=in parallel=]:
-            1. Let |registration| be the result of running [=Match Service Worker Registration=] with [=this=]'s [=ServiceWorkerContainer/service worker client=]'s [=creation URL=].
+            1. Let |client| by [=this=]'s [=ServiceWorkerContainer/service worker client=].
+            1. Let |storage key| be the result of running [=obtain a storage key=] given client.
+            1. Let |registration| be the result of running [=Match Service Worker Registration=] given |storage key| and |client|'s [=creation URL=].
             1. If |registration| is not null, and |registration|'s [=active worker=] is not null, [=queue a task=] on |readyPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |readyPromise| with the result of [=getting the service worker registration object=] that represents |registration| in |readyPromise|'s [=relevant settings object=].
         1. Return |readyPromise|.
 
@@ -766,13 +777,14 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <dfn method for="ServiceWorkerContainer"><code>getRegistration(|clientURL|)</code></dfn> method steps are:
 
         1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
         1. Let |clientURL| be the result of <a lt="URL parser">parsing</a> |clientURL| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |clientURL| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. Set |clientURL|'s [=url/fragment=] to null.
         1. If the [=environment settings object/origin=] of |clientURL| is not |client|'s [=environment settings object/origin=], return a |promise| rejected with a "{{SecurityError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm with |clientURL| as its argument.
+            1. Let |registration| be the result of running <a>Match Service Worker Registration</a> given |storage key| and |clientURL|.
             1. If |registration| is null, resolve |promise| with undefined and abort these steps.
             1. Resolve |promise| with the result of [=getting the service worker registration object=] that represents |registration| in |promise|'s [=relevant settings object=].
         1. Return |promise|.
@@ -784,11 +796,12 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       <dfn method for="ServiceWorkerContainer"><code>getRegistrations()</code></dfn> method steps are:
 
         1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
+        1. Let |client storage key| be the result of running [=obtain a storage key=] given |client|.
         1. Let |promise| be [=a new promise=].
         1. Run the following steps [=in parallel=]:
             1. Let |registrations| be a new [=list=].
-            1. [=map/For each=] |scope| → |registration| of [=scope to registration map=]:
-                1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |client|'s [=environment settings object/origin=], then [=append=] |registration| to |registrations|.
+            1. [=map/For each=] (|storage key|, |scope|) → |registration| of [=registration map=]:
+                1. If |storage key| [=storage key/equals=] |client storage key|, then [=append=] |registration| to |registrations|.
             1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
                 1. Let |registrationObjects| be a new [=list=].
                 1. [=list/For each=] |registration| of |registrations|:
@@ -1436,7 +1449,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
             1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
                 1. If |client|'s [=environment/execution ready flag=] is unset or |client|'s [=discarded flag=] is set, [=continue=].
                 1. If |client| is not a [=secure context=], [=continue=].
-                1. Let |registration| be the result of running <a>Match Service Worker Registration</a> algorithm passing |client|'s <a>creation URL</a> as the argument.
+                1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
+                1. Let |registration| be the result of running <a>Match Service Worker Registration</a> given |storage key| and |client|'s <a>creation URL</a>.
                 1. If |registration| is not the [=ServiceWorkerGlobalScope/service worker=]'s <a>containing service worker registration</a>, [=continue=].
 
                     Note: |registration| will be null if the [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=] is [=service worker registration/unregistered=].
@@ -2316,7 +2330,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
   <section>
     <h3 id="privacy">Privacy</h3>
 
-    [=/Service workers=] introduce new persistent storage features including <a>scope to registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), [=request response list=] and <a>name to cache map</a> (for caches), and [=script resource map=] (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
+    [=/Service workers=] introduce new persistent storage features including <a>registration map</a> (for [=/service worker registrations=] and their [=/service workers=]), [=request response list=] and <a>name to cache map</a> (for caches), and [=script resource map=] (for script resources). In order to protect users from any potential <a biblio data-biblio-type="informative" lt="unsanctioned-tracking">unsanctioned tracking</a> threat, these persistent storages *should* be cleared when users intend to clear them and *should* maintain and interoperate with existing user controls e.g. purging all existing persistent storages.
   </section>
 </section>
 
@@ -2377,12 +2391,14 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
   The following definitions are the user agent's internal data structures used throughout the specification.
 
-  A <dfn id="dfn-scope-to-registration-map">scope to registration map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=/service worker registrations=].
+  A <dfn id="dfn-scope-to-registration-map">registration map</dfn> is an <a>ordered map</a> where the keys are ([=/storage key=],  [=URL serializer|serialized=] [=service worker registration/scope urls=]) and the values are [=/service worker registrations=].
 
   A <dfn id="dfn-job">job</dfn> is an abstraction of one of register, update, and unregister request for a [=/service worker registration=].
 
   <div dfn-for="job">
     A <a>job</a> has a <dfn id="dfn-job-type">job type</dfn>, which is one of *register*, *update*, and *unregister*.
+
+    A <a>job</a> has a <dfn for=job>storage key</dfn> (a [=/storage key=]).
 
     A <a>job</a> has a <dfn id="dfn-job-scope-url">scope url</dfn> (a [=/URL=]).
 
@@ -2428,6 +2444,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       : Input
       :: |jobType|, a <a>job type</a>
+      :: |storage key|, a [=/storage key=]
       :: |scopeURL|, a [=/URL=]
       :: |scriptURL|, a [=/URL=]
       :: |promise|, a <a>promise</a>
@@ -2437,6 +2454,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       1. Let |job| be a new <a>job</a>.
       1. Set |job|'s [=job/job type=] to |jobType|.
+      1. Set |job|'s [=job/storage key=] to |storage key|.
       1. Set |job|'s [=job/scope url=] to |scopeURL|.
       1. Set |job|'s [=job/script url=] to |scriptURL|.
       1. Set |job|'s [=job/job promise=] to |promise|.
@@ -2569,7 +2587,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
-      1. Let |job| be the result of running [=Create Job=] with *register*, |scopeURL|, |scriptURL|, |promise|, and |client|.
+      1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
+      1. Let |job| be the result of running [=Create Job=] with *register*, |storage key|, |scopeURL|, |scriptURL|, |promise|, and |client|.
       1. Set |job|'s [=job/worker type=] to |workerType|.
       1. Set |job|'s [=job/update via cache mode=] to |updateViaCache|.
       1. Set |job|'s [=job/referrer=] to |referrer|.
@@ -2593,14 +2612,14 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. If |job|'s [=job/scope url=]'s [=url/origin=] and |job|'s [=job/referrer=]'s [=url/origin=] are not [=same origin=], then:
           1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
+      1. Let |registration| be the result of running <a>Get Registration</a> given |job|'s [=job/storage key=] and |job|'s [=job/scope url=].
       1. If |registration| is not null, then:
           1. Let |newestWorker| be the result of running the <a>Get Newest Worker</a> algorithm passing |registration| as the argument.
           1. If |newestWorker| is not null, |job|'s [=job/script url=] [=url/equals=] |newestWorker|'s [=service worker/script url=], |job|'s [=job/worker type=] equals |newestWorker|'s [=service worker/type=], and |job|'s [=job/update via cache mode=]'s value equals |registration|'s [=service worker registration/update via cache mode=], then:
               1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
               1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Else:
-          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/scope url=] and |job|'s [=job/update via cache mode=].
+          1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/storage key=], |job|'s [=job/scope url=], and |job|'s [=job/update via cache mode=].
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
   </section>
 
@@ -2612,7 +2631,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       : Output
       :: none
 
-      1. Let |registration| be the result of running the <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
+      1. Let |registration| be the result of running <a>Get Registration</a> given |job|'s [=job/storage key=] and |job|'s [=job/scope url=].
       1. If |registration| is null, then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
@@ -2715,7 +2734,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
               Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
-          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|scopeURL|, [=URL serializer|serialized=]].
+          1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
           1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. If |hasUpdatedResources| is false, then:
           1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
@@ -2729,7 +2748,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
       1. If |runResult| is *failure* or an [=abrupt completion=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
+          1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
           1. Invoke [=Finish Job=] with |job|.
       1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
@@ -2750,7 +2769,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
       1. If |newestWorker| is null, abort these steps.
-      1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], null, and null.
+      1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/storage key=], |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], null, and null.
       1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
       1. Set |job|'s [=force bypass cache flag=] if |forceBypassCache| is true.
       1. Invoke <a>Schedule Job</a> with |job|.
@@ -2800,7 +2819,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. If |installFailed| is true, then:
           1. Run the <a>Update Worker State</a> algorithm passing |registration|'s [=installing worker=] and "`redundant`" as the arguments.
           1. Run the <a>Update Registration State</a> algorithm passing |registration|, "<code>installing</code>" and null as the arguments.
-          1. If |newestWorker| is null, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
+          1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |registration|'s [=service worker registration/scope url=])].
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |map| be |registration|'s [=installing worker=]'s [=script resource map=].
       1. Let |usedSet| be |registration|'s [=installing worker=]'s [=set of used scripts=].
@@ -2839,7 +2858,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
           Note: Make sure to design activation handlers to do non-essential work (like cleanup). This is because activation handlers may not all run to completion, especially in the case of browser termination during activation. A Service Worker should be designed to function properly, even if the activation handlers do not all complete successfully.
 
-      1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/scope url=].
+      1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/storage key=] and |registration|'s [=service worker registration/scope url=].
       1. [=list/For each=] |client| of |matchedClients|, [=queue a task=] on |client|'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following substeps:
           1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
           1. If |readyPromise| is null, then [=continue=].
@@ -3014,7 +3033,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
           1. Else:
               1. If |request|'s [=request/url=] is not a <a>potentially trustworthy URL</a>, return null.
           1. If |request| is a <a>navigation request</a> and the <a lt="navigate">navigation</a> triggering it was initiated with a shift+reload or equivalent, return null.
-          1. Set |registration| to the result of running <a>Match Service Worker Registration</a> algorithm passing |request|'s [=request/url=] as the argument.
+          1. [=Assert=] |reservedClient| is not null.
+          1. Let |storage key| be the result of running [=obtain a storage key=] given |reservedClient|.
+          1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
           1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, then:
@@ -3194,7 +3215,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       : Output
       :: None
 
-      1. [=map/For each=] <var ignore>scope</var> → |registration| of <a>scope to registration map</a>:
+      1. [=map/For each=] (|storage key|, <var ignore>scope</var>) → |registration| of <a>registration map</a>:
           1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
               1. If |registration|'s [=waiting worker=] is null and |registration|'s [=active worker=] is null, invoke <a>Clear Registration</a> with |registration| and continue to the next iteration of the loop.
               1. Else, set |installingWorker| to null.
@@ -3228,11 +3249,11 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
           1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |registration| be the result of running <a>Get Registration</a> algorithm passing |job|'s [=job/scope url=] as the argument.
+      1. Let |registration| be the result of running <a>Get Registration</a> given |job|'s [=job/storage key=] and |job|'s [=job/scope url=].
       1. If |registration| is null, then:
           1. Invoke <a>Resolve Job Promise</a> with |job| and false.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. [=map/Remove=] [=scope to registration map=][|job|'s [=job/scope url=]].
+      1. [=map/Remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], |job|'s [=job/scope url=])].
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
       1. Invoke [=Try Clear Registration=] with |registration|.
 
@@ -3245,6 +3266,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <h3 id="set-registration-algorithm"><dfn>Set Registration</dfn></h3>
 
       : Input
+      :: |storage key|, a [=/storage key=]
       :: |scope|, a [=/URL=]
       :: |updateViaCache|, an [=service worker registration/update via cache mode=]
       : Output
@@ -3252,8 +3274,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
 
       1. Run the following steps atomically.
       1. Let |scopeString| be [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
-      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/scope url=] is set to |scope| and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
-      1. [=map/Set=] <a>scope to registration map</a>[|scopeString|] to |registration|.
+      1. Let |registration| be a new [=/service worker registration=] whose [=service worker registration/storage key=] is set to |storage key|, [=service worker registration/scope url=] is set to |scope|, and [=service worker registration/update via cache mode=] is set to |updateViaCache|.
+      1. [=map/Set=] [=registration map=][(|storage key|, |scopeString|)] to |registration|.
       1. Return |registration|.
   </section>
 
@@ -3362,6 +3384,7 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
     <h3 id="scope-match-algorithm"><dfn export>Match Service Worker Registration</dfn></h3>
 
       : Input
+      :: |storage key|, a [=/storage key=]
       :: |clientURL|, a [=/URL=]
       : Output
       :: A [=/service worker registration=]
@@ -3369,7 +3392,9 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. Run the following steps atomically.
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
       1. Let |matchingScopeString| be the empty string.
-      1. Let |scopeStringSet| be the result of [=map/get the keys|getting the keys=] from <a>scope to registration map</a>.
+      1. Let |scopeStringSet| be an empty list.
+      1. [=map/For each=] (|entry storage key|, |entry scope|) → |registration| of [=registration map=]:
+          1. If |storage key| [=storage key/equals=] |entry storage key|, then [=list/append=] |entry scope| to the end of |scopeStringSet|.
       1. Set |matchingScopeString| to the longest value in |scopeStringSet| which the value of |clientURLString| starts with, if it exists.
 
           Note: The URL string matching in this step is prefix-based rather than path-structural. E.g. a client URL string with "https://example.com/prefix-of/resource.html" will match a registration for a scope with "https://example.com/prefix". The URL string comparison is safe for the same-origin security as HTTP(S) URLs are always [=URL serializer|serialized=] with a trailing slash at the end of the origin part of the URLs.
@@ -3378,13 +3403,14 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. If |matchingScopeString| is not the empty string, then:
           1. Set |matchingScope| to the result of <a lt="URL parser">parsing</a> |matchingScopeString|.
           1. Assert: |matchingScope|'s [=url/origin=] and |clientURL|'s [=url/origin=] are [=same origin=].
-      1. Return the result of running [=Get Registration=] algorithm passing |matchingScope| as the argument.
+      1. Return the result of running [=Get Registration=] given |storage key| and |matchingScope|.
   </section>
 
   <section algorithm>
     <h3 id="get-registration-algorithm"><dfn>Get Registration</dfn></h3>
 
       : Input
+      :: |storage key|, a [=/storage key=]
       :: |scope|, a [=/URL=]
       : Output
       :: A [=/service worker registration=]
@@ -3392,8 +3418,8 @@ spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
       1. Run the following steps atomically.
       1. Let |scopeString| be the empty string.
       1. If |scope| is not null, set |scopeString| to [=URL serializer|serialized=] |scope| with the *exclude fragment flag* set.
-      1. [=map/For each=] |key| → |value| of <a>scope to registration map</a>:
-          1. If |scopeString| matches |key|, then return |value|.
+      1. [=map/For each=] (|entry storage key|, |entry scope|) → |registration| of [=registration map=]:
+          1. If |storage key| [=storage key/equals=] |entry storage key| and |scopeString| matches |entry scope|, then return |registration|.
       1. Return null.
   </section>
 
