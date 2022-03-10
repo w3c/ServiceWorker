@@ -1348,7 +1348,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/service worker client=] |client| where the result of running [=obtain a storage key=] given |client| [=storage key/equals=] the associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=]:
                 1. If |client|'s [=environment/id=] is not |id|, [=continue=].
                 1. Wait for either |client|'s [=environment/execution ready flag=] to be set or for |client|'s [=discarded flag=] to be set.
                 1. If |client|'s [=environment/execution ready flag=] is set, then invoke [=Resolve Get Client Promise=] with |client| and |promise|, and abort these steps.
@@ -1364,7 +1364,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |promise| be [=a new promise=].
         1. Run the following steps [=in parallel=]:
             1. Let |targetClients| be a new [=list=].
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the [=same origin|same=] as the associated [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/service worker client=] |client| where the result of running [=obtain a storage key=] given |client| [=storage key/equals=] the associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=]:
                 1. If |client|'s [=environment/execution ready flag=] is unset or |client|'s [=discarded flag=] is set, [=continue=].
                 1. If |client| is not a [=secure context=], [=continue=].
                 1. If |options|["{{ClientQueryOptions/includeUncontrolled}}"] is false, and if |client|'s [=active service worker=] is not the associated [=ServiceWorkerGlobalScope/service worker=], [=continue=].
@@ -1432,7 +1432,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Let |focusState| be the result of running the <a>has focus steps</a> with |newContext|'s <a>active document</a> as the argument.
                 1. Let |ancestorOriginsList| be |newContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
                 1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
-                    1. If |newContext|'s {{Window}} object's [=environment settings object=]'s [=creation URL=]'s [=environment settings object/origin=] is not the [=same origin|same=] as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], resolve |promise| with null and abort these steps.
+                    1. If the result of running [=obtain a storage key=] given |newContext|'s {{Window}} object's [=environment settings object=] is not [=storage key/equal=] to the [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=], then resolve |promise| with null and abort these steps.
                     1. Let |client| be the result of running [=Create Window Client=] with |newContext|'s {{Window}} object's [=environment settings object=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
                     1. Resolve |promise| with |client|.
         1. Return |promise|.
@@ -1446,7 +1446,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. If the [=ServiceWorkerGlobalScope/service worker=] is not an <a>active worker</a>, return a <a>promise</a> rejected with an "{{InvalidStateError}}" {{DOMException}}.
         1. Let |promise| be a new <a>promise</a>.
         1. Run the following substeps <a>in parallel</a>:
-            1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=]:
+            1. For each [=/service worker client=] |client| where the result of running [=obtain a storage key=] given |client| [=storage key/equals=] the [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=]:
                 1. If |client|'s [=environment/execution ready flag=] is unset or |client|'s [=discarded flag=] is set, [=continue=].
                 1. If |client| is not a [=secure context=], [=continue=].
                 1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
