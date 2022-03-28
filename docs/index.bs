@@ -1009,8 +1009,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         event.waitUntil(
           // Open a cache of resources.
           caches.open("shell-v1").then(cache => {
-            // Begins the process of fetching them.
-            // The coast is only clear when all the resources are ready.
+            // Begins the process of fetching them. Succeeds only once all
+            // resources have been stored. Even just one failing resource
+            // causes the entire operation to fail.
             return cache.addAll([
               "/app.html",
               "/assets/v1/base.css",
