@@ -1,0 +1,18 @@
+# Create a file called .github/workflows/auto-publish.yml
+name: CI
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+jobs:
+  main:
+    name: Build, Validate and Deploy
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: w3c/spec-prod@v2
+        with:
+          GH_PAGES_BRANCH: gh-pages
+          TOOLCHAIN: bikeshed
+          SOURCE: docs/spec.bs
+          DESTINATION: docs/index.html
