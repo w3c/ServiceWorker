@@ -408,7 +408,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A {{ServiceWorker}} object represents a [=/service worker=]. Each {{ServiceWorker}} object is associated with a [=/service worker=]. Multiple separate objects implementing the {{ServiceWorker}} interface across documents and workers can all be associated with the same [=/service worker=] simultaneously.
 
-    A {{ServiceWorker}} object has an associated {{ServiceWorkerState}} object which is itself associated with [=/service worker=]'s <a>state</a>.
+    A {{ServiceWorker}} object has an associated {{ServiceWorkerState}} object which is itself associated with [=/service worker=]'s [=service worker/state=].
 
     <section>
       <h4 id="service-worker-creation">Getting {{ServiceWorker}} instances</h4>
@@ -625,7 +625,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
         1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
-        1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
+        1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=service worker/state=] is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |promise| be a <a>promise</a>.
         1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/storage key=], |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
@@ -2267,7 +2267,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. Let |map| be |serviceWorker|'s [=script resource map=].
         1. Let |url| be |request|'s [=request/url=].
-        1. If |serviceWorker|'s [=state=] is not "`parsed`" or "`installing`":
+        1. If |serviceWorker|'s [=service worker/state=] is not "`parsed`" or "`installing`":
             1. Return |map|[|url|] if it [=map/exists=] and a [=network error=] otherwise.
         1. If |map|[|url|] [=map/exists=]:
             1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
@@ -2895,7 +2895,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: None
 
       1. If |registration|'s [=waiting worker=] is null, return.
-      1. If |registration|'s [=active worker=] is not null and |registration|'s [=active worker=]'s [=state=] is "`activating`", return.
+      1. If |registration|'s [=active worker=] is not null and |registration|'s [=active worker=]'s [=service worker/state=] is "`activating`", return.
 
           Note: If the existing active worker is still in activating state, the activation of the waiting worker is delayed.
 
@@ -2917,7 +2917,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
       1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
-      1. If |serviceWorker|'s [=state=] is "`redundant`", then return *failure*.
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
       1. Assert: |serviceWorker|'s [=start status=] is null.
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
@@ -3074,7 +3074,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Return null.
       1. If |useHighResPerformanceTimers| is true, then set |useHighResPerformanceTimers| to |activeWorker|'s [=service worker/global object=]'s [=WorkerGlobalScope/cross-origin isolated capability=].
       1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
-      1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
+      1. If |activeWorker|'s [=service worker/state=] is "`activating`", wait for |activeWorker|'s [=service worker/state=] to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
       1. Else:
           1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
@@ -3155,7 +3155,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If the result of running [=Should Skip Event=] with |eventName| and |activeWorker| is true, then:
           1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           2. Return.
-      1. If |activeWorker|'s [=state=] is "`activating`", wait for |activeWorker|'s [=state=] to become "`activated`".
+      1. If |activeWorker|'s [=service worker/state=] is "`activating`", wait for |activeWorker|'s [=service worker/state=] to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then:
           1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           2. Return.
