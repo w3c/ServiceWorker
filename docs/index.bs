@@ -316,7 +316,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       Otherwise, if the created [=document=]'s [=/origin=] is an [=opaque origin=] or not the [=same origin|same=] as its creator [=document=]'s [=/origin=], the [=window client=]'s [=active service worker=] is set to null.
       Otherwise, it is set to the creator [=document=]'s [=/service worker client=]'s [=active service worker=].
 
-      Note: For an initial [=navigate|navigation=] with [=replacement enabled=], the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
+      Note: For an initial [=navigate|navigation=] with a <a spec="html">history handling behavior</a> value of [replace](https://html.spec.whatwg.org/#hh-replace), the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
 
       Note: <a element-attr for=iframe lt=sandbox>Sandboxed</a> <{iframe}>s without the sandboxing directives, `allow-same-origin` and `allow-scripts`, result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=].
     </section>
@@ -1426,7 +1426,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Run these substeps <a>in parallel</a>:
             1. Let |newContext| be a new [=top-level browsing context=].
             1. [=Queue a task=] to run the following steps on |newContext|'s {{Window}} object's [=environment settings object=]'s [=responsible event loop=] using the [=user interaction task source=]:
-                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptions enabled flag|exceptions enabled=] and [=replacement enabled=].
+                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptions enabled flag|exceptions enabled=] and <a spec="html">history handling behavior</a> set to [replace](https://html.spec.whatwg.org/#hh-replace).
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
