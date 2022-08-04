@@ -3057,7 +3057,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                       1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
                       1. Resolve |preloadResponse| with |preloadResponseObject|.
-              1. [=If aborted=], then [=fetch controller/abort=] |preloadFetchController|.
+              1. [=If aborted=], then [=fetch controller/abort=] |preloadFetchController| with |controller|'s [=fetch controller/cloned error=].
           1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
@@ -3103,7 +3103,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Else, [=ReadableStream/cancel=] |request|'s [=request/body=] with undefined.
               1. If |response| is not null, then set |response|'s [=response/service worker timing info=] to |timingInfo|.
               1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-              1. If |controller| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}}.
+              1. If |controller| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then [=queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}} with |controller|'s [=fetch controller/cloned error=].
 
              If |task| is discarded, set |handleFetchFailed| to true.
 
