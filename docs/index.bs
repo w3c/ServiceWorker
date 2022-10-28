@@ -175,7 +175,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A <a>script resource</a> has an associated <dfn export for="script resource" id="dfn-policy-container">policy container</dfn> (a [=/policy container=]). It is initially a new policy container.
 
-    A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are [=/responses=].
+    A [=/service worker=] has an associated <dfn export id="dfn-script-resource-map">script resource map</dfn> which is an <a>ordered map</a> where the keys are [=/URLs=] and the values are tuples containing a [=/responses=] and either null, failure or a [=byte sequence=].
 
     A [=/service worker=] has an associated  <dfn export id="dfn-set-of-used-scripts">set of used scripts</dfn> (a [=ordered set|set=]) whose [=list/item=] is a [=/URL=]. It is initially a new [=ordered set|set=].
 
@@ -2262,29 +2262,32 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     <section>
       <h4 id="importscripts">{{WorkerGlobalScope/importScripts(urls)}}</h4>
 
-      When the <dfn method for="ServiceWorkerGlobalScope" id="importscripts-method"><code>importScripts(|urls|)</code></dfn> method is called on a {{ServiceWorkerGlobalScope}} object, the user agent *must* <a>import scripts into worker global scope</a>, given this {{ServiceWorkerGlobalScope}} object and |urls|, and with the following [=fetching scripts/synchronous perform the fetch hook=] given the [=/request=] |request|:
+      When the <dfn method for="ServiceWorkerGlobalScope" id="importscripts-method"><code>importScripts(|urls|)</code></dfn> method is called on a {{ServiceWorkerGlobalScope}} object, the user agent *must* <a>import scripts into worker global scope</a>, given this {{ServiceWorkerGlobalScope}} object and |urls|, and with the following [=fetching scripts/perform the fetch hook=] given the [=/request=] |request|, |isTopLevel| and |processCustomFetchResponse|:
 
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. Let |map| be |serviceWorker|'s [=script resource map=].
         1. Let |url| be |request|'s [=request/url=].
-        1. If |serviceWorker|'s [=state=] is not "`parsed`" or "`installing`":
-            1. Return |map|[|url|] if it [=map/exists=] and a [=network error=] otherwise.
         1. If |map|[|url|] [=map/exists=]:
             1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
-            1. Return |map|[|url|].
+            1. Invoke |processCustomFetchResponse| with |map|[|url|][0] and |map|[|url|][1].
+            1. Return.
+        1. If |serviceWorker|'s [=state=] is not "`parsed`" or "`installing`":
+            1. Invoke |processCustomFetchResponse| with a [=network error=] and null
+            1. Return.
         1. Let |registration| be |serviceWorker|'s [=containing service worker registration=].
         1. Set |request|'s [=service-workers mode=] to "`none`".
         1. Set |request|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
             * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
             * The [=current global object=]'s [=force bypass cache for import scripts flag=] is set.
             * |registration| is [=stale=].
-        1. Let |response| be the result of [=fetch|fetching=] |request|.
-        1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
-        1. If |response|'s [=unsafe response=] is a [=bad import script response=], then return a [=network error=].
-        1. [=map/Set=] |map|[|url|] to |response|.
-        1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
-        1. Set |serviceWorker|'s [=classic scripts imported flag=].
-        1. Return |response|.
+        1. [=Fetch=] |request| with [=fetch/processResponseConsumeBody=] set to the following algorithm given [=/response=] |response| and null, failure or a [=byte sequence=] |bodyBytes|:
+            1. If |response|’s [=response/cache state=] is not "`local`", set |registration|’s [=service worker registration/last update check time=] to the current time.
+            1. If |bodyBytes| is null or failure, or |response|'s [=unsafe response=] is a [=bad import script response=], then:
+                1. Invoke |processCustomFetchResponse| with a [=network error=] and null, and abort these steps.
+            1. [=map/Set=] |map|[|url|] to (|response|, |bodyBytes|).
+            1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
+            1. Set |serviceWorker|'s [=classic scripts imported flag=].
+            1. Invoke |processCustomFetchResponse| with |response| and |bodyBytes|.
     </section>
   </section>
 
@@ -2642,7 +2645,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |referrerPolicy| be the empty string.
       1. Let |hasUpdatedResources| be false.
-      1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
+      1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are tuples containing a [=/response=] and either null, failure or a [=byte sequence=].
       1. Switching on |job|'s [=worker type=], run these substeps with the following options:
           <!-- TODO: reorganize algorithm so that the worker environment is created before fetching happens -->
           : "<code>classic</code>"
@@ -2654,7 +2657,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           Issue: The [=fetch a classic worker script=] algorithm and the [=fetch a module worker script graph=] algorithm in HTML take |job|’s [=job/client=] as an argument. |job|’s [=job/client=] is null when passed from the [=Soft Update=] algorithm.
 
-          In both cases, let |performFetch| be the following [=fetching scripts/asynchronous perform the fetch hook=] given |request|, |isTopLevel| and |processCustomFetchResponse|:
+          In both cases, let |performFetch| be the following [=fetching scripts/perform the fetch hook=] given |request|, |isTopLevel| and |processCustomFetchResponse|:
 
           1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
 
@@ -2670,88 +2673,93 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |request|'s [=service-workers mode=] to "`none`".
           1. If |isTopLevel| is false, [=fetch=] |request| with |processCustomFetchResponse| as [=fetch/processResponseConsumeBody=], and abort these steps.
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
-          1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
-          1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
-              1. Invoke |processCustomFetchResponse| with a [=network error=] and abort these steps.
-          1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
+          1. [=/Fetch=] |request|, with [=fetch/processResponseConsumeBody=] set to the following algorithm given [=/response=] |response| and null, failure or a [=byte sequence=] |bodyBytes|:
+              1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
+                  1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
+                  1. Invoke |processCustomFetchResponse| with a [=network error=] and null, and abort these steps.
+              1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
 
-              Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
+                  Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
 
-          1. Set |policyContainer| to the result of <a>creating a policy container from a fetch response</a> given |response|.
-          1. If |serviceWorkerAllowed| is failure, then:
-              1. Invoke |processCustomFetchResponse| with a [=network error=] and abort these steps.
-          1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
-          1. Let |maxScopeString| be null.
-          1. If |serviceWorkerAllowed| is null, then:
-              1. Let |resolvedScope| be the result of [=URL parser|parsing=] "`./`" using |job|'s [=job/script url=] as the [=base URL=].
-              1. Set |maxScopeString| to "`/`", followed by the strings in |resolvedScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. Set |policyContainer| to the result of <a>creating a policy container from a fetch response</a> given |response|.
+              1. If |serviceWorkerAllowed| is failure, then:
+                  1. Invoke |processCustomFetchResponse| with a [=network error=] and null, and abort these steps.
+              1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
+              1. Let |maxScopeString| be null.
+              1. If |serviceWorkerAllowed| is null, then:
+                  1. Let |resolvedScope| be the result of [=URL parser|parsing=] "`./`" using |job|'s [=job/script url=] as the [=base URL=].
+                  1. Set |maxScopeString| to "`/`", followed by the strings in |resolvedScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
 
-                  Note: The final item in |resolvedScope|'s [=url/path=] will always be an empty string, so |maxScopeString| will have a trailing "`/`".
+                      Note: The final item in |resolvedScope|'s [=url/path=] will always be an empty string, so |maxScopeString| will have a trailing "`/`".
 
-          1. Else:
-              1. Let |maxScope| be the result of [=URL parser|parsing=] |serviceWorkerAllowed| using |job|'s [=job/script url=] as the [=base URL=].
-              1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
-                  1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
-          1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
-          1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
-              1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
-              1. Invoke |processCustomFetchResponse| with a [=network error=] and abort these steps.
-          1. Let |url| be |request|'s [=request/url=].
-          1. Set |updatedResourceMap|[|url|] to |response|.
-          1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
-          1. Set |hasUpdatedResources| to true if any of the following are true:
-            * |newestWorker| is null.
-            * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
-            * |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
-          1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
+              1. Else:
+                  1. Let |maxScope| be the result of [=URL parser|parsing=] |serviceWorkerAllowed| using |job|'s [=job/script url=] as the [=base URL=].
+                  1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
+                      1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
+              1. If |maxScopeString| is null or |scopeString| does not start with |maxScopeString|, then:
+                  1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
+                  1. Invoke |processCustomFetchResponse| with a [=network error=] and null, and abort these steps.
+              1. Let |url| be |request|'s [=request/url=].
+              1. Set |updatedResourceMap|[|url|] to (|response|, |bodyBytes|).
+              1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
+              1. Set |hasUpdatedResources| to true if any of the following are true:
+                * |newestWorker| is null.
+                * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
+                * |newestWorker|'s [=script resource map=][|url|][1] is not byte-for-byte identical with |bodyBytes|.
+              1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
-              Note: The following checks to see if an imported script has been updated, since the main script has not changed.
+                  Note: The following checks to see if an imported script has been updated, since the main script has not changed.
 
-              1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
-                  1. If |importUrl| is |url|, then continue.
-                  1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
-                  1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
-                      * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
-                      * |job|'s [=force bypass cache flag=] is set.
-                      * |registration| is [=stale=].
-                  1. Let |fetchedResponse| be the result of [=fetch|fetching=] |importRequest|.
-                  1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to |fetchedResponse|.
-                  1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
-                  1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
-                  1. If |fetchedResponse| is a [=bad import script response=], continue.
+                  1. [=map/For each=] |importUrl| → (|storedResponse|, |storedBodyBytes|) of |newestWorker|'s [=script resource map=]:
+                      1. If |importUrl| is |url|, then continue.
+                      1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", and whose [=request/use-URL-credentials flag=] is set.
+                      1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
+                          * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
+                          * |job|'s [=force bypass cache flag=] is set.
+                          * |registration| is [=stale=].
+                      1. Let |fetchedResponse| be null.
+                      1. Let |fetchedBodyBytes| be null.
+                      1. [=Fetch=] |importRequest|, with [=fetch/processResponseConsumeBody=] set to the following algorithm given [=/response=] |res| and null, failure or a [=byte sequence=] |bb|:
+                          1. Set |fetchedResponse| to |res|.
+                          1. Set |fetchedBodyBytes| to |bb|.
+                      1. [=Pause=] until |fetchedResponse| is not null.
+                      1. Set |updatedResourceMap|[|importRequest|'s [=request/url=]] to (|fetchedResponse|, |fetchedBodyBytes|).
+                      1. Set |fetchedResponse| to |fetchedResponse|'s [=unsafe response=].
+                      1. If |fetchedResponse|'s [=response/cache state=] is not "`local`", set |registration|’s [=last update check time=] to the current time.
+                      1. If |fetchedBodyBytes| is null or failure, or |fetchedResponse| is a [=bad import script response=], continue.
 
-                    Note: Bad responses for <a>importScripts()</a> are ignored for the purpose of the byte-to-byte check. Only good responses for the incumbent worker and good responses for the potential update worker are considered. See <a href="https://github.com/w3c/ServiceWorker/issues/1374">issue #1374</a> for some rationale.
+                        Note: Bad responses for <a>importScripts()</a> are ignored for the purpose of the byte-to-byte check. Only good responses for the incumbent worker and good responses for the potential update worker are considered. See <a href="https://github.com/w3c/ServiceWorker/issues/1374">issue #1374</a> for some rationale.
 
-                  1. If |fetchedResponse|'s [=response/body=] is not byte-for-byte identical with |storedResponse|'s [=unsafe response=]'s [=response/body=], set |hasUpdatedResources| to true.
+                      1. If |fetchedBodyBytes| is not byte-for-byte identical with |storedBodyBytes|, set |hasUpdatedResources| to true.
 
-                      Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
-          1. Invoke |processCustomFetchResponse| with |response|.
+                          Note: The control does not break the loop in this step to continue with all the imported scripts to populate the cache.
+              1. Invoke |processCustomFetchResponse| with |response| and |bodyBytes|.
 
-          In both cases, let |onComplete| given |script| be the following algorithm:
+              In both cases, let |onComplete| given |script| be the following algorithm:
 
-          1. If |script| is null or [=Is Async Module=] with |script|'s [=script/record=], |script|'s [=script/base URL=], and « » is true, then:
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+              1. If |script| is null or [=Is Async Module=] with |script|'s [=script/record=], |script|'s [=script/base URL=], and « » is true, then:
+                  1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
 
-                  Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
+                      Note: This will do nothing if [=Reject Job Promise=] was previously invoked with "{{SecurityError}}" {{DOMException}}.
 
-              1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
-              1. Invoke [=Finish Job=] with |job| and abort these steps.
-          1. If |hasUpdatedResources| is false, then:
-              1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
-              1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
-              1. Invoke [=Finish Job=] with |job| and abort these steps.
-          1. Let |worker| be a new [=/service worker=].
-          1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
-          1. Append |url| to |worker|'s [=set of used scripts=].
-          1. Set |worker|'s <a>script resource</a>'s [=script resource/policy container=] to |policyContainer|.
-          1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
-          1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
-          1. If |runResult| is *failure* or an [=abrupt completion=], then:
-              1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
-              1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
-              1. Invoke [=Finish Job=] with |job|.
-          1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
+                  1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
+                  1. Invoke [=Finish Job=] with |job| and abort these steps.
+              1. If |hasUpdatedResources| is false, then:
+                  1. Set |registration|'s [=service worker registration/update via cache mode=] to |job|'s [=job/update via cache mode=].
+                  1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
+                  1. Invoke [=Finish Job=] with |job| and abort these steps.
+              1. Let |worker| be a new [=/service worker=].
+              1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
+              1. Append |url| to |worker|'s [=set of used scripts=].
+              1. Set |worker|'s <a>script resource</a>'s [=script resource/policy container=] to |policyContainer|.
+              1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
+              1. Let |runResult| be the result of running the [=Run Service Worker=] algorithm with |worker| and |forceBypassCache|.
+              1. If |runResult| is *failure* or an [=abrupt completion=], then:
+                  1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
+                  1. If |newestWorker| is null, then [=map/remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], [=URL serializer|serialized=] |scopeURL|)].
+                  1. Invoke [=Finish Job=] with |job|.
+              1. Else, invoke [=Install=] algorithm with |job|, |worker|, and |registration| as its arguments.
   </section>
 
   <section algorithm>
