@@ -191,6 +191,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
+    A [=/service worker=] has an associated <dfn>embedder policy</dfn> which is an [=/embedder policy=].
+
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
     <section>
@@ -2643,6 +2645,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |referrerPolicy| be the empty string.
+      1. Let |embedderPolicy| be an [=embedder policy=].
       1. Let |hasUpdatedResources| be false.
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
       1. Switching on |job|'s [=worker type=], run these substeps with the following options:
@@ -2701,11 +2704,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |url| be |request|'s [=request/url=].
           1. Set |updatedResourceMap|[|url|] to |response|.
+          1. Set |embedderPolicy| to the result of [=obtaining an embedder policy=] from |response| and |request|'s |client|.
           1. If |response|'s [=response/cache state=] is not "`local`", set |registration|'s [=last update check time=] to the current time.
           1. Set |hasUpdatedResources| to true if any of the following are true:
             * |newestWorker| is null.
             * |newestWorker|'s [=service worker/script url=] is not |url| or |newestWorker|'s [=service worker/type=] is not |job|'s [=worker type=].
             * |newestWorker|'s [=script resource map=][|url|]'s [=response/body=] is not byte-for-byte identical with |response|'s [=response/body=].
+            * |newestWorker|'s [=service worker/embedder policy=] does not equal to |embedderPolicy|.
           1. If |hasUpdatedResources| is false and |newestWorker|'s [=classic scripts imported flag=] is set, then:
 
               Note: The following checks to see if an imported script has been updated, since the main script has not changed.
@@ -2744,7 +2749,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Invoke [=Resolve Job Promise=] with |job| and |registration|.
           1. Invoke [=Finish Job=] with |job| and abort these steps.
       1. Let |worker| be a new [=/service worker=].
-      1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], and |worker|'s [=script resource map=] to |updatedResourceMap|.
+      1. Set |worker|'s [=service worker/script url=] to |job|'s [=job/script url=], |worker|'s [=script resource=] to |script|, |worker|'s [=service worker/type=] to |job|'s [=worker type=], |worker|'s [=script resource map=] to |updatedResourceMap|, and |worker|'s [=service worker/embedder policy=] to |embedderPolicy|.
       1. Append |url| to |worker|'s [=set of used scripts=].
       1. Set |worker|'s <a>script resource</a>'s [=script resource/policy container=] to |policyContainer|.
       1. Let |forceBypassCache| be true if |job|'s [=job/force bypass cache flag=] is set, and false otherwise.
@@ -2924,7 +2929,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
-      1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
+      1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=] with |serviceWorker|'s [=service worker/embedder policy=], and run the following steps in that context:
           1. Let |realmExecutionContext| be the result of [=create a new JavaScript realm|creating a new JavaScript realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
           1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
@@ -2949,6 +2954,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/policy container=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/policy container=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/embedder policy=] to |serviceWorker|'s [=service worker/embedder policy=].
+          1. Set |workerGlobalScope|'s [=WorkerGlobalScope/cross-origin isolated capability=] to true if |agent|'s agent cluster's [=agent cluster/cross-origin isolation mode=] is `"concrete"`.
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If the <a>run CSP initialization for a global object</a> algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
