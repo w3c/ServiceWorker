@@ -191,6 +191,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
+    A [=/service worker=] has an associated <dfn>has had non-no-op fetch listeners flag</dfn>. It is initially true.
+
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
     <section>
@@ -2970,14 +2972,32 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
                   1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
 
-                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
+                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
+              1. If the [=No-Op Handler identification=] algorithm with |serviceWorker| returns true, the [=has had non-no-op fetch listeners flag=] is set to false.
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
       1. Wait for |serviceWorker| to be [=running=], or for |startFailed| to be true.
       1. If |startFailed| is true, then return *failure*.
       1. Return |serviceWorker|'s [=start status=].
+  </section>
+
+  <section algorithm>
+    <h3 id="no-op-handler-identification-algorithm"><dfn>No-Op Handler identification</dfn></h3>
+
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      1. If |service worker|'s set of event types to handle does not contain "fetch", then returns false.
+      1. If the callback's function bodies (https://tc39.es/ecma262/#prod-FunctionBody) of all fetch event listener in |service worker| are empty, then the user agent *may* return true.
+
+      Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
+
+      1. return false.
+
   </section>
 
   <section algorithm>
@@ -3041,7 +3061,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, and the result of running [=Skippable Fetch Handler=] algorithm with [=active worker=] is false then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -3076,6 +3096,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+          1. Return null.
+      1. If the result of running [=Skippable Fetch Handler=] algorithm with |activeWorker| is true, then:
+          1. run the following steps [=in parallel=]:
+              1. If |activeWorker|'s state is "activating", wait for |activeWorker|'s state to become "activated".
+              1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
+              1. If |shouldSoftUpdate| is true, then run the [=Soft Update algorithm=] with |registration|.
           1. Return null.
       1. If |useHighResPerformanceTimers| is true, then set |useHighResPerformanceTimers| to |activeWorker|'s [=service worker/global object=]'s [=WorkerGlobalScope/cross-origin isolated capability=].
       1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
@@ -3130,6 +3156,17 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
+  </section>
+
+  <section algorithm>
+    <h3 id="skippable-fetch-handler-algorithm"><dfn>Skippable Fetch Handler</dfn></h3>
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      1. If |serviceworker| has |has non-no-op fetch listeners flag|, and the value is false, then the user agent *may* return true.
+      1. Return false.
   </section>
 
   <section algorithm>
