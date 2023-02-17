@@ -69,6 +69,11 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: Completion; url: sec-completion-record-specification-type
         text: Module Record; url: sec-abstract-module-records
         text: Cyclic Module Record; url: sec-cyclic-module-records
+        text: function; url: sec-function-definitions
+        text: function bodies; url: prod-FunctionBody
+        url: sec-ecmascript-language-statements-and-declarations
+            text: statement
+            text: declaration
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -118,6 +123,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         text: storage key; url: storage-key
         text: obtain a storage key; url: obtain-a-storage-key
         text: storage key/equals; url: storage-key-equals
+
+spec: dom; urlPrefix: https://dom.spec.whatwg.org/
+    type: dfn
+        text: event listeners; url: concept-event-listener
+        text: callback; url: event-listener-callback
 
 </pre>
 
@@ -2992,7 +3002,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: a boolean
 
       1. If |serviceWorker|'s set of event types to handle does not contain "fetch", then returns false.
-      1. If the callback's function bodies (https://tc39.es/ecma262/#prod-FunctionBody) of all fetch event listener in |service worker| are empty, then the user agent *may* return true.
+      1. If one of fetch [=event listeners=] in |serviceWorker| is not a [=function=], then return false.
+      1. If the [=callback=]'s [=function bodies=] of all fetch event listener in |serviceWorker| are empty (no [=statement=] or [=declaration=] exist), then the user agent *may* return true.
 
       Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
 
