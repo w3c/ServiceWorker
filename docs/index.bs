@@ -191,7 +191,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
-    A [=/service worker=] has an associated <dfn>has had non-no-op fetch listeners flag</dfn>. It is initially true.
+    A [=/service worker=] has an associated <dfn>all fetch listeners are no-op flag</dfn>. It is initially null.
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -2975,7 +2975,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
-              1. If the [=No-Op Handler identification=] algorithm with |serviceWorker| returns true, the [=has had non-no-op fetch listeners flag=] is set to false.
+              1. If the [=No-Op Handler identification=] algorithm with |serviceWorker| returns true, the [=all fetch listeners are no-op flag=] is set.
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
       1. Wait for |serviceWorker| to be [=running=], or for |startFailed| to be true.
@@ -3165,7 +3165,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a boolean
 
-      1. If |serviceworker| has |has non-no-op fetch listeners flag|, and the value is false, then the user agent *may* return true.
+      1. If |serviceworker| has |all fetch listeners are no-op flag| and set, then the user agent *may* return true.
       1. Return false.
   </section>
 
