@@ -23,26 +23,34 @@ Markup Shorthands: css no, markdown yes
 
 <pre class="link-defaults">
 spec: html;
-    type: dfn; text: task queues; for: /
     type: element; text: link
-    type: dfn; text: event loop; for: /
+    type: dfn
+        text: task queues; for: /
+        text: event loop; for: /
+        text: script
 
 spec: dom;
     type: interface; text: Document
+    type: dfn; text: event
 
 spec: fetch;
     type: dfn
         for: /; text: fetch
         text: empty
+        text: fetch controller
+
 spec: infra;
     type: dfn;
         text: list
         text: queue
         for: set; text: append
         for: list; text: append
+
 spec: webidl;
     type: dfn;
         text: resolve;
+
+spec:csp-next; type:dfn; text:enforced
 </pre>
 
 <pre class="anchors">
@@ -146,7 +154,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
   Developers using the <a href="https://developer.mozilla.org/docs/Web/API/Window/applicationCache">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the [=/service worker=] is that errors should *always* be recoverable. Many details of the update process of [=/service workers=] are designed to avoid these hazards.
 
-  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with <a>Shared Workers</a> and <a href="https://developer.chrome.com/extensions/background_pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/extensions/event_pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
+  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with [[HTML#shared-workers-and-the-sharedworker-interface|shared workers]] and <a href="https://developer.chrome.com/extensions/background_pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/extensions/event_pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
 
   [=/Service workers=] are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).
 </section>
@@ -208,9 +216,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       <h4 id="service-worker-events">Events</h4>
 
       The Service Workers specification defines <dfn export id="dfn-service-worker-events">service worker events</dfn> (each of which is an [=event=]) that include (see the <a href="#execution-context-events">list</a>):
-          * <dfn export id="dfn-lifecycle-events">Lifecycle events</dfn>: {{install!!event}} and {{activate!!event}}.
-          * <dfn export id="dfn-functional-events">Functional events</dfn>: {{fetch!!event}} and the [=events=] defined by other specifications that <a href="#extensibility">extend</a> the Service Workers specification. (See the <a href="#execution-context-events">list</a>.)
-          * {{message!!event}} and {{messageerror!!event}}.
+          * <dfn export id="dfn-lifecycle-events">Lifecycle events</dfn>: {{ServiceWorkerGlobalScope/install!!event}} and {{ServiceWorkerGlobalScope/activate!!event}}.
+          * <dfn export id="dfn-functional-events">Functional events</dfn>: {{ServiceWorkerGlobalScope/fetch!!event}} and the [=events=] defined by other specifications that <a href="#extensibility">extend</a> the Service Workers specification. (See the <a href="#execution-context-events">list</a>.)
+          * {{ServiceWorkerGlobalScope/message!!event}} and {{ServiceWorkerGlobalScope/messageerror!!event}}.
     </section>
   </section>
 
@@ -258,7 +266,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker registration=] has an associated <dfn export>navigation preload header value</dfn>, which is a [=byte sequence=]. It is initially set to \`<code>true</code>\`.
 
-    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=registration map=][this [=service worker registration=]'s ([=service worker registration/storage key=], [=URL serializer|serialized=] [=service worker registration/scope url=])] is not this [=/service worker registration=].
+    A [=/service worker registration=] is said to be <dfn export id="dfn-service-worker-registration-unregistered">unregistered</dfn> if [=registration map=][this [=/service worker registration=]'s ([=service worker registration/storage key=], [=URL serializer|serialized=] [=service worker registration/scope url=])] is not this [=/service worker registration=].
 
     <section>
       <h4 id="service-worker-registration-lifetime">Lifetime</h4>
@@ -316,7 +324,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       Otherwise, if the created [=document=]'s [=/origin=] is an [=opaque origin=] or not the [=same origin|same=] as its creator [=document=]'s [=/origin=], the [=window client=]'s [=active service worker=] is set to null.
       Otherwise, it is set to the creator [=document=]'s [=/service worker client=]'s [=active service worker=].
 
-      Note: For an initial [=navigate|navigation=] with [=replacement enabled=], the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
+      Note: For an initial replacement [=navigate|navigation=], the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
 
       Note: <a element-attr for=iframe lt=sandbox>Sandboxed</a> <{iframe}>s without the sandboxing directives, `allow-same-origin` and `allow-scripts`, result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=].
     </section>
@@ -408,7 +416,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A {{ServiceWorker}} object represents a [=/service worker=]. Each {{ServiceWorker}} object is associated with a [=/service worker=]. Multiple separate objects implementing the {{ServiceWorker}} interface across documents and workers can all be associated with the same [=/service worker=] simultaneously.
 
-    A {{ServiceWorker}} object has an associated {{ServiceWorkerState}} object which is itself associated with [=/service worker=]'s <a>state</a>.
+    A {{ServiceWorker}} object has an associated {{ServiceWorkerState}} object which is itself associated with [=/service worker=]'s [=service worker/state=].
 
     <section>
       <h4 id="service-worker-creation">Getting {{ServiceWorker}} instances</h4>
@@ -487,11 +495,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
                 1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
 
-                    If this throws an exception, let |e| be the result of [=creating an event=] named {{messageerror!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin| and the {{ExtendableMessageEvent/source}} attribute initialized to |source|.
+                    If this throws an exception, let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/messageerror!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin| and the {{ExtendableMessageEvent/source}} attribute initialized to |source|.
                 1. Else:
                     1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
                     1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
-                    1. Let |e| be the result of [=creating an event=] named {{message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
+                    1. Let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
                 1. [=Dispatch=] |e| at |destination|.
                 1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
     </section>
@@ -625,7 +633,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |registration| be the [=ServiceWorkerRegistration/service worker registration=].
         1. Let |newestWorker| be the result of running <a>Get Newest Worker</a> algorithm passing |registration| as its argument.
         1. If |newestWorker| is null, return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
-        1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>state</a> is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
+        1. If [=this=]'s [=relevant global object=] |globalObject| is a {{ServiceWorkerGlobalScope}} object, and |globalObject|'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=service worker/state=] is "`installing`", return [=a promise rejected with=] an "{{InvalidStateError}}" {{DOMException}} and abort these steps.
         1. Let |promise| be a <a>promise</a>.
         1. Let |job| be the result of running <a>Create Job</a> with *update*, |registration|'s [=service worker registration/storage key=], |registration|'s [=service worker registration/scope url=], |newestWorker|'s [=service worker/script url=], |promise|, and [=this=]'s <a>relevant settings object</a>.
         1. Set |job|'s <a>worker type</a> to |newestWorker|'s [=service worker/type=].
@@ -724,7 +732,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A {{ServiceWorkerContainer}} object has an associated <dfn for="ServiceWorkerContainer">ready promise</dfn> (a [=promise=] or null). It is initially null.
 
-    A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn export id="dfn-client-message-queue" for="ServiceWorkerContainer">client message queue</dfn>, initially empty. A [=ServiceWorkerContainer/client message queue=] can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/client message queue=] is enabled, the <a>event loop</a> *must* use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its [=ServiceWorkerContainer/client message queue=] *must* be associated with its <a>relevant settings object</a>'s <a>responsible document</a>.
+    A {{ServiceWorkerContainer}} object has a <a>task source</a> called the <dfn export id="dfn-client-message-queue" for="ServiceWorkerContainer">client message queue</dfn>, initially empty. A [=ServiceWorkerContainer/client message queue=] can be enabled or disabled, and is initially disabled. When a {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/client message queue=] is enabled, the <a>event loop</a> *must* use it as one of its <a>task sources</a>. When the {{ServiceWorkerContainer}} object's <a>relevant global object</a> is a {{Window}} object, all <a>tasks</a> <a lt="queue a task">queued</a> on its [=ServiceWorkerContainer/client message queue=] *must* be associated with its <a>relevant settings object</a>'s [=associated document=].
 
     <section algorithm="navigator-service-worker-controller">
       <h4 id="navigator-service-worker-controller">{{ServiceWorkerContainer/controller}}</h4>
@@ -800,7 +808,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |promise| be [=a new promise=].
         1. Run the following steps [=in parallel=]:
             1. Let |registrations| be a new [=list=].
-            1. [=map/For each=] (|storage key|, |scope|) → |registration| of [=registration map=]:
+            1. [=list/For each=] (|storage key|, <var ignore>scope</var>) → |registration| of [=registration map=]:
                 1. If |storage key| [=storage key/equals=] |client storage key|, then [=append=] |registration| to |registrations|.
             1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
                 1. Let |registrationObjects| be a new [=list=].
@@ -1103,7 +1111,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       The following are the <a>event handlers</a> (and their corresponding <a>event handler event types</a>) that *must* be supported, as <a>event handler IDL attributes</a>, by all objects implementing the {{ServiceWorkerGlobalScope}} interface:
 
-      <table class="data">
+      <table class="data" dfn-for="ServiceWorkerGlobalScope">
         <thead>
           <tr>
             <th><a>event handler</a></th>
@@ -1112,24 +1120,24 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         </thead>
         <tbody>
           <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>oninstall</code></dfn></td>
-            <td>{{install!!event}}</td>
+            <td><dfn attribute><code>oninstall</code></dfn></td>
+            <td>{{ServiceWorkerGlobalScope/install!!event}}</td>
           </tr>
           <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onactivate</code></dfn></td>
-            <td>{{activate!!event}}</td>
+            <td><dfn attribute><code>onactivate</code></dfn></td>
+            <td>{{ServiceWorkerGlobalScope/activate!!event}}</td>
           </tr>
           <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onfetch</code></dfn></td>
-            <td>{{fetch!!event}}</td>
+            <td><dfn attribute><code>onfetch</code></dfn></td>
+            <td>{{ServiceWorkerGlobalScope/fetch!!event}}</td>
           </tr>
           <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessage</code></dfn></td>
-            <td>{{message!!event}}</td>
+            <td><dfn attribute><code>onmessage</code></dfn></td>
+            <td>{{ServiceWorkerGlobalScope/message!!event}}</td>
           </tr>
           <tr>
-            <td><dfn attribute for="ServiceWorkerGlobalScope"><code>onmessageerror</code></dfn></td>
-            <td>{{messageerror!!event}}</td>
+            <td><dfn attribute><code>onmessageerror</code></dfn></td>
+            <td>{{ServiceWorkerGlobalScope/messageerror!!event}}</td>
           </tr>
         </tbody>
       </table>
@@ -1239,7 +1247,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Let |source| be the result of [=getting the service worker object=] that represents |contextObject|'s [=relevant global object=]'s [=ServiceWorkerGlobalScope/service worker=] in |targetClient|.
                 1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
 
-                    If this throws an exception, catch it, [=fire an event=] named {{messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
+                    If this throws an exception, catch it, [=fire an event=] named {{ServiceWorkerContainer/messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
                 1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
                 1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any.
                 1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
@@ -1268,7 +1276,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       The <dfn method for="WindowClient"><code>focus()</code></dfn> method steps are:
 
-        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
+        1. If no {{Window}} in this [=/origin=] has [=transient activation=], return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
         1. Let |serviceWorkerEventLoop| be the [=surrounding agent=]'s [=agent/event loop=].
         1. Let |promise| be a new <a>promise</a>.
         1. [=Queue a task=] to run the following steps on [=this=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
@@ -1297,8 +1305,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |promise| be a new <a>promise</a>.
         1. [=Queue a task=] to run the following steps on [=this=]'s associated [=Client/service worker client=]'s [=responsible event loop=] using the [=user interaction task source=]:
             1. Let |browsingContext| be [=this=]'s [=WindowClient/browsing context=].
-            1. If |browsingContext| has [=discard a document|discarded=] its {{Document}}, [=queue a task=] to reject |promise| with a `TypeError`, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
-            1. *HandleNavigate*: [=Navigate=] |browsingContext| to |url| with [=exceptions enabled flag|exceptions enabled=]. The [=source browsing context=] must be |browsingContext|.
+            1. If |browsingContext|'s [=associated document=] is not [=Document/fully active=], [=queue a task=] to reject |promise| with a `TypeError`, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
+            1. *HandleNavigate*: [=Navigate=] |browsingContext| to |url|, using |browsingContext|'s [=associated document=], with [=exceptionsEnabled=] true.
             1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
             1. Let |frameType| be the result of running [=Get Frame Type=] with |browsingContext|.
             1. Let |visibilityState| be |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
@@ -1381,7 +1389,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                     1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
                     1. [=Queue a task=] |task| to run the following substeps on |browsingContext|'s [=event loop=] using the [=user interaction task source=]:
                         1. If |browsingContext| has been [=discard|discarded=], then set |isClientEnumerable| to false and abort these steps.
-                        1. If |client| is a window client and |client|'s [=responsible document=] is not |browsingContext|'s [=active document=], then set |isClientEnumerable| to false and abort these steps.
+                        1. If |client| is a window client and |client|'s [=associated document=] is not |browsingContext|'s [=active document=], then set |isClientEnumerable| to false and abort these steps.
                         1. Set |windowData|["`frameType`"] to the result of running [=Get Frame Type=] with |browsingContext|.
                         1. Set |windowData|["`visibilityState`"] to |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
                         1. Set |windowData|["`focusState`"] to the result of running the [=has focus steps=] with |browsingContext|'s [=active document=] as the argument.
@@ -1420,13 +1428,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |url| be the result of <a lt="URL parser">parsing</a> |url| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. If |url| is failure, return a <a>promise</a> rejected with a <code>TypeError</code>.
         1. If |url| is <code>about:blank</code>, return a <a>promise</a> rejected with a <code>TypeError</code>.
-        1. If this algorithm is not <a>triggered by user activation</a>, return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
+        1. If no {{Window}} in this [=/origin=] has [=transient activation=], return a <a>promise</a> rejected with an "{{InvalidAccessError}}" {{DOMException}}.
         1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
         1. Let |promise| be a new <a>promise</a>.
         1. Run these substeps <a>in parallel</a>:
             1. Let |newContext| be a new [=top-level browsing context=].
             1. [=Queue a task=] to run the following steps on |newContext|'s {{Window}} object's [=environment settings object=]'s [=responsible event loop=] using the [=user interaction task source=]:
-                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptions enabled flag|exceptions enabled=] and [=replacement enabled=].
+                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptionsEnabled=] true, and [=historyHandling=] "<code>replace</code>".
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
@@ -1640,8 +1648,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                             ::
                                 1. Assert: |chunk| is a {{Uint8Array}}.
                                 1. Append the bytes represented by |chunk| to |bytes|.
-                                1. Increment |potentialResponse|'s [=response/body info=]'s [=response body info/encoded size=] by |bytes|'s {{Uint8Array/size}}.
-                                1. Increment |potentialResponse|'s [=response/body info=]'s [=response body info/decoded size=] by |bytes|'s {{Uint8Array/size}}.
+                                1. Increment |potentialResponse|'s [=response/body info=]'s [=response body info/encoded size=] by |bytes|'s [=BufferSource/byte length=].
+                                1. Increment |potentialResponse|'s [=response/body info=]'s [=response body info/decoded size=] by |bytes|'s [=BufferSource/byte length=].
                                 1. Perform ! [=DetachArrayBuffer=](|chunk|.\[[ViewedArrayBuffer]]).
                             : [=read request/close steps=]
                             ::
@@ -1653,7 +1661,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                     1. Let |cancelAlgorithm| be an action that [=ReadableStreamDefaultReader/cancels=] |reader|.
                     1. Let |highWaterMark| be a non-negative, non-NaN number, chosen by the user agent.
                     1. Let |sizeAlgorithm| be an algorithm that accepts a [=chunk=] object and returns a non-negative, non-NaN, non-infinite number, chosen by the user agent.
-                    1. Let |newStream| be the result of [=ReadableStream/creating=] a {{ReadableStream}} with <a for=ReadableStream/create><var ignore>pullAlgorithm</var></a> set to |pullAlgorithm|, <a for=ReadableStream/create><var ignore>cancelAlgorithm</var></a> set to |cancelAlgorithm|, <a for=ReadableStream/create><var ignore>highWaterMark</var></a> set to |highWaterMark|, and <a for=ReadableStream/create><var ignore>sizeAlgorithm</var></a> set to |sizeAlgorithm|, in |targetRealm|.
+                    1. Let |newStream| be a new {{ReadableStream}}, [=ReadableStream/set up=] with the [=ReadableStream/set up/pullAlgorithm=] |pullAlgorithm|, the [=ReadableStream/set up/cancelAlgorithm=] |cancelAlgorithm|, the [=ReadableStream/set up/highWaterMark=] |highWaterMark|, and [=ReadableStream/set up/sizeAlgorithm=] |sizeAlgorithm|, in |targetRealm|.
                     1. Set |potentialResponse|'s [=response/body=] to a new [=/body=] whose [=stream=] is |newStream|.
                     1. Run these subsubsteps repeatedly [=in parallel=] while |done| is false:
                         1. If |newStream| is [=ReadableStream/errored=], then set |done| to true.
@@ -1697,7 +1705,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
     </pre>
 
-    [=/Service workers=] define the <a method lt="waitUntil()" for="ExtendableEvent">extendable</a> {{message!!event}} event to allow extending the lifetime of the event. For the {{message!!event}} event, [=/service workers=] use the {{ExtendableMessageEvent}} interface which extends the {{ExtendableEvent}} interface.
+    [=/Service workers=] define the <a method lt="waitUntil()" for="ExtendableEvent">extendable</a> {{ServiceWorkerGlobalScope/message!!event}} event to allow extending the lifetime of the event. For the {{ServiceWorkerGlobalScope/message!!event}} event, [=/service workers=] use the {{ExtendableMessageEvent}} interface which extends the {{ExtendableEvent}} interface.
 
     <section>
       <h4 id="extendablemessage-event-data">{{ExtendableMessageEvent/data|event.data}}</h4>
@@ -1824,7 +1832,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   <section>
     <h3 id="cache-constructs">Constructs</h3>
 
-    A <dfn id="dfn-request-response-list">request response list</dfn> is a [=list=] of [=pairs=] consisting of a request (a [=/request=]) and a response (a [=/response=]).
+    A <dfn id="dfn-request-response-list">request response list</dfn> is a [=list=] of [=tuples=] consisting of a request (a [=/request=]) and a response (a [=/response=]).
 
     The <dfn id="dfn-relevant-request-response-list">relevant request response list</dfn> is the instance that [=this=] represents.
 
@@ -1931,7 +1939,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. [=list/For each=] |response| of |responses|:
-                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], |promise|'s [=relevant settings object=], "", and |response|'s [=internal/internal response=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
+                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], |promise|'s [=relevant settings object=], "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
                 1. Let |responseList| be a [=list=].
                 1. [=list/For each=] |response| of |responses|:
@@ -1960,28 +1968,29 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. For each |request| whose type is {{Request}} in |requests|:
             1. Let |r| be |request|'s [=Request/request=].
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", or |r|'s [=request/method=] is not \``GET`\`, return [=a promise rejected with=] a `TypeError`.
+        1. Let |fetchControllers| be a [=/list=] of [=fetch controllers=].
         1. For each |request| in |requests|:
             1. Let |r| be the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this <a>throws</a> an exception, return [=a promise rejected with=] that exception.
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", then:
-                1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
+                1. [=list/For each=] |fetchController| of |fetchControllers|, [=fetch controller/abort=] |fetchController|.
                 1. Return [=a promise rejected with=] a `TypeError`.
             1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`none`".
             1. Set |r|'s [=request/initiator=] to "`fetch`" and [=request/destination=] to "`subresource`".
             1. Add |r| to |requestList|.
             1. Let |responsePromise| be [=a new promise=].
             1. Run the following substeps [=in parallel=]:
-                * [=/Fetch=] |r|.
-                * To [=process response=] for |response|, run these substeps:
+                * [=list/Append=] the result of [=/fetching=] |r|.
+                * To [=fetch/processResponse=] for |response|, run these substeps:
                     1. If |response|'s [=response/type=] is "<code>error</code>", or |response|'s [=response/status=] is not an [=ok status=] or is `206`, reject |responsePromise| with a `TypeError`.
                     1. Else if |response|'s [=response/header list=] contains a [=header=] [=header/named=] \``Vary`\`, then:
                         1. Let |fieldValues| be the [=list=] containing the elements corresponding to the [=http/field-values=] of the [=Vary=] header.
                         1. [=list/For each=] |fieldValue| of |fieldValues|:
                             1. If |fieldValue| matches "`*`", then:
                                 1. Reject |responsePromise| with a `TypeError`.
-                                1. [=fetch/Terminate=] all the ongoing [=fetches=] initiated by |requests| with the aborted flag set.
+                                1. [=list/For each=] |fetchController| of |fetchControllers|, [=fetch controller/abort=] |fetchController|.
                                 1. Abort these steps.
 
-                * To [=process response end-of-body=] for |response|, run these substeps:
+                * To [=fetch/processResponseEndOfBody=] for |response|, run these substeps:
                     1. If |response|'s [=response/aborted flag=] is set, reject |responsePromise| with an "{{AbortError}}" {{DOMException}} and abort these steps.
                     1. Resolve |responsePromise| with |response|.
 
@@ -2027,7 +2036,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Let |fieldValues| be the [=list=] containing the [=list/items=] corresponding to the  [=Vary=] header's [=http/field-values=].
             1. [=list/For each=] |fieldValue| in |fieldValues|:
                 1. If |fieldValue| matches "`*`", return [=a promise rejected with=] a `TypeError`.
-        1. If |innerResponse|'s [=response/body=] is [=Body/disturbed=] or [=Body/locked=], return [=a promise rejected with=] a `TypeError`.
+        1. If |innerResponse|'s [=response/body=] is [=ReadableStream/disturbed=] or [=ReadableStream/locked=], return [=a promise rejected with=] a `TypeError`.
         1. Let |clonedResponse| be a [=response/clone=] of |innerResponse|.
         1. Let |bodyReadPromise| be [=a promise resolved with=] undefined.
         1. If |innerResponse|'s [=response/body=] is non-null, run these substeps:
@@ -2035,7 +2044,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Let |reader| be the result of [=ReadableStream/getting a reader=] for |stream|.
             1. Set |bodyReadPromise| to the result of [=ReadableStreamDefaultReader/reading all bytes=] from |reader|.
 
-            Note: This ensures that |innerResponse|'s [=response/body=] is [=Body/locked=], and we have a full buffered copy of the body in |clonedResponse|. An implementation could optimize by streaming directly to disk rather than memory.
+            Note: This ensures that |innerResponse|'s [=response/body=] is [=ReadableStream/locked=], and we have a full buffered copy of the body in |clonedResponse|. An implementation could optimize by streaming directly to disk rather than memory.
 
         1. Let |operations| be an empty [=list=].
         1. Let |operation| be a [=cache batch operation=].
@@ -2262,14 +2271,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     </section>
 
     <section>
-      <h4 id="importscripts">{{WorkerGlobalScope/importScripts(urls)}}</h4>
+      <h4 id="importscripts">{{ServiceWorkerGlobalScope/importScripts(urls)}}</h4>
 
-      When the <dfn method for="ServiceWorkerGlobalScope" id="importscripts-method"><code>importScripts(|urls|)</code></dfn> method is called on a {{ServiceWorkerGlobalScope}} object, the user agent *must* <a>import scripts into worker global scope</a>, given this {{ServiceWorkerGlobalScope}} object and |urls|, and with the following steps to [=fetching scripts/perform the fetch=] given the [=/request=] |request|:
+      When the <dfn method for="ServiceWorkerGlobalScope" id="importscripts-method"><code>importScripts(|urls|)</code></dfn> method is called on a {{ServiceWorkerGlobalScope}} object, the user agent *must* <a>import scripts into worker global scope</a>, given this {{ServiceWorkerGlobalScope}} object and |urls|, and with the following[=fetching scripts/perform the fetch hook=] steps, given the [=/request=] |request|:
 
         1. Let |serviceWorker| be |request|'s [=request/client=]'s [=environment settings object/global object=]'s [=ServiceWorkerGlobalScope/service worker=].
         1. Let |map| be |serviceWorker|'s [=script resource map=].
         1. Let |url| be |request|'s [=request/url=].
-        1. If |serviceWorker|'s [=state=] is not "`parsed`" or "`installing`":
+        1. If |serviceWorker|'s [=service worker/state=] is not "`parsed`" or "`installing`":
             1. Return |map|[|url|] if it [=map/exists=] and a [=network error=] otherwise.
         1. If |map|[|url|] [=map/exists=]:
             1. [=set/Append=] |url| to |serviceWorker|'s [=set of used scripts=].
@@ -2642,7 +2651,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |job|'s <a>job type</a> is *update*, and |newestWorker| is not null and its [=service worker/script url=] does not [=url/equal=] |job|'s [=job/script url=], then:
           1. Invoke [=Reject Job Promise=] with |job| and `TypeError`.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
-      1. Let |referrerPolicy| be the empty string.
       1. Let |hasUpdatedResources| be false.
       1. Let |updatedResourceMap| be an [=ordered map=] where the [=map/keys=] are [=/URLs=] and the [=map/values=] are [=/responses=].
       1. Switching on |job|'s [=worker type=], run these substeps with the following options:
@@ -2656,7 +2664,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           Issue: The [=fetch a classic worker script=] algorithm and the [=fetch a module worker script graph=] algorithm in HTML take |job|’s [=job/client=] as an argument. |job|’s [=job/client=] is null when passed from the [=Soft Update=] algorithm.
 
-          To [=fetching scripts/perform the fetch=] given |request|, run the following steps:
+          To [=fetching scripts/perform the fetch hook=] given |request|, run the following steps:
 
           1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
 
@@ -2670,9 +2678,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: Even if the cache mode is not set to "<code>no-cache</code>", the user agent obeys Cache-Control header's max-age value in the network layer to determine if it should bypass the browser cache.
 
           1. Set |request|'s [=service-workers mode=] to "`none`".
-          1. If the [=fetching scripts/is top-level=] flag is unset, then return the result of [=/fetching=] |request|.
+          1. If the [=fetching scripts/isTopLevel=] flag is unset, then return the result of [=/fetching=] |request|.
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
-          1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's <a>process response</a> for the [=/response=] |response|.
+          1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's [=fetch/processResponse=] for the [=/response=] |response|.
           1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a [=network error=].
@@ -2712,7 +2720,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
               1. [=map/For each=] |importUrl| → |storedResponse| of |newestWorker|'s [=script resource map=]:
                   1. If |importUrl| is |url|, then continue.
-                  1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", [=request/synchronous flag=] is set, and whose [=request/use-URL-credentials flag=] is set.
+                  1. Let |importRequest| be a new [=/request=] whose [=request/url=] is |importUrl|, [=request/client=] is |job|'s [=job/client=], [=request/destination=] is "`script`", [=request/parser metadata=] is "`not parser-inserted`", and whose [=request/use-URL-credentials flag=] is set.
                   1. Set |importRequest|'s [=request/cache mode=] to "`no-cache`" if any of the following are true:
                       * |registration|'s [=service worker registration/update via cache mode=] is "`none`".
                       * |job|'s [=force bypass cache flag=] is set.
@@ -2866,11 +2874,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
           1. If |readyPromise| is null, then [=continue=].
           1. <span id="activate-resolve-ready-step">If |readyPromise| is pending, resolve |readyPromise| with the the result of [=getting the service worker registration object=] that represents |registration| in |readyPromise|'s [=relevant settings object=]</span>.
-      1. [=list/For each=] |client| of |matchedClients|:
-          1. If |client| is a <a>window client</a>, unassociate |client|'s <a>responsible document</a> from its <a>application cache</a>, if it has one.
-          1. Else if |client| is a <a>shared worker client</a>, unassociate |client|'s [=environment settings object/global object=] from its <a>application cache</a>, if it has one.
-
-          Note: Resources will now use the service worker registration instead of the existing application cache.
 
       1. For each [=/service worker client=] |client| who is <a>using</a> |registration|:
           1. Set |client|'s <a>active worker</a> to |registration|'s <a>active worker</a>.
@@ -2897,7 +2900,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: None
 
       1. If |registration|'s [=waiting worker=] is null, return.
-      1. If |registration|'s [=active worker=] is not null and |registration|'s [=active worker=]'s [=state=] is "`activating`", return.
+      1. If |registration|'s [=active worker=] is not null and |registration|'s [=active worker=]'s [=service worker/state=] is "`activating`", return.
 
           Note: If the existing active worker is still in activating state, the activation of the waiting worker is delayed.
 
@@ -2919,13 +2922,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
       1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
-      1. If |serviceWorker|'s [=state=] is "`redundant`", then return *failure*.
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
       1. Assert: |serviceWorker|'s [=start status=] is null.
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
-          1. Let |realmExecutionContext| be the result of [=create a new JavaScript realm|creating a new JavaScript realm=] given |agent| and the following customizations:
+          1. Let |realmExecutionContext| be the result of [=creating a new realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
           1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
           1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
@@ -2951,7 +2954,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
-          1. If the <a>run CSP initialization for a global object</a> algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
+          1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be null.
           1. If |script| is a [=classic script=], then:
@@ -2974,7 +2977,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
-          1. Empty |workerGlobalScope|'s <a>list of active timers</a>.
+          1. [=map/Clear=] |workerGlobalScope|'s [=map of active timers=].
       1. Wait for |serviceWorker| to be [=running=], or for |startFailed| to be true.
       1. If |startFailed| is true, then return *failure*.
       1. Return |serviceWorker|'s [=start status=].
@@ -3023,14 +3026,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |workerRealm| be null.
       1. Let |eventHandled| be null.
       1. Let |timingInfo| be a new [=service worker timing info=].
-      1. Let |fetchInstance| be the instance of the [=/fetch=] algorithm representing the ongoing fetch.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
-
-          Note: If the non-subresource request is under the scope of a service worker registration, application cache is completely bypassed regardless of whether the non-subresource request uses the service worker registration.
-
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
           1. Else:
@@ -3054,15 +3053,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
 
-                      To [=process response=] for |navigationPreloadResponse|, run these substeps:
+                      To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
 
                       1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                       1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
                       1. Resolve |preloadResponse| with |preloadResponseObject|.
               1. [=If aborted=], then:
-                  1. Let |deserializedError| be a "{{AbortError}}" {{DOMException}}.
-                  1. If |controller|'s [=fetch controller/serialized abort reason=] is non-null, set |deserializedError| to the result of calling [$StructuredDeserialize$] with |controller|'s [=fetch controller/serialized abort reason=] and |workerRealm|. If that threw an exception or returns undefined, then set |deserializedError| to a "{{AbortError}}" {{DOMException}}.
-                  1. [=Fetch controller/abort=] |preloadFetchController| with |deserializedError|.
+                  1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
+                  1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
           1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
@@ -3079,7 +3077,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Return null.
       1. If |useHighResPerformanceTimers| is true, then set |useHighResPerformanceTimers| to |activeWorker|'s [=service worker/global object=]'s [=WorkerGlobalScope/cross-origin isolated capability=].
       1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
-      1. If |activeWorker|'s <a>state</a> is "`activating`", wait for |activeWorker|'s <a>state</a> to become "`activated`".
+      1. If |activeWorker|'s [=service worker/state=] is "`activating`", wait for |activeWorker|'s [=service worker/state=] to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then set |handleFetchFailed| to true.
       1. Else:
           1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
@@ -3103,7 +3101,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Wait until |e|'s [=FetchEvent/wait to respond flag=] is unset.
                   1. If |e|'s [=FetchEvent/respond-with error flag=] is set, set |handleFetchFailed| to true.
                   1. Else, set |response| to |e|'s [=FetchEvent/potential response=].
-              1. If |response| is null, |request|'s [=request/body=] is not null, and |request|'s [=request/body=]'s [=Body/source=] is null, then:
+              1. If |response| is null, |request|'s [=request/body=] is not null, and |request|'s [=request/body=]'s [=body/source=] is null, then:
                   1. If |request|'s [=request/body=] is [=Body/unusable=], set |handleFetchFailed| to true.
                   1. Else, [=ReadableStream/cancel=] |request|'s [=request/body=] with undefined.
               1. If |response| is not null, then set |response|'s [=response/service worker timing info=] to |timingInfo|.
@@ -3163,7 +3161,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If the result of running [=Should Skip Event=] with |eventName| and |activeWorker| is true, then:
           1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           2. Return.
-      1. If |activeWorker|'s [=state=] is "`activating`", wait for |activeWorker|'s [=state=] to become "`activated`".
+      1. If |activeWorker|'s [=service worker/state=] is "`activating`", wait for |activeWorker|'s [=service worker/state=] to become "`activated`".
       1. If the result of running the [=Run Service Worker=] algorithm with |activeWorker| is *failure*, then:
           1. If |registration| is [=stale=], then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           2. Return.
@@ -3201,7 +3199,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   <section algorithm>
     <h3 id="on-client-unload-algorithm"><dfn>Handle Service Worker Client Unload</dfn></h3>
 
-    The user agent *must* run these steps when a [=/service worker client=] unloads by <a lt="unload a document">unloading</a> or <a lt="terminate service worker">terminating</a>.
+    The user agent *must* run these steps as part of when a [=/service worker client=] unloads via [=unloading document cleanup steps=] or <a lt="terminate service worker">termination</a>.
 
       : Input
       :: |client|, a [=/service worker client=]
@@ -3224,12 +3222,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: None
 
-      1. [=map/For each=] (|storage key|, <var ignore>scope</var>) → |registration| of <a>registration map</a>:
-          1. If |registration|'s <a>installing worker</a> |installingWorker| is not null, then:
-              1. If |registration|'s [=waiting worker=] is null and |registration|'s [=active worker=] is null, invoke <a>Clear Registration</a> with |registration| and continue to the next iteration of the loop.
-              1. Else, set |installingWorker| to null.
-          1. If |registration|'s <a>waiting worker</a> is not null, run the following substep <a>in parallel</a>:
-              1. Invoke <a>Activate</a> with |registration|.
+      1. [=list/For each=] |registration| of [=registration map=]'s [=map/values=]:
+          1. If |registration|'s [=installing worker=] is not null, then:
+              1. If |registration|'s [=waiting worker=] is null and |registration|'s [=active worker=] is null, invoke [=Clear Registration=] with |registration| and continue to the next iteration of the loop.
+              1. Else, set |registration|'s [=installing worker=] to null.
+          1. If |registration|'s [=waiting worker=] is not null, then [=in parallel=]:
+              1. Invoke [=Activate=] with |registration|.
   </section>
 
   <section algorithm>
@@ -3402,7 +3400,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |clientURLString| be <a lt="URL serializer">serialized</a> |clientURL|.
       1. Let |matchingScopeString| be the empty string.
       1. Let |scopeStringSet| be an empty list.
-      1. [=map/For each=] (|entry storage key|, |entry scope|) → |registration| of [=registration map=]:
+      1. [=list/For each=] (|entry storage key|, |entry scope|) of [=registration map=]'s [=map/keys=]:
           1. If |storage key| [=storage key/equals=] |entry storage key|, then [=list/append=] |entry scope| to the end of |scopeStringSet|.
       1. Set |matchingScopeString| to the longest value in |scopeStringSet| which the value of |clientURLString| starts with, if it exists.
 
@@ -3499,19 +3497,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     <h3 id="get-frametype-algorithm"><dfn>Get Frame Type</dfn></h3>
 
       : Input
-      :: |browsingContext|, a [=/browsing context=]
+      :: |navigable|, a [=/navigable=]
       : Output
       :: <var ignore="">frameType</var>, a string
 
-      1. Return the value by switching on the type of |browsingContext|:
-          : [=Nested browsing context=]
-          :: "nested"
+      1. If |navigable|'s [=navigable/parent=] is not null, then return "<code>nested</code>".
 
-          : [=Auxiliary browsing context=]
-          :: "auxiliary"
+      1. If |navigable|'s [=navigable/active browsing context=] is an [=auxiliary browsing context=], then return "<code>auxiliary</code>".
 
-          : Otherwise
-          :: "top-level"
+      1. Return "<code>top-level</code>".
   </section>
 
   <section algorithm>
@@ -3535,8 +3529,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Let |browsingContext| be null.
           1. If |client| is an [=environment settings object=], set |browsingContext| to |client|'s [=environment settings object/global object=]'s [=/browsing context=].
           1. Else, set |browsingContext| to |client|’s [=environment/target browsing context=].
+          1. Let |navigable| be the [=/navigable=] with a [=navigable/active browsing context=] of |browsingContext|.
           1. [=Queue a task=] to run the following steps on |browsingContext|'s [=event loop=] using the [=user interaction task source=]:
-              1. Let |frameType| be the result of running [=Get Frame Type=] with |browsingContext|.
+              1. Let |frameType| be the result of running [=Get Frame Type=] with |navigable|.
               1. Let |visibilityState| be |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
               1. Let |focusState| be the result of running the [=has focus steps=] with |browsingContext|'s [=active document=] as the argument.
               1. Let |ancestorOriginsList| be the empty list.
