@@ -29,6 +29,9 @@ spec: html;
 
 spec: dom;
     type: interface; text: Document
+    type: dfn
+        text: callback; url: event-listener-callback
+        text: EventListener; url: callbackdef-eventlistener
 
 spec: fetch;
     type: dfn
@@ -43,7 +46,6 @@ spec: infra;
 spec: webidl;
     type: dfn;
         text: resolve;
-        text: es-callback-interface;
 </pre>
 
 <pre class="anchors">
@@ -71,7 +73,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: Module Record; url: sec-abstract-module-records
         text: Cyclic Module Record; url: sec-cyclic-module-records
         text: function; url: sec-function-definitions
-        text: function bodies; url: prod-FunctionBody
+        text: function body; url: prod-FunctionBody
         text: object object; url: sec-object-objects
         url: sec-ecmascript-language-statements-and-declarations
             text: statement
@@ -125,10 +127,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         text: storage key; url: storage-key
         text: obtain a storage key; url: obtain-a-storage-key
         text: storage key/equals; url: storage-key-equals
-
-spec: dom; urlPrefix: https://dom.spec.whatwg.org/
-    type: dfn
-        text: callback; url: event-listener-callback
 
 </pre>
 
@@ -2986,7 +2984,7 @@ spec: dom; urlPrefix: https://dom.spec.whatwg.org/
                   Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's <a>set of event types to handle</a> remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
-              1. If the [=Empty Handler identification=] algorithm with |serviceWorker| returns true, the [=all fetch listeners are empty flag=] is set.
+              1. If the [=Empty Handler identification=] algorithm with |workerGlobalScope| returns true, the [=all fetch listeners are empty flag=] is set.
 
               Note: the user agents are encouraged to show warnings that the event listeners are no-op, and their executions can be skipped.
 
@@ -3001,23 +2999,19 @@ spec: dom; urlPrefix: https://dom.spec.whatwg.org/
     <h3 id="empty-handler-identification-algorithm"><dfn>Empty Handler identification</dfn></h3>
 
       : Input
-      :: |serviceWorker|, a [=/service worker=]
+      :: |workerGlobalScope|, a [=service worker/global object=].
       : Output
       :: a boolean
 
-      1. If |serviceWorker|'s <a>set of event types to handle</a> does not [=set/contain=] <code>fetch</code>, then returns false.
-      1. set |eventListenerList| to <a>event listeners</a> for |serviceWorker|'s <a>set of event types to handle</a> <code>fetch</code>.
+      1. If |workerGlobalScope|'s <a>set of event types to handle</a> does not [=set/contain=] <code>fetch</code>, then returns false.
+      1. set |eventListenerList| to [=map/value=] whose [=map/key=] is <code>fetch</a> in [=workerGlobalScope=]'s <a>set of event types to handle</a>.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
-          1. If |eventListener| is null, then return false.
-          1. If |eventListener| is not [=callback=], then return false.
-          1. If |eventListener|'s [=callback=] is not [=es-callback-interface=], then return false.
-          1. If |eventListener|'s [=callback=] is not a [=function=]:
-              1. If |eventListener| is not an [=object object=], return false.
-              1. If |eventListener|'s properties does not contains <code>handleEvent</code> , return false.
-              1. If |evnetListner| <code>handleEvent</code> property's [=function bodies=] is not empty (i.e. either [=statement=] or [=declaration=] exist), return false.
-          1. If |evnetListner| [=callback=]'s [=function bodies=] is not empty (i.e. either [=statement=] or [=declaration=] exist), return false.
+          1. If |eventListener|'s [=callback=] is [=EventListener=]:
+              1. Set |callback| to |eventListener|'s [=callback=].
+              1. If |callback|'s <code>handleEvent</code> property is not a [=function=], then return false.
+              1. If a [=function body=] of |callback|'s <code>handleEvent</code> property is not empty (i.e. either [=statement=] or [=declaration=] exist), return false.
 
-          Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
+              Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
 
       1. Return true.
 
