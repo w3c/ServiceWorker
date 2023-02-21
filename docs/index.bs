@@ -82,6 +82,8 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: Cyclic Module Record; url: sec-cyclic-module-records
         text: function; url: sec-function-definitions
         text: function body; url: prod-FunctionBody
+        text: IsCallable; url: sec-iscallable
+        text: Get; url: sec-get-o-p
         url: sec-ecmascript-language-statements-and-declarations
             text: statement
             text: declaration
@@ -3010,6 +3012,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. [=list/For each=] |eventListener| of |eventListenerList|:
           1. If |eventListener|'s [=callback=] is not null:
               1. Set |callback| to an ECMAScript object coverted from |eventListener|'s [=callback=]. It is [=es-callback-interface=].
+              1. If [=IsCallable=](|callback|) is false:
+                  1. Let |getResult| be [=Completion=]([=Get=](|callback|, <code>handleEvent</code>).
+                  1. If |getResult| is [=abrupt completion=], then return false.
+                  1. Set |callback| to |getResult|.
+                  1. If [=IsCallable=](|callback|) is false, then return false.
               1. If |callback| is a [=function=], and [=function body=] is not empty (i.e. either [=statement=] or [=declaration=] exist), then return false.
 
               Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
