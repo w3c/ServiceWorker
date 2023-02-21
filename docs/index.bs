@@ -51,6 +51,7 @@ spec: infra;
 spec: webidl;
     type: dfn;
         text: resolve;
+	text: idl-callback-interface
 
 spec:csp-next; type:dfn; text:enforced
 </pre>
@@ -3008,7 +3009,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. set |eventListenerList| to [=map/value=] whose [=map/key=] is <code>fetch</code> in |workerGlobalScope|'s <a>set of event types to handle</a>.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
           1. If |eventListener|'s [=callback=] is not null:
-              1. Set |callback| to |eventListener|'s [=callback=].
+              1. Set |callback| to an ECMAScript object coverted from |eventListener|'s [=callback=], which is [=idl-callback-interface=].
+              1. If |callback| is a [=function=], and [=function body=] is not empty (i.e. either [=statement=] or [=declaration=] exist), then return false.
+              1. If |callback| does not have <code>handleEvent</code> property, then return false.
               1. If |callback|'s <code>handleEvent</code> property is not a [=function=], then return false.
               1. If a [=function body=] of |callback|'s <code>handleEvent</code> property is not empty (i.e. either [=statement=] or [=declaration=] exist), return false.
 
