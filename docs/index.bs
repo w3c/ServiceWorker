@@ -2984,10 +2984,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
                   1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
 
-                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's <a>set of event types to handle</a> remains an empty set.
+                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's [=set of event types to handle=] remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
-              1. If the [=Empty Handler identification=] algorithm with |workerGlobalScope| returns true, the [=all fetch listeners are empty flag=] is set.
+              1. If the [=Empty Fetch Handler identification=] algorithm with |workerGlobalScope| returns true, the [=all fetch listeners are empty flag=] may be set.
 
               Note: the user agents are encouraged to show warnings that the event listeners are no-op, and their executions can be skipped.
 
@@ -2999,16 +2999,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="empty-handler-identification-algorithm"><dfn>Empty Handler identification</dfn></h3>
+    <h3 id="empty-fetch-handler-identification-algorithm"><dfn>Empty Fetch Handler identification</dfn></h3>
 
       : Input
       :: |workerGlobalScope|, a [=service worker/global object=].
       : Output
       :: a boolean
 
-      1. If |workerGlobalScope|'s <a>set of event types to handle</a> does not [=set/contain=] <code>fetch</code>, then returns false.
+      1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then returns false.
       1. Let |eventListenerList| be an empty [=list=].
-      1. [=list/For each=] |eventListener| of |workerGlobalScope|'s <a>set of event types to handle</a>:
+      1. [=list/For each=] |eventListener| of |workerGlobalScope|'s [=set of event types to handle=]:
           1. If |eventListener|'s <a spec="dom">type</a> is <code>fetch</code>, then [=list/append=] |eventListener| to |eventListenerList|.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
           1. If |eventListener|'s [=callback=] is not null:
@@ -3083,7 +3083,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, and the result of running the [=Skippable Fetch Handler=] algorithm with |registration|'s [=active worker=] is false then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and the result of running the [=Skippable Fetch Handler=] algorithm with |registration|'s [=active worker=] is false then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -3186,7 +3186,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a boolean
 
-      1. If |serviceWorker| has [=all fetch listeners are empty flag=] and set, then the user agent *may* return true.
+      1. If |serviceWorker| has [=all fetch listeners are empty flag=] and set, then the user agent return true.
       1. Return false.
   </section>
 
