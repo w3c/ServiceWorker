@@ -3015,7 +3015,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |eventListener|'s <a spec="dom">type</a> is <code>fetch</code>, then [=list/append=] |eventListener| to |eventListenerList|.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
           1. If |eventListener|'s [=callback=] is not null:
-              1. Set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=callback=] to an ECMAScript value.
+              1. If |eventListener| is an EventListener of the type created by <a spec="html">activate an event handler</a>, then set |callback| to the result of [=converting|convert to an ECMAScript value=] |workerGlobalScope|'s <a spec="html">event handler map</a>["fetch"]'s value to an ECMAScript value.
+              1. Otherwise, set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=callback=] to an ECMAScript value.
               1. If [$IsCallable$](|callback|) is false:
                   1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
                   1. If |getResult| is [=abrupt completion=], then return false.
