@@ -3087,7 +3087,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and the result of running the [=Skippable Fetch Handler=] algorithm with |registration|'s [=active worker=] is false then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -3122,7 +3122,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
-      1. If the result of running the [=Skippable Fetch Handler=] algorithm with |activeWorker| is true, then:
+      1. If |activeWorker|'s [=all fetch listeners are empty flag=] is set:
           1. [=In parallel=]:
               1. If |activeWorker|'s [=service worker/state=] is "activating", then wait for |activeWorker|'s [=service worker/state=] to become "activated".
               1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
@@ -3181,17 +3181,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
-  </section>
-
-  <section algorithm>
-    <h3 id="skippable-fetch-handler-algorithm"><dfn>Skippable Fetch Handler</dfn></h3>
-      : Input
-      :: |serviceWorker|, a [=/service worker=]
-      : Output
-      :: a boolean
-
-      1. If |serviceWorker| has [=all fetch listeners are empty flag=] and set, then the user agent return true.
-      1. Return false.
   </section>
 
   <section algorithm>
