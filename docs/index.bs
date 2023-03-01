@@ -33,6 +33,7 @@ spec: dom;
     type: interface; text: Document
     type: dfn;
         text: event
+        text: event listener list
         for: event listener; text: callback
         for: event listener; text: type
 
@@ -3006,14 +3007,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: a boolean
 
       1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then returns true.
-      1. Let |onFetchHandler| be |workerGlobalScope|'s <code>onfetch</code> attribute.
-      1. If |onFetchHandler|'s <a spec="html">listener</a> is null, then return false.
+      1. Let |eventHandler| be |workerGlobalScope|'s <a spec="html">event handler map</a>["fetch"]'s value.
       1. Let |eventListenerList| be an empty [=list=].
-      1. [=list/For each=] |eventListener| of [onFetchHandler|'s <a spec="html">listener</a>:
+      1. [=list/For each=] |eventListener| of |workerGlobalScope|'s [=event listener list=]:
           1. If |eventListener|'s <a spec="dom">type</a> is <code>fetch</code>, then [=list/append=] |eventListener| to |eventListenerList|.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
           1. If |eventListener|'s [=callback=] is not null:
-              1. If |eventListener| is an EventListener of the type created by <a spec="html">activate an event handler</a>, then set |callback| to the result of [=converting|convert to an ECMAScript value=] |workerGlobalScope|'s <a spec="html">event handler map</a>["fetch"]'s value to an ECMAScript value.
+              1. If |eventListener| equals |eventHandler|'s <a spec="html">listener</a>, then set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventHandler|'s value to an ECMAScript value.
               1. Otherwise, set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=callback=] to an ECMAScript value.
               1. If [$IsCallable$](|callback|) is false:
                   1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
