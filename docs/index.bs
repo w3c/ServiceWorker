@@ -2987,10 +2987,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's [=set of event types to handle=] remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
-              1. Unset the [=all fetch listeners are empty flag=].
-              1. If the [=Empty Fetch Handler Identification=] algorithm with |workerGlobalScope| returns true, the [=all fetch listeners are empty flag=] may be set.
-
-              Note: the user agents are encouraged to show warnings that the event listeners are no-op, and their executions can be skipped.
+              1. Unset the |serviceWorker|'s [=all fetch listeners are empty flag=].
+              1. The user agent may, if the [=All Fetch Handlers Are Empty=] algorithm with |workerGlobalScope| returns true, set |serviceWorker|'s [=all fetch listeners are empty flag=].
 
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. [=map/Clear=] |workerGlobalScope|'s [=map of active timers=].
@@ -3000,7 +2998,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="empty-fetch-handler-identification-algorithm"><dfn>Empty Fetch Handler Identification</dfn></h3>
+    <h3 id="all-fetch-handlers-are-empty-algorithm"><dfn>All Fetch Handlers Are Empty</dfn></h3>
 
       : Input
       :: |workerGlobalScope|, a [=service worker/global object=].
@@ -3027,6 +3025,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
 
       1. Return true.
+
+      Note: the user agents are encouraged to show warnings that the event listeners are no-op, and their executions can be skipped.
 
   </section>
 
