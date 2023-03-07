@@ -3006,27 +3006,27 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a boolean
 
-      1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then returns true.
-      1. Let |eventHandler| be |workerGlobalScope|'s <a spec="html">event handler map</a>["fetch"]'s value.
+      1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then return true.
+      1. Let |eventHandler| be |workerGlobalScope|'s <a spec="html">event handler map</a>["onfetch"]'s value.
       1. Let |eventListenerList| be an empty [=list=].
       1. [=list/For each=] |eventListener| of |workerGlobalScope|'s [=event listener list=]:
-          1. If |eventListener|'s <a spec="dom">type</a> is <code>fetch</code>, then [=list/append=] |eventListener| to |eventListenerList|.
+          1. If |eventListener|'s <a spec="dom">type</a> is "<code>fetch</code>", then [=list/append=] |eventListener| to |eventListenerList|.
       1. [=list/For each=] |eventListener| of |eventListenerList|:
-          1. If |eventListener|'s [=callback=] is not null:
-              1. If |eventListener| equals |eventHandler|'s <a spec="html">listener</a>, then set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventHandler|'s value to an ECMAScript value.
-              1. Otherwise, set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=callback=] to an ECMAScript value.
-              1. If [$IsCallable$](|callback|) is false:
-                  1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
-                  1. If |getResult| is [=abrupt completion=], then return false.
-                  1. Set |callback| to |getResult|.
-              1. If [$IsCallable$](|callback|) is false, then return false.
-              1. If |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
+          1. If |eventListener|'s [=event listener/callback=] is null, then [=continue=].
+          1. If |eventListener| equals |eventHandler|'s <a spec="html">listener</a>, then set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventHandler|'s value to an ECMAScript value.
+          1. Otherwise, set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=callback=] to an ECMAScript value.
+          1. If [$IsCallable$](|callback|) is false:
+              1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
+              1. If |getResult| is [=abrupt completion=], then return false.
+              1. Set |callback| to |getResult|.
+          1. If [$IsCallable$](|callback|) is false, then return false.
+          1. If |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
 
-              Note: it detects something like `onfetch = () => {}`. Some sites have a fetch event listener with empty body to make them recognized as progressive web application (PWA).
+          Note: This detects "<code>fetch</code>" listeners like `() => {}`. Some sites have a fetch event listener with empty body to make them recognized by Chromium as a progressive web application (PWA).
 
       1. Return true.
 
-      Note: the user agents are encouraged to show warnings that the event listeners are no-op, and their executions can be skipped.
+      Note: User agents are encouraged to show a warning indicating that empty "<code>fetch</code>" listeners are unnecessary, and may have a negative performance impact.
 
   </section>
 
