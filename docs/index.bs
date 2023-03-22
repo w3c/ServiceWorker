@@ -66,7 +66,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: Get; url: sec-get-o-p
     type: dfn
         text: Assert; url: sec-algorithm-conventions
-        text: [[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
+        text: \[[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
         text: promise; url: sec-promise-objects
         text: DetachArrayBuffer; url: sec-detacharraybuffer
         url: sec-list-and-record-specification-type
@@ -2167,7 +2167,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
                 1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
                     1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] matches |cacheName|, then:
-                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
+                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
                         1. Abort these steps.
                 1. Resolve |promise| with undefined.
         1. Else:
@@ -2175,7 +2175,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
                 1. Set |promise| to the result of [=promise/reacting=] to itself with a fulfillment handler that, when called with argument |response|, performs the following substeps:
                     1. If |response| is not undefined, return |response|.
-                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
+                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
             1. Return |promise|.
     </section>
 
@@ -3004,19 +3004,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then return true.
       1. Let |eventHandler| be |workerGlobalScope|'s [=EventTarget/event handler map=]["onfetch"]'s value.
-      1. Let |eventListenerList| be an empty [=list=].
-      1. [=list/For each=] |eventListener| of |workerGlobalScope|'s [=event listener list=]:
-          1. If |eventListener|'s [=event listener/type=] is "<code>fetch</code>", then [=list/append=] |eventListener| to |eventListenerList|.
-      1. [=list/For each=] |eventListener| of |eventListenerList|:
-          1. If |eventListener|'s [=event listener/callback=] is null, then [=continue=].
-          1. If |eventHandler| is not null, and |eventListener| equals |eventHandler|'s [=event handler/listener=], then set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventHandler|'s [=event handler/listener=] value to an ECMAScript value.
-          1. Otherwise, set |callback| to the result of [=converting|convert to an ECMAScript value=] |eventListener|'s [=event listener/callback=] to an ECMAScript value.
+      1. Let |eventListenerCallbacks| be the result of calling [=legacy-obtain service worker fetch event listener callbacks=] given |workerGlobalScope|.
+      1. [=list/For each=] |eventListenerCallback| of |eventListenerCallbacks|:
+          1. Let |callback| be null.
+          1. If |eventHandler| is not null and |eventListenerCallback| equals |eventHandler|'s [=event handler/listener=]'s [=event listener/callback=], then set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventHandler|'s [=event handler/value=].
+          1. Otherwise, set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventListenerCallback|.
           1. If [$IsCallable$](|callback|) is false:
               1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
               1. If |getResult| is [=abrupt completion=], then return false.
               1. Set |callback| to |getResult|.
-          1. If [$IsCallable$](|callback|) is false, then return false.
-          1. If |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
+          1. If [$IsCallable$](|callback|) is false, or |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
 
           Note: This detects "<code>fetch</code>" listeners like `() => {}`. Some sites have a fetch event listener with empty body to make them recognized by Chromium as a progressive web application (PWA).
 
