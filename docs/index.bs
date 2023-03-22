@@ -62,9 +62,11 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
     type: abstract-op
         text: NormalCompletion; url: sec-normalcompletion
         text: ThrowCompletion; url: sec-throwcompletion
+        text: IsCallable; url: sec-iscallable
+        text: Get; url: sec-get-o-p
     type: dfn
         text: Assert; url: sec-algorithm-conventions
-        text: [[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
+        text: \[[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
         text: promise; url: sec-promise-objects
         text: DetachArrayBuffer; url: sec-detacharraybuffer
         url: sec-list-and-record-specification-type
@@ -77,6 +79,10 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: Completion; url: sec-completion-record-specification-type
         text: Module Record; url: sec-abstract-module-records
         text: Cyclic Module Record; url: sec-cyclic-module-records
+        text: function body; url: prod-FunctionBody
+        url: sec-ecmascript-language-statements-and-declarations
+            text: statement
+            text: declaration
 
 spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
     type: enum; text: VisibilityState; url: VisibilityState
@@ -198,6 +204,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     A [=/service worker=] has an associated <dfn export id="dfn-set-of-extended-events">set of extended events</dfn> (a [=ordered set|set=]) whose [=list/item=] is an {{ExtendableEvent}}. It is initially a new [=ordered set|set=].
 
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
+
+    A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -2159,7 +2167,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
                 1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
                     1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] matches |cacheName|, then:
-                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
+                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
                         1. Abort these steps.
                 1. Resolve |promise| with undefined.
         1. Else:
@@ -2167,7 +2175,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
                 1. Set |promise| to the result of [=promise/reacting=] to itself with a fulfillment handler that, when called with argument |response|, performs the following substeps:
                     1. If |response| is not undefined, return |response|.
-                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `[[Call]]` internal method of {{Cache/match(request, options)}}.)
+                    1. Return the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| as the arguments (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
             1. Return |promise|.
     </section>
 
@@ -2973,14 +2981,46 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. For each |eventType| of |settingsObject|'s [=environment settings object/global object=]'s associated list of <a>event listeners</a>' event types:
                   1. [=set/Append=] |eventType| to |workerGlobalScope|'s associated [=ServiceWorkerGlobalScope/service worker=]'s <a>set of event types to handle</a>.
 
-                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's set of event types to handle remains an empty set. The user agents are encouraged to show a warning that the event listeners must be added on the very first evaluation of the worker script.
+                  Note: If the global object's associated list of event listeners does not have any event listener added at this moment, the service worker's [=set of event types to handle=] remains an empty set.
 
               1. Set |script|'s <a>has ever been evaluated flag</a>.
+              1. Unset the |serviceWorker|'s [=all fetch listeners are empty flag=].
+              1. The user agent may, if the [=All Fetch Listeners Are Empty=] algorithm with |workerGlobalScope| returns true, set |serviceWorker|'s [=all fetch listeners are empty flag=].
+
           1. Run the <a>responsible event loop</a> specified by |settingsObject| until it is destroyed.
           1. [=map/Clear=] |workerGlobalScope|'s [=map of active timers=].
       1. Wait for |serviceWorker| to be [=running=], or for |startFailed| to be true.
       1. If |startFailed| is true, then return *failure*.
       1. Return |serviceWorker|'s [=start status=].
+  </section>
+
+  <section algorithm>
+    <h3 id="all-fetch-listeners-are-empty-algorithm"><dfn>All Fetch Listeners Are Empty</dfn></h3>
+
+      : Input
+      :: |workerGlobalScope|, a [=service worker/global object=].
+      : Output
+      :: a boolean
+
+      1. If |workerGlobalScope|'s [=set of event types to handle=] does not [=set/contain=] <code>fetch</code>, then return true.
+      1. Let |eventHandler| be |workerGlobalScope|'s [=EventTarget/event handler map=]["onfetch"]'s value.
+      1. Let |eventListenerCallbacks| be the result of calling [=legacy-obtain service worker fetch event listener callbacks=] given |workerGlobalScope|.
+      1. [=list/For each=] |eventListenerCallback| of |eventListenerCallbacks|:
+          1. Let |callback| be null.
+          1. If |eventHandler| is not null and |eventListenerCallback| equals |eventHandler|'s [=event handler/listener=]'s [=event listener/callback=], then set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventHandler|'s [=event handler/value=].
+          1. Otherwise, set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventListenerCallback|.
+          1. If [$IsCallable$](|callback|) is false:
+              1. Let |getResult| be [=Completion=]([$Get$](|callback|), <code>handleEvent</code>).
+              1. If |getResult| is [=abrupt completion=], then return false.
+              1. Set |callback| to |getResult|.
+          1. If [$IsCallable$](|callback|) is false, or |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
+
+          Note: This detects "<code>fetch</code>" listeners like `() => {}`. Some sites have a fetch event listener with empty body to make them recognized by Chromium as a progressive web application (PWA).
+
+      1. Return true.
+
+      Note: User agents are encouraged to show a warning indicating that empty "<code>fetch</code>" listeners are unnecessary, and may have a negative performance impact.
+
   </section>
 
   <section algorithm>
@@ -3040,7 +3080,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, and |registration|'s [=active worker=]'s <a>set of event types to handle</a> [=set/contains=] <code>fetch</code>, then:
+          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -3074,6 +3114,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+          1. Return null.
+      1. If |activeWorker|'s [=all fetch listeners are empty flag=] is set:
+          1. [=In parallel=]:
+              1. If |activeWorker|'s [=service worker/state=] is "activating", then wait for |activeWorker|'s [=service worker/state=] to become "activated".
+              1. Run the [=Run Service Worker=] algorithm with |activeWorker|.
+              1. If |shouldSoftUpdate| is true, then run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
       1. If |useHighResPerformanceTimers| is true, then set |useHighResPerformanceTimers| to |activeWorker|'s [=service worker/global object=]'s [=WorkerGlobalScope/cross-origin isolated capability=].
       1. Let |timingInfo|'s [=service worker timing info/start time=] be the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
