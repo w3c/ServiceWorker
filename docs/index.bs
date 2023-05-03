@@ -3130,7 +3130,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |eventHandled| to [=a new promise=] in |workerRealm|.
           1. [=Queue a task=] |task| to run the following substeps:
               1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
-              1. Let |requestObject| be the result of [=Request/creating=] a {{Request}} object, given |request|, a new {{Headers}} object's [=guard=] which is "`immutable`", and |workerRealm|.
+              1. Let |signal| be a [=new=] {{AbortSignal}} object with |workerRealm|.
+              1. Let |requestObject| be the result of [=Request/creating=] a {{Request}} object, given |request|, a new {{Headers}} object's [=guard=] which is "`immutable`", |signal|, and |workerRealm|.
               1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
               1. Initialize |e|’s {{Event/cancelable}} attribute to true.
               1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
@@ -3155,7 +3156,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. If |controller| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then:
                   1. Let |deserializedError| be a "{{AbortError}}" {{DOMException}}.
                   1. If |controller|'s [=fetch controller/serialized abort reason=] is non-null, set |deserializedError| to the result of calling [$StructuredDeserialize$] with |controller|'s [=fetch controller/serialized abort reason=] and |workerRealm|. If that threw an exception or returns undefined, then set |deserializedError| to a "{{AbortError}}" {{DOMException}}.
-                  1. [=Queue a task=] to [=AbortSignal/signal abort=] on |requestObject|'s {{Request/signal}} with |deserializedError|.
+                  1. [=Queue a task=] to [=AbortSignal/signal abort=] on |signal| with |deserializedError|.
 
              If |task| is discarded, set |handleFetchFailed| to true.
 
