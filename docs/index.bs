@@ -133,6 +133,22 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         text: obtain a storage key; url: obtain-a-storage-key
         text: storage key/equals; url: storage-key-equals
 
+spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
+    type: dfn
+        text: parse; for: urlpattern; url: parse-a-pattern-string
+        text: component; for: urlpattern; url: component
+        text: match; for: urlpattern; url: match
+        text: protocol component; for: urlpattern; url: urlpattern-protocol-component
+        text: username component; for: urlpattern; url: urlpattern-username-component
+        text: password component; for: urlpattern; url: urlpattern-password-component
+        text: hostname component; for: urlpattern; url: urlpattern-hostname-component
+        text: port component; for: urlpattern; url: urlpattern-port-component
+        text: pathname component; for: urlpattern; url: urlpattern-pathname-component
+        text: search component; for: urlpattern; url: urlpattern-search-component
+        text: hash component; for: urlpattern; url: urlpattern-hash-component
+        text: pattern string; for: urlpattern-component; url: component-pattern-string
+        text: type; for: urlpattern-part; url: part-type
+
 </pre>
 
 <pre class="biblio">
@@ -206,6 +222,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
     A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
+
+    A [=/service worker=] has an associated <dfn>static router rules object</dfn>. It is initially unset.
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -1546,6 +1564,46 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section>
+    <h3 id="installevent-interface">{{InstallEvent}}</h3>
+
+    <pre class="idl">
+      [Exposed=ServiceWorker]
+      interface InstallEvent : ExtendableEvent {
+        Promise&lt;undefined&gt; registerRouter((RouterRule or sequence&lt;RouterRule&gt;) rules);
+      };
+
+      dictionary RouterRule {
+        required RouterCondition condition;
+        required RouterSourceEnum source;
+      };
+
+      dictionary RouterCondition {
+        USVString urlPattern;
+      };
+
+      enum RouterSourceEnum { "network" };
+    </pre>
+
+    Each {{RouterCondition/urlPattern}} object has an associated <dfn>URLPattern</dfn>, a {{URLPattern}}, which is initially unset.
+
+    <section>
+      <h4 id="register-router-method">{{InstallEvent/registerRouter(rules)|event.registerRouter(rules)}}</h4>
+
+      {{InstallEvent/registerRouter(rules)}} registers this service worker the rules to offload simple tasks that the fetch handler does.
+
+      <dfn method for="InstallEvent"><code>registerRouter(|rules|)</code></dfn> method *must* run these steps:
+
+        1. Let |routerRules| be a list of {{RouterRule}} dictionaries.
+        1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
+        1.  for each |rule| in |rules|:
+            1. If running [=VerifyRouterRule=] algorithm with |rule| and [=/service worker=] returns false, <a>throw</a> a <code>TypeError</code>.
+            1. Append |rule| to |routerRules|.
+        1. Set [=/service worker=]'s [=static router rules object=] to |routerRules|.
+
+    </section>
+  </section>
+
+  <section>
     <h3 id="fetchevent-interface">{{FetchEvent}}</h3>
 
     <pre class="idl">
@@ -2822,7 +2880,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Set |installFailed| to true.
           1. Else:
               1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
-                  1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+                  1. Let |e| be the result of <a>creating an event</a> with {{InstallEvent}}.
                   1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
                   1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
                   1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
@@ -3067,6 +3125,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
+      1. Else if |registration|'s <a>active worker</a>'s [=static router rules object=] is set:
+          1. If running [=GetRouterSource=] algorithm with [=static router rules object=] and |request| returns "network", return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
@@ -3173,6 +3233,78 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
+  </section>
+
+  <section algorithm>
+    <h3 id="verify-router-rule-algorithm"><dfn>VerifyRouterRule</dfn></h3>
+
+      : Input
+      :: |rule|, a {{RouterRule}}
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] is the empty string, return false.
+      1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
+      1. If |rawPattern| is a [=string=], then:
+        1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
+        1. Set |pattern| to the result of constructing a {{URLPattern}} using the {{URLPattern/URLPattern(input, baseURL)}} constructor steps given |rawPattern| and |baseURL|. If those steps throw, catch the exception and return false.
+      1. Otherwise, if |rawPattern| is {{URLPatternInit}}:
+        1. Set |pattern| to the result of constructing a {{URLPattern}} using the {{URLPattern/URLPattern(input)}} constructor steps given |rawPattern|. If those steps throw, catch the exception and return false.
+      1. Otherwise, return false.
+      1. If running the [=VerifyURLPattern=] algorithm with |pattern| returns false, return false.
+      1. Set |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"]'s associated {{URLPattern}} to |pattern|.
+      1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="verify-urlpattern-algorithm"><dfn>VerifyURLPattern</dfn></h3>
+
+    : Input
+    :: |pattern|, a {{URLPattern}}
+    : Output
+    :: a boolean
+
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/protocol component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/username component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/password component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/hostname component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/port component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/pathname component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/search component=] returns false, return false.
+    1. If running the [=VerifyURLPatternComponent=] algorithm with |pattern|'s [=urlpattern/hash component=] returns false, return false.
+    1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="verify-urlpattern-component-algorithm"><dfn>VerifyURLPatternComponent</dfn></h3>
+
+      : Input
+      :: |component|, a [=component=].
+      : Output
+      :: a boolean
+
+      1. Let |parts| be a result of [=urlpattern/parsing=] |component|'s associated [=urlpattern-component/pattern string=].
+      1. [=list/For each=] |part| of |parts|:
+          1. If |part|'s [=urlpattern-part/type=] is "<code>regexp</code>", return false.
+
+              Note: Since running a user-defined regular expression has a security concern, it is prohibited.
+
+      1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="get-router-source-algorithm"><dfn>GetRouterSource</dfn></h3>
+      : Input
+      :: |rules|, a list of {{RouterRule}}
+      :: |request|, a [=/request=]
+      : Output
+      :: {{RouterSourceEnum}} or null
+
+      1. [=list/For each=] |rule| of |rules|:
+          1. If running [=urlpattern/match=] with |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"]'s associated [=URLPattern=] and |request|'s [=request/URL=] returns null, [=continue=].
+          1. Return |rule|'s {{RouterRule/source}}.
+      1. Return null.
   </section>
 
   <section algorithm>
