@@ -135,19 +135,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
 spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
     type: dfn
-        text: parse; for: urlpattern; url: parse-a-pattern-string
-        text: component; for: urlpattern; url: component
         text: match; for: urlpattern; url: match
-        text: protocol component; for: urlpattern; url: urlpattern-protocol-component
-        text: username component; for: urlpattern; url: urlpattern-username-component
-        text: password component; for: urlpattern; url: urlpattern-password-component
-        text: hostname component; for: urlpattern; url: urlpattern-hostname-component
-        text: port component; for: urlpattern; url: urlpattern-port-component
-        text: pathname component; for: urlpattern; url: urlpattern-pathname-component
-        text: search component; for: urlpattern; url: urlpattern-search-component
-        text: hash component; for: urlpattern; url: urlpattern-hash-component
-        text: pattern string; for: urlpattern-component; url: component-pattern-string
-        text: type; for: urlpattern-part; url: part-type
 
 </pre>
 
@@ -1574,7 +1562,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
 
       dictionary RouterRule {
         required RouterCondition condition;
-        required RouterSourceEnum source;
+        required RouterSource source;
       };
 
       dictionary RouterCondition {
@@ -3246,7 +3234,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
 
       1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
       1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
-      1. Let |pattern| be the result of [=building a URLPattern from a Web IDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=]. If this throws an exception, catch it and return false.
+      1. Let |pattern| be the result of [=URLPattern/building a URLPattern from a WebIDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=]. If this throws an exception, catch it and return false.
       1. If |pattern| [=URLPattern/has regexp groups=] returns true, return false.
 
           Note: Since running a user-defined regular expression has a security concern, it is prohibited.
@@ -3261,7 +3249,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
       :: |rules|, a list of {{RouterRule}}
       :: |request|, a [=/request=]
       : Output
-      :: {{RouterSourceEnum}} or null
+      :: {{RouterSource}} or null
 
       1. [=list/For each=] |rule| of |rules|:
           1. If running [=urlpattern/match=] with |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"]'s associated [=URLPattern=] and |request|'s [=request/URL=] returns null, [=continue=].
