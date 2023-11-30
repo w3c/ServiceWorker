@@ -212,7 +212,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
 
     A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
 
-    A [=/service worker=] has an associated <dfn>static router rules object</dfn>. It is initially unset.
+    A [=/service worker=] has an associated <dfn>list of router rules</dfn>. It is initially unset.
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -1587,7 +1587,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
         1.  For each |rule| of |rules|:
             1. If running [=VerifyRouterRule=] algorithm with |rule| and [=/service worker=] returns false, <a>throw</a> a <code>TypeError</code>.
             1. Append |rule| to |routerRules|.
-        1. Set [=/service worker=]'s [=static router rules object=] to |routerRules|.
+        1. Set [=/service worker=]'s [=service worker/list of router rules=] to |routerRules|.
 
     </section>
   </section>
@@ -3114,8 +3114,8 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
-      1. Else if |registration|'s <a>active worker</a>'s [=static router rules object=] is set:
-          1. If running [=GetRouterSource=] algorithm with [=static router rules object=] and |request| returns "network", return null.
+      1. Else if |registration|'s <a>active worker</a>'s [=service worker/list of router rules=] is set:
+          1. If running [=GetRouterSource=] algorithm with [=service worker/list of router rules=] and |request| returns "network", return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
