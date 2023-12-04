@@ -136,7 +136,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
     type: dfn
         text: match; for: urlpattern; url: match
-        text: building a urlpattern from a webidl value; for: urlpattern; url: building-a-urlpattern-from-a-webidl-value
 
 </pre>
 
@@ -1578,7 +1577,7 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
 
       {{InstallEvent/addRoutes(rules)}} registers this service worker the rules to offload simple tasks that the fetch handler does.
 
-      <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method *must* run these steps:
+      The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
 
         1. Let |routerRules| be a list of {{RouterRule}} dictionaries.
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
@@ -3225,13 +3224,13 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
   <section algorithm>
     <h3 id="parse-urlpattern-algorithm"><dfn>ParseURLPattern</dfn></h3>
       : Input
-      :: |rawPattern|, a {{RouterCondition/urlPattern}}"
+      :: |rawPattern|, a [=string=]
       :: |serviceWorker|, a [=/service worker=]
       : Output
       :: {{URLPattern}}
 
       1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
-      1. Return the result of [=urlpattern/building a URLPattern from a WebIDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=].
+      1. Return the result of [=building a URLPattern from a WebIDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=].
   </section>
 
   <section algorithm>
@@ -3243,9 +3242,11 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
       : Output
       :: a boolean
 
+      1. If |rule|["{{RouterRule/condition}}"] does not [=map/exist=], return false.
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], return false.
       1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
       1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
-      1. If |pattern| [=URLPattern/has regexp groups=] returns true, return false.
+      1. If |pattern| [=URLPattern/has regexp groups=], then return false.
 
           Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
@@ -3261,10 +3262,12 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
       :: {{RouterSource}} or null
 
       1. [=list/For each=] |rule| of |serviceWorker|'s [=service worker/list of router rules=]:
-          1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
-          1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|.
-          1. If running [=urlpattern/match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
-          1. Return |rule|'s {{RouterRule/source}}.
+          1. If |rule|["{{RouterRule/condition}}"] does not [=map/exist=], continue.
+          1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
+              1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
+              1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+              1. If running [=urlpattern/match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
+              1. Return |rule|'s {{RouterRule/source}}.
       1. Return null.
   </section>
 
