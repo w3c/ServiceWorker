@@ -3242,15 +3242,18 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
       : Output
       :: a boolean
 
-      1. If |rule|["{{RouterRule/condition}}"] does not [=map/exist=], return false.
-      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], return false.
-      1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
-      1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
-      1. If |pattern| [=URLPattern/has regexp groups=], then return false.
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], then:
+          1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
+          1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
+          1. If |pattern| [=URLPattern/has regexp groups=], then return false.
 
-          Note: Since running a user-defined regular expression has a security concern, it is prohibited.
+              Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
-      1. Return true.
+          1. Return true.
+
+          Note: support for other conditions will be implemented here.
+
+      1. Return false.
   </section>
 
   <section algorithm>
@@ -3268,6 +3271,9 @@ spec: urlpattern; urlPrefix: https://wicg.github.io/urlpattern/
               1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|.
               1. If running [=urlpattern/match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
               1. Return |rule|'s {{RouterRule/source}}.
+
+          Note: support for other conditions will be implemented here.
+
       1. Return null.
   </section>
 
