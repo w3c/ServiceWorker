@@ -1578,7 +1578,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |routerRules| be a list of {{RouterRule}} dictionaries.
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
         1.  For each |rule| of |rules|:
-            1. If running [=VerifyRouterRule=] algorithm with |rule| and [=/service worker=] returns false, <a>throw</a> a <code>TypeError</code>.
+            1. If running [=Verify Router Rule=] algorithm with |rule| and [=/service worker=] returns false, <a>throw</a> a <code>TypeError</code>.
             1. Append |rule| to |routerRules|.
         1. Set [=/service worker=]'s [=service worker/list of router rules=] to |routerRules|.
 
@@ -3108,7 +3108,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
       1. Else if |registration|'s <a>active worker</a>'s [=service worker/list of router rules=] is set:
-          1. If running [=GetRouterSource=] with |registration|'s <a>active worker</a> and |request| returns "network", return null.
+          1. If running [=Get Router Source=] with |registration|'s <a>active worker</a> and |request| returns "network", return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
@@ -3218,7 +3218,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="parse-urlpattern-algorithm"><dfn>ParseURLPattern</dfn></h3>
+    <h3 id="parse-urlpattern-algorithm"><dfn>Parse URL Pattern</dfn></h3>
       : Input
       :: |rawPattern|, a [=string=]
       :: |serviceWorker|, a [=/service worker=]
@@ -3230,7 +3230,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="verify-router-rule-algorithm"><dfn>VerifyRouterRule</dfn></h3>
+    <h3 id="verify-router-rule-algorithm"><dfn>Verify Router Rule</dfn></h3>
 
       : Input
       :: |rule|, a {{RouterRule}}
@@ -3240,7 +3240,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], return false.
       1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
-      1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
+      1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
       1. If |pattern| [=URLPattern/has regexp groups=], then return false.
 
           Note: Since running a user-defined regular expression has a security concern, it is prohibited.
@@ -3249,7 +3249,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="get-router-source-algorithm"><dfn>GetRouterSource</dfn></h3>
+    <h3 id="get-router-source-algorithm"><dfn>Get Router Source</dfn></h3>
       : Input
       :: |serviceWorker|, a [=/service worker=]
       :: |request|, a [=/request=]
@@ -3259,7 +3259,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. [=list/For each=] |rule| of |serviceWorker|'s [=service worker/list of router rules=]:
           1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], continue.
           1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
-          1. Let |pattern| be the result of running <a>ParseURLPattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+          1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
           1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
           1. Return |rule|["{{RouterRule/source}}"].
 
