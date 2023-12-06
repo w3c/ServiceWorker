@@ -51,6 +51,7 @@ spec: webidl;
         text: resolve;
 
 spec:csp-next; type:dfn; text:enforced
+spec:urlpattern; type:dfn; text:match
 </pre>
 
 <pre class="anchors">
@@ -132,7 +133,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         text: storage key; url: storage-key
         text: obtain a storage key; url: obtain-a-storage-key
         text: storage key/equals; url: storage-key-equals
-
 </pre>
 
 <pre class="biblio">
@@ -206,6 +206,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
     A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
+
+    A [=/service worker=] has an associated <dfn>list of router rules</dfn>. It is initially unset.
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -1546,6 +1548,44 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section>
+    <h3 id="installevent-interface">{{InstallEvent}}</h3>
+
+    <pre class="idl">
+      [Exposed=ServiceWorker]
+      interface InstallEvent : ExtendableEvent {
+        Promise&lt;undefined&gt; addRoutes((RouterRule or sequence&lt;RouterRule&gt;) rules);
+      };
+
+      dictionary RouterRule {
+        required RouterCondition condition;
+        required RouterSource source;
+      };
+
+      dictionary RouterCondition {
+        URLPatternCompatible urlPattern;
+      };
+
+      enum RouterSource { "network" };
+    </pre>
+
+    <section>
+      <h4 id="register-router-method">{{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}}</h4>
+
+      {{InstallEvent/addRoutes(rules)}} registers this service worker the rules to offload simple tasks that the fetch handler does.
+
+      The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
+
+        1. Let |routerRules| be a list of {{RouterRule}} dictionaries.
+        1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
+        1.  For each |rule| of |rules|:
+            1. If running [=Verify Router Rule=] algorithm with |rule| and [=/service worker=] returns false, <a>throw</a> a <code>TypeError</code>.
+            1. Append |rule| to |routerRules|.
+        1. Set the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=]'s [=service worker/list of router rules=] to |routerRules|.
+
+    </section>
+  </section>
+
+  <section>
     <h3 id="fetchevent-interface">{{FetchEvent}}</h3>
 
     <pre class="idl">
@@ -2822,7 +2862,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Set |installFailed| to true.
           1. Else:
               1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
-                  1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+                  1. Let |e| be the result of <a>creating an event</a> with {{InstallEvent}}.
                   1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
                   1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
                   1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
@@ -3067,6 +3107,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
+      1. Else if |registration|'s <a>active worker</a>'s [=service worker/list of router rules=] is set:
+          1. If running [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request| returns "network", return null.
       1. Else if |request| is a <a>non-subresource request</a>, then:
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
@@ -3173,6 +3215,55 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
+  </section>
+
+  <section algorithm>
+    <h3 id="parse-urlpattern-algorithm"><dfn>Parse URL Pattern</dfn></h3>
+      : Input
+      :: |rawPattern|, a {{URLPatternCompatible}}
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: {{URLPattern}}
+
+      1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
+      1. Return the result of [=building a URLPattern from a Web IDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=].
+  </section>
+
+  <section algorithm>
+    <h3 id="verify-router-rule-algorithm"><dfn>Verify Router Rule</dfn></h3>
+
+      : Input
+      :: |rule|, a {{RouterRule}}
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], return false.
+      1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
+      1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
+      1. If |pattern| [=URLPattern/has regexp groups=], then return false.
+
+          Note: Since running a user-defined regular expression has a security concern, it is prohibited.
+
+      1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="get-router-source-algorithm"><dfn>Get Router Source</dfn></h3>
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      :: |request|, a [=/request=]
+      : Output
+      :: {{RouterSource}} or null
+
+      1. [=list/For each=] |rule| of |serviceWorker|'s [=service worker/list of router rules=]:
+          1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"] does not [=map/exist=], continue.
+          1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
+          1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+          1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
+          1. Return |rule|["{{RouterRule/source}}"].
+
+      1. Return null.
   </section>
 
   <section algorithm>
