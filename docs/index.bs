@@ -1576,15 +1576,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
 
         1. Let |routerRules| be a list of {{RouterRule}} dictionaries.
-        1. Let |hasFetch| be a boolean, initially false.
+        1. Let |hasFetchEventSource| be a boolean, initially false.
         1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
-        1. If |serviceWorker|'s [=list of router rules=] [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSource/fetch-event}}", set |hasFetch| to true.
+        1. If |serviceWorker|'s [=list of router rules=] [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSource/fetch-event}}", set |hasFetchEventSource| to true.
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
         1.  For each |rule| of |rules|:
             1. If running [=Verify Router Rule=] algorithm with |rule| and [=/service worker=] returns false, [=throw=] a {{TypeError}}.
-            1. If |rule|'s {{RouterRule/source}} is "{{RouterSource/fetch-event}}", set |hasFetch| to true.
+            1. If |rule|'s {{RouterRule/source}} is "{{RouterSource/fetch-event}}", set |hasFetchEventSource| to true.
             1. Append |rule| to |routerRules|.
-        1. If |hasFetch| is true and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, [=throw=] a {{TypeError}}.
+        1. If |hasFetchEventSource| is true and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, [=throw=] a {{TypeError}}.
         1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
 
     </section>
