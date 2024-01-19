@@ -1563,6 +1563,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       dictionary RouterCondition {
         URLPatternCompatible urlPattern;
+        USVString requestMethod;
+        RequestMode requestMode;
+        RequestDestination requestDestination;
         RunningStatus runningStatus;
       };
 
@@ -3251,6 +3254,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
           1. Set |hasCondition| to true.
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMethod}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMode}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestDestination}}"] [=map/exists=], set |hasCondition| to true.
       1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/runningStatus}}"] [=map/exists=], set |hasCondition| to true.
       1. Return |hasCondition|.
   </section>
@@ -3271,6 +3277,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |rawPattern| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/urlPattern}}"].
               1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
               1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, [=continue=].
+          1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
+              1. Let |method| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMethod}}"].
+              1. If |request|'s [=request/method] is not |method|, [=continue=]
+          1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMode}}"] [=map/exists=], then:
+              1. Let |mode| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestMode}}"].
+              1. If |request|'s [=request/mode] is not |mode|, [=continue=]
+          1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestDestination}}"] [=map/exists=], then:
+              1. Let |destination| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/requestDestination}}"].
+              1. If |request|'s [=request/destination] is not |destination|, [=continue=]
           1. If |rule|["{{RouterRule/condition}}"]["{{RouterCondition/runningStatus}}"] [=map/exists=], then:
               1. Let |runningStatus| be |rule|["{{RouterRule/condition}}"]["{{RouterCondition/runningStatus}}"].
               1. If |runningStatus| is {{RunningStatus/"running"}}, and |serviceWorker| is not [=running=], [=continue=].
