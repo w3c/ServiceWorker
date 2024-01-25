@@ -3263,11 +3263,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |condition|["{{RouterCondition/_or}}"] [=map/exists=], then:
           1. If |hasCondition| is true, return false.
 
-              Note: For ease of understanding the router rule, the "or" condition is mutual exclusive with other conditions.
+              Note: For ease of understanding the router rule, the "or" condition is mutually exclusive with other conditions.
 
-          1. Let |or conditions| be |condition|["{{RouterCondition/_or}}"].
-          1. For each |or condition| of |or conditions|:
-              1. If running [=Verify Router Condition=] algorithm with |or condition| and |serviceWorker| returns false, return false.
+          1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
+          1. For each |orCondition| of |orConditions|:
+              1. If running [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
       1. Return |hasCondition|.
   </section>
@@ -3301,13 +3301,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |runningStatus| is {{RunningStatus/"running"}}, and |serviceWorker| is not [=running=], return false.
           1. If |runningStatus| is {{RunningStatus/"not-running"}}, and |serviceWorker| is [=running=], return false.
       1. If |condition|["{{RouterCondition/_or}}"] [=map/exists=], then:
-          1. Let |or conditions| be |condition|["{{RouterCondition/_or}}"].
-          1. Let |or condition matched| be false.
-          1. For each |or condition| of |or conditions|:
-              1. If running [=Match Router Condition=] algorithm with |or condition|, |serviceWorker| and |request| returns true:
-                1. Set |or condition matched| to true.
-                1. [=break=].
-          1. If |or condition matched| is false, return false.
+          1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
+          1. For each |orCondition| of |orConditions|:
+              1. If running [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
+          1. Return false.
       1. Return true.
   </section>
 
