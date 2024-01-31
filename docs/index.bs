@@ -3116,17 +3116,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
-      1. Else if |registration|'s <a>active worker</a>'s [=service worker/list of router rules=] is [=list/is not empty=]:
-          1. Let |source| be the result of running [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
-          1. If |source| is {{RouterSource/"network"}}, return null.
-          1. Else if |source| is {{RouterSource/"cache"}}, then:
-              1. Let |requestResponses| be the result of running [=Query Cache=] with |request|.
-              1. If |requestResponses| is an empty [=list=], return null.
-              1. Else:
-                  1. Let |requestResponse| be the first element of |requestResponses|.
-                  1. Let |response| be |requestResponse|'s response.
-                  1. If |client| is not null, |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |request|'s [=request/origin=], |client|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
-                  1. Return |response|.
       1. Else if |request| is a <a>non-subresource request</a>, then:
           1. If |reservedClient| is not null and is an <a>environment settings object</a>, then:
               1. If |reservedClient| is not a <a>secure context</a>, return null.
@@ -3138,28 +3127,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
-
-              Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
-
-              1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
-              1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
-              1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
-              1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
-              1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
-              1. Let |preloadFetchController| be null.
-              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
-                  1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
-
-                      To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
-
-                      1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
-                      1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
-                      1. Resolve |preloadResponse| with |preloadResponseObject|.
-              1. [=If aborted=], then:
-                  1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
-                  1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
-          1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
 
@@ -3167,6 +3134,39 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. If |activeWorker|'s [=service worker/list of router rules=] is [=list/is not empty=]:
+          1. Let |source| be the result of running [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
+          1. If |source| is {{RouterSource/"network"}}, return null.
+          1. Else if |source| is {{RouterSource/"cache"}}, then:
+              1. Let |requestResponses| be the result of running [=Query Cache=] with |request|.
+              1. If |requestResponses| is an empty [=list=], return null.
+              1. Else:
+                  1. Let |requestResponse| be the first element of |requestResponses|.
+                  1. Let |response| be |requestResponse|'s response.
+                  1. If |client| is not null, |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |request|'s [=request/origin=], |client|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                  1. Return |response|.
+      1. If |request| is a <a>non-subresource request</a>, |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
+
+          Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
+
+          1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
+          1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
+          1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
+          1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
+          1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
+          1. Let |preloadFetchController| be null.
+          1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+              1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
+
+                  To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
+
+                  1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
+                  1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
+                  1. Resolve |preloadResponse| with |preloadResponseObject|.
+          1. [=If aborted=], then:
+              1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
+              1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
+      1. Else, resolve |preloadResponse| with undefined.
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
