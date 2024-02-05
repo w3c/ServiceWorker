@@ -1571,8 +1571,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         sequence&lt;RouterCondition&gt; _or;
       };
 
+      typedef (RouterSourceDict or RouterSourceEnum) RouterSource;
+
+      dictionary RouterSourceDict {
+        DOMString cacheName;
+      };
+
       enum RunningStatus { "running", "not-running" };
-      enum RouterSource { "cache", "fetch-event", "network" };
+      enum RouterSourceEnum { "cache", "fetch-event", "network" };
     </pre>
 
     <section>
@@ -1588,7 +1594,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1.  For each |rule| of |rules|:
             1. If running [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, [=throw=] a {{TypeError}}.
             1. Append |rule| to |routerRules|.
-        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSource/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, [=throw=] a {{TypeError}}.
+        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, [=throw=] a {{TypeError}}.
         1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
 
     </section>
@@ -3136,15 +3142,18 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
       1. If |activeWorker|'s [=service worker/list of router rules=] is [=list/is not empty=]:
           1. Let |source| be the result of running [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
-          1. If |source| is {{RouterSource/"network"}}, return null.
-          1. Else if |source| is {{RouterSource/"cache"}}, then:
-              1. Let |requestResponses| be the result of running [=Query Cache=] with |request|.
-              1. If |requestResponses| is an empty [=list=], return null.
-              1. Else:
-                  1. Let |requestResponse| be the first element of |requestResponses|.
-                  1. Let |response| be |requestResponse|'s response.
-                  1. If |client| is not null, |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |request|'s [=request/origin=], |client|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
-                  1. Return |response|.
+          1. If |source| is {{RouterSourceEnum/"network"}}, return null.
+          1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
+              1. [=map/For each=] |cacheName| &#x2192; |cache| of the [=relevant name to cache map=]:
+                  1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] does not match |cacheName|, [=continue=].
+                  1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
+                  1. If |requestResponses| is an empty [=list=], return null.
+                  1. Else:
+                      1. Let |requestResponse| be the first element of |requestResponses|.
+                      1. Let |response| be |requestResponse|'s response.
+                      1. If |client| is not null, |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |request|'s [=request/origin=], |client|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                      1. Return |response|.
+              1. Return null.
       1. If |request| is a <a>non-subresource request</a>, |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
           Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
