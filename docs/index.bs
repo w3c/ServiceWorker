@@ -211,6 +211,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
+    A [=/service worker=] has an associated <dfn>ServiceWorkerGlobalScope is ready</dfn>. It is initially unset.
+
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
@@ -2973,23 +2975,27 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="run-service-worker-algorithm"><dfn>Run Service Worker</dfn></h3>
+    <h3 id="setup-serviceworkerglobalscope"><dfn>Setup ServiceWorkerGlobalScope</dfn></h3>
 
       : Input
       :: |serviceWorker|, a [=/service worker=]
-      :: |forceBypassCache|, an optional boolean, false by default
       : Output
-      :: a [=Completion=] or *failure*
+      :: a boolean
 
-      Note: This algorithm blocks until the service worker is [=running=] or fails to start.
+      Note: This algorithm returns true if |serviceWorker| has a {{ServiceWorkerGlobalScope}} usable for a CSP check.
+
+      <div class="note">
+        This algorithm does the minimal setup for the service worker that is necessary to create something usable for security checks like CSP and COEP. This specification ensures that this algorithm is called before any such checks are performed.
+
+        In specifications, such security checks require creating a {{ServiceWorkerGlobalScope}}, a [=relevant settings object=], a [=realm=], and an [=agent=]. In implementations, the amount of work required might be much less. Therefore, implementations could do less work in their equivalent of this algorithm, and more work in [=Run Service Worker=], as long as the results are observably equivalent. (And in particular, as long as all security checks have the same result.)
+      </div>
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
-      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
-      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
+      1. If |serviceWorker| is [=running=], then return true.
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return false.
+      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is set, then return true.
       1. Assert: |serviceWorker|'s [=start status=] is null.
-      1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
-      1. Assert: |script| is not null.
-      1. Let |startFailed| be false.
+      1. Let |setupFailed| be false.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
           1. Let |realmExecutionContext| be the result of [=creating a new realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
@@ -3013,9 +3019,36 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/policy container=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/policy container=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
-          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
-          1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
+          1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |setupFailed| to true and abort these steps.
+          1. Set |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=].
+      1. Wait for |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is set, or for |setupFailed| to be true.
+      1. If |setupFailed| is true, then return false.
+      1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="run-service-worker-algorithm"><dfn>Run Service Worker</dfn></h3>
+
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      :: |forceBypassCache|, an optional boolean, false by default
+      : Output
+      :: a [=Completion=] or *failure*
+
+      Note: This algorithm blocks until the service worker is [=running=] or fails to start.
+
+      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
+      1. Assert: |serviceWorker|'s [=start status=] is null.
+      1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
+      1. Assert: |script| is not null.
+      1. Let |startFailed| be false.
+      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is not set:
+          1. If run the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker| returns false, then return *failure*.
+      1. Obtain agent for |serviceWorker|'s [=service worker/global object=]'s [=environment settings object/realm execution context=], and run the following steps in that context:
+          1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
+          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be null.
           1. If |script| is a [=classic script=], then:
@@ -3151,7 +3184,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Else:
                       1. Let |requestResponse| be the first element of |requestResponses|.
                       1. Let |response| be |requestResponse|'s response.
-                      1. If |client| is not null, |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |request|'s [=request/origin=], |client|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                      1. If |activeWorker| is not [=running=] or |activeWorker|'s [=ServiceWorkerGlobalScope is ready=] is not set:
+                          1. If the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |activeWorker| is false, then return null.
+
+                          Note: If this step succeeds, then |activeWorker|'s [=relevant settings object=] is now ready to use.
+
+                      1. Let |settingsObject| be |activeWorker|'s [=relevant settings object=].
+                      1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |settingsObject|'s [=environment settings object/origin=], |settingsObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
       1. If |request| is a <a>non-subresource request</a>, |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
