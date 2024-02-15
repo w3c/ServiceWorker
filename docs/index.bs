@@ -66,6 +66,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: IsCallable; url: sec-iscallable
         text: Get; url: sec-get-o-p
     type: dfn
+        text: agent;
         text: Assert; url: sec-algorithm-conventions
         text: \[[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
         text: promise; url: sec-promise-objects
@@ -207,11 +208,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
 
-    A [=/service worker=] has an associated <dfn>list of router rules</dfn>. It is initially an empty [=list=].
+    A [=/service worker=] has an associated <dfn>list of router rules</dfn> (a [=list=] of {{RouterRule}}s). It is initially an empty [=list=].
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
-    A [=/service worker=] has an associated <dfn>ServiceWorkerGlobalScope is ready</dfn>. It is initially unset.
+    A [=/service worker=] has an associated <dfn>ServiceWorkerGlobalScope is ready flag</dfn>. It is initially unset.
 
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
@@ -1594,10 +1595,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |routerRules| be a copy of |serviceWorker|'s [=list of router rules=].
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
         1.  For each |rule| of |rules|:
-            1. If running [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, [=throw=] a {{TypeError}}.
+            1. If running [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
             1. Append |rule| to |routerRules|.
-        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, [=throw=] a {{TypeError}}.
+        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
         1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
+        1. Return [=a promise resolved with=] undefined.
 
     </section>
   </section>
@@ -2987,13 +2989,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       <div class="note">
         This algorithm does the minimal setup for the service worker that is necessary to create something usable for security checks like CSP and COEP. This specification ensures that this algorithm is called before any such checks are performed.
 
-        In specifications, such security checks require creating a {{ServiceWorkerGlobalScope}}, a [=relevant settings object=], a [=realm=], and an [=agent=]. In implementations, the amount of work required might be much less. Therefore, implementations could do less work in their equivalent of this algorithm, and more work in [=Run Service Worker=], as long as the results are observably equivalent. (And in particular, as long as all security checks have the same result.)
+        In specifications, such security checks require creating a {{ServiceWorkerGlobalScope}}, a [=relevant settings object=], a [=global object/realm=], and an [=agent=]. In implementations, the amount of work required might be much less. Therefore, implementations could do less work in their equivalent of this algorithm, and more work in [=Run Service Worker=], as long as the results are observably equivalent. (And in particular, as long as all security checks have the same result.)
       </div>
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
       1. If |serviceWorker| is [=running=], then return true.
       1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return false.
-      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is set, then return true.
+      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is set, then return true.
       1. Assert: |serviceWorker|'s [=start status=] is null.
       1. Let |setupFailed| be false.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
@@ -3021,8 +3023,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |setupFailed| to true and abort these steps.
-          1. Set |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=].
-      1. Wait for |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is set, or for |setupFailed| to be true.
+          1. Set |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=].
+      1. Wait for |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is set, or for |setupFailed| to be true.
       1. If |setupFailed| is true, then return false.
       1. Return true.
   </section>
@@ -3044,7 +3046,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
-      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready=] is not set:
+      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is not set:
           1. If run the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker| returns false, then return *failure*.
       1. Obtain agent for |serviceWorker|'s [=service worker/global object=]'s [=environment settings object/realm execution context=], and run the following steps in that context:
           1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
@@ -3127,6 +3129,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. [=Abort a running script|Abort the script=] currently running in |serviceWorker|.
           1. Set |serviceWorker|'s [=start status=] to null.
+          1. Unset |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=].
   </section>
 
   <section algorithm>
@@ -3173,18 +3176,24 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
-      1. If |activeWorker|'s [=service worker/list of router rules=] is [=list/is not empty=]:
-          1. Let |source| be the result of running [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
-          1. If |source| is {{RouterSourceEnum/"network"}}, return null.
+      1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
+          * |request| is a [=non-subresource request=].
+          * |request| is a [=subresource request=] and |registration| is [=stale=].
+      1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
+          1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
+          1. If |source| is {{RouterSourceEnum/"network"}}:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. Return null.
           1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
-              1. [=map/For each=] |cacheName| &#x2192; |cache| of the [=relevant name to cache map=]:
-                  1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] does not match |cacheName|, [=continue=].
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
+                  1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
                   1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
                   1. If |requestResponses| is an empty [=list=], return null.
                   1. Else:
                       1. Let |requestResponse| be the first element of |requestResponses|.
                       1. Let |response| be |requestResponse|'s response.
-                      1. If |activeWorker| is not [=running=] or |activeWorker|'s [=ServiceWorkerGlobalScope is ready=] is not set:
+                      1. If |activeWorker| is not [=running=] or |activeWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is not set:
                           1. If the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |activeWorker| is false, then return null.
 
                           Note: If this step succeeds, then |activeWorker|'s [=relevant settings object=] is now ready to use.
@@ -3193,7 +3202,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |settingsObject|'s [=environment settings object/origin=], |settingsObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
-      1. If |request| is a <a>non-subresource request</a>, |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
+          1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
+      1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
           Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -3215,9 +3225,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
               1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
       1. Else, resolve |preloadResponse| with undefined.
-      1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
-          * |request| is a [=non-subresource request=].
-          * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
@@ -3338,31 +3345,35 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a boolean
 
-      Note: if there are multiple conditions (e.g. `urlPattern`, `runningStatus`, and `requestMethod` are set), all conditions will be matched to return true.
+      Note: if there are multiple conditions (e.g. `urlPattern`, `runningStatus`, and `requestMethod` are set), all conditions need to match for true to be returned.
 
-      1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
-          1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
-          1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
-          1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
-      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
-          1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
-          1. If |request|'s [=request/method=] is not |method|, return false.
-      1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], then:
-          1. Let |mode| be |condition|["{{RouterCondition/requestMode}}"].
-          1. If |request|'s [=request/mode=] is not |mode|, return false.
-      1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], then:
-          1. Let |destination| be |condition|["{{RouterCondition/requestDestination}}"].
-          1. If |request|'s [=request/destination=] is not |destination|, return false.
-      1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], then:
-          1. Let |runningStatus| be |condition|["{{RouterCondition/runningStatus}}"].
-          1. If |runningStatus| is {{RunningStatus/"running"}}, and |serviceWorker| is not [=running=], return false.
-          1. If |runningStatus| is {{RunningStatus/"not-running"}}, and |serviceWorker| is [=running=], return false.
-      1. If |condition|["{{RouterCondition/_or}}"] [=map/exists=], then:
-          1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
+      1. If |condition|["{{RouterCondition/or}}"] [=map/exists=], then:
+          1. Let |orConditions| be |condition|["{{RouterCondition/or}}"].
           1. For each |orCondition| of |orConditions|:
               1. If running [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
           1. Return false.
-      1. Return true.
+      1. Else:
+
+          Note: The [=Verify Router Condition=] algorithm guarantees that {{RouterCondition/or}} and other conditions are mutual exclusive.
+
+          1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
+              1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
+              1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+              1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
+          1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
+              1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+              1. If |request|'s [=request/method=] is not |method|, return false.
+          1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], then:
+              1. Let |mode| be |condition|["{{RouterCondition/requestMode}}"].
+              1. If |request|'s [=request/mode=] is not |mode|, return false.
+          1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], then:
+              1. Let |destination| be |condition|["{{RouterCondition/requestDestination}}"].
+              1. If |request|'s [=request/destination=] is not |destination|, return false.
+          1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], then:
+              1. Let |runningStatus| be |condition|["{{RouterCondition/runningStatus}}"].
+              1. If |runningStatus| is {{RunningStatus/"running"}}, and |serviceWorker| is not [=running=], return false.
+              1. If |runningStatus| is {{RunningStatus/"not-running"}}, and |serviceWorker| is [=running=], return false.
+          1. Return true.
   </section>
 
   <section algorithm>
@@ -3374,8 +3385,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: {{RouterSource}} or null
 
       1. [=list/For each=] |rule| of |serviceWorker|'s [=service worker/list of router rules=]:
-          1. If running [=Match Router Condition=] with |rule|["{{RouterRule/condition}}"], |serviceWorker| and |request| returns false, [=continue=].
-          1. Return |rule|["{{RouterRule/source}}"].
+          1. If running the [=Match Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"], |serviceWorker| and |request| returns true, then return |rule|["{{RouterRule/source}}"].
 
       1. Return null.
   </section>
