@@ -212,8 +212,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
-    A [=/service worker=] has an associated <dfn>ServiceWorkerGlobalScope is ready flag</dfn>. It is initially unset.
-
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
@@ -3002,13 +3000,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
       1. If |serviceWorker| is [=running=], then return true.
       1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return false.
-      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is set, then return true.
+      1. If |serviceWorker|'s [=service worker/global object=] is not null, then return true.
       1. Assert: |serviceWorker|'s [=start status=] is null.
       1. Let |setupFailed| be false.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
           1. Let |realmExecutionContext| be the result of [=creating a new realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
-          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
           1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
 
               : The [=environment settings object/realm execution context=]
@@ -3030,8 +3027,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |setupFailed| to true and abort these steps.
-          1. Set |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=].
-      1. Wait for |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is set, or for |setupFailed| to be true.
+          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
+      1. Wait for |serviceWorker|'s [=service worker/global object=] is not null, or for |setupFailed| to be true.
       1. If |setupFailed| is true, then return false.
       1. Return true.
   </section>
@@ -3053,7 +3050,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
-      1. If |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is not set:
+      1. If |serviceWorker|'s [=service worker/global object=] is null:
           1. If run the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker| returns false, then return *failure*.
       1. Obtain agent for |serviceWorker|'s [=service worker/global object=]'s [=environment settings object/realm execution context=], and run the following steps in that context:
           1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
@@ -3136,7 +3133,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. [=Abort a running script|Abort the script=] currently running in |serviceWorker|.
           1. Set |serviceWorker|'s [=start status=] to null.
-          1. Unset |serviceWorker|'s [=ServiceWorkerGlobalScope is ready flag=].
   </section>
 
   <section algorithm>
@@ -3196,7 +3192,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Else:
                       1. Let |requestResponse| be the first element of |requestResponses|.
                       1. Let |response| be |requestResponse|'s response.
-                      1. If |activeWorker| is not [=running=] or |activeWorker|'s [=ServiceWorkerGlobalScope is ready flag=] is not set:
+                      1. If |activeWorker|'s [=service worker/global object=] is null:
                           1. If the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |activeWorker| is false, then return null.
 
                           Note: If this step succeeds, then |activeWorker|'s [=relevant settings object=] is now ready to use.
