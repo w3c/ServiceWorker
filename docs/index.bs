@@ -1082,7 +1082,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
     </pre>
 
-    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn export for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for import scripts flag</dfn>. It is initially unset.
+    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn export for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for import scripts flag</dfn>. A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">race response map</dfn> which is an [=ordered map=] where the [=map/keys=] are [=/requests=] and the [=map/values=] are [=race response=]. It is initially unset.
+
+    A <dfn id="dfn-race-response">race response</dfn> is a [=struct=] used to contain the network response when {{RouterSourceEnum/"race-network-and-fetch-handler"}} performs. It has a <dfn for="race response">value</dfn>, which is a [=/response=], "<code>pending</code>", or null.
 
     Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/service worker clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
 
@@ -1581,7 +1583,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
 
       enum RunningStatus { "running", "not-running" };
-      enum RouterSourceEnum { "cache", "fetch-event", "network" };
+      enum RouterSourceEnum {
+        "cache",
+        "fetch-event",
+        "network",
+        "race-network-and-fetch-handler"
+      };
     </pre>
 
     <section>
@@ -3142,19 +3149,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: |controller|, a [=fetch controller=]
       :: |useHighResPerformanceTimers|, a boolean
       : Output
-      :: |response|, a [=/response=]
+      :: a [=/response=]
 
-      1. Let |handleFetchFailed| be false.
-      1. Let |respondWithEntered| be false.
-      1. Let |eventCanceled| be false.
-      1. Let |response| be null.
       1. Let |registration| be null.
       1. Let |client| be |request|'s [=request/client=].
       1. Let |reservedClient| be |request|'s [=request/reserved client=].
       1. Let |preloadResponse| be a new [=promise=].
       1. Let |workerRealm| be null.
-      1. Let |eventHandled| be null.
       1. Let |timingInfo| be a new [=service worker timing info=].
+      1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is null.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
@@ -3202,6 +3205,26 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |settingsObject|'s [=environment settings object/origin=], |settingsObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
+          1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+              1. Let |queue| be an empty [=queue=] of [=/response=].
+              1. Let |raceFetchController| be null.
+              1. Set |raceResponse|'s [=race response/value=] to "<code>pending</code>".
+              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+                  1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
+                      1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
+                          1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
+                          1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
+                      1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
+              1. [=If aborted=] and |raceFetchController| is not null, then:
+                  1. [=fetch controller/Abort=] |raceFetchController|.
+                  1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+              1. Resolve |preloadResponse| with undefined.
+              1. Run the following substeps [=in parallel=]:
+                  1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+                  1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
+                  1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
+              1. Wait until |queue| is not empty.
+              1. Return the result of [=dequeue=] |queue|.
           1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
@@ -3225,6 +3248,34 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
               1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
       1. Else, resolve |preloadResponse| with undefined.
+      1. Return the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+  </section>
+
+  <section algorithm>
+    <h3 id="create-fetch-event-and-dispatch-algorithm"><dfn>Create Fetch Event and Dispatch</dfn></h3>
+      : Input
+      :: |request|, a [=/request=]
+      :: |registration|, a [=/service worker registration=]
+      :: |useHighResPerformanceTimers|, a boolean
+      :: |timingInfo|, a [=service worker timing info=]
+      :: |workerRealm|, a [=relevant realm=] of the [=service worker/global object=]
+      :: |reservedClient|, a [=request/reserved client=]
+      :: |preloadResponse|, a [=promise=]
+      :: |raceResponse|, a [=race response=]
+      : Output
+      :: a [=/response=]
+
+      1. Let |response| be null.
+      1. Let |eventCanceled| be false.
+      1. Let |client| be |request|'s [=request/client=].
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Let |eventHandled| be null.
+      1. Let |handleFetchFailed| be false.
+      1. Let |respondWithEntered| be false.
+      1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
+          * |request| is a [=non-subresource request=].
+          * |request| is a [=subresource request=] and |registration| is [=stale=].
+      1. Let |raceResponseMap| be |activeWorker|'s [=service worker/global object=]'s [=race response map=].
       1. If the result of running the [=Should Skip Event=] algorithm with "fetch" and |activeWorker| is true, then:
           1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
           1. Return null.
@@ -3241,6 +3292,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Else:
           1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
           1. Set |eventHandled| to [=a new promise=] in |workerRealm|.
+          1. If |raceResponse| is not null, [=map/set=] |raceResponseMap|[|request|] to |raceResponse|.
           1. [=Queue a task=] |task| to run the following substeps:
               1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
               1. Let |controller| be a [=new=] {{AbortController}} object with |workerRealm|.
@@ -3277,11 +3329,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. Wait for |task| to have executed or for |handleFetchFailed| to be true.
       1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+      1. If |raceResponseMap|[|request|] [=map/exists=], [=map/remove=] |raceResponseMap|[|request|].
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
               2. Return a [=network error=].
           1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
+          1. If |raceResponse|'s [=race response/value=] is not null, then:
+              1. Wait until |raceResponse|'s [=race response/value=] is not "<code>pending</code>".
+              1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
           1. Return null.
       1. If |handleFetchFailed| is true, then:
           1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
@@ -3921,6 +3977,28 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. If [=Is Async Module=] for |moduleMap|[|url|]'s [=script/record=], |moduleMap|, |base|, and |seen| is true, then:
                   1. Return true.
       1. Return false.
+  </section>
+
+  <section algorithm>
+    <h3 id="lookup-race-response-algorithm"><dfn export>Lookup Race Response</dfn></h3>
+
+      : Input
+      :: |request|, a [=/request=]
+      : Output
+      :: a [=/response=] or null
+
+      1. If |request|'s [=request/reserved client=] is null, return null.
+      1. Let |storage key| be the result of running [=obtain a storage key=] given |request|'s [=request/reserved client=].
+      1. Let |registration| be the result of running <a>Match Service Worker Registration</a> given |storage key| and |url|.
+      1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
+      1. Else, let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Let |map| be |activeWorker|'s [=service worker/global object=]'s [=race response map=].
+      1. If |map|[|request|] [=map/exists=], then:
+        1. Let |entry| be |map|[|request|].
+        1. [=map/Remove=] |map|[|request|].
+        1. Wait until |entry|'s [=race response/value=] is not "<code>pending</code>"
+        1. If |entry|'s [=race response/value=] is [=/response=], return |entry|'s [=race response/value=].
+      1. Return null.
   </section>
 </section>
 
