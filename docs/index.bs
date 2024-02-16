@@ -1602,7 +1602,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |routerRules| be a copy of |serviceWorker|'s [=list of router rules=].
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
         1.  For each |rule| of |rules|:
-            1. If running [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
+            1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
             1. Append |rule| to |routerRules|.
         1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
         1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
@@ -3370,7 +3370,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |hasCondition| be false.
       1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
           1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
-          1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
+          1. Let |pattern| be the result of running the <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
           1. If |pattern| [=URLPattern/has regexp groups=], then return false.
 
               Note: Since running a user-defined regular expression has a security concern, it is prohibited.
@@ -3387,7 +3387,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
           1. For each |orCondition| of |orConditions|:
-              1. If running [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
+              1. If running the [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
       1. Return |hasCondition|.
   </section>
@@ -3406,7 +3406,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |condition|["{{RouterCondition/or}}"] [=map/exists=], then:
           1. Let |orConditions| be |condition|["{{RouterCondition/or}}"].
           1. For each |orCondition| of |orConditions|:
-              1. If running [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
+              1. If running the [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
           1. Return false.
       1. Else:
 
@@ -3414,7 +3414,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
               1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
-              1. Let |pattern| be the result of running <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+              1. Let |pattern| be the result of running the <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
               1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
           1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
               1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
