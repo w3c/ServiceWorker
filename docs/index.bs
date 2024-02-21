@@ -2993,9 +2993,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Input
       :: |serviceWorker|, a [=/service worker=]
       : Output
-      :: a boolean
+      :: a {{ServiceWorkerGlobalScope}} object or null
 
-      Note: This algorithm returns true if |serviceWorker| has a {{ServiceWorkerGlobalScope}} usable for a CSP check.
+      Note: This algorithm returns a {{ServiceWorkerGlobalScope}} usable for a CSP check, or null. If |serviceWorker| has an active {{ServiceWorkerGlobalScope}}, then it is returned. Otherwise, the object will be newly created.
 
       <div class="note">
         This algorithm does the minimal setup for the service worker that is necessary to create something usable for security checks like CSP and COEP. This specification ensures that this algorithm is called before any such checks are performed.
@@ -3004,11 +3004,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       </div>
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
-      1. If |serviceWorker| is [=running=], then return true.
-      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return false.
-      1. If |serviceWorker|'s [=service worker/global object=] is not null, then return true.
+      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=service worker/global object=].
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return null.
+      1. If |serviceWorker|'s [=service worker/global object=] is not null, then return |serviceWorker|'s [=service worker/global object=].
       1. Assert: |serviceWorker|'s [=start status=] is null.
       1. Let |setupFailed| be false.
+      1. Let |globalObject| be null.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
           1. Let |realmExecutionContext| be the result of [=creating a new realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
@@ -3033,10 +3034,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
           1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |setupFailed| to true and abort these steps.
-          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
-      1. Wait for |serviceWorker|'s [=service worker/global object=] is not null, or for |setupFailed| to be true.
-      1. If |setupFailed| is true, then return false.
-      1. Return true.
+          1. Set |globalObject| to |workerGlobalScope|.
+      1. Wait for |globalObject| is not null, or for |setupFailed| to be true.
+      1. If |setupFailed| is true, then return null.
+      1. Return |globalObject|.
   </section>
 
   <section algorithm>
@@ -3056,10 +3057,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
       1. Assert: |script| is not null.
       1. Let |startFailed| be false.
-      1. If |serviceWorker|'s [=service worker/global object=] is null:
-          1. If run the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker| returns false, then return *failure*.
-      1. Obtain agent for |serviceWorker|'s [=service worker/global object=]'s [=environment settings object/realm execution context=], and run the following steps in that context:
-          1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
+      1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
+      1. If |workerGlobalScope| is null:
+          1. Set |workerGlobalScope| to be the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker|.
+          1. If |workerGlobalScope| is null, then return *failure*.
+          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
+      1. Obtain agent for |workerGlobalScope|'s [=environment settings object/realm execution context=], and run the following steps in that context:
           1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be null.
@@ -3198,13 +3201,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Else:
                       1. Let |requestResponse| be the first element of |requestResponses|.
                       1. Let |response| be |requestResponse|'s response.
-                      1. If |activeWorker|'s [=service worker/global object=] is null:
-                          1. If the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |activeWorker| is false, then return null.
+                      1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
+                      1. If |globalObject| is null:
+                          1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
+                      1. If |globalObject| is null, return null.
 
-                          Note: If this step succeeds, then |activeWorker|'s [=relevant settings object=] is now ready to use.
+                      Note: This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.
 
-                      1. Let |settingsObject| be |activeWorker|'s [=relevant settings object=].
-                      1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |settingsObject|'s [=environment settings object/origin=], |settingsObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                      1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
           1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
