@@ -3162,7 +3162,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |preloadResponse| be a new [=promise=].
       1. Let |workerRealm| be null.
       1. Let |timingInfo| be a new [=service worker timing info=].
-      1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is null.
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
           1. Return null.
@@ -3212,9 +3211,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. Return |response|.
               1. Return null.
           1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
-              1. Set |raceResponse|'s [=race response/value=] to "<code>pending</code>".
+              1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
               1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                       1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
@@ -3254,7 +3254,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
               1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
       1. Else, resolve |preloadResponse| with undefined.
-      1. Return the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+      1. Return the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and null.
   </section>
 
   <section algorithm>
@@ -3267,7 +3267,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: |workerRealm|, a [=relevant realm=] of the [=service worker/global object=]
       :: |reservedClient|, a [=request/reserved client=]
       :: |preloadResponse|, a [=promise=]
-      :: |raceResponse|, a [=race response=]
+      :: |raceResponse|, a [=race response=] or null
       : Output
       :: a [=/response=]
 
@@ -3995,11 +3995,17 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a [=/response=] or null
 
-      1. If |request|'s [=request/reserved client=] is null, return null.
-      1. Let |storage key| be the result of running [=obtain a storage key=] given |request|'s [=request/reserved client=].
-      1. Let |registration| be the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
-      1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
-      1. Else, let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Let |registration| be null.
+      1. If |request| is a [=non-subresource request=], then:
+          1. If |request|'s [=request/reserved client=] is null, return null.
+          1. Let |storage key| be the result of running [=obtain a storage key=] given |request|'s [=request/reserved client=].
+          1. Set |registration| to the result of running [=Match Service Worker Registration=] given |storage key| and |request|'s [=request/url=].
+      1. Else if |request| is a [=subresource request=], then:
+          1. Let |client| be |request|'s [=request/client=].
+          1. If |client|'s [=active service worker=] is null, return null.
+          1. Set |registration| to |client|'s [=active service worker=]'s [=containing service worker registration=].
+      1. Otherwise, return null.
+      1. Let |activeWorker| be |registration|'s [=active worker=].
       1. Let |map| be |activeWorker|'s [=service worker/global object=]'s [=race response map=].
       1. If |map|[|request|] [=map/exists=], then:
         1. Let |entry| be |map|[|request|].
