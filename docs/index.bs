@@ -51,6 +51,7 @@ spec: webidl;
         text: resolve;
 
 spec:csp-next; type:dfn; text:enforced
+spec:urlpattern; type:dfn; text:match
 </pre>
 
 <pre class="anchors">
@@ -65,6 +66,7 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
         text: IsCallable; url: sec-iscallable
         text: Get; url: sec-get-o-p
     type: dfn
+        text: agent;
         text: Assert; url: sec-algorithm-conventions
         text: \[[Call]]; url: sec-ecmascript-function-objects-call-thisargument-argumentslist
         text: promise; url: sec-promise-objects
@@ -132,7 +134,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         text: storage key; url: storage-key
         text: obtain a storage key; url: obtain-a-storage-key
         text: storage key/equals; url: storage-key-equals
-
 </pre>
 
 <pre class="biblio">
@@ -206,6 +207,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     A [=/service worker=] has an associated <dfn>start status</dfn> which can be null or a [=Completion=]. It is initially null.
 
     A [=/service worker=] has an associated <dfn>all fetch listeners are empty flag</dfn>. It is initially unset.
+
+    A [=/service worker=] has an associated <dfn>list of router rules</dfn> (a [=list=] of {{RouterRule}}s). It is initially an empty [=list=].
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
@@ -1077,7 +1080,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
     </pre>
 
-    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=]. A {{ServiceWorkerGlobalScope}} object has an associated <dfn export for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]). A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for import scripts flag</dfn>. It is initially unset.
+    A {{ServiceWorkerGlobalScope}} object represents the global execution context of a [=/service worker=].
+
+    A {{ServiceWorkerGlobalScope}} object has an associated <dfn export for="ServiceWorkerGlobalScope">service worker</dfn> (a [=/service worker=]).
+
+    A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">force bypass cache for import scripts flag</dfn>. It is initially unset.
+
+    A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">race response map</dfn> which is an [=ordered map=] where the [=map/keys=] are [=/requests=] and the [=map/values=] are [=race response=].
+
+    A <dfn id="dfn-race-response">race response</dfn> is a [=struct=] used to contain the network response when {{RouterSourceEnum/"race-network-and-fetch-handler"}} performs. It has a <dfn for="race response">value</dfn>, which is a [=/response=], "<code>pending</code>", or null.
 
     Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/service worker clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
 
@@ -1543,6 +1554,65 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     [=/Service workers=] and <a href="#extensibility">extensions</a> that <a href="#extension-to-service-worker-global-scope">define event handlers</a> *may* define their own behaviors, allowing the [=ExtendableEvent/extend lifetime promises=] to suggest operation length, and the rejected state of any of the <a>promise</a> in [=ExtendableEvent/extend lifetime promises=] to suggest operation failure.
 
     Note: [=/Service workers=] delay treating the [=installing worker=] as "`installed`" until all the [=promises=] in the {{install!!event}} event's [=extend lifetime promises=] resolve successfully. (See the relevant [Install algorithm step](#install-settle-step).) If any of the promises rejects, the installation fails. This is primarily used to ensure that a [=/service worker=] is not considered "`installed`" until all of the core caches it depends on are populated. Likewise, [=/service workers=] delay treating the [=active worker=] as "`activated`" until all the [=promises=] in the {{activate!!event}} event's [=extend lifetime promises=] settle. (See the relevant [Activate algorithm step](#activate-settle-step).) This is primarily used to ensure that any [=functional events=] are not dispatched to the [=/service worker=] until it upgrades database schemas and deletes the outdated cache entries.
+  </section>
+
+  <section>
+    <h3 id="installevent-interface">{{InstallEvent}}</h3>
+
+    <pre class="idl">
+      [Exposed=ServiceWorker]
+      interface InstallEvent : ExtendableEvent {
+        Promise&lt;undefined&gt; addRoutes((RouterRule or sequence&lt;RouterRule&gt;) rules);
+      };
+
+      dictionary RouterRule {
+        required RouterCondition condition;
+        required RouterSource source;
+      };
+
+      dictionary RouterCondition {
+        URLPatternCompatible urlPattern;
+        ByteString requestMethod;
+        RequestMode requestMode;
+        RequestDestination requestDestination;
+        RunningStatus runningStatus;
+
+        sequence&lt;RouterCondition&gt; _or;
+      };
+
+      typedef (RouterSourceDict or RouterSourceEnum) RouterSource;
+
+      dictionary RouterSourceDict {
+        DOMString cacheName;
+      };
+
+      enum RunningStatus { "running", "not-running" };
+      enum RouterSourceEnum {
+        "cache",
+        "fetch-event",
+        "network",
+        "race-network-and-fetch-handler"
+      };
+    </pre>
+
+    <section>
+      <h4 id="register-router-method">{{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}}</h4>
+
+      Note: {{InstallEvent/addRoutes(rules)}} registers rules for this service worker to offload simple tasks that the fetch event handler ordinarily does.
+
+      The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
+
+        1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
+        1. Let |routerRules| be a copy of |serviceWorker|'s [=list of router rules=].
+        1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
+        1.  For each |rule| of |rules|:
+            1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
+            1. Append |rule| to |routerRules|.
+        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
+        1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
+        1. Return [=a promise resolved with=] undefined.
+
+    </section>
   </section>
 
   <section>
@@ -2822,7 +2892,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Set |installFailed| to true.
           1. Else:
               1. [=Queue a task=] |task| on |installingWorker|'s [=event loop=] using the [=DOM manipulation task source=] to run the following steps:
-                  1. Let |e| be the result of <a>creating an event</a> with {{ExtendableEvent}}.
+                  1. Let |e| be the result of <a>creating an event</a> with {{InstallEvent}}.
                   1. Initialize |e|’s {{Event/type}} attribute to {{install!!event}}.
                   1. <a>Dispatch</a> |e| at |installingWorker|'s [=service worker/global object=].
                   1. *WaitForAsynchronousExtensions*: Run the following substeps <a>in parallel</a>:
@@ -2918,27 +2988,31 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="run-service-worker-algorithm"><dfn>Run Service Worker</dfn></h3>
+    <h3 id="setup-serviceworkerglobalscope"><dfn>Setup ServiceWorkerGlobalScope</dfn></h3>
 
       : Input
       :: |serviceWorker|, a [=/service worker=]
-      :: |forceBypassCache|, an optional boolean, false by default
       : Output
-      :: a [=Completion=] or *failure*
+      :: a {{ServiceWorkerGlobalScope}} object or null
 
-      Note: This algorithm blocks until the service worker is [=running=] or fails to start.
+      Note: This algorithm returns a {{ServiceWorkerGlobalScope}} usable for a CSP check, or null. If |serviceWorker| has an active {{ServiceWorkerGlobalScope}}, then it is returned. Otherwise, the object will be newly created.
+
+      <div class="note">
+        This algorithm does the minimal setup for the service worker that is necessary to create something usable for security checks like CSP and COEP. This specification ensures that this algorithm is called before any such checks are performed.
+
+        In specifications, such security checks require creating a {{ServiceWorkerGlobalScope}}, a [=relevant settings object=], a [=global object/realm=], and an [=agent=]. In implementations, the amount of work required might be much less. Therefore, implementations could do less work in their equivalent of this algorithm, and more work in [=Run Service Worker=], as long as the results are observably equivalent. (And in particular, as long as all security checks have the same result.)
+      </div>
 
       1. Let |unsafeCreationTime| be the [=unsafe shared current time=].
-      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
-      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
+      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=service worker/global object=].
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return null.
+      1. If |serviceWorker|'s [=service worker/global object=] is not null, then return |serviceWorker|'s [=service worker/global object=].
       1. Assert: |serviceWorker|'s [=start status=] is null.
-      1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
-      1. Assert: |script| is not null.
-      1. Let |startFailed| be false.
+      1. Let |setupFailed| be false.
+      1. Let |globalObject| be null.
       1. Let |agent| be the result of [=obtain a service worker agent|obtaining a service worker agent=], and run the following steps in that context:
           1. Let |realmExecutionContext| be the result of [=creating a new realm=] given |agent| and the following customizations:
               * For the global object, create a new {{ServiceWorkerGlobalScope}} object. Let |workerGlobalScope| be the created object.
-          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
           1. Let |settingsObject| be a new <a>environment settings object</a> whose algorithms are defined as follows:
 
               : The [=environment settings object/realm execution context=]
@@ -2958,9 +3032,38 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/url=] to |serviceWorker|'s [=service worker/script url=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/policy container=] to |serviceWorker|'s <a>script resource</a>'s [=script resource/policy container=].
           1. Set |workerGlobalScope|'s [=WorkerGlobalScope/type=] to |serviceWorker|'s [=service worker/type=].
-          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. Create a new {{WorkerLocation}} object and associate it with |workerGlobalScope|.
-          1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |startFailed| to true and abort these steps.
+          1. If the [=run CSP initialization for a global object=] algorithm returns "<code>Blocked</code>" when executed upon |workerGlobalScope|, set |setupFailed| to true and abort these steps.
+          1. Set |globalObject| to |workerGlobalScope|.
+      1. Wait for |globalObject| is not null, or for |setupFailed| to be true.
+      1. If |setupFailed| is true, then return null.
+      1. Return |globalObject|.
+  </section>
+
+  <section algorithm>
+    <h3 id="run-service-worker-algorithm"><dfn>Run Service Worker</dfn></h3>
+
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      :: |forceBypassCache|, an optional boolean, false by default
+      : Output
+      :: a [=Completion=] or *failure*
+
+      Note: This algorithm blocks until the service worker is [=running=] or fails to start.
+
+      1. If |serviceWorker| is [=running=], then return |serviceWorker|'s [=start status=].
+      1. If |serviceWorker|'s [=service worker/state=] is "`redundant`", then return *failure*.
+      1. Assert: |serviceWorker|'s [=start status=] is null.
+      1. Let |script| be |serviceWorker|'s [=service worker/script resource=].
+      1. Assert: |script| is not null.
+      1. Let |startFailed| be false.
+      1. Let |workerGlobalScope| be |serviceWorker|'s [=service worker/global object=].
+      1. If |workerGlobalScope| is null:
+          1. Set |workerGlobalScope| to be the result of running the [=Setup ServiceWorkerGlobalScope=] algorithm with |serviceWorker|.
+          1. If |workerGlobalScope| is null, then return *failure*.
+          1. Set |serviceWorker|'s [=service worker/global object=] to |workerGlobalScope|.
+      1. Obtain agent for |workerGlobalScope|'s [=environment settings object/realm execution context=], and run the following steps in that context:
+          1. Set |workerGlobalScope|'s [=ServiceWorkerGlobalScope/force bypass cache for import scripts flag=] if |forceBypassCache| is true.
           1. If |serviceWorker| is an <a>active worker</a>, and there are any <a>tasks</a> queued in |serviceWorker|'s <a>containing service worker registration</a>'s [=service worker registration/task queues=], <a lt="queue a task">queue</a> them to |serviceWorker|'s <a>event loop</a>'s [=/task queues=] in the same order using their original <a>task sources</a>.
           1. Let |evaluationStatus| be null.
           1. If |script| is a [=classic script=], then:
@@ -3051,18 +3154,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: |controller|, a [=fetch controller=]
       :: |useHighResPerformanceTimers|, a boolean
       : Output
-      :: |response|, a [=/response=]
+      :: a [=/response=]
 
-      1. Let |handleFetchFailed| be false.
-      1. Let |respondWithEntered| be false.
-      1. Let |eventCanceled| be false.
-      1. Let |response| be null.
       1. Let |registration| be null.
       1. Let |client| be |request|'s [=request/client=].
       1. Let |reservedClient| be |request|'s [=request/reserved client=].
       1. Let |preloadResponse| be a new [=promise=].
       1. Let |workerRealm| be null.
-      1. Let |eventHandled| be null.
       1. Let |timingInfo| be a new [=service worker timing info=].
       1. Assert: |request|'s [=request/destination=] is not "<code>serviceworker</code>".
       1. If |request|'s [=request/destination=] is either "<code>embed</code>" or "<code>object</code>", then:
@@ -3078,28 +3176,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Set |registration| to the result of running <a>Match Service Worker Registration</a> given |storage key| and |request|'s [=request/url=].
           1. If |registration| is null or |registration|'s <a>active worker</a> is null, return null.
           1. If |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, set |reservedClient|'s <a>active service worker</a> to |registration|'s <a>active worker</a>.
-          1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
-
-              Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
-
-              1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
-              1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
-              1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
-              1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
-              1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
-              1. Let |preloadFetchController| be null.
-              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
-                  1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
-
-                      To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
-
-                      1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
-                      1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
-                      1. Resolve |preloadResponse| with |preloadResponseObject|.
-              1. [=If aborted=], then:
-                  1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
-                  1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
-          1. Else, resolve |preloadResponse| with undefined.
 
           Note: From this point, the [=/service worker client=] starts to <a>use</a> its <a>active service worker</a>'s <a>containing service worker registration</a>.
 
@@ -3107,6 +3183,101 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |client|'s <a>active service worker</a> is non-null, set |registration| to |client|'s <a>active service worker</a>'s <a>containing service worker registration</a>.
           1. Else, return null.
       1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
+          * |request| is a [=non-subresource request=].
+          * |request| is a [=subresource request=] and |registration| is [=stale=].
+      1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
+          1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
+          1. If |source| is {{RouterSourceEnum/"network"}}:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. Return null.
+          1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
+                  1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
+                  1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
+                  1. If |requestResponses| is an empty [=list=], return null.
+                  1. Else:
+                      1. Let |requestResponse| be the first element of |requestResponses|.
+                      1. Let |response| be |requestResponse|'s response.
+                      1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
+                      1. If |globalObject| is null:
+                          1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
+                      1. If |globalObject| is null, return null.
+
+                      Note: This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.
+
+                      1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                      1. Return |response|.
+              1. Return null.
+          1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. Let |queue| be an empty [=queue=] of [=/response=].
+              1. Let |raceFetchController| be null.
+              1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+                  1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
+                      1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
+                          1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
+                          1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
+                      1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
+              1. [=If aborted=] and |raceFetchController| is not null, then:
+                  1. [=fetch controller/Abort=] |raceFetchController|.
+                  1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+              1. Resolve |preloadResponse| with undefined.
+              1. Run the following substeps [=in parallel=]:
+                  1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+                  1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
+                  1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
+              1. Wait until |queue| is not empty.
+              1. Return the result of [=dequeue=] |queue|.
+          1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
+      1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
+
+          Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
+
+          1. Let |preloadRequest| be the result of [=request/cloning=] the request |request|.
+          1. Let |preloadRequestHeaders| be |preloadRequest|'s [=request/header list=].
+          1. Let |preloadResponseObject| be a new {{Response}} object associated with a new {{Headers}} object whose [=guard=] is "`immutable`".
+          1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
+          1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
+          1. Let |preloadFetchController| be null.
+          1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+              1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
+
+                  To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
+
+                  1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
+                  1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
+                  1. Resolve |preloadResponse| with |preloadResponseObject|.
+          1. [=If aborted=], then:
+              1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
+              1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
+      1. Else, resolve |preloadResponse| with undefined.
+      1. Return the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and null.
+  </section>
+
+  <section algorithm>
+    <h3 id="create-fetch-event-and-dispatch-algorithm"><dfn>Create Fetch Event and Dispatch</dfn></h3>
+      : Input
+      :: |request|, a [=/request=]
+      :: |registration|, a [=/service worker registration=]
+      :: |useHighResPerformanceTimers|, a boolean
+      :: |timingInfo|, a [=service worker timing info=]
+      :: |workerRealm|, a [=relevant realm=] of the [=service worker/global object=]
+      :: |reservedClient|, a [=request/reserved client=]
+      :: |preloadResponse|, a [=promise=]
+      :: |raceResponse|, a [=race response=] or null
+      : Output
+      :: a [=/response=]
+
+      1. Let |response| be null.
+      1. Let |eventCanceled| be false.
+      1. Let |client| be |request|'s [=request/client=].
+      1. Let |activeWorker| be |registration|'s <a>active worker</a>.
+      1. Let |eventHandled| be null.
+      1. Let |handleFetchFailed| be false.
+      1. Let |respondWithEntered| be false.
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
@@ -3126,6 +3297,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Else:
           1. Set |workerRealm| to the [=relevant realm=] of the |activeWorker|'s [=service worker/global object=].
           1. Set |eventHandled| to [=a new promise=] in |workerRealm|.
+          1. If |raceResponse| is not null, [=map/set=] |activeWorker|'s [=service worker/global object=]'s [=race response map=][|request|] to |raceResponse|.
           1. [=Queue a task=] |task| to run the following substeps:
               1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
               1. Let |controller| be a [=new=] {{AbortController}} object with |workerRealm|.
@@ -3162,17 +3334,124 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. Wait for |task| to have executed or for |handleFetchFailed| to be true.
       1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+      1. If |activeWorker|'s [=service worker/global object=]'s [=race response map=][|request|] [=map/exists=], [=map/remove=] |activeWorker|'s [=service worker/global object=]'s [=race response map=][|request|].
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
               2. Return a [=network error=].
           1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
+          1. If |raceResponse|'s [=race response/value=] is not null, then:
+              1. Wait until |raceResponse|'s [=race response/value=] is not "<code>pending</code>".
+              1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
           1. Return null.
       1. If |handleFetchFailed| is true, then:
           1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
           2. Return a [=network error=].
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
+  </section>
+
+  <section algorithm>
+    <h3 id="parse-urlpattern-algorithm"><dfn>Parse URL Pattern</dfn></h3>
+      : Input
+      :: |rawPattern|, a {{URLPatternCompatible}}
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: {{URLPattern}}
+
+      1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
+      1. Return the result of [=building a URLPattern from a Web IDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=].
+
+      Note: Since the [=building a URLPattern from a Web IDL value=] algorithm actually do not depend on the realm, it is  fine to call the algorithm here even if the [=service worker/global object=] may not be ready.
+
+  </section>
+
+  <section algorithm>
+    <h3 id="verify-router-rule-algorithm"><dfn>Verify Router Condition</dfn></h3>
+
+      : Input
+      :: |condition|, a {{RouterCondition}}
+      :: |serviceWorker|, a [=/service worker=]
+      : Output
+      :: a boolean
+
+      1. Let |hasCondition| be false.
+      1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
+          1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
+          1. Let |pattern| be the result of running the <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
+          1. If |pattern| [=URLPattern/has regexp groups=], then return false.
+
+              Note: Since running a user-defined regular expression has a security concern, it is prohibited.
+
+          1. Set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/_or}}"] [=map/exists=], then:
+          1. If |hasCondition| is true, return false.
+
+              Note: For ease of understanding the router rule, the "or" condition is mutually exclusive with other conditions.
+
+          1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
+          1. For each |orCondition| of |orConditions|:
+              1. If running the [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
+          1. Set |hasCondition| to true.
+      1. Return |hasCondition|.
+  </section>
+
+  <section algorithm>
+    <h3 id="match-router-condition-algorithm"><dfn>Match Router Condition</dfn></h3>
+      : Input
+      :: |condition|, a {{RouterCondition}}
+      :: |serviceWorker|, a [=/service worker=]
+      :: |request|, a [=/request=]
+      : Output
+      :: a boolean
+
+      Note: if there are multiple conditions (e.g. `urlPattern`, `runningStatus`, and `requestMethod` are set), all conditions need to match for true to be returned.
+
+      1. If |condition|["{{RouterCondition/or}}"] [=map/exists=], then:
+          1. Let |orConditions| be |condition|["{{RouterCondition/or}}"].
+          1. For each |orCondition| of |orConditions|:
+              1. If running the [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
+          1. Return false.
+      1. Else:
+
+          Note: The [=Verify Router Condition=] algorithm guarantees that {{RouterCondition/or}} and other conditions are mutual exclusive.
+
+          1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
+              1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
+              1. Let |pattern| be the result of running the <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|.
+              1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
+          1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
+              1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+              1. If |request|'s [=request/method=] is not |method|, return false.
+          1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], then:
+              1. Let |mode| be |condition|["{{RouterCondition/requestMode}}"].
+              1. If |request|'s [=request/mode=] is not |mode|, return false.
+          1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], then:
+              1. Let |destination| be |condition|["{{RouterCondition/requestDestination}}"].
+              1. If |request|'s [=request/destination=] is not |destination|, return false.
+          1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], then:
+              1. Let |runningStatus| be |condition|["{{RouterCondition/runningStatus}}"].
+              1. If |runningStatus| is {{RunningStatus/"running"}}, and |serviceWorker| is not [=running=], return false.
+              1. If |runningStatus| is {{RunningStatus/"not-running"}}, and |serviceWorker| is [=running=], return false.
+          1. Return true.
+  </section>
+
+  <section algorithm>
+    <h3 id="get-router-source-algorithm"><dfn>Get Router Source</dfn></h3>
+      : Input
+      :: |serviceWorker|, a [=/service worker=]
+      :: |request|, a [=/request=]
+      : Output
+      :: {{RouterSource}} or null
+
+      1. [=list/For each=] |rule| of |serviceWorker|'s [=service worker/list of router rules=]:
+          1. If running the [=Match Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"], |serviceWorker| and |request| returns true, then return |rule|["{{RouterRule/source}}"].
+
+      1. Return null.
   </section>
 
   <section algorithm>
@@ -3706,6 +3985,34 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. If [=Is Async Module=] for |moduleMap|[|url|]'s [=script/record=], |moduleMap|, |base|, and |seen| is true, then:
                   1. Return true.
       1. Return false.
+  </section>
+
+  <section algorithm>
+    <h3 id="lookup-race-response-algorithm"><dfn export>Lookup Race Response</dfn></h3>
+
+      : Input
+      :: |request|, a [=/request=]
+      : Output
+      :: a [=/response=] or null
+
+      1. Let |registration| be null.
+      1. If |request| is a [=non-subresource request=], then:
+          1. If |request|'s [=request/reserved client=] is null, return null.
+          1. Let |storage key| be the result of running [=obtain a storage key=] given |request|'s [=request/reserved client=].
+          1. Set |registration| to the result of running [=Match Service Worker Registration=] given |storage key| and |request|'s [=request/url=].
+      1. Else if |request| is a [=subresource request=], then:
+          1. Let |client| be |request|'s [=request/client=].
+          1. If |client|'s [=active service worker=] is null, return null.
+          1. Set |registration| to |client|'s [=active service worker=]'s [=containing service worker registration=].
+      1. Otherwise, return null.
+      1. Let |activeWorker| be |registration|'s [=active worker=].
+      1. Let |map| be |activeWorker|'s [=service worker/global object=]'s [=race response map=].
+      1. If |map|[|request|] [=map/exists=], then:
+        1. Let |entry| be |map|[|request|].
+        1. [=map/Remove=] |map|[|request|].
+        1. Wait until |entry|'s [=race response/value=] is not "<code>pending</code>"
+        1. If |entry|'s [=race response/value=] is [=/response=], return |entry|'s [=race response/value=].
+      1. Return null.
   </section>
 </section>
 
