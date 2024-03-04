@@ -3357,13 +3357,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       :: |rawPattern|, a {{URLPatternCompatible}}
       :: |serviceWorker|, a [=/service worker=]
       : Output
-      :: {{URLPattern}}
+      :: A [=URL pattern=] struct
 
       1. Let |baseURL| be |serviceWorker|'s [=service worker/script url=].
-      1. Return the result of [=building a URLPattern from a Web IDL value=] |rawPattern| given |baseURL| and |serviceWorker|'s [=service worker/global object=]'s [=relevant realm=].
-
-      Note: Since the [=building a URLPattern from a Web IDL value=] algorithm actually do not depend on the realm, it is  fine to call the algorithm here even if the [=service worker/global object=] may not be ready.
-
+      1. Return the result of [=building a URL pattern from a Web IDL value=] |rawPattern| given |baseURL|.
   </section>
 
   <section algorithm>
@@ -3379,7 +3376,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |condition|["{{RouterCondition/urlPattern}}"] [=map/exists=], then:
           1. Let |rawPattern| be |condition|["{{RouterCondition/urlPattern}}"].
           1. Let |pattern| be the result of running the <a>Parse URL Pattern</a> algorithm passing |rawPattern| and |serviceWorker|. If this throws an exception, catch it and return false.
-          1. If |pattern| [=URLPattern/has regexp groups=], then return false.
+          1. If |pattern| [=URL pattern/has regexp groups=], then return false.
 
               Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
