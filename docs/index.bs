@@ -713,7 +713,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         readonly attribute ServiceWorker? controller;
         readonly attribute Promise&lt;ServiceWorkerRegistration&gt; ready;
 
-        [NewObject] Promise&lt;ServiceWorkerRegistration&gt; register(USVString scriptURL, optional RegistrationOptions options = {});
+        [NewObject] Promise&lt;ServiceWorkerRegistration&gt; register((TrustedScriptURL or USVString) scriptURL, optional RegistrationOptions options = {});
 
         [NewObject] Promise&lt;(ServiceWorkerRegistration or undefined)&gt; getRegistration(optional USVString clientURL = "");
         [NewObject] Promise&lt;FrozenArray&lt;ServiceWorkerRegistration&gt;&gt; getRegistrations();
@@ -782,6 +782,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="ServiceWorkerContainer"><code>register(|scriptURL|, |options|)</code></dfn> method steps are:
 
         1. Let |p| be a <a>promise</a>.
+        1. Set |scriptURL| to the result of invoking [$Get Trusted Type compliant string$] with {{TrustedScriptURL}}, [=this=]'s [=relevant global object=], |scriptURL|, "ServiceWorkerContainer register", and "script".
         1. Let |client| be [=this=]'s [=ServiceWorkerContainer/service worker client=].
         1. Let |scriptURL| be the result of <a lt="URL parser">parsing</a> |scriptURL| with [=this=]'s <a>relevant settings object</a>'s <a>API base URL</a>.
         1. Let |scopeURL| be null.
