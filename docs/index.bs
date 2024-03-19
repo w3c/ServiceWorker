@@ -1578,6 +1578,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         RunningStatus runningStatus;
 
         sequence&lt;RouterCondition&gt; _or;
+        RouterCondition _not;
       };
 
       typedef (RouterSourceDict or RouterSourceEnum) RouterSource;
@@ -3394,6 +3395,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. For each |orCondition| of |orConditions|:
               1. If running the [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/not}}"] [=map/exists=], then:
+          1. If |hasCondition| is true, return false.
+
+              Note: For ease of understanding the router rule, the "not" condition is mutually exclusive with other conditions.
+
+          1. If running the [=Verify Router Condition=] algorithm with |condition|["{{RouterCondition/not}}"] and |serviceWorker| returns false, return false.
+          1. Set |hasCondition| to true.
+
       1. Return |hasCondition|.
   </section>
 
@@ -3413,6 +3422,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. For each |orCondition| of |orConditions|:
               1. If running the [=Match Router Condition=] algorithm with |orCondition|, |serviceWorker| and |request| returns true, then return true.
           1. Return false.
+      1. If |condition|["{{RouterCondition/not}}"] [=map/exists=], then:
+          1. If running the [=Match Router Condition=] algorithm with |condition|["{{RouterCondition/not}}"], |serviceWorker| and |request| returns true, then return false.
+          1. Return true.
       1. Else:
 
           Note: The [=Verify Router Condition=] algorithm guarantees that {{RouterCondition/or}} and other conditions are mutual exclusive.
