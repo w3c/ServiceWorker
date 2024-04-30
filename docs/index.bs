@@ -1600,6 +1600,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
     </pre>
 
+    Note: {{RouterCondition/_or}} and {{RouterCondition/not}} might have the other {{RouterCondition/_or}} or {{RouterCondition/not}} inside. To avoid spending much resources by the nested condition or performance penalty on evaluation, depth of such nested conditions can be limited.
+
     <section>
       <h4 id="register-router-method">{{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}}</h4>
 
@@ -3399,6 +3401,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: For ease of understanding the router rule, the "or" condition is mutually exclusive with other conditions.
 
           1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
+
+              Note: To limit the resource usage and a condition evaluation time, |orConditions|'s [=list/size=] can be limited.
+
           1. For each |orCondition| of |orConditions|:
               1. If running the [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
