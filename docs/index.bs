@@ -3153,7 +3153,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       : Input
       :: |request|, a [=/request=]
-      :: |controller|, a [=fetch controller=]
+      :: |fetchController|, a [=fetch controller=]
       :: |useHighResPerformanceTimers|, a boolean
       : Output
       :: a [=/response=]
@@ -3217,7 +3217,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
               1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
-              1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+              1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                       1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
                           1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
@@ -3244,7 +3244,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. [=header list/Append=] to |preloadRequestHeaders| a new [=header=] whose [=header/name=] is \`<code>Service-Worker-Navigation-Preload</code>\` and [=header/value=] is |registration|'s [=navigation preload header value=].
           1. Set |preloadRequest|'s [=service-workers mode=] to "`none`".
           1. Let |preloadFetchController| be null.
-          1. Run the following substeps [=in parallel=], but [=abort when=] |controller|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+          1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
               1. Set |preloadFetchController| to the result of [=Fetch|fetching=] |preloadRequest|.
 
                   To [=fetch/processResponse=] for |navigationPreloadResponse|, run these substeps:
@@ -3302,8 +3302,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. If |raceResponse| is not null, [=map/set=] |activeWorker|'s [=service worker/global object=]'s [=race response map=][|request|] to |raceResponse|.
           1. [=Queue a task=] |task| to run the following substeps:
               1. Let |e| be the result of <a>creating an event</a> with {{FetchEvent}}.
-              1. Let |controller| be a [=new=] {{AbortController}} object with |workerRealm|.
-              1. Let |requestObject| be the result of [=Request/creating=] a {{Request}} object, given |request|, a new {{Headers}} object's [=guard=] which is "`immutable`", |controller|'s [=AbortController/signal=], and |workerRealm|.
+              1. Let |abortController| be a [=new=] {{AbortController}} object with |workerRealm|.
+              1. Let |requestObject| be the result of [=Request/creating=] a {{Request}} object, given |request|, a new {{Headers}} object's [=guard=] which is "`immutable`", |abortController|'s [=AbortController/signal=], and |workerRealm|.
               1. Initialize |e|’s {{Event/type}} attribute to {{fetch!!event}}.
               1. Initialize |e|’s {{Event/cancelable}} attribute to true.
               1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
@@ -3325,10 +3325,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Else, [=ReadableStream/cancel=] |request|'s [=request/body=] with undefined.
               1. If |response| is not null, then set |response|'s [=response/service worker timing info=] to |timingInfo|.
               1. If |e|'s <a>canceled flag</a> is set, set |eventCanceled| to true.
-              1. If |controller| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then:
-                  1. Let |deserializedError| be a "{{AbortError}}" {{DOMException}}.
-                  1. If |controller|'s [=fetch controller/serialized abort reason=] is non-null, set |deserializedError| to the result of calling [$StructuredDeserialize$] with |controller|'s [=fetch controller/serialized abort reason=] and |workerRealm|. If that threw an exception or returns undefined, then set |deserializedError| to a "{{AbortError}}" {{DOMException}}.
-                  1. [=Queue a task=] to [=AbortController/signal abort=] on |controller| with |deserializedError|.
+              1. If |fetchController| [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then:
+                  1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given |fetchController|'s [=fetch controller/serialized abort reason=] and |workerRealm|.
+                  1. [=Queue a task=] to [=AbortController/signal abort=] on |abortController| with |deserializedError|.
 
              If |task| is discarded, set |handleFetchFailed| to true.
 
