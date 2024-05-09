@@ -1453,7 +1453,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Run these substeps <a>in parallel</a>:
             1. Let |newContext| be a new [=top-level browsing context=].
             1. [=Queue a task=] to run the following steps on |newContext|'s {{Window}} object's [=environment settings object=]'s [=responsible event loop=] using the [=user interaction task source=]:
-                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptionsEnabled=] true, and <i>[=navigate/historyHandling=]</i> "<code>replace</code>".
+                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=navigate/exceptionsEnabled=] true, and <i>[=navigate/historyHandling=]</i> "<code>replace</code>".
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
@@ -2094,7 +2094,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
                     1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
-                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=DOMException/message=], in |realm|.
+                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData|, in |realm|.
             1. Return |cacheJobPromise|.
     </section>
 
@@ -3113,7 +3113,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Otherwise, set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventListenerCallback|.
           1. If [$IsCallable$](|callback|) is false, then return false.
 
-              Note: [=event listener/Callback=] objects that use <code>handleEvent</code> are assumed to be non-empty. This avoids calling the <code>handleEvent</code> getters, which could modify the event listeners during this check.
+              Note: [=event listener/Callback=] objects that use {{EventListener/handleEvent(event)}} are assumed to be non-empty. This avoids calling the {{EventListener/handleEvent(event)}} getters, which could modify the event listeners during this check.
 
           1. If |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
 
