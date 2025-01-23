@@ -1609,16 +1609,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. If |event|'s [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. If |rules| is not either of a {{RouterRule}} dictionary or a sequence of {{RouterRule}} dictionaries, then return [=a promise rejected with=] a {{TypeError}}.
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
+        1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
         1.  For each |rule| of |rules|:
             1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
         1. If |rules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
         1. Let |promise| be a new [=promise=].
+        1. [=ExtendableEvent/Add lifetime promise=] |promise| to |event|.
+
+            Note: {{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(promise)}} is called.
+
         1. Run the following substeps [=in parallel=]:
-            1. [=ExtendableEvent/Add lifetime promise=] |promise| to |event|.
-
-                Note: {{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(promise)}} is called.
-
-            1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
             1. Let |allRules| be a copy of |serviceWorker|'s [=list of router rules=].
             1.  For each |rule| of |rules|:
                 1. Append |rule| to |allRules|.
