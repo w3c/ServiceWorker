@@ -1617,7 +1617,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
             Note: {{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(promise)}} is called.
 
-        1. Run the following substeps [=in parallel=]:
+        1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
+        1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
             1. Let |allRules| be a copy of |serviceWorker|'s [=list of router rules=].
             1.  For each |rule| of |rules|:
                 1. Append |rule| to |allRules|.
