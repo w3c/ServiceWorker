@@ -1605,15 +1605,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
 
-        1. Let |event| be [=this=].
-        1. If |event|'s [=dispatch flag=] is unset, [=throw=] an "{{InvalidStateError}}" {{DOMException}}.
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
         1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
         1.  For each |rule| of |rules|:
             1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
             1. If |rule|["{{RouterRule/source}}"] is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
         1. Let |lifetimePromise| be a new [=promise=].
-        1. [=ExtendableEvent/Add lifetime promise=] |lifetimePromise| to |event|.
+        1. [=ExtendableEvent/Add lifetime promise=] |lifetimePromise| to [=this=].
 
             Note: {{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(promise)}} is called.
 
