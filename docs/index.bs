@@ -214,6 +214,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
+    A [=/service worker=] has an associated <dfn>[[service worker queue]]</dfn> (a [=parallel queue=]).
+
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
@@ -1622,8 +1624,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
             Note: this step is for making |lifetimePromise| always fullfilled to avoid the install event failure.
 
-        1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
-        1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
+        1. [=queue/Enqueue=] the following steps to [=[[service worker queue]]=]:
             1. Let |allRules| be a copy of |serviceWorker|'s [=list of router rules=].
             1.  For each |rule| of |rules|:
                 1. Append |rule| to |allRules|.
