@@ -5,10 +5,12 @@ ED: https://w3c.github.io/ServiceWorker/
 TR: https://www.w3.org/TR/service-workers/
 Shortname: service-workers
 Level:
-Editor: Jake Archibald, w3cid 76394, Google, jakearchibald@chromium.org
-Editor: Marijn Kruisselbrink, w3cid 72440, Google, mek@chromium.org
+Editor: Monica Chintala, w3cid 160353, Microsoft, monicach@microsoft.com
+Editor: Yoshisato Yanagisawa, w3cid 142513, Google, yyanagisawa@chromium.org
 Former Editor: Alex Russell, Google, slightlyoff@chromium.org
+Former Editor: Jake Archibald, w3cid 76394, Google, jakearchibald@chromium.org
 Former Editor: Jungkee Song, Microsoft&sbquo; represented Samsung until April 2018, jungkee.song@microsoft.com
+Former Editor: Marijn Kruisselbrink, w3cid 72440, Google, mek@chromium.org
 Repository: w3c/ServiceWorker
 Group: serviceworkers
 !Tests: <a href=https://github.com/web-platform-tests/wpt/tree/master/service-workers>web-platform-tests service-workers/</a> (<a href=https://github.com/web-platform-tests/wpt/labels/service-workers>ongoing work</a>)
@@ -1609,7 +1611,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
         1.  For each |rule| of |rules|:
             1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
-            1. If |rule|["{{RouterRule/source}}"] is "{{RouterSourceEnum/fetch-event}}" and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
+            1. If |rule|["{{RouterRule/source}}"] is either of "{{RouterSourceEnum/fetch-event}}" or "{{RouterSourceEnum/race-network-and-fetch-handler}}", and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
         1. Let |lifetimePromise| be a new [=promise=].
         1. [=ExtendableEvent/Add lifetime promise=] |lifetimePromise| to [=this=].
 
@@ -1629,7 +1631,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Set |serviceWorker|'s [=service worker/list of router rules=] to |allRules|.
             1. Resolve |promise| with undefined.
         1. Return |promise|.
-
     </section>
   </section>
 
@@ -3398,7 +3399,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
           1. Set |hasCondition| to true.
-      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=]:
+          1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+          1. If |method| is not a [=/method=], then return false.
+          1. If |method| is a [=forbidden method=], then return false.
+          1. Set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], set |hasCondition| to true.
@@ -3450,6 +3455,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
           1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
               1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+              1. [=method/Normalize=] |method|.
               1. If |request|'s [=request/method=] is not |method|, return false.
           1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], then:
               1. Let |mode| be |condition|["{{RouterCondition/requestMode}}"].
