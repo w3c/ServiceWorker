@@ -5,10 +5,12 @@ ED: https://w3c.github.io/ServiceWorker/
 TR: https://www.w3.org/TR/service-workers/
 Shortname: service-workers
 Level:
-Editor: Jake Archibald, w3cid 76394, Google, jakearchibald@chromium.org
-Editor: Marijn Kruisselbrink, w3cid 72440, Google, mek@chromium.org
+Editor: Monica Chintala, w3cid 160353, Microsoft, monicach@microsoft.com
+Editor: Yoshisato Yanagisawa, w3cid 142513, Google, yyanagisawa@chromium.org
 Former Editor: Alex Russell, Google, slightlyoff@chromium.org
+Former Editor: Jake Archibald, w3cid 76394, Google, jakearchibald@chromium.org
 Former Editor: Jungkee Song, Microsoft&sbquo; represented Samsung until April 2018, jungkee.song@microsoft.com
+Former Editor: Marijn Kruisselbrink, w3cid 72440, Google, mek@chromium.org
 Repository: w3c/ServiceWorker
 Group: serviceworkers
 !Tests: <a href=https://github.com/web-platform-tests/wpt/tree/master/service-workers>web-platform-tests service-workers/</a> (<a href=https://github.com/web-platform-tests/wpt/labels/service-workers>ongoing work</a>)
@@ -500,8 +502,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                         <dd>a new {{WindowClient}} object that represents |incumbentGlobal|'s [=relevant settings object=].</dd>
 
                         <dt>Otherwise</dt>
-                        <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker
-                    </dd>
+                        <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker</dd>
+                    </dl>
                 1. Let |origin| be the [=serialization of an origin|serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
                 1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
                 1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
@@ -1454,7 +1456,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Run these substeps <a>in parallel</a>:
             1. Let |newContext| be a new [=top-level browsing context=].
             1. [=Queue a task=] to run the following steps on |newContext|'s {{Window}} object's [=environment settings object=]'s [=responsible event loop=] using the [=user interaction task source=]:
-                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=exceptionsEnabled=] true, and [=historyHandling=] "<code>replace</code>".
+                1. *HandleNavigate*: [=Navigate=] |newContext| to |url| with [=navigate/exceptionsEnabled=] true, and <i>[=navigate/historyHandling=]</i> "<code>replace</code>".
                 1. If the algorithm steps invoked in the step labeled *HandleNavigate* [=throws=] an exception, [=queue a task=] to reject |promise| with the exception, on |serviceWorkerEventLoop| using the [=DOM manipulation task source=], and abort these steps.
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
@@ -1563,6 +1565,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     <pre class="idl">
       [Exposed=ServiceWorker]
       interface InstallEvent : ExtendableEvent {
+        constructor(DOMString type, optional ExtendableEventInit eventInitDict = {});
         Promise&lt;undefined&gt; addRoutes((RouterRule or sequence&lt;RouterRule&gt;) rules);
       };
 
@@ -2095,7 +2098,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
                     1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
-                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData|, in |realm|.
             1. Return |cacheJobPromise|.
     </section>
 
@@ -2140,7 +2143,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
                     1. If |errorData| is null, resolve |cacheJobPromise| with undefined.
-                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+                    1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData|, in |realm|.
     </section>
 
     <section algorithm="cache-delete">
@@ -2169,7 +2172,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. If |errorData| is null, then:
                     1. If |requestResponses| [=list/is not empty=], resolve |cacheJobPromise| with true.
                     1. Else, resolve |cacheJobPromise| with false.
-                1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |realm|.
+                1. Else, reject |cacheJobPromise| with a [=exception/create|new=] [=exception=] with |errorData|, in |realm|.
         1. Return |cacheJobPromise|.
     </section>
 
@@ -2641,10 +2644,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: none
 
-      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |job|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |job|'s [=job/client=]'s [=environment settings object/Realm=].
+      1. If |job|'s [=job/client=] is not null, [=queue a task=], on |job|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |job|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorData|, in |job|'s [=job/client=]'s [=environment settings object/Realm=].
       1. For each |equivalentJob| in |job|'s [=list of equivalent jobs=]:
           1. If |equivalentJob|'s [=job/client=] is null, [=iteration/continue=].
-          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |equivalentJob|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorData| and a user agent-defined [=exception/message=], in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
+          1. [=Queue a task=], on |equivalentJob|'s [=job/client=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to reject |equivalentJob|'s [=job/job promise=] with a [=exception/create|new=] [=exception=] with |errorData|, in |equivalentJob|'s [=job/client=]'s [=environment settings object/Realm=].
   </section>
 
   <section algorithm>
@@ -2990,7 +2993,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
-    <h3 id="setup-serviceworkerglobalscope"><dfn>Setup ServiceWorkerGlobalScope</dfn></h3>
+    <h3 id="setup-serviceworkerglobalscope-algorithm"><dfn>Setup ServiceWorkerGlobalScope</dfn></h3>
 
       : Input
       :: |serviceWorker|, a [=/service worker=]
@@ -3114,7 +3117,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Otherwise, set |callback| to the result of [=convert to an ECMAScript value|converting to an ECMAScript value=] |eventListenerCallback|.
           1. If [$IsCallable$](|callback|) is false, then return false.
 
-              Note: [=Event listener/Callback=] objects that use {{handleEvent}} are assumed to be non-empty. This avoids calling the {{handleEvent}} getters, which could modify the event listeners during this check.
+              Note: [=event listener/Callback=] objects that use {{EventListener/handleEvent(event)}} are assumed to be non-empty. This avoids calling the {{EventListener/handleEvent(event)}} getters, which could modify the event listeners during this check.
 
           1. If |callback|'s [=function body=] is not empty (i.e. either a [=statement=] or [=declaration=] exist), then return false.
 
@@ -3382,7 +3385,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: Since running a user-defined regular expression has a security concern, it is prohibited.
 
           1. Set |hasCondition| to true.
-      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], set |hasCondition| to true.
+      1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=]:
+          1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+          1. If |method| is not a [=/method=], then return false.
+          1. If |method| is a [=forbidden method=], then return false.
+          1. Set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/requestDestination}}"] [=map/exists=], set |hasCondition| to true.
       1. If |condition|["{{RouterCondition/runningStatus}}"] [=map/exists=], set |hasCondition| to true.
@@ -3434,6 +3441,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. If running [=match=] with |pattern| and |request|'s [=request/URL=] returns null, return false.
           1. If |condition|["{{RouterCondition/requestMethod}}"] [=map/exists=], then:
               1. Let |method| be |condition|["{{RouterCondition/requestMethod}}"].
+              1. [=method/Normalize=] |method|.
               1. If |request|'s [=request/method=] is not |method|, return false.
           1. If |condition|["{{RouterCondition/requestMode}}"] [=map/exists=], then:
               1. Let |mode| be |condition|["{{RouterCondition/requestMode}}"].
