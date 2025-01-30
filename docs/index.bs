@@ -212,6 +212,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] has an associated <dfn>list of router rules</dfn> (a [=list=] of {{RouterRule}}s). It is initially an empty [=list=].
 
+    A [=/service worker=] has an associated <dfn>router rule count</dfn> (the number of registered {{RouterRule}}s). It is initially set to zero.
+
+    Note: [=router rule count=] is defined as the limit of the total number of registered router rules. This prevents the user agent from spending much resources by evaluating too many router rules. The limit is 1024.
+
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
     <section>
@@ -3401,9 +3405,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: For ease of understanding the router rule, the "or" condition is mutually exclusive with other conditions.
 
           1. Let |orConditions| be |condition|["{{RouterCondition/_or}}"].
-
+         
               Note: To limit the resource usage and a condition evaluation time, |orConditions|'s [=list/size=] can be limited.
-
+ 
           1. For each |orCondition| of |orConditions|:
               1. If running the [=Verify Router Condition=] algorithm with |orCondition| and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
@@ -3414,6 +3418,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. If running the [=Verify Router Condition=] algorithm with |condition|["{{RouterCondition/not}}"] and |serviceWorker| returns false, return false.
           1. Set |hasCondition| to true.
+      1. If |hasCondition| is true, then:
+          1. Increament |serviceWorker|'s [=service worker/router rule count=] by one.
+          1. If |serviceWorker|'s [=service worker/router rule count=] exceeds 1024, which is the limit of registered router rules, return false.
       1. Return |hasCondition|.
   </section>
 
