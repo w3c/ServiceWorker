@@ -214,6 +214,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A [=/service worker=] is said to be <dfn>running</dfn> if its [=event loop=] is running.
 
+    A [=/service worker=] has an associated <dfn>[[service worker queue]]</dfn> (a [=parallel queue=]).
+
     <section>
       <h4 id="service-worker-lifetime">Lifetime</h4>
 
@@ -1607,16 +1609,31 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       The <dfn method for="InstallEvent"><code>addRoutes(|rules|)</code></dfn> method steps are:
 
-        1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
-        1. Let |routerRules| be a copy of |serviceWorker|'s [=list of router rules=].
         1. If |rules| is a {{RouterRule}} dictionary, set |rules| to &#x00AB; |rules| &#x00BB;.
+        1. Let |serviceWorker| be the [=current global object=]'s associated [=ServiceWorkerGlobalScope/service worker=].
         1.  For each |rule| of |rules|:
             1. If running the [=Verify Router Condition=] algorithm with |rule|["{{RouterRule/condition}}"] and |serviceWorker| returns false, return [=a promise rejected with=] a {{TypeError}}.
-            1. Append |rule| to |routerRules|.
-        1. If |routerRules| [=list/contains=] a {{RouterRule}} whose {{RouterRule/source}} is either of "{{RouterSourceEnum/fetch-event}}" or "{{RouterSourceEnum/race-network-and-fetch-handler}}", and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
-        1. Set |serviceWorker|'s [=service worker/list of router rules=] to |routerRules|.
-        1. Return [=a promise resolved with=] undefined.
+            1. If |rule|["{{RouterRule/source}}"] is either of "{{RouterSourceEnum/fetch-event}}" or "{{RouterSourceEnum/race-network-and-fetch-handler}}", and |serviceWorker|'s [=set of event types to handle=] does not [=set/contain=] {{ServiceWorkerGlobalScope/fetch!!event}}, return [=a promise rejected with=] a {{TypeError}}.
+        1. Let |lifetimePromise| be a new [=promise=].
+        1. [=ExtendableEvent/Add lifetime promise=] |lifetimePromise| to [=this=].
 
+            Note: {{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}} extends the lifetime of the event by default as if {{ExtendableEvent/waitUntil()|event.waitUntil(promise)}} is called.
+
+        1. Let |promise| be a new [=promise=].
+        1. Upon [=upon fulfillment|fulfillment=] or [=upon rejection|rejection=] of |promise|, resolve |lifetimePromise| with undefined.
+
+            Note: this step is for making |lifetimePromise| always fullfilled to avoid the install event failure.
+
+        1. [=queue/Enqueue=] the following steps to [=[[service worker queue]]=]:
+            1. Let |allRules| be a copy of |serviceWorker|'s [=list of router rules=].
+            1.  For each |rule| of |rules|:
+                1. Append |rule| to |allRules|.
+
+            1. Set |serviceWorker|'s [=service worker/list of router rules=] to |allRules|.
+            1. Let |serviceWorkerEventLoop| be the [=current global object=]'s [=event loop=].
+            1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
+                1. Resolve |promise| with undefined.
+        1. Return |promise|.
     </section>
   </section>
 
