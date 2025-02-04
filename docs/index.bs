@@ -1601,8 +1601,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     </pre>
 
     A <dfn id="dfn-count-router-condition-result">count router condition result</dfn> is a [=struct=] that consists of:
-      * A <dfn id="dfn-count-router-condition-result-total-count" for="count router condition result">total count</dfn> (a number).
-      * A <dfn id="dfn-dfn-count-router-condition-result-depth" for="count router condition result">depth</dfn> (a number).
+      * A <dfn id="dfn-count-router-condition-result-condition-count" for="count router condition result">condition count</dfn> (a number).
+      * A <dfn id="dfn-dfn-count-router-condition-result-quota-exceeded" for="count router condition result">quota exceeded</dfn> (a boolean).
 
     <section>
       <h4 id="register-router-method">{{InstallEvent/addRoutes(rules)|event.addRoutes(rules)}}</h4>
@@ -3472,15 +3472,11 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       Note: Router conditions can be complex and nested using {{RouterCondition/_or}} and {{RouterCondition/not}}. To prevent excessive processing, this algorithm introduces two limits. First, the total number of conditions, counting all nested conditions, cannot exceed 1024. Second, the nesting depth is limited to 10 levels to avoid exponential computation.
 
       1. Let |result| be a [=count router condition result=].
-      1. Set |result|'s [=count router condition result/total count=] to 0.
-      1. Set |result|'s [=count router condition result/depth=] to 1.
-      1. Let |maxCount| be 1024.
-      1. Let |maxDepth| be 10.
+      1. Set |result|'s [=count router condition result/condition count=] to 1024.
+      1. Set |result|'s [=count router condition result/quota exceeded=] to false.
       1. [=list/For each=] |rule| of |routerRules|:
-          1. Let |currentResult| be the result of running [=Count Router Inner Conditions=] with |rule|["{{RouterRule/condition}}"], |result|, |maxCount|, and |maxDepth|.
-          1. If |currentResult|'s [=count router condition result/total count=] exceeds |maxCount|, return false.
-          1. If |currentResult|'s [=count router condition result/depth=] exceeds |maxDepth|, return false.
-          1. Set |result|'s [=count router condition result/total count=] to |currentResult|'s [=count router condition result/total count=].
+          1. Set |result| to be the result of running [=Count Router Inner Conditions=] with |rule|["{{RouterRule/condition}}"], |result|, and 10.
+          1. If |result|'s [=count router condition result/quota exceeded=] is true, return false.
       1. return true.
   </section> 
 
@@ -3490,25 +3486,23 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Input
       :: |condition|, a {{RouterCondition}}
       :: |result|, a [=count router condition result=]
-      :: |maxCount|, a number
-      :: |maxDepth|, a number
+      :: |depth|, a number
       : Output
       :: |result|, a [=count router condition result=]
 
-      1. Increment |result|'s [=count router condition result/total count=] by one.
-      1. If |result|'s [=count router condition result/total count=] exceeds |maxCount|, return |result|.
-      1. If |result|'s [=count router condition result/depth=] exceeds |maxDepth|, return |result|.
+      1. Decrement |result|'s [=count router condition result/condition count=] by one.
+      1. If |result|'s [=count router condition result/condition count=] is zero, or |depth| is zero, then:
+          1. Set |result|'s [=count router condition result/quota exceeded=] to be true.
+          1. Return |result|.
       1. If |condition|["{{RouterCondition/_or}}"] [=map/exists=], then:
-          1. Increment |result|'s [=count router condition result/depth=] by one.
+          1. Decrement |depth| by one.
           1. For each |orCondition| of |condition|["{{RouterCondition/_or}}"]:
-              1. Set |result| to be the result of running [=Count Router Inner Conditions=] with |orCondition|, |result|, |maxCount|, and |maxDepth|.
-              1. If |result|'s [=count router condition result/total count=] exceeds |maxCount|, return |result|.
-              1. If |result|'s [=count router condition result/depth=] exceeds |maxDepth|, return |result|.
+              1. Set |result| to be the result of running [=Count Router Inner Conditions=] with |orCondition|, |result|, and |depth|.
+              1. If |result|'s [=count router condition result/quota exceeded=] is true, return |result|.
       1. Else if |condition|["{{RouterCondition/not}}"] [=map/exists=], then:
-          1. Increment |result|'s [=count router condition result/depth=] by one.
-          1. Set |result| to be the result of running [=Count Router Inner Conditions=] with |condition|["{{RouterCondition/not}}"], |result|, |maxCount|, and |maxDepth|.
-          1. If |result|'s [=count router condition result/total count=] exceeds |maxCount|, return |result|.
-          1. If |result|'s [=count router condition result/depth=] exceeds |maxDepth|, return |result|. 
+          1. Decrement |depth| by one.
+          1. Set |result| to be the result of running [=Count Router Inner Conditions=] with |condition|["{{RouterCondition/not}}"], |result|, and |depth|.
+          1. If |result|'s [=count router condition result/quota exceeded=] is true, return |result|.
       1. Return |result|.
   </section>
 
