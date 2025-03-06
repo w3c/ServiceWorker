@@ -1,4 +1,4 @@
-# Web Platform Working Group
+# Web Applications Working Group
 
 ## Spec and API development
 
@@ -13,7 +13,7 @@ To make edits to the design, please send pull requests against the Nightly spec 
 For normative changes, a corresponding [web-platform-tests](https://github.com/web-platform-tests/wpt) PR is highly appreciated. Typically, both PRs will be merged at the same time. Note that a test change that contradicts the spec should not be merged before the corresponding spec change. If testing is not practical, please explain why and if appropriate [file an issue](https://github.com/web-platform-tests/wpt/issues/new) to follow up later. Add the `type:untestable` or `type:missing-coverage` label as appropriate.
 
 Contributions to this repository are intended to become part of Recommendation-track documents
-governed by the [W3C Patent Policy](http://www.w3.org/Consortium/Patent-Policy-20040205/) and
+governed by the [W3C Patent Policy](https://www.w3.org/policies/patent-policy/) and
 [Software and Document License](http://www.w3.org/Consortium/Legal/copyright-software). To contribute, you must
 either participate in the relevant W3C Working Group or make a non-member patent licensing
 commitment.
