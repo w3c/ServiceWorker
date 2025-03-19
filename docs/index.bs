@@ -88,10 +88,6 @@ spec: ecma-262; urlPrefix: https://tc39.es/ecma262/
             text: statement
             text: declaration
 
-spec: page-visibility; urlPrefix: https://html.spec.whatwg.org/multipage/interaction.html#page-visibility
-    type: enum; text: VisibilityState; url: VisibilityState
-    type: attribute; text: visibilityState; for: Document; url: dom-document-visibilitystate
-
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: attribute
         urlPrefix: comms.html
@@ -99,6 +95,8 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: source; for: MessageEvent; url: dom-messageevent-source
             text: ports; for: MessageEvent; url: dom-messageevent-ports
             text: data; for: MessageEvent; url: dom-messageevent-data
+        urlPrefix: interaction.html
+            text: visibilityState; for: Document; url: page-visibility
     type: dfn
         urlPrefix: nav-history-apis.html
             text: ancestor origins list; for: Location; url: concept-location-ancestor-origins-list
@@ -109,6 +107,9 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
         urlPrefix: webappapis.html
             text: module map; url: module-map
             text: resolve a module specifier; url: resolve-a-module-specifier
+    type: enum
+        urlPrefix: interaction.html
+            text: VisibilityState; url: page-visibility
 
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
@@ -161,9 +162,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
   Web developers familiar with previous attempts to solve the offline problem have reported a deficit of flexibility in those solutions. As a result, the [=/service worker=] is highly procedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep [=/service workers=] responsive in the face of a single-threaded execution model. As a result, APIs exposed by [=/service workers=] are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.
 
-  Developers using the <a href="https://en.wikipedia.org/wiki/Cache_manifest_in_HTML5">HTML5 Application Cache</a> have also <a href="https://alistapart.com/article/application-cache-is-a-douchebag/">reported that several attributes</a> of the design contribute to <a href="https://alistapart.com/article/application-cache-is-a-douchebag/">unrecoverable errors</a>. A key design principle of the [=/service worker=] is that errors should *always* be recoverable. Many details of the update process of [=/service workers=] are designed to avoid these hazards.
+  Developers using the <a href="https://www.w3.org/TR/2014/REC-html5-20141028/browsers.html#appcache">HTML5 Application Cache</a> have also <a href="https://alistapart.com/article/application-cache-is-a-douchebag/">reported that several attributes</a> of the design contribute to <a href="https://alistapart.com/article/application-cache-is-a-douchebag/#section6">unrecoverable errors</a>. A key design principle of the [=/service worker=] is that errors should *always* be recoverable. Many details of the update process of [=/service workers=] are designed to avoid these hazards.
 
-  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with [[HTML#shared-workers-and-the-sharedworker-interface|shared workers]] and <a href="https://developer.chrome.com/docs/extensions/mv2/background-pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/docs/extensions/mv2/background-pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
+  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with [[HTML#shared-workers-and-the-sharedworker-interface|shared workers]] and <a href="https://developer.chrome.com/docs/extensions/mv2/background-pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/docs/apps/event_pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
 
   [=/Service workers=] are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).
 </section>
