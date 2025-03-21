@@ -59,9 +59,9 @@ spec:urlpattern; type:dfn; text:match
 <pre class="anchors">
 spec: push; urlPrefix: https://w3c.github.io/push-api/
     type: event
-        text: push; url: h-the-push-event
+        text: push; url: pushevent-interface
 
-spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
+spec: ecma-262; urlPrefix: https://tc39.es/ecma262/
     type: abstract-op
         text: NormalCompletion; url: sec-normalcompletion
         text: ThrowCompletion; url: sec-throwcompletion
@@ -88,10 +88,6 @@ spec: ecma-262; urlPrefix: http://tc39.github.io/ecma262/
             text: statement
             text: declaration
 
-spec: page-visibility; urlPrefix: https://www.w3.org/TR/page-visibility/
-    type: enum; text: VisibilityState; url: VisibilityState
-    type: attribute; text: visibilityState; for: Document; url: dom-document-visibilitystate
-
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: attribute
         urlPrefix: comms.html
@@ -99,16 +95,21 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
             text: source; for: MessageEvent; url: dom-messageevent-source
             text: ports; for: MessageEvent; url: dom-messageevent-ports
             text: data; for: MessageEvent; url: dom-messageevent-data
+        urlPrefix: interaction.html
+            text: visibilityState; for: Document; url: page-visibility
     type: dfn
-        urlPrefix: browsers.html
+        urlPrefix: nav-history-apis.html
             text: ancestor origins list; for: Location; url: concept-location-ancestor-origins-list
         urlPrefix: syntax.html
             text: delay the load event; for: document; url: delay-the-load-event
-        urlPrefix: origin.html
+        urlPrefix: browsers.html
             text: creating a policy container from a fetch response
         urlPrefix: webappapis.html
             text: module map; url: module-map
             text: resolve a module specifier; url: resolve-a-module-specifier
+    type: enum
+        urlPrefix: interaction.html
+            text: VisibilityState; url: page-visibility
 
 spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
     type: dfn
@@ -123,11 +124,11 @@ spec: rfc8288; urlPrefix: https://tools.ietf.org/html/rfc8288
         text: target attributes; url: section-3.4
         text: link target; url: section-3.1
 
-spec: rfc7230; urlPrefix: https://tools.ietf.org/html/rfc7230
+spec: rfc7230; urlPrefix: https://datatracker.ietf.org/doc/html/rfc7230
     type: dfn
         text: field-value; for: http; url: section-3.2
 
-spec: rfc7231; urlPrefix: https://tools.ietf.org/html/rfc7231
+spec: rfc7231; urlPrefix: https://datatracker.ietf.org/doc/html/rfc7231
     type: dfn
         text: Vary; url: section-7.1.4
 
@@ -161,9 +162,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
   Web developers familiar with previous attempts to solve the offline problem have reported a deficit of flexibility in those solutions. As a result, the [=/service worker=] is highly procedural, providing a maximum of flexibility at the price of additional complexity for developers. Part of this complexity arises from the need to keep [=/service workers=] responsive in the face of a single-threaded execution model. As a result, APIs exposed by [=/service workers=] are almost entirely asynchronous, a pattern familiar in other JavaScript contexts but accentuated here by the need to avoid blocking document and resource loading.
 
-  Developers using the <a href="https://developer.mozilla.org/docs/Web/API/Window/applicationCache">HTML5 Application Cache</a> have also <a href="http://alistapart.com/article/application-cache-is-a-douchebag">reported that several attributes</a> of the design contribute to <a href="http://alistapart.com/article/application-cache-is-a-douchebag#section6">unrecoverable errors</a>. A key design principle of the [=/service worker=] is that errors should *always* be recoverable. Many details of the update process of [=/service workers=] are designed to avoid these hazards.
+  Developers using the <a href="https://www.w3.org/TR/2014/REC-html5-20141028/browsers.html#appcache">HTML5 Application Cache</a> have also <a href="https://alistapart.com/article/application-cache-is-a-douchebag/">reported that several attributes</a> of the design contribute to <a href="https://alistapart.com/article/application-cache-is-a-douchebag/#section6">unrecoverable errors</a>. A key design principle of the [=/service worker=] is that errors should *always* be recoverable. Many details of the update process of [=/service workers=] are designed to avoid these hazards.
 
-  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with [[HTML#shared-workers-and-the-sharedworker-interface|shared workers]] and <a href="https://developer.chrome.com/extensions/background_pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/extensions/event_pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
+  [=/Service workers=] are started and kept alive by their relationship to events, not documents. This design borrows heavily from developer and vendor experience with [[HTML#shared-workers-and-the-sharedworker-interface|shared workers]] and <a href="https://developer.chrome.com/docs/extensions/mv2/background-pages">Chrome Background Pages</a>. A key lesson from these systems is the necessity to time-limit the execution of background processing contexts, both to conserve resources and to ensure that background context loss and restart is top-of-mind for developers. As a result, [=/service workers=] bear more than a passing resemblance to <a href="https://developer.chrome.com/docs/apps/event_pages">Chrome Event Pages</a>, the successor to Background Pages. [=/Service workers=] may be started by user agents *without an attached document* and may be killed by the user agent at nearly any time. Conceptually, [=/service workers=] can be thought of as Shared Workers that can start, process events, and die without ever handling messages from documents. Developers are advised to keep in mind that [=/service workers=] may be started and killed many times a second.
 
   [=/Service workers=] are generic, event-driven, time-limited script contexts that run at an origin. These properties make them natural endpoints for a range of runtime services that may outlive the context of a particular document, e.g. handling push notifications, background data synchronization, responding to resource requests from other origins, or receiving centralized updates to expensive-to-calculate data (e.g., geolocation or gyroscope).
 </section>
@@ -356,7 +357,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       Otherwise, it is set to the [=active service worker=] of the [=environment settings object=] of the last [=set/item=] in the [=worker client=]'s [=/global object=]'s [=owner set=].
     </section>
 
-    Note: [=Window clients=] and [=worker clients=] with a [data: URL](https://tools.ietf.org/html/rfc2397#section-2) result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=]. [=Window clients=] and [=worker clients=] with a [=blob URL=] can inherit the [=active service worker=] of their creator [=/document=] or owner, but if the [=/request=]'s [=request/origin=] is not the [=same origin|same=] as the [=/origin=] of their creator [=/document=] or owner, the [=active service worker=] is set to null.
+    Note: [=Window clients=] and [=worker clients=] with a [data: URL](https://datatracker.ietf.org/doc/html/rfc2397#section-2) result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=]. [=Window clients=] and [=worker clients=] with a [=blob URL=] can inherit the [=active service worker=] of their creator [=/document=] or owner, but if the [=/request=]'s [=request/origin=] is not the [=same origin|same=] as the [=/origin=] of their creator [=/document=] or owner, the [=active service worker=] is set to null.
   </section>
 
   <section>
@@ -1877,10 +1878,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           <td>The [=/http fetch=] invokes <a>Handle Fetch</a> with |request|. As a result of performing <a>Handle Fetch</a>, the [=ServiceWorkerGlobalScope/service worker=] returns a [=/response=] to the [=/http fetch=]. The [=/response=], represented by a {{Response}} object, can be retrieved from a {{Cache}} object or directly from network using {{WindowOrWorkerGlobalScope/fetch(input, init)|self.fetch(input, init)}} method. (A custom {{Response}} object can be another option.)</td>
         </tr>
         <tr>
-          <td><a href="https://w3c.github.io/push-api/#dfn-push">push</a></td>
+          <td><a href="https://w3c.github.io/push-api/#pushevent-interface">push</a></td>
           <td><a href="https://w3c.github.io/push-api/#dom-pushevent"><code>PushEvent</code></a></td>
           <td>[=Functional event|Functional=]</td>
-          <td>(See <a href="https://w3c.github.io/push-api/#dfn-fire-the-push-event">Firing a push event</a>.)</td>
+          <td>(See <a href="https://w3c.github.io/push-api/#receiving-a-push-message">Firing a push event</a>.)</td>
         </tr>
         <tr>
           <td><a href="https://notifications.spec.whatwg.org/#dom-serviceworkerglobalscope-onnotificationclick">notificationclick</a></td>
@@ -1895,10 +1896,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           <td>(See <a href="https://notifications.spec.whatwg.org/#closing-a-notification">Closing a notification.</a>)</td>
         </tr>
         <tr>
-          <td><a href="https://wicg.github.io/BackgroundSync/spec/#sync">sync</a></td>
-          <td><a href="https://wicg.github.io/BackgroundSync/spec/#syncevent"><code>SyncEvent</code></a></td>
+          <td><a href="https://wicg.github.io/background-sync/spec/#syncevent">sync</a></td>
+          <td><a href="https://wicg.github.io/background-sync/spec/#syncevent"><code>SyncEvent</code></a></td>
           <td>[=Functional event|Functional=]</td>
-          <td>(See <a href="https://wicg.github.io/BackgroundSync/spec/#fire-a-sync-event">Firing a sync event</a>.)</td>
+          <td>(See <a href="https://wicg.github.io/background-sync/spec/#fire-a-sync-event">Firing a sync event</a>.)</td>
         </tr>
         <tr>
           <td><a href="https://w3c.github.io/payment-handler/#the-canmakepaymentevent">canmakepayment</a></td>
