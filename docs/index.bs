@@ -88,6 +88,12 @@ spec: ecma-262; urlPrefix: https://tc39.es/ecma262/
             text: statement
             text: declaration
 
+spec: html; urlPrefix: https://html.spec.whatwg.org/
+    type: dfn
+        text: HTML Standard;
+        text: set up; url:set-up-a-window-environment-settings-object
+        text: created; url:creating-a-new-browsing-context
+
 spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
     type: attribute
         urlPrefix: comms.html
@@ -116,6 +122,10 @@ spec: fetch; urlPrefix: https://fetch.spec.whatwg.org/
         text: response; for: Response; url: concept-response-response
         text: request; for: Request; url: concept-request-request
         text: HTTP fetch; for: /; url: concept-http-fetch
+
+spec: rfc2397; urlPrefix: https://datatracker.ietf.org/doc/html/rfc2397
+    type: dfn
+        text: data: URL; url: section-2
 
 spec: rfc8288; urlPrefix: https://tools.ietf.org/html/rfc8288
     type: dfn
@@ -322,25 +332,25 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     *The rest of the section is non-normative.*
 
-    Issue: The behavior in this section is not fully specified yet and will be specified in [HTML Standard](https://html.spec.whatwg.org). The work is tracked by the [issue](https://github.com/w3c/ServiceWorker/issues/765) and the [pull request](https://github.com/whatwg/html/pull/2809).
+    Issue: The behavior in this section is not fully specified yet and will be specified in [=HTML Standard=]. The work is tracked by the [issue](https://github.com/w3c/ServiceWorker/issues/765) and the [pull request](https://github.com/whatwg/html/pull/2809).
 
     <section>
       <h4 id="control-and-use-window-client">The window client case</h4>
 
-      A [=window client=] is [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when a [=/browsing context=] is [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) and when it [=navigates=].
+      A [=window client=] is [=set up|created=] when a [=/browsing context=] is [=created=] and when it [=navigates=].
 
-      When a [=window client=] is [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) in the process of a [=/browsing context=] [creation](https://html.spec.whatwg.org/#creating-a-new-browsing-context):
+      When a [=window client=] is [=set up|created=] in the process of a [=/browsing context=] [=created|creation=]:
 
       If the [=/browsing context=]'s initial [=active document=]'s [=/origin=] is an [=opaque origin=], the [=window client=]'s [=active service worker=] is set to null.
       Otherwise, it is set to the creator [=/document=]'s [=/service worker client=]'s [=active service worker=].
 
-      When a [=window client=] is [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) in the process of the [=/browsing context=]'s [=navigate|navigation=]:
+      When a [=window client=] is [=set up|created=] in the process of the [=/browsing context=]'s [=navigate|navigation=]:
 
       If the [=fetch=] is routed through [=/HTTP fetch=], the [=window client=]'s [=active service worker=] is set to the result of the <a lt="Match Service Worker Registration">service worker registration matching</a>.
       Otherwise, if the created [=/document=]'s [=/origin=] is an [=opaque origin=] or not the [=same origin|same=] as its creator [=/document=]'s [=/origin=], the [=window client=]'s [=active service worker=] is set to null.
       Otherwise, it is set to the creator [=/document=]'s [=/service worker client=]'s [=active service worker=].
 
-      Note: For an initial replacement [=navigate|navigation=], the initial [=window client=] that was [created](https://html.spec.whatwg.org/#set-up-a-window-environment-settings-object) when the [=/browsing context=] was [created](https://html.spec.whatwg.org/#creating-a-new-browsing-context) is reused, but the [=active service worker=] is determined by the same behavior as above.
+      Note: For an initial replacement [=navigate|navigation=], the initial [=window client=] that was [=set up|created=] when the [=/browsing context=] was [=created=] is reused, but the [=active service worker=] is determined by the same behavior as above.
 
       Note: <a element-attr for=iframe lt=sandbox>Sandboxed</a> <{iframe}>s without the sandboxing directives, `allow-same-origin` and `allow-scripts`, result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=].
     </section>
@@ -348,7 +358,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     <section>
       <h4 id="control-and-use-worker-client">The worker client case</h4>
 
-      A [=worker client=] is <a href="https://html.spec.whatwg.org/#set-up-a-worker-environment-settings-object">created</a> when the user agent [=run a worker|runs a worker=].
+      A [=worker client=] is [=set up|created=] when the user agent [=run a worker|runs a worker=].
 
       When the [=worker client=] is created:
 
@@ -357,7 +367,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       Otherwise, it is set to the [=active service worker=] of the [=environment settings object=] of the last [=set/item=] in the [=worker client=]'s [=/global object=]'s [=owner set=].
     </section>
 
-    Note: [=Window clients=] and [=worker clients=] with a [data: URL](https://datatracker.ietf.org/doc/html/rfc2397#section-2) result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=]. [=Window clients=] and [=worker clients=] with a [=blob URL=] can inherit the [=active service worker=] of their creator [=/document=] or owner, but if the [=/request=]'s [=request/origin=] is not the [=same origin|same=] as the [=/origin=] of their creator [=/document=] or owner, the [=active service worker=] is set to null.
+    Note: [=Window clients=] and [=worker clients=] with a [=data: URL=] result in having the [=active service worker=] value of null as their [=/origin=] is an [=opaque origin=]. [=Window clients=] and [=worker clients=] with a [=blob URL=] can inherit the [=active service worker=] of their creator [=/document=] or owner, but if the [=/request=]'s [=request/origin=] is not the [=same origin|same=] as the [=/origin=] of their creator [=/document=] or owner, the [=active service worker=] is set to null.
   </section>
 
   <section>
