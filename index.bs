@@ -1104,7 +1104,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A {{ServiceWorkerGlobalScope}} object has an associated <dfn for="ServiceWorkerGlobalScope">race response map</dfn> which is an [=ordered map=] where the [=map/keys=] are [=/requests=] and the [=map/values=] are [=/race response=].
 
-    A <dfn id="dfn-race-response">race response</dfn> is a [=struct=] used to contain the network response when {{RouterSourceEnum/"race-network-and-fetch-handler"}} performs. It has a <dfn for="race response">value</dfn>, which is a [=/response=], "<code>pending</code>", or null.
+    A <dfn id="dfn-race-response">race response</dfn> is a [=struct=] used to contain the network response when {{RouterSourceEnum/"race-network-and-fetch-handler"}} or {{RouterSourceEnum/"race-network-and-cache"}} performs. It has a <dfn for="race response">value</dfn>, which is a [=/response=], "<code>pending</code>", or null.
 
     Note: {{ServiceWorkerGlobalScope}} object provides generic, event-driven, time-limited script execution contexts that run at an origin. Once successfully <a>registered</a>, a [=/service worker=] is started, kept alive and killed by their relationship to events, not [=/service worker clients=]. Any type of synchronous requests must not be initiated inside of a [=/service worker=].
 
@@ -1602,6 +1602,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       dictionary RouterSourceDict {
         DOMString cacheName;
+        DOMString raceNetworkAndCacheCacheName;
       };
 
       enum RunningStatus { "running", "not-running" };
@@ -1609,7 +1610,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         "cache",
         "fetch-event",
         "network",
-        "race-network-and-fetch-handler"
+        "race-network-and-fetch-handler",
+        "race-network-and-cache"
       };
     </pre>
 
@@ -3298,7 +3300,45 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
                   1. Return |routedResponse|.
               1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
-      1. Let |responseForAutoPreload| be null.
+            1. Else If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, and |request|'s [=request/method=] is `<code>GET</code>`, then:
+                1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+                1. Let |queue| be an empty [=queue=] of [=race result=].
+                1. Let |raceFetchController| be null.
+                1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is `<code>pending</code>`.
+                1. Run the following substeps [=in parallel=]:
+                    1. If |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>", then set |raceResponse| to a [=race response=] whose [=race response/value=] is null, and abort these steps.
+                    1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
+                        1. Run these steps, but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>".
+                            1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
+                            1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
+                                1. Let |raceNetworkResult| be a [=race result=] whose [=race result/routed response=] is |raceNetworkRequestResponse| and [=race result/used route=] is {{RouterSourceEnum/"network"}}.
+                                1. [=queue/Enqueue=] |raceNetworkResult| to |queue|.
+                        1. [=If aborted=] and |raceFetchController| is not null, then:
+                            1. [=fetch controller/Abort=] |raceFetchController|.
+                            1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+                1. Resolve |preloadResponse| with undefined.
+                1. Run the following substeps [=in parallel=]:
+                    1. [=map/For each=] |cacheName| → |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=]:
+                        1. If |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=string/is=] not |cacheName|, [=continue=].
+                        1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
+                        1. If |requestResponses| is an empty [=list=], return |timingInfo|.
+                        1. Else:
+                            1. Let |requestResponse| be the first element of |requestResponses|.
+                            1. Let |response| be |requestResponse|'s response.
+                            1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
+                            1. If |globalObject| is null:
+                                1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
+                            1. If |globalObject| is null, return |timingInfo|.
+                1. Wait until |queue| is not empty.
+                1. Let |result| be the result of [=dequeue=] |queue|.
+                1. Let |routedResponse| be |result|'s [=race result/routed response=].
+                1. If |routedResponse| is null:
+                      1. Return |timingInfo|.
+                1. If |result|'s [=race result/used route=] is {{RouterSourceEnum/"network"}}, then:
+                      1. Set |routedResponse|'s [=service worker timing info=] be set to |timingInfo|.
+                1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
+                1. Return |routedResponse|.
+            1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. If |request| is a [=navigation request=], |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
           1. If |registration|'s [=navigation preload enabled flag=] is set then: 
 
