@@ -3244,12 +3244,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
               1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+              1. Let |networkFetchCompleted| be false.
+              1. Let |fetchHandlerCompleted| be false.
               1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                       1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
                           1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
                           1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
                       1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
+                  1. Set |networkFetchCompleted| to true.
               1. [=If aborted=] and |raceFetchController| is not null, then:
                   1. [=fetch controller/Abort=] |raceFetchController|.
                   1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
@@ -3258,19 +3261,24 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
                   1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
                   1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
-              1. Wait until |queue| is not empty.
+                  1. Set |fetchHandlerCompleted| to true.
+              1. Wait until |queue| is not empty or (|networkFetchCompleted| is true and |fetchHandlerCompleted| is true).
+              1. If |queue| is empty, return null.
               1. Return the result of [=dequeue=] |queue|.
          1. If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
               1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
               1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+              1. Let |networkFetchCompleted| be false.
+              1. Let |cacheLookupCompleted| be false.
               1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                       1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
                           1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
                           1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
                       1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
+                  1. Set |networkFetchCompleted| to true.
               1. [=If aborted=] and |raceFetchController| is not null, then:
                   1. If |raceFetchController|'s [=fetch controller/state=] is not "<code>terminated</code>", [=fetch controller/abort=] |raceFetchController|.
                   1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
@@ -3289,7 +3297,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                           1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then [=continue=].
                           1. [=queue/Enqueue=] |response| to |queue|.
                           1. If |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
-              1. Wait until |queue| is not empty.
+                  1. Set |cacheLookupCompleted| to true.
+              1. Wait until |queue| is not empty or (|networkFetchCompleted| is true and |cacheLookupCompleted| is true).
               1. If |queue| is empty, return null.
               1. Return the result of [=dequeue=] |queue|.
           1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
