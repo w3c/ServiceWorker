@@ -3285,7 +3285,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. Let |raceFetchHandlerResult| be a [=race result=] whose [=race result/routed response=] is |fetchHandlerResponse| and [=race result/used route=] is {{RouterSourceEnum/"fetch-event"}}.
                       1. [=queue/Enqueue=] |raceFetchHandlerResult| to |queue|.
                       1. Set |fetchHandlerCompleted| to true.
-                  1. Wait until |queue| is not empty or (|networkFetchCompleted| is true and |fetchHandlerCompleted| is true).
+                  1. Wait until any of the following are true:
+                      1. |queue| is not empty.
+                      1. Both |networkFetchCompleted| and |cacheLookupCompleted| are true.
                   1. If |queue| is empty, return null.
                   1. Let |result| be the result of [=dequeue=] |queue|.
                   1. Let |routedResponse| be |result|'s [=race result/routed response=].
