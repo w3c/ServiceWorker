@@ -3235,6 +3235,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
           1. Set |timingInfo|’s [=service worker timing info/worker router evaluation start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
           1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
+<<<<<<< HEAD:index.bs
           1. If |source| is non-null, then:
               1. Set |timingInfo|'s [=service worker timing info/worker matched router source=] be set to |source|, and [=service worker timing info/worker final router source=] be set to {{RouterSourceEnum/"network"}}.
               1. If |source| is {{RouterSourceEnum/"network"}}:
@@ -3259,6 +3260,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
+=======
+          1. If |source| is {{RouterSourceEnum/"network"}}:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. Return null.
+          1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
+              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+              1. Let |response| be the result of running [=Query Static Router Cache for Response=] with |request|, |source|, "{{RouterSourceDict/cacheName}}", and |registration|.
+              1. If |response| is null, return null.
+              1. Return |response|.
+>>>>>>> 8b8c331 (use helper algorithm):docs/index.bs
           1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
               1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
               1. Let |queue| be an empty [=queue=] of [=/response=].
@@ -3288,7 +3299,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Both |networkFetchCompleted| and |fetchHandlerCompleted| are true.
               1. If |queue| is empty, return null.
               1. Return the result of [=dequeue=] |queue|.
-         1. If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
+         1. If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, or |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=], and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
               1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
@@ -3308,6 +3319,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Set |networkFetchCompleted| to true.
               1. Resolve |preloadResponse| with undefined.
               1. Run the following substeps [=in parallel=]:
+<<<<<<< HEAD:index.bs
                   1. [=map/For each=] |cacheName| → |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=]:
                       1. If |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=string/is=] not |cacheName|, [=continue=].
                       1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
@@ -3322,6 +3334,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                           1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then [=continue=].
                           1. [=queue/Enqueue=] |response| to |queue|.
                           1. If |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
+=======
+                  1. Let |response| be the result of running [=Query Static Router Cache for Response=] with |request|, |source|, "{{RouterSourceDict/raceNetworkAndCacheCacheName}}", and |registration|.
+                  1. If |response| is not null:
+                      1. [=queue/Enqueue=] |response| to |queue|.
+                      1. If |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
+>>>>>>> 8b8c331 (use helper algorithm):docs/index.bs
                   1. Set |cacheLookupCompleted| to true.
               1. Wait until any of the following are true:
                   1. |queue| is not empty.
@@ -4269,6 +4287,36 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |entry| be |map|[|request|].
         1. Wait until |entry|'s [=race response/value=] is not "<code>pending</code>"
         1. If |entry|'s [=race response/value=] is a [=/response=], return the result of <a for="response">cloning</a> |entry|'s [=race response/value=].
+      1. Return null.
+  </section>
+
+  <section algorithm>
+    <h3 id="query-static-router-cache-for-response-algorithm"><dfn>Query Static Router Cache for Response</dfn></h3>
+
+      : Input
+      :: |request|, a [=/request=]
+      :: |source|, a [=map=]
+      :: |cacheNameKey|, a [=string=]
+      :: |registration|, a [=/service worker registration=]
+      : Output
+      :: a [=/response=] or null
+
+      1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
+          1. If |source|[|cacheNameKey|] [=map/exists=] and |source|[|cacheNameKey|] [=string/is=] not |cacheName|, [=continue=].
+          1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
+          1. If |requestResponses| is an empty [=list=], return null.
+          1. Else:
+              1. Let |requestResponse| be the first element of |requestResponses|.
+              1. Let |response| be |requestResponse|'s response.
+              1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
+              1. If |globalObject| is null:
+                  1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
+              1. If |globalObject| is null, return null.
+
+              Note: This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.
+
+              1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+              1. Return |response|.
       1. Return null.
   </section>
 </section>
