@@ -3256,13 +3256,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. [=If aborted=] and |raceFetchController| is not null, then:
                   1. [=fetch controller/Abort=] |raceFetchController|.
                   1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+                  1. Set |networkFetchCompleted| to true.
               1. Resolve |preloadResponse| with undefined.
               1. Run the following substeps [=in parallel=]:
                   1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
                   1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
                   1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
                   1. Set |fetchHandlerCompleted| to true.
-              1. Wait until |queue| is not empty or (|networkFetchCompleted| is true and |fetchHandlerCompleted| is true).
+              1. Wait until any of the following are true:
+                  1. |queue| is not empty.
+                  1. Both |networkFetchCompleted| and |fetchHandlerCompleted| are true.
               1. If |queue| is empty, return null.
               1. Return the result of [=dequeue=] |queue|.
          1. If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
@@ -3282,6 +3285,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. [=If aborted=] and |raceFetchController| is not null, then:
                   1. If |raceFetchController|'s [=fetch controller/state=] is not "<code>terminated</code>", [=fetch controller/abort=] |raceFetchController|.
                   1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+                  1. Set |networkFetchCompleted| to true.
               1. Resolve |preloadResponse| with undefined.
               1. Run the following substeps [=in parallel=]:
                   1. [=map/For each=] |cacheName| → |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=]:
@@ -3298,7 +3302,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                           1. [=queue/Enqueue=] |response| to |queue|.
                           1. If |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
                   1. Set |cacheLookupCompleted| to true.
-              1. Wait until |queue| is not empty or (|networkFetchCompleted| is true and |cacheLookupCompleted| is true).
+              1. Wait until any of the following are true:
+                  1. |queue| is not empty.
+                  1. Both |networkFetchCompleted| and |cacheLookupCompleted| are true.
               1. If |queue| is empty, return null.
               1. Return the result of [=dequeue=] |queue|.
           1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
