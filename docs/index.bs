@@ -3288,7 +3288,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Wait until any of the following are true:
                       1. |queue| is not empty.
                       1. Both |networkFetchCompleted| and |cacheLookupCompleted| are true.
-                  1. If |queue| is empty, return null.
+                  1. If |queue| is empty, then:
+                      1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
+                      1. If |raceResponse|'s [=race response/value=] is a [=network error=], return a [=network error=].
+                  1. Return null.
                   1. Let |result| be the result of [=dequeue=] |queue|.
                   1. Let |routedResponse| be |result|'s [=race result/routed response=].
                   1. If |result|'s [=race result/used route=] is {{RouterSourceEnum/"network"}}, then:
