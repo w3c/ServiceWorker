@@ -3297,7 +3297,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Wait until any of the following are true:
                   1. |queue| is not empty.
                   1. Both |networkFetchCompleted| and |fetchHandlerCompleted| are true.
-              1. If |queue| is empty, return null.
+              1. If |queue| is empty, then:
+                  1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
+                  1. If |raceResponse|'s [=race response/value=] is a [=network error=], return a [=network error=].
+                  1. Return null.
               1. Return the result of [=dequeue=] |queue|.
          1. If |source| is {{RouterSourceEnum/"race-network-and-cache"}}, or |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=], and |request|'s [=request/method=] is \`<code>GET</code>\`, then:
               1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
@@ -3344,7 +3347,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Wait until any of the following are true:
                   1. |queue| is not empty.
                   1. Both |networkFetchCompleted| and |cacheLookupCompleted| are true.
-              1. If |queue| is empty, return null.
+              1. If |queue| is empty, then:
+                  1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
+                  1. If |raceResponse|'s [=race response/value=] is a [=network error=], return a [=network error=].
+                  1. Return null.
               1. Return the result of [=dequeue=] |queue|.
           1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
