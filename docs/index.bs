@@ -3238,7 +3238,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
                       1. Return |response|.
               1. Return null.
-          1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+          1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, |request|'s [=request/mode=] is not "no-cors", and |request|'s [=request/method=] is \`<code>GET</code>\` then:
               1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
               1. Let |queue| be an empty [=queue=] of [=/response=].
               1. Let |raceFetchController| be null.
@@ -4079,6 +4079,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: a [=/response=] or null
 
+      1. Assert: |request|'s [=request/mode=] is not "no-cors".
       1. Let |registration| be null.
       1. If |request| is a [=non-subresource request=], then:
           1. If |request|'s [=request/reserved client=] is null, return null.
