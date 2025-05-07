@@ -3216,50 +3216,51 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
           1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
-          1. If |source| is {{RouterSourceEnum/"network"}}:
-              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-              1. Return null.
-          1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
-              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-              1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
-                  1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
-                  1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
-                  1. If |requestResponses| is an empty [=list=], return null.
-                  1. Else:
-                      1. Let |requestResponse| be the first element of |requestResponses|.
-                      1. Let |response| be |requestResponse|'s response.
-                      1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
-                      1. If |globalObject| is null:
-                          1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
-                      1. If |globalObject| is null, return null.
+          1. If |source| is non-null, then:
+              1. If |source| is {{RouterSourceEnum/"network"}}:
+                  1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+                  1. Return null.
+              1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
+                  1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+                  1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
+                      1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
+                      1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
+                      1. If |requestResponses| is an empty [=list=], return null.
+                      1. Else:
+                          1. Let |requestResponse| be the first element of |requestResponses|.
+                          1. Let |response| be |requestResponse|'s response.
+                          1. Let |globalObject| be |activeWorker|'s [=service worker/global object=].
+                          1. If |globalObject| is null:
+                              1. Set |globalObject| to the result of running [=Setup ServiceWorkerGlobalScope=] with |activeWorker|.
+                          1. If |globalObject| is null, return null.
 
-                      Note: This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.
+                          Note: This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.
 
-                      1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
-                      1. Return |response|.
-              1. Return null.
-          1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
-              1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-              1. Let |queue| be an empty [=queue=] of [=/response=].
-              1. Let |raceFetchController| be null.
-              1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
-              1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
-                  1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
-                      1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
-                          1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
-                          1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
-                      1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
-              1. [=If aborted=] and |raceFetchController| is not null, then:
-                  1. [=fetch controller/Abort=] |raceFetchController|.
-                  1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
-              1. Resolve |preloadResponse| with undefined.
-              1. Run the following substeps [=in parallel=]:
-                  1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
-                  1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
-                  1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
-              1. Wait until |queue| is not empty.
-              1. Return the result of [=dequeue=] |queue|.
-          1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
+                          1. If |response|'s [=response/type=] is "`opaque`", and [=cross-origin resource policy check=] with |globalObject|'s [=environment settings object/origin=], |globalObject|, "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then return null.
+                          1. Return |response|.
+                  1. Return null.
+              1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+                  1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+                  1. Let |queue| be an empty [=queue=] of [=/response=].
+                  1. Let |raceFetchController| be null.
+                  1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+                  1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
+                      1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
+                          1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
+                              1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
+                              1. [=queue/Enqueue=] |raceNetworkRequestResponse| to |queue|.
+                          1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
+                  1. [=If aborted=] and |raceFetchController| is not null, then:
+                      1. [=fetch controller/Abort=] |raceFetchController|.
+                      1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+                  1. Resolve |preloadResponse| with undefined.
+                  1. Run the following substeps [=in parallel=]:
+                      1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+                      1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
+                      1. [=queue/Enqueue=] |fetchHandlerResponse| to |queue|.
+                  1. Wait until |queue| is not empty.
+                  1. Return the result of [=dequeue=] |queue|.
+              1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
           Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
