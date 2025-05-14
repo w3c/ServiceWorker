@@ -2565,7 +2565,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
         Note: Keep this definition in sync with [=fetch a classic worker-imported script=].
 
-  A <dfn id="dfn-race-result">race result</dfn> is a tuple of a [=race result/race response=] and [=race result/used route=].
+  A <dfn id="dfn-race-result">race result</dfn> is a tuple of a [=/race response=] and [=/used route=].
 
   A [=/race result=] has an associated <dfn export id="dfn-race-response">race response</dfn> (a [=/response=]).
 
@@ -3266,7 +3266,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                           1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
                               1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
-                              1. Let |raceNetworkResult| be a [==race result==] whose [==race result/race response==] is |raceNetworkRequestResponse| and [=race result/used route=] is {{RouterSourceEnum/"network"}}.
+                              1. Let |raceNetworkResult| be a [=race result=] whose [=/race response=] is |raceNetworkRequestResponse| and [=/used route=] is {{RouterSourceEnum/"network"}}.
                               1. [=queue/Enqueue=] |raceNetworkResult| to |queue|.
                           1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
                   1. [=If aborted=] and |raceFetchController| is not null, then:
@@ -3276,12 +3276,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Run the following substeps [=in parallel=]:
                       1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
                       1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
-                      1. Let |raceFetchHandlerResult| be a [==race result==] whose [==race result/race response==] is |fetchHandlerResponse| and [=race result/used route=] is {{RouterSourceEnum/"fetch-event"}}.
+                      1. Let |raceFetchHandlerResult| be a [=race result=] whose [=/race response=] is |fetchHandlerResponse| and [=/used route=] is {{RouterSourceEnum/"fetch-event"}}.
                       1. [=queue/Enqueue=] |raceFetchHandlerResult| to |queue|.
                   1. Wait until |queue| is not empty.
                   1. Let |result| be the result of [=dequeue=] |queue|.
-                  1. Set |timingInfo|'s [=service worker timing info/worker final router source=] be set to [=result/used route=] in |result|.
-                  1. Return the [=result/response=] in |result|.
+                  1. Set |timingInfo|'s [=service worker timing info/worker final router source=] be set to [=/used route=] in |result|.
+                  1. Return the [=/race response=] in |result|.
               1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. If |request| is a [=navigation request=], |registration|'s [=navigation preload enabled flag=] is set, |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
 
