@@ -2565,6 +2565,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
         Note: Keep this definition in sync with [=fetch a classic worker-imported script=].
 
+  A <dfn id="dfn-race-result">race result</dfn> is a tuple of a [=/response=] and [=race result/used route=].
+
+  A [=/race result=] has an associated <dfn export id="dfn-used-route">used route</dfn> (a [=/RouterSourceEnum=]).
+
   <section algorithm>
     <h3 id="create-job-algorithm"><dfn>Create Job</dfn></h3>
 
@@ -3223,16 +3227,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
-          1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
           1. Set |timingInfo|’s [=service worker timing info/worker router evaluation start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
+          1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
           1. If |source| is non-null, then:
               1. Set |timingInfo|'s [=service worker timing info/worker matched router source=] be set to |source|, and [=service worker timing info/worker final router source=] be set to {{RouterSourceEnum/"network"}}.
               1. If |source| is {{RouterSourceEnum/"network"}}:
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
                   1. Return null.
               1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
-                  1. Set |timingInfo|’s [=service worker timing info/worker cache lookup start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
+                  1. Set |timingInfo|’s [=service worker timing info/worker cache lookup start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
                   1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
                       1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
                       1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
@@ -3253,14 +3257,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Return null.
               1. Else if |source| is {{RouterSourceEnum/"race-network-and-fetch-handler"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
-                  1. Let |queue| be an empty [=queue=] of tuple of a [=/response=] and a [=RouterSourceEnum/used route=].
+                  1. Let |queue| be an empty [=queue=] of tuple of [=race result=].
                   1. Let |raceFetchController| be null.
                   1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
                   1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                       1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                           1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
                               1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
-                              1. [=queue/Enqueue=] |raceNetworkRequestResponse| as [=/response=] and {{RouterSourceEnum/"network"}} as [=RouterSourceEnum/used route=] to |queue|.
+                              1. [=queue/Enqueue=] |raceNetworkRequestResponse| as [=/response=] and {{RouterSourceEnum/"network"}} as [=/used route=] to |queue|.
                           1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
                   1. [=If aborted=] and |raceFetchController| is not null, then:
                       1. [=fetch controller/Abort=] |raceFetchController|.
@@ -3269,7 +3273,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Run the following substeps [=in parallel=]:
                       1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
                       1. If |fetchHandlerResponse| is not null and not a [=network error=], and |raceFetchController| is not null, [=fetch controller/abort=] |raceFetchController|.
-                      1. [=queue/Enqueue=] |fetchHandlerResponse| as [=/response=] and {{RouterSourceEnum/"fetch-event"}} as [=RouterSourceEnum/used route=] to |queue|.
+                      1. [=queue/Enqueue=] |fetchHandlerResponse| as [=/response=] and {{RouterSourceEnum/"fetch-event"}} as [=/used route=] to |queue|.
                   1. Wait until |queue| is not empty.
                   1. Let |result| be the result of [=dequeue=] |queue|.
                   1. Set |timingInfo|'s [=service worker timing info/worker final router source=] be set to [=result/used route=] in |result|.
