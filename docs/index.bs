@@ -3300,13 +3300,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
                   1. If |navigationPreloadResponse|'s [=response/type=] is "`error`", reject |preloadResponse| with a `TypeError` and terminate these substeps.
                   1. Associate |preloadResponseObject| with |navigationPreloadResponse|.
-                  1. If |timingInfo|'s [=service worker timing info/worker final router source=]is set to {{RouterSourceEnum/"network"}}, Set |timingInfo|'s [=service worker timing info/worker final router source=] be set to {{RouterSourceEnum/"fetch-event"}}.
                   1. Resolve |preloadResponse| with |preloadResponseObject|.
           1. [=If aborted=], then:
               1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
               1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
       1. Else, resolve |preloadResponse| with undefined.
-      1. Return the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and null.
+      1. Let |fetchResult| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and null.
+      1. If |fetchResult| is not null and |timingInfo|'s [=service worker timing info/worker final router source=] is set to {{RouterSourceEnum/"network"}}:
+        1. Set |timingInfo|'s [=service worker timing info/worker final router source=] to {{RouterSourceEnum/"fetch-event"}}.
+      1. Return |fetchResult|.
   </section>
 
   <section algorithm>
