@@ -7,7 +7,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/W3C-ED" rel="stylesheet">
   <meta content="Bikeshed version 9a7a6709a, updated Tue May 27 16:45:34 2025 -0700" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="ca38db97c60985f7764074dd20f351338079cb52" name="revision">
+  <meta content="4e9d70547fb06af545bba8a32d482940bbb2be88" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -962,7 +962,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
   <div class="head">
    <p data-fill-with="logo"><a class="logo" href="https://www.w3.org/"> <img alt="W3C" height="48" src="https://www.w3.org/StyleSheets/TR/2021/logos/W3C" width="72"> </a> </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
-   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>, <time class="dt-updated" datetime="2025-05-28">28 May 2025</time></p>
+   <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>, <time class="dt-updated" datetime="2025-05-29">29 May 2025</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -5209,7 +5209,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
        <p><var>useHighResPerformanceTimers</var>, a boolean</p>
       <dt data-md>Output
       <dd data-md>
-       <p>a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①①">response</a></p>
+       <p>a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①①">response</a> or <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info">service worker timing info</a></p>
      </dl>
      <ol>
       <li data-md>
@@ -5223,7 +5223,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p>Let <var>workerRealm</var> be null.</p>
       <li data-md>
-       <p>Let <var>timingInfo</var> be a new <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info">service worker timing info</a>.</p>
+       <p>Let <var>timingInfo</var> be a new <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info①">service worker timing info</a>.</p>
       <li data-md>
        <p class="assertion">Assert: <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-destination" id="ref-for-concept-request-destination②">destination</a> is not "<code>serviceworker</code>".</p>
       <li data-md>
@@ -5297,7 +5297,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>If <var>shouldSoftUpdate</var> is true, then <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③③">in parallel</a> run the <a data-link-type="dfn" href="#soft-update" id="ref-for-soft-update①">Soft Update</a> algorithm with <var>registration</var>.</p>
             <li data-md>
-             <p>Return null.</p>
+             <p>Return <var>timingInfo</var>.</p>
            </ol>
           <li data-md>
            <p>Else if <var>source</var> is <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-cache" id="ref-for-dom-routersourceenum-cache">"cache"</a></code>, or <var>source</var>["<code class="idl"><a data-link-type="idl" href="#dom-routersourcedict-cachename" id="ref-for-dom-routersourcedict-cachename">cacheName</a></code>"] <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-exists" id="ref-for-map-exists⑦">exists</a>, then:</p>
@@ -5314,7 +5314,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
               <li data-md>
                <p>Let <var>requestResponses</var> be the result of running <a data-link-type="dfn" href="#query-cache" id="ref-for-query-cache②">Query Cache</a> with <var>request</var>, a new <code class="idl"><a data-link-type="idl" href="#dictdef-cachequeryoptions" id="ref-for-dictdef-cachequeryoptions⑥">CacheQueryOptions</a></code>, and <var>cache</var>.</p>
               <li data-md>
-               <p>If <var>requestResponses</var> is an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②③">list</a>, return null.</p>
+               <p>If <var>requestResponses</var> is an empty <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#list" id="ref-for-list②③">list</a>, return <var>timingInfo</var>.</p>
               <li data-md>
                <p>Else:</p>
                <ol>
@@ -5331,20 +5331,22 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
                    <p>Set <var>globalObject</var> to the result of running <a data-link-type="dfn" href="#setup-serviceworkerglobalscope" id="ref-for-setup-serviceworkerglobalscope①">Setup ServiceWorkerGlobalScope</a> with <var>activeWorker</var>.</p>
                  </ol>
                 <li data-md>
-                 <p>If <var>globalObject</var> is null, return null.</p>
+                 <p>If <var>globalObject</var> is null, return <var>timingInfo</var>.</p>
                </ol>
                <p class="note" role="note"><span class="marker">Note:</span> This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.</p>
                <ol>
                 <li data-md>
-                 <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-type" id="ref-for-concept-response-type③">type</a> is "<code>opaque</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cross-origin-resource-policy-check" id="ref-for-cross-origin-resource-policy-check①">cross-origin resource policy check</a> with <var>globalObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑦">origin</a>, <var>globalObject</var>, "", and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-internal-response" id="ref-for-concept-internal-response①">internal response</a> returns <b>blocked</b>, then return null.</p>
+                 <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-type" id="ref-for-concept-response-type③">type</a> is "<code>opaque</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cross-origin-resource-policy-check" id="ref-for-cross-origin-resource-policy-check①">cross-origin resource policy check</a> with <var>globalObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑦">origin</a>, <var>globalObject</var>, "", and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-internal-response" id="ref-for-concept-internal-response①">internal response</a> returns <b>blocked</b>, then return <var>timingInfo</var>.</p>
                 <li data-md>
                  <p>Set <var>timingInfo</var>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source①">worker final router source</a> be set to <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-cache" id="ref-for-dom-routersourceenum-cache①">"cache"</a></code>.</p>
+                <li data-md>
+                 <p>Set <var>result</var>’s <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info②">service worker timing info</a> be set to <var>timingInfo</var>.</p>
                 <li data-md>
                  <p>Return <var>response</var>.</p>
                </ol>
              </ol>
             <li data-md>
-             <p>Return null.</p>
+             <p>Return <var>timingInfo</var>.</p>
            </ol>
           <li data-md>
            <p>Else if <var>source</var> is <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-race-network-and-fetch-handler" id="ref-for-dom-routersourceenum-race-network-and-fetch-handler②">"race-network-and-fetch-handler"</a></code>, and <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-method" id="ref-for-concept-request-method⑤">method</a> is `<code>GET</code>` then:</p>
@@ -5406,6 +5408,8 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>Set <var>timingInfo</var>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source②">worker final router source</a> be set to <var>result</var>’s <a data-link-type="dfn" href="#race-result-used-route" id="ref-for-race-result-used-route③">used route</a>.</p>
             <li data-md>
+             <p>Set <var>result</var>’s <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info③">service worker timing info</a> be set to <var>timingInfo</var>.</p>
+            <li data-md>
              <p>Return <var>result</var>’s <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response③">race response</a>.</p>
            </ol>
           <li data-md>
@@ -5457,10 +5461,10 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <li data-md>
        <p>Let <var>fetchResult</var> be the result of <a data-link-type="dfn" href="#create-fetch-event-and-dispatch" id="ref-for-create-fetch-event-and-dispatch①">Create Fetch Event and Dispatch</a> with <var>request</var>, <var>registration</var>, <var>useHighResPerformanceTimers</var>, <var>timingInfo</var>, <var>workerRealm</var>, <var>reservedClient</var>, <var>preloadResponse</var>, and null.</p>
       <li data-md>
-       <p>If <var>fetchResult</var> is not null and <var>timingInfo</var>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source③">worker final router source</a> is set to <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-network" id="ref-for-dom-routersourceenum-network③">"network"</a></code>:</p>
+       <p>If <var>fetchResult</var> is not null and <var>fetchResult</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#response-service-worker-timing-info" id="ref-for-response-service-worker-timing-info">service worker timing info</a>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source③">worker final router source</a> is set to <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-network" id="ref-for-dom-routersourceenum-network③">"network"</a></code>:</p>
        <ol>
         <li data-md>
-         <p>Set <var>timingInfo</var>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source④">worker final router source</a> to <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-fetch-event" id="ref-for-dom-routersourceenum-fetch-event③">"fetch-event"</a></code>.</p>
+         <p>Set <var>fetchResult</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#response-service-worker-timing-info" id="ref-for-response-service-worker-timing-info①">service worker timing info</a>’s <a data-link-type="dfn" href="#service-worker-timing-info-worker-final-router-source" id="ref-for-service-worker-timing-info-worker-final-router-source④">worker final router source</a> to <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-fetch-event" id="ref-for-dom-routersourceenum-fetch-event③">"fetch-event"</a></code>.</p>
        </ol>
       <li data-md>
        <p>Return <var>fetchResult</var>.</p>
@@ -5477,7 +5481,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <dd data-md>
        <p><var>useHighResPerformanceTimers</var>, a boolean</p>
       <dd data-md>
-       <p><var>timingInfo</var>, a <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info①">service worker timing info</a></p>
+       <p><var>timingInfo</var>, a <a data-link-type="dfn" href="#service-worker-timing-info" id="ref-for-service-worker-timing-info④">service worker timing info</a></p>
       <dd data-md>
        <p><var>workerRealm</var>, a <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-relevant-realm" id="ref-for-concept-relevant-realm⑨">relevant realm</a> of the <a data-link-type="dfn" href="#dfn-service-worker-global-object" id="ref-for-dfn-service-worker-global-object①①">global object</a></p>
       <dd data-md>
@@ -5606,7 +5610,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
              <p>Else, <a data-link-type="dfn" href="https://streams.spec.whatwg.org/#readablestream-cancel" id="ref-for-readablestream-cancel">cancel</a> <var>request</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-request-body" id="ref-for-concept-request-body③">body</a> with undefined.</p>
            </ol>
           <li data-md>
-           <p>If <var>response</var> is not null, then set <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#response-service-worker-timing-info" id="ref-for-response-service-worker-timing-info">service worker timing info</a> to <var>timingInfo</var>.</p>
+           <p>If <var>response</var> is not null, then set <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#response-service-worker-timing-info" id="ref-for-response-service-worker-timing-info②">service worker timing info</a> to <var>timingInfo</var>.</p>
           <li data-md>
            <p>If <var>e</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag" id="ref-for-canceled-flag">canceled flag</a> is set, set <var>eventCanceled</var> to true.</p>
           <li data-md>
@@ -10301,7 +10305,7 @@ let dfnPanelData = {
 "7aab3a36": {"dfnID":"7aab3a36","dfnText":"decoded size","external":true,"refSections":[{"refs":[{"id":"ref-for-fetch-timing-info-decoded-body-size"}],"title":"4.6.7. event.respondWith(r)"}],"url":"https://fetch.spec.whatwg.org/#fetch-timing-info-decoded-body-size"},
 "7b0d918d": {"dfnID":"7b0d918d","dfnText":"break","external":true,"refSections":[{"refs":[{"id":"ref-for-iteration-break"}],"title":"4.2.6. postMessage(message, options)"}],"url":"https://infra.spec.whatwg.org/#iteration-break"},
 "7b162b57": {"dfnID":"7b162b57","dfnText":"ports","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-messageevent-ports"}],"title":"4.2.6. postMessage(message, options)"}],"url":"https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent-ports"},
-"7b34ea98": {"dfnID":"7b34ea98","dfnText":"service worker timing info","external":true,"refSections":[{"refs":[{"id":"ref-for-response-service-worker-timing-info"}],"title":"Create Fetch Event and Dispatch"}],"url":"https://fetch.spec.whatwg.org/#response-service-worker-timing-info"},
+"7b34ea98": {"dfnID":"7b34ea98","dfnText":"service worker timing info","external":true,"refSections":[{"refs":[{"id":"ref-for-response-service-worker-timing-info"},{"id":"ref-for-response-service-worker-timing-info\u2460"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-response-service-worker-timing-info\u2461"}],"title":"Create Fetch Event and Dispatch"}],"url":"https://fetch.spec.whatwg.org/#response-service-worker-timing-info"},
 "7bcff2a1": {"dfnID":"7bcff2a1","dfnText":"DOMContentLoaded","external":true,"refSections":[{"refs":[{"id":"ref-for-event-domcontentloaded"}],"title":"Run Job"}],"url":"https://html.spec.whatwg.org/multipage/indices.html#event-domcontentloaded"},
 "7c421916": {"dfnID":"7c421916","dfnText":"has focus steps","external":true,"refSections":[{"refs":[{"id":"ref-for-has-focus-steps"}],"title":"4.2.10. focus()"},{"refs":[{"id":"ref-for-has-focus-steps\u2460"}],"title":"4.2.11. navigate(url)"},{"refs":[{"id":"ref-for-has-focus-steps\u2461"}],"title":"4.3.2. matchAll(options)"},{"refs":[{"id":"ref-for-has-focus-steps\u2462"}],"title":"4.3.3. openWindow(url)"},{"refs":[{"id":"ref-for-has-focus-steps\u2463"}],"title":"Resolve Get Client Promise"}],"url":"https://html.spec.whatwg.org/multipage/interaction.html#has-focus-steps"},
 "7c854216": {"dfnID":"7c854216","dfnText":"push","external":true,"refSections":[{"refs":[{"id":"ref-for-pushevent-interface"}],"title":"2.6. Task Sources"},{"refs":[{"id":"c22e82f90"}],"title":"4.8. Events"}],"url":"https://w3c.github.io/push-api/#pushevent-interface"},
@@ -10866,7 +10870,7 @@ let dfnPanelData = {
 "service-worker-running": {"dfnID":"service-worker-running","dfnText":"running","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-running"}],"title":"Setup ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-service-worker-running\u2460"},{"id":"ref-for-service-worker-running\u2461"},{"id":"ref-for-service-worker-running\u2462"}],"title":"Run Service Worker"},{"refs":[{"id":"ref-for-service-worker-running\u2463"},{"id":"ref-for-service-worker-running\u2464"}],"title":"Match Router Condition"}],"url":"#service-worker-running"},
 "service-worker-service-worker-queue": {"dfnID":"service-worker-service-worker-queue","dfnText":"[[service worker queue]]","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-service-worker-queue"}],"title":"4.5.1. event.addRoutes(rules)"}],"url":"#service-worker-service-worker-queue"},
 "service-worker-start-status": {"dfnID":"service-worker-start-status","dfnText":"start status","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-start-status"}],"title":"Setup ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-service-worker-start-status\u2460"},{"id":"ref-for-service-worker-start-status\u2461"},{"id":"ref-for-service-worker-start-status\u2462"},{"id":"ref-for-service-worker-start-status\u2463"}],"title":"Run Service Worker"},{"refs":[{"id":"ref-for-service-worker-start-status\u2464"}],"title":"Terminate Service Worker"}],"url":"#service-worker-start-status"},
-"service-worker-timing-info": {"dfnID":"service-worker-timing-info","dfnText":"service worker timing info","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-timing-info"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-service-worker-timing-info\u2460"}],"title":"Create Fetch Event and Dispatch"}],"url":"#service-worker-timing-info"},
+"service-worker-timing-info": {"dfnID":"service-worker-timing-info","dfnText":"service worker timing info","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-timing-info"},{"id":"ref-for-service-worker-timing-info\u2460"},{"id":"ref-for-service-worker-timing-info\u2461"},{"id":"ref-for-service-worker-timing-info\u2462"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-service-worker-timing-info\u2463"}],"title":"Create Fetch Event and Dispatch"}],"url":"#service-worker-timing-info"},
 "service-worker-timing-info-fetch-event-dispatch-time": {"dfnID":"service-worker-timing-info-fetch-event-dispatch-time","dfnText":"fetch event dispatch time","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-timing-info-fetch-event-dispatch-time"}],"title":"Create Fetch Event and Dispatch"}],"url":"#service-worker-timing-info-fetch-event-dispatch-time"},
 "service-worker-timing-info-start-time": {"dfnID":"service-worker-timing-info-start-time","dfnText":"start time","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-timing-info-start-time"}],"title":"Create Fetch Event and Dispatch"}],"url":"#service-worker-timing-info-start-time"},
 "service-worker-timing-info-worker-cache-lookup-start": {"dfnID":"service-worker-timing-info-worker-cache-lookup-start","dfnText":"worker cache lookup start","external":false,"refSections":[{"refs":[{"id":"ref-for-service-worker-timing-info-worker-cache-lookup-start"}],"title":"Handle Fetch"}],"url":"#service-worker-timing-info-worker-cache-lookup-start"},
