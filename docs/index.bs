@@ -3310,6 +3310,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
       1. Else, resolve |preloadResponse| with undefined.
       1. Let |fetchResult| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and null.
+      1. If |fetchResult| is null and |timingInfo|'s [=service worker timing info/worker final router source=] is set:
+         1. Assert |timingInfo|'s [=service worker timing info/worker final router source=] is {{RouterSourceEnum/"network"}}.
+          1. Return |timingInfo|.
       1. If |fetchResult| is not null and |fetchResult|'s [=response/service worker timing info=]'s [=service worker timing info/worker final router source=] is set to {{RouterSourceEnum/"network"}}:
         1. Set |fetchResult|'s [=response/service worker timing info=]'s [=service worker timing info/worker final router source=] to {{RouterSourceEnum/"fetch-event"}}.
       1. Return |fetchResult|.
