@@ -3263,21 +3263,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Let |queue| be an empty [=queue=] of [=race result=].
                   1. Let |raceFetchController| be null.
                   1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
-                  1. Let |networkFetchCompleted| be false.
-                  1. Let |networkFetchResult| be null.
                   1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                       1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
+                          1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
                           1. If |raceNetworkRequestResponse|'s [=response/status=] is [=ok status=], then:
-                              1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
                               1. Let |raceNetworkResult| be a [=race result=] whose [=race result/routed response=] is |raceNetworkRequestResponse| and [=race result/used route=] is {{RouterSourceEnum/"network"}}.
                               1. [=queue/Enqueue=] |raceNetworkResult| to |queue|.
-                          1. Otherwise, set |raceResponse|'s [=race response/value=] to a [=network error=].
-                          1. Set |networkFetchResult| to |raceNetworkRequestResponse|.
-                          1. Set |networkFetchCompleted| to true.
                   1. [=If aborted=] and |raceFetchController| is not null, then:
                       1. [=fetch controller/Abort=] |raceFetchController|.
                       1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
-                      1. Set |networkFetchCompleted| to true.
                   1. Resolve |preloadResponse| with undefined.
                   1. Run the following substeps [=in parallel=]:
                       1. Let |fetchHandlerResponse| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
@@ -3291,11 +3285,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
                       Note: the [=Create Fetch Event and Dispatch=] return value is queued regardless of its value. Failure response means the raced fetch handler failed.
 
-                      1. Wait until |networkFetchCompleted| is true.
-                      1. If |networkFetchResult| is null:
+                      1. Wait until |raceResponse|'s [=race response/value=] is not "<code>pending</code>".
+                      1. Let |fallbackResponse| be |raceResponse|'s [=race response/value=].
+                      1. If |fallbackResponse| is null:
                           1. Return |timingInfo|.
-                      1. Set |networkFetchResult|'s [=service worker timing info=] to |timingInfo|.
-                      1. Return |networkFetchResult|.
+                      1. Set |fallbackResponse|'s [=service worker timing info=] to |timingInfo|.
+                      1. Return |fallbackResponse|.
                   1. If |result|'s [=race result/used route=] is {{RouterSourceEnum/"network"}}, then:
                       1. Set |routedResponse|'s [=service worker timing info=] be set to |timingInfo|.
                   1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
