@@ -3281,16 +3281,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Wait until |queue| is not empty.
                   1. Let |result| be the result of [=dequeue=] |queue|.
                   1. Let |routedResponse| be |result|'s [=race result/routed response=].
-                  1. If |routedResponse| is null or a [=network error=], then:
-
-                      Note: the [=Create Fetch Event and Dispatch=] return value is queued regardless of its value. Failure response means the raced fetch handler failed.
-
-                      1. Wait until |raceResponse|'s [=race response/value=] is not "<code>pending</code>".
-                      1. Let |fallbackResponse| be |raceResponse|'s [=race response/value=].
-                      1. If |fallbackResponse| is null:
-                          1. Return |timingInfo|.
-                      1. Set |fallbackResponse|'s [=service worker timing info=] to |timingInfo|.
-                      1. Return |fallbackResponse|.
+                  1. If |routedResponse| is null:
+                      1. Return |timingInfo|.
                   1. If |result|'s [=race result/used route=] is {{RouterSourceEnum/"network"}}, then:
                       1. Set |routedResponse|'s [=service worker timing info=] be set to |timingInfo|.
                   1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
@@ -3349,6 +3341,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |eventHandled| be null.
       1. Let |handleFetchFailed| be false.
       1. Let |respondWithEntered| be false.
+      1. Let |networkError| be a [=network error=].
+      1. If |raceResponse| is not null:
+          1. Set |networkError|'s [=response/service worker timing info=] to |timingInfo|.
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
@@ -3408,15 +3403,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. If |respondWithEntered| is false, then:
           1. If |eventCanceled| is true, then:
               1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
-              2. Return a [=network error=].
+              2. Return |networkError|.
           1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
-          1. If |raceResponse|'s [=race response/value=] is not null, then:
+          1. If |raceResponse| is not null, and |raceResponse|'s [=race response/value=] is not null, then:
               1. Wait until |raceResponse|'s [=race response/value=] is not "<code>pending</code>".
               1. If |raceResponse|'s [=race response/value=] is a [=/response=], return |raceResponse|'s [=race response/value=].
           1. Return null.
       1. If |handleFetchFailed| is true, then:
           1. If |eventHandled| is not null, then [=reject=] |eventHandled| with a "{{NetworkError}}" {{DOMException}} in |workerRealm|.
-          2. Return a [=network error=].
+          2. Return |networkError|.
       1. If |eventHandled| is not null, then [=resolve=] |eventHandled|.
       1. Return |response|.
   </section>
