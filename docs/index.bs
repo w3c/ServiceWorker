@@ -3228,7 +3228,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
-      1. Let |raceResponse| be null. 
       1. Let |source| be null.
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
           1. Set |timingInfo|’s [=service worker timing info/worker router evaluation start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
@@ -3264,7 +3263,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
                   1. Let |queue| be an empty [=queue=] of [=race result=].
                   1. Let |raceFetchController| be null.
-                  1. Set |raceResponse| to be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+                  1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
                   1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                       1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                           1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
@@ -3290,6 +3289,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
                   1. Return |routedResponse|.
               1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
+      1. Let |responseForAutoPreload| be null.
       1. If |request| is a [=navigation request=], |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
           1. If |registration|'s [=navigation preload enabled flag=] is set then: 
 
@@ -3317,16 +3317,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: A user agent may speculatively dispatch a network request in parallel with creating a fetch event in order to minimize the bootstrap cost.
 
               1. Let |autoPreloadFetchController| be null.
-              1. Set |raceResponse| to be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+              1. Set |responseForAutoPreload| to be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
               1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |autoPreloadFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |autoPreloadRequestResponse|:
-                  1. If |autoPreloadRequestResponse|'s [=response/status=] is [=ok status=], set |raceResponse|'s [=race response/value=] to |autoPreloadRequestResponse|.
+                  1. If |autoPreloadRequestResponse|'s [=response/status=] is [=ok status=], set |responseForAutoPreload|'s [=race response/value=] to |autoPreloadRequestResponse|.
               1. [=If aborted=] and |autoPreloadFetchController| is not null, then:
                   1. [=fetch controller/Abort=] |autoPreloadFetchController|.
-                  1. Set |raceResponse| to a [=race response=] whose [=race response/value=] is null.
+                  1. Set |responseForAutoPreload| to a [=race response=] whose [=race response/value=] is null.
               1. Resolve |preloadResponse| with undefined.
       1. Else, resolve |preloadResponse| with undefined.
-      1. Let |fetchResult| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |raceResponse|.
+      1. Let |fetchResult| be the result of [=Create Fetch Event and Dispatch=] with |request|, |registration|, |useHighResPerformanceTimers|, |timingInfo|, |workerRealm|, |reservedClient|, |preloadResponse|, and |responseForAutoPreload|.
       1. If |timingInfo|'s [=service worker timing info/worker final router source=] is not an empty string:
           1. Assert |timingInfo|'s [=service worker timing info/worker final router source=] is {{RouterSourceEnum/"network"}}.
           1. If |fetchResult| is null, then return |timingInfo|.
