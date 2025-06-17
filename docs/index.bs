@@ -3228,6 +3228,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
+      1. Let |raceResponse| be null. 
       1. Let |source| be null.
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
           1. Set |timingInfo|’s [=service worker timing info/worker router evaluation start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
@@ -3263,7 +3264,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
                   1. Let |queue| be an empty [=queue=] of [=race result=].
                   1. Let |raceFetchController| be null.
-                  1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+                  1. Set |raceResponse| to be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
                   1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                       1. Set |raceFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |raceNetworkRequestResponse|:
                           1. Set |raceResponse|'s [=race response/value=] to |raceNetworkRequestResponse|.
@@ -3316,7 +3317,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               Note: A user agent may speculatively dispatch a network request in parallel with creating a fetch event in order to minimize the bootstrap cost.
 
               1. Let |autoPreloadFetchController| be null.
-              1. Let |raceResponse| be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
+              1. Set |raceResponse| to be a [=race response=] whose [=race response/value=] is "<code>pending</code>".
               1. Run the following substeps [=in parallel=], but [=abort when=] |fetchController|'s [=fetch controller/state=] is "<code>terminated</code>" or "<code>aborted</code>":
                   1. Set |autoPreloadFetchController| to the result of calling [=fetch=] given |request|, with [=fetch/processResponse=] set to the following steps given a [=/response=] |autoPreloadRequestResponse|:
                   1. If |autoPreloadRequestResponse|'s [=response/status=] is [=ok status=], set |raceResponse|'s [=race response/value=] to |autoPreloadRequestResponse|.
