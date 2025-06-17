@@ -3228,10 +3228,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Let |shouldSoftUpdate| be true if any of the following are true, and false otherwise:
           * |request| is a [=non-subresource request=].
           * |request| is a [=subresource request=] and |registration| is [=stale=].
-      1. Let |source| be null.
       1. If |activeWorker|'s [=service worker/list of router rules=] [=list/is not empty=]:
           1. Set |timingInfo|’s [=service worker timing info/worker router evaluation start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
-          1. Set |source| to be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
+          1. Let |source| be the result of running the [=Get Router Source=] algorithm with |registration|'s <a>active worker</a> and |request|.
           1. If |source| is non-null, then:
               1. Set |timingInfo|'s [=service worker timing info/worker matched router source=] be set to |source|, and [=service worker timing info/worker final router source=] be set to {{RouterSourceEnum/"network"}}.
               1. If |source| is {{RouterSourceEnum/"network"}}:
@@ -3312,7 +3311,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. [=If aborted=], then:
                   1. Let |deserializedError| be the result of [=deserialize a serialized abort reason=] given null and |workerRealm|.
                   1. [=fetch controller/Abort=] |preloadFetchController| with |deserializedError|.
-          1. Else if |source| is not "{{RouterSourceEnum/fetch-event}}", a user agent may run the following substeps:
+          1. Else if |timingInfo|'s [=service worker timing info/worker matched router source=] is not "{{RouterSourceEnum/fetch-event}}", a user agent may run the following substeps:
 
               Note: A user agent may speculatively dispatch a network request in parallel with creating a fetch event in order to minimize the bootstrap cost.
 
