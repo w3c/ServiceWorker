@@ -7,7 +7,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/W3C-ED" rel="stylesheet">
   <meta content="Bikeshed version 275834c42, updated Wed Jun 11 14:18:15 2025 -0700" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="a402c930571c23419cffe2ae6722ec733b566f30" name="revision">
+  <meta content="3d83bed7bd03e453f68e47dc376b176a3926ac6c" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -966,7 +966,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="p-name no-ref" id="title">Service Workers Nightly</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>,
-    <time class="dt-updated" datetime="2025-06-13">13 June 2025</time></p>
+    <time class="dt-updated" datetime="2025-06-19">19 June 2025</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -5406,30 +5406,36 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
             <li data-md>
              <p>Let <var>raceResponse</var> be a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response①">race response</a> whose <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value">value</a> is "<code>pending</code>".</p>
             <li data-md>
-             <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③⑥">in parallel</a>, but <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#abort-when" id="ref-for-abort-when">abort when</a> <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state">state</a> is "<code>terminated</code>" or "<code>aborted</code>":</p>
+             <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③⑥">in parallel</a>:</p>
              <ol>
+              <li data-md>
+               <p>If <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state">state</a> is "<code>terminated</code>" or "<code>aborted</code>", then set <var>raceResponse</var> to a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response②">race response</a> whose <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value①">value</a> is null, and abort these steps.</p>
               <li data-md>
                <p>Set <var>raceFetchController</var> to the result of calling <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①④">fetch</a> given <var>request</var>, with <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#process-response" id="ref-for-process-response②">processResponse</a> set to the following steps given a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①②">response</a> <var>raceNetworkRequestResponse</var>:</p>
                <ol>
                 <li data-md>
-                 <p>Set <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value①">value</a> to <var>raceNetworkRequestResponse</var>.</p>
-                <li data-md>
-                 <p>If <var>raceNetworkRequestResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status③">status</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status②">ok status</a>, then:</p>
+                 <p>Run these steps, but <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#abort-when" id="ref-for-abort-when">abort when</a> <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state①">state</a> is "<code>terminated</code>" or "<code>aborted</code>".</p>
                  <ol>
                   <li data-md>
-                   <p>Let <var>raceNetworkResult</var> be a <a data-link-type="dfn" href="#dfn-race-result" id="ref-for-dfn-race-result③">race result</a> whose <a data-link-type="dfn" href="#race-result-routed-response" id="ref-for-race-result-routed-response①">routed response</a> is <var>raceNetworkRequestResponse</var> and <a data-link-type="dfn" href="#race-result-used-route" id="ref-for-race-result-used-route①">used route</a> is <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-network" id="ref-for-dom-routersourceenum-network②">"network"</a></code>.</p>
+                   <p>Set <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value②">value</a> to <var>raceNetworkRequestResponse</var>.</p>
                   <li data-md>
-                   <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#queue-enqueue" id="ref-for-queue-enqueue③">Enqueue</a> <var>raceNetworkResult</var> to <var>queue</var>.</p>
+                   <p>If <var>raceNetworkRequestResponse</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-status" id="ref-for-concept-response-status③">status</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#ok-status" id="ref-for-ok-status②">ok status</a>, then:</p>
+                   <ol>
+                    <li data-md>
+                     <p>Let <var>raceNetworkResult</var> be a <a data-link-type="dfn" href="#dfn-race-result" id="ref-for-dfn-race-result③">race result</a> whose <a data-link-type="dfn" href="#race-result-routed-response" id="ref-for-race-result-routed-response①">routed response</a> is <var>raceNetworkRequestResponse</var> and <a data-link-type="dfn" href="#race-result-used-route" id="ref-for-race-result-used-route①">used route</a> is <code class="idl"><a data-link-type="idl" href="#dom-routersourceenum-network" id="ref-for-dom-routersourceenum-network②">"network"</a></code>.</p>
+                    <li data-md>
+                     <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#queue-enqueue" id="ref-for-queue-enqueue③">Enqueue</a> <var>raceNetworkResult</var> to <var>queue</var>.</p>
+                   </ol>
+                 </ol>
+                <li data-md>
+                 <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#if-aborted" id="ref-for-if-aborted">If aborted</a> and <var>raceFetchController</var> is not null, then:</p>
+                 <ol>
+                  <li data-md>
+                   <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-abort" id="ref-for-fetch-controller-abort②">Abort</a> <var>raceFetchController</var>.</p>
+                  <li data-md>
+                   <p>Set <var>raceResponse</var> to a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response③">race response</a> whose <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value③">value</a> is null.</p>
                  </ol>
                </ol>
-             </ol>
-            <li data-md>
-             <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#if-aborted" id="ref-for-if-aborted">If aborted</a> and <var>raceFetchController</var> is not null, then:</p>
-             <ol>
-              <li data-md>
-               <p><a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-abort" id="ref-for-fetch-controller-abort②">Abort</a> <var>raceFetchController</var>.</p>
-              <li data-md>
-               <p>Set <var>raceResponse</var> to a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response②">race response</a> whose <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value②">value</a> is null.</p>
              </ol>
             <li data-md>
              <p>Resolve <var>preloadResponse</var> with undefined.</p>
@@ -5489,7 +5495,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
         <li data-md>
          <p>Let <var>preloadFetchController</var> be null.</p>
         <li data-md>
-         <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③⑧">in parallel</a>, but <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#abort-when" id="ref-for-abort-when①">abort when</a> <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state①">state</a> is "<code>terminated</code>" or "<code>aborted</code>":</p>
+         <p>Run the following substeps <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/infrastructure.html#in-parallel" id="ref-for-in-parallel③⑧">in parallel</a>, but <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#abort-when" id="ref-for-abort-when①">abort when</a> <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state②">state</a> is "<code>terminated</code>" or "<code>aborted</code>":</p>
          <ol>
           <li data-md>
            <p>Set <var>preloadFetchController</var> to the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-fetch" id="ref-for-concept-fetch①⑤">fetching</a> <var>preloadRequest</var>.</p>
@@ -5555,7 +5561,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
       <dd data-md>
        <p><var>preloadResponse</var>, a <a data-link-type="dfn" href="https://tc39.es/ecma262/#sec-promise-objects" id="ref-for-sec-promise-objects③②">promise</a></p>
       <dd data-md>
-       <p><var>raceResponse</var>, a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response③">race response</a> or null</p>
+       <p><var>raceResponse</var>, a <a data-link-type="dfn" href="#dfn-race-response" id="ref-for-dfn-race-response④">race response</a> or null</p>
       <dt data-md>Output
       <dd data-md>
        <p>a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①③">response</a> or null</p>
@@ -5688,7 +5694,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
           <li data-md>
            <p>If <var>e</var>’s <a data-link-type="dfn" href="https://dom.spec.whatwg.org/#canceled-flag" id="ref-for-canceled-flag">canceled flag</a> is set, set <var>eventCanceled</var> to true.</p>
           <li data-md>
-           <p>If <var>fetchController</var> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state②">state</a> is "<code>terminated</code>" or "<code>aborted</code>", then:</p>
+           <p>If <var>fetchController</var> <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-state" id="ref-for-fetch-controller-state③">state</a> is "<code>terminated</code>" or "<code>aborted</code>", then:</p>
            <ol>
             <li data-md>
              <p>Let <var>deserializedError</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#deserialize-a-serialized-abort-reason" id="ref-for-deserialize-a-serialized-abort-reason①">deserialize a serialized abort reason</a> given <var>fetchController</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#fetch-controller-serialized-abort-reason" id="ref-for-fetch-controller-serialized-abort-reason">serialized abort reason</a> and <var>workerRealm</var>.</p>
@@ -5719,12 +5725,12 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
         <li data-md>
          <p>If <var>eventHandled</var> is not null, then <a data-link-type="dfn" href="https://webidl.spec.whatwg.org/#resolve" id="ref-for-resolve">resolve</a> <var>eventHandled</var>.</p>
         <li data-md>
-         <p>If <var>raceResponse</var> is not null, and <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value③">value</a> is not null, then:</p>
+         <p>If <var>raceResponse</var> is not null, and <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value④">value</a> is not null, then:</p>
          <ol>
           <li data-md>
-           <p>Wait until <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value④">value</a> is not "<code>pending</code>".</p>
+           <p>Wait until <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑤">value</a> is not "<code>pending</code>".</p>
           <li data-md>
-           <p>If <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑤">value</a> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①④">response</a>, return <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑥">value</a>.</p>
+           <p>If <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑥">value</a> is a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①④">response</a>, return <var>raceResponse</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑦">value</a>.</p>
          </ol>
         <li data-md>
          <p>Return null.</p>
@@ -7033,9 +7039,9 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
         <li data-md>
          <p><a data-link-type="dfn" href="https://infra.spec.whatwg.org/#map-remove" id="ref-for-map-remove⑦">Remove</a> <var>map</var>[<var>request</var>].</p>
         <li data-md>
-         <p>Wait until <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑦">value</a> is not "<code>pending</code>"</p>
+         <p>Wait until <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑧">value</a> is not "<code>pending</code>"</p>
         <li data-md>
-         <p>If <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑧">value</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①⑦">response</a>, return <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑨">value</a>.</p>
+         <p>If <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value⑨">value</a> is <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response" id="ref-for-concept-response①⑦">response</a>, return <var>entry</var>’s <a data-link-type="dfn" href="#race-response-value" id="ref-for-race-response-value①⓪">value</a>.</p>
        </ol>
       <li data-md>
        <p>Return null.</p>
@@ -10547,7 +10553,7 @@ let dfnPanelData = {
 "cb98f71f": {"dfnID":"cb98f71f","dfnText":"mode","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-request-mode"}],"title":"Match Router Condition"}],"url":"https://fetch.spec.whatwg.org/#concept-request-mode"},
 "cc549724": {"dfnID":"cc549724","dfnText":"Location","external":true,"refSections":[{"refs":[{"id":"ref-for-location"}],"title":"4.2.10. focus()"},{"refs":[{"id":"ref-for-location\u2460"}],"title":"4.2.11. navigate(url)"},{"refs":[{"id":"ref-for-location\u2461"}],"title":"4.3.2. matchAll(options)"},{"refs":[{"id":"ref-for-location\u2462"}],"title":"4.3.3. openWindow(url)"},{"refs":[{"id":"ref-for-location\u2463"}],"title":"Resolve Get Client Promise"}],"url":"https://html.spec.whatwg.org/multipage/nav-history-apis.html#location"},
 "cd787c3f": {"dfnID":"cd787c3f","dfnText":"exception","external":true,"refSections":[{"refs":[{"id":"ref-for-dfn-exception"}],"title":"5.4.4. addAll(requests)"},{"refs":[{"id":"ref-for-dfn-exception\u2460"}],"title":"5.4.5. put(request, response)"},{"refs":[{"id":"ref-for-dfn-exception\u2461"}],"title":"5.4.6. delete(request, options)"},{"refs":[{"id":"ref-for-dfn-exception\u2462"},{"id":"ref-for-dfn-exception\u2463"}],"title":"Reject Job Promise"}],"url":"https://webidl.spec.whatwg.org/#dfn-exception"},
-"cdc0b059": {"dfnID":"cdc0b059","dfnText":"state","external":true,"refSections":[{"refs":[{"id":"ref-for-fetch-controller-state"},{"id":"ref-for-fetch-controller-state\u2460"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-fetch-controller-state\u2461"}],"title":"Create Fetch Event and Dispatch"}],"url":"https://fetch.spec.whatwg.org/#fetch-controller-state"},
+"cdc0b059": {"dfnID":"cdc0b059","dfnText":"state","external":true,"refSections":[{"refs":[{"id":"ref-for-fetch-controller-state"},{"id":"ref-for-fetch-controller-state\u2460"},{"id":"ref-for-fetch-controller-state\u2461"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-fetch-controller-state\u2462"}],"title":"Create Fetch Event and Dispatch"}],"url":"https://fetch.spec.whatwg.org/#fetch-controller-state"},
 "cdea6030": {"dfnID":"cdea6030","dfnText":"type","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-response-type"}],"title":"5.4.2. matchAll(request, options)"},{"refs":[{"id":"ref-for-concept-response-type\u2460"}],"title":"5.4.4. addAll(requests)"},{"refs":[{"id":"ref-for-concept-response-type\u2461"}],"title":"Appendix A: Algorithms"},{"refs":[{"id":"ref-for-concept-response-type\u2462"},{"id":"ref-for-concept-response-type\u2463"}],"title":"Handle Fetch"}],"url":"https://fetch.spec.whatwg.org/#concept-response-type"},
 "ce15d5dc": {"dfnID":"ce15d5dc","dfnText":"realm execution context","external":true,"refSections":[{"refs":[{"id":"ref-for-realm-execution-context"}],"title":"Setup ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-realm-execution-context\u2460"}],"title":"Run Service Worker"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#realm-execution-context"},
 "ce3d2bbb": {"dfnID":"ce3d2bbb","dfnText":"current global object","external":true,"refSections":[{"refs":[{"id":"ref-for-current-global-object"}],"title":"4.2.11. navigate(url)"},{"refs":[{"id":"ref-for-current-global-object\u2460"}],"title":"4.3.3. openWindow(url)"},{"refs":[{"id":"ref-for-current-global-object\u2461"}],"title":"4.4. ExtendableEvent"},{"refs":[{"id":"ref-for-current-global-object\u2462"},{"id":"ref-for-current-global-object\u2463"}],"title":"4.5.1. event.addRoutes(rules)"},{"refs":[{"id":"ref-for-current-global-object\u2464"}],"title":"6.3.2. importScripts(urls)"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#current-global-object"},
@@ -10624,7 +10630,7 @@ let dfnPanelData = {
 "dfn-lifecycle-events": {"dfnID":"dfn-lifecycle-events","dfnText":"Lifecycle events","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-lifecycle-events"}],"title":"4.4. ExtendableEvent"},{"refs":[{"id":"ref-for-dfn-lifecycle-events\u2460"},{"id":"ref-for-dfn-lifecycle-events\u2461"}],"title":"4.8. Events"}],"url":"#dfn-lifecycle-events"},
 "dfn-name-to-cache-map": {"dfnID":"dfn-name-to-cache-map","dfnText":"name to cache map","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-name-to-cache-map"},{"id":"ref-for-dfn-name-to-cache-map\u2460"}],"title":"5.1. Constructs"},{"refs":[{"id":"ref-for-dfn-name-to-cache-map\u2461"},{"id":"ref-for-dfn-name-to-cache-map\u2462"}],"title":"5.5. CacheStorage"},{"refs":[{"id":"ref-for-dfn-name-to-cache-map\u2463"}],"title":"5.5.5. keys()"},{"refs":[{"id":"ref-for-dfn-name-to-cache-map\u2464"}],"title":"6.8. Privacy"},{"refs":[{"id":"ref-for-dfn-name-to-cache-map\u2465"}],"title":"Handle Fetch"}],"url":"#dfn-name-to-cache-map"},
 "dfn-policy-container": {"dfnID":"dfn-policy-container","dfnText":"policy container","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-policy-container"}],"title":"Update"},{"refs":[{"id":"ref-for-dfn-policy-container\u2460"}],"title":"Setup ServiceWorkerGlobalScope"}],"url":"#dfn-policy-container"},
-"dfn-race-response": {"dfnID":"dfn-race-response","dfnText":"race response","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-race-response"}],"title":"4.1. ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-dfn-race-response\u2460"},{"id":"ref-for-dfn-race-response\u2461"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-dfn-race-response\u2462"}],"title":"Create Fetch Event and Dispatch"}],"url":"#dfn-race-response"},
+"dfn-race-response": {"dfnID":"dfn-race-response","dfnText":"race response","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-race-response"}],"title":"4.1. ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-dfn-race-response\u2460"},{"id":"ref-for-dfn-race-response\u2461"},{"id":"ref-for-dfn-race-response\u2462"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-dfn-race-response\u2463"}],"title":"Create Fetch Event and Dispatch"}],"url":"#dfn-race-response"},
 "dfn-race-result": {"dfnID":"dfn-race-result","dfnText":"race result","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-race-result"},{"id":"ref-for-dfn-race-result\u2460"}],"title":"Appendix A: Algorithms"},{"refs":[{"id":"ref-for-dfn-race-result\u2461"},{"id":"ref-for-dfn-race-result\u2462"},{"id":"ref-for-dfn-race-result\u2463"}],"title":"Handle Fetch"}],"url":"#dfn-race-result"},
 "dfn-relevant-name-to-cache-map": {"dfnID":"dfn-relevant-name-to-cache-map","dfnText":"relevant name to cache map","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-relevant-name-to-cache-map"},{"id":"ref-for-dfn-relevant-name-to-cache-map\u2460"}],"title":"5.5.1. match(request, options)"},{"refs":[{"id":"ref-for-dfn-relevant-name-to-cache-map\u2461"}],"title":"5.5.2. has(cacheName)"},{"refs":[{"id":"ref-for-dfn-relevant-name-to-cache-map\u2462"},{"id":"ref-for-dfn-relevant-name-to-cache-map\u2463"}],"title":"5.5.3. open(cacheName)"},{"refs":[{"id":"ref-for-dfn-relevant-name-to-cache-map\u2464"}],"title":"5.5.4. delete(cacheName)"},{"refs":[{"id":"ref-for-dfn-relevant-name-to-cache-map\u2465"}],"title":"5.5.5. keys()"}],"url":"#dfn-relevant-name-to-cache-map"},
 "dfn-relevant-request-response-list": {"dfnID":"dfn-relevant-request-response-list","dfnText":"relevant request response list","external":false,"refSections":[{"refs":[{"id":"ref-for-dfn-relevant-request-response-list"}],"title":"5.4.2. matchAll(request, options)"},{"refs":[{"id":"ref-for-dfn-relevant-request-response-list\u2460"}],"title":"5.4.7. keys(request, options)"},{"refs":[{"id":"ref-for-dfn-relevant-request-response-list\u2461"}],"title":"Query Cache"},{"refs":[{"id":"ref-for-dfn-relevant-request-response-list\u2462"},{"id":"ref-for-dfn-relevant-request-response-list\u2463"},{"id":"ref-for-dfn-relevant-request-response-list\u2464"}],"title":"Batch Cache Operations"}],"url":"#dfn-relevant-request-response-list"},
@@ -10939,7 +10945,7 @@ let dfnPanelData = {
 "notify-controller-change": {"dfnID":"notify-controller-change","dfnText":"Notify Controller Change","external":false,"refSections":[{"refs":[{"id":"ref-for-notify-controller-change"}],"title":"4.3.4. claim()"},{"refs":[{"id":"ref-for-notify-controller-change\u2460"}],"title":"Activate"}],"url":"#notify-controller-change"},
 "parse-url-pattern": {"dfnID":"parse-url-pattern","dfnText":"Parse URL Pattern","external":false,"refSections":[{"refs":[{"id":"ref-for-parse-url-pattern"}],"title":"Verify Router Condition"},{"refs":[{"id":"ref-for-parse-url-pattern\u2460"}],"title":"Match Router Condition"}],"url":"#parse-url-pattern"},
 "query-cache": {"dfnID":"query-cache","dfnText":"Query Cache","external":false,"refSections":[{"refs":[{"id":"ref-for-query-cache"}],"title":"5.4.2. matchAll(request, options)"},{"refs":[{"id":"ref-for-query-cache\u2460"}],"title":"5.4.7. keys(request, options)"},{"refs":[{"id":"ref-for-query-cache\u2461"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-query-cache\u2462"},{"id":"ref-for-query-cache\u2463"},{"id":"ref-for-query-cache\u2464"}],"title":"Batch Cache Operations"}],"url":"#query-cache"},
-"race-response-value": {"dfnID":"race-response-value","dfnText":"value","external":false,"refSections":[{"refs":[{"id":"ref-for-race-response-value"},{"id":"ref-for-race-response-value\u2460"},{"id":"ref-for-race-response-value\u2461"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-race-response-value\u2462"},{"id":"ref-for-race-response-value\u2463"},{"id":"ref-for-race-response-value\u2464"},{"id":"ref-for-race-response-value\u2465"}],"title":"Create Fetch Event and Dispatch"},{"refs":[{"id":"ref-for-race-response-value\u2466"},{"id":"ref-for-race-response-value\u2467"},{"id":"ref-for-race-response-value\u2468"}],"title":"Lookup Race Response"}],"url":"#race-response-value"},
+"race-response-value": {"dfnID":"race-response-value","dfnText":"value","external":false,"refSections":[{"refs":[{"id":"ref-for-race-response-value"},{"id":"ref-for-race-response-value\u2460"},{"id":"ref-for-race-response-value\u2461"},{"id":"ref-for-race-response-value\u2462"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-race-response-value\u2463"},{"id":"ref-for-race-response-value\u2464"},{"id":"ref-for-race-response-value\u2465"},{"id":"ref-for-race-response-value\u2466"}],"title":"Create Fetch Event and Dispatch"},{"refs":[{"id":"ref-for-race-response-value\u2467"},{"id":"ref-for-race-response-value\u2468"},{"id":"ref-for-race-response-value\u2460\u24ea"}],"title":"Lookup Race Response"}],"url":"#race-response-value"},
 "race-result-routed-response": {"dfnID":"race-result-routed-response","dfnText":"routed response","external":false,"refSections":[{"refs":[{"id":"ref-for-race-result-routed-response"}],"title":"Appendix A: Algorithms"},{"refs":[{"id":"ref-for-race-result-routed-response\u2460"},{"id":"ref-for-race-result-routed-response\u2461"},{"id":"ref-for-race-result-routed-response\u2462"}],"title":"Handle Fetch"}],"url":"#race-result-routed-response"},
 "race-result-used-route": {"dfnID":"race-result-used-route","dfnText":"used route","external":false,"refSections":[{"refs":[{"id":"ref-for-race-result-used-route"}],"title":"Appendix A: Algorithms"},{"refs":[{"id":"ref-for-race-result-used-route\u2460"},{"id":"ref-for-race-result-used-route\u2461"},{"id":"ref-for-race-result-used-route\u2462"},{"id":"ref-for-race-result-used-route\u2463"}],"title":"Handle Fetch"}],"url":"#race-result-used-route"},
 "register": {"dfnID":"register","dfnText":"Register","external":false,"refSections":[{"refs":[{"id":"ref-for-register"}],"title":"2.3.1. Lifetime"},{"refs":[{"id":"ref-for-register\u2460"}],"title":"4.1. ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-register\u2461"}],"title":"Run Job"}],"url":"#register"},
