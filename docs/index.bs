@@ -3139,6 +3139,52 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Return |serviceWorker|'s [=start status=].
   </section>
 
+    <section algorithm>
+    <h3 id="terminate-task-queue-algorithm"><dfn>Terminate Task Queue</dfn></h3>
+      : Input
+      :: |event loop|, an <a>event loop</a>
+      : Output
+      :: None
+
+      1. For each |task| in |event loop|'s corresponding [=/task queues=]
+        1. If |task|'s <a>task source</a> is <a>handle fetch task source</a>
+            1. Let |client| be |task|'s |request|'s [=request/client=].
+            2. <a lt="queue a task">Queue</a> |task| to |clients|'s <a>responsible event loop</a> using the <a>networking task source</a>.
+        2. Discard |task|
+
+      Note: This effectively means that the in-flight fetch events are handled by the network, and all other events are discarded.
+    </section>
+
+    <section algorithm>
+    <h3 id="kill-service-workers-algorithm"><dfn export>Kill Service Workers</dfn></h3>
+
+      The [=Kill Service Workers=] algorithm is intended to be a killswitch mechanism for all service workers associated with an origin.
+
+      : Input
+      :: |origin|, an [=/origin=]
+      : Output
+      :: None
+
+      1. For each [=/service worker client=] |client| whose [=service worker client/origin=] is the <a lt="same origin">same</a> as the |origin|
+        1. Set |client|'s <a>active service worker</a> to null.
+
+      2. For each |registration| in the user agent's set of <a>service worker registrations</a>:
+
+        1.  If |registration|'s <a>scope URL</a>'s [=url/origin=] is |origin|:
+
+            1. Run <a>Terminate Task Queue</a> on each of |registration|'s <a>event loop</a>'s
+            1. If |registration|'s <a>installing worker</a> is not null, then:
+                1. Discard, without processing, every task in |registration|'s <a>installing worker</a>'s <a>event loop</a>'s corresponding [=/task queues=]
+            1. If |registration|'s <a>waiting worker</a> is not null, then:
+                1. Discard, without processing, every task in |registration|'s <a>waiting worker</a>'s <a>event loop</a>'s corresponding [=/task queues=]
+            1. If |registration|'s <a>active worker</a> is not null, then:
+                1. Run <a>Terminate Task Queue</a> on each of |registration|'s <a>waiting worker</a>'s <a>event loop</a>'s
+
+      3. [=map/For each=] |scope| → |registration| of [=scope to registration map=]:
+          1. If the [=url/origin=] of the result of [=URL parser|parsing=] |scope| is the [=same origin|same=] as |origin|, then [=map/remove=] [=scope to registration map=][|registration|'s [=service worker registration/scope url=], [[=URL serializer|serialized=]].
+          2. Run <a>Clear Registration</a>, passing |registration|
+  </section>
+
   <section algorithm>
     <h3 id="all-fetch-listeners-are-empty-algorithm"><dfn>All Fetch Listeners Are Empty</dfn></h3>
 
