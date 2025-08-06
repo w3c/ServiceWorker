@@ -3241,7 +3241,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Else if |source| is {{RouterSourceEnum/"cache"}}, or |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=], then:
                   1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
                   1. Set |timingInfo|’s [=service worker timing info/worker cache lookup start=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
-                  1. [=map/For each=] |cacheName| &#x2192; |cache| of the |registration|'s [=service worker registration/storage key=]'s [=name to cache map=].
+                  1. Let |caches| be the result of running <a data-link-for="storage">obtain a local storage bottle map</a> with |reservedClient|, "<code>local</code>", and "<code>caches</code>".
+                  1. [=map/For each=] |cacheName| &#x2192; |cache| of |caches|.
                       1. If |source|["{{RouterSourceDict/cacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/cacheName}}"] [=string/is=] not |cacheName|, [=continue=].
                       1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
                       1. If |requestResponses| is an empty [=list=], return |timingInfo|.
