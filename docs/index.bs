@@ -382,6 +382,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section>
+    <h3 id="user-agent-bootup">User Agent Boot up</h3>
+
+    A user agent has an associated <dfn export id="dfn-service-worker-manager">service worker manager</dfn>.
+
+    A user agent *must* [=start a new parallel queue=] when it boots up and set the [=service worker manager=] to the result value.
+  </section>
+
+  <section>
     <h3 id="user-agent-shutdown">User Agent Shutdown</h3>
 
     A user agent *must* maintain the state of its stored [=/service worker registrations=] across restarts with the following rules:
@@ -2624,15 +2632,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: none
 
-      1. Assert: |jobQueue| [=queue/is not empty=].
-      1. [=Queue a task=] to run these steps:
+      1. [=Enqueue the following steps=] to the [=service worker manager=]:
+          1. Assert: |jobQueue| [=queue/is not empty=].
           1. Let |job| be the first [=queue/item=] in |jobQueue|.
-          1. If |job|'s [=job type=] is *register*, run [=Register=] with |job| [=in parallel=].
-          1. Else if |job|'s [=job type=] is *update*, run [=Update=] with |job| [=in parallel=].
+          1. If |job|'s [=job type=] is *register*, run [=Register=] with |job|.
+          1. Else if |job|'s [=job type=] is *update*, run [=Update=] with |job|.
 
               Note: For a register job and an update job, the user agent delays queuing a task for running the job until after a {{Document/DOMContentLoaded}} event has been dispatched to the document that initiated the job.
 
-          1. Else if |job|'s [=job type=] is *unregister*, run [=Unregister=] with |job| [=in parallel=].
+          1. Else if |job|'s [=job type=] is *unregister*, run [=Unregister=] with |job|.
   </section>
 
   <section algorithm>
