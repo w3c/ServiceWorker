@@ -2153,8 +2153,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. If |innerResponse|'s [=response/body=] is [=ReadableStream/disturbed=] or [=ReadableStream/locked=], return [=a promise rejected with=] a `TypeError`.
         1. Let |clonedResponse| be a [=response/clone=] of |innerResponse|.
         1. Let |bodyReadPromise| be [=a promise resolved with=] undefined.
-        1. If |innerResponse|'s [=response/body=] is non-null, run these substeps:
-            1. Let |stream| be |innerResponse|'s [=response/body=]'s [=body/stream=].
+        1. Let |body| be |innerResponse|'s [=filtered response/internal response=]'s [=response/body=] if |innerResponse| is a [=filtered response=] and |innerResponse|'s [=response/body=] otherwise.
+        1. If |body| is non-null, run these substeps:
+            1. Let |stream| be |body|'s [=body/stream=].
             1. Let |reader| be the result of [=ReadableStream/getting a reader=] for |stream|.
             1. Set |bodyReadPromise| to the result of [=ReadableStreamDefaultReader/reading all bytes=] from |reader|.
 
