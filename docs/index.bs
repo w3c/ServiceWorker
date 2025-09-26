@@ -2543,6 +2543,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     A <a>job</a> has a <dfn id="dfn-job-list-of-equivalent-jobs">list of equivalent jobs</dfn> (a list of <a>jobs</a>). It is initially the empty list.
 
     A [=job=] has a <dfn id="dfn-job-force-bypass-cache-flag">force bypass cache flag</dfn>. It is initially unset.
+
+    A [=job=] has a <dfn id="dfn-immediate-unregister-flag">immediate unregister flag</dfn>. It is initially unset.
   </div>
 
 
@@ -3723,7 +3725,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: none
 
-      1. If the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
+      1. If |job|'s [=job/client=] is not null, and the [=environment settings object/origin=] of |job|'s [=job/scope url=] is not |job|'s [=job/client=]'s [=environment settings object/origin=], then:
           1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. Let |registration| be the result of running <a>Get Registration</a> given |job|'s [=job/storage key=] and |job|'s [=job/scope url=].
@@ -3732,7 +3734,13 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. [=map/Remove=] [=registration map=][(|registration|'s [=service worker registration/storage key=], |job|'s [=job/scope url=])].
       1. Invoke <a>Resolve Job Promise</a> with |job| and true.
-      1. Invoke [=Try Clear Registration=] with |registration|.
+      1. If |job|'s [=immediate unregister flag=] is set, then:
+          1. Invoke [=Clear Registration=] with |registration|.
+          1. For each [=/service worker client=] |client| [=using=] |registration|:
+              1. Assert: |client|'s [=active service worker=] is not null.
+              1. Set |client|'s [=active service worker=] to null.
+              1. Invoke [=Notify Controller Change=] with |client|.
+      1. Else, invoke [=Try Clear Registration=] with |registration|.
 
           Note: If [=Try Clear Registration=] does not trigger [=Clear Registration=] here, [=Clear Registration=] is tried again when the last client [=using=] the registration is [=Handle Service Worker Client Unload|unloaded=] or the [=extend lifetime promises=] for the registration's service workers settle.
 
@@ -3791,6 +3799,28 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           * |registration|'s [=installing worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=installing worker=] is true.
           * |registration|'s [=waiting worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=waiting worker=] is true.
           * |registration|'s [=active worker=] is null or the result of running [=Service Worker Has No Pending Events=] with |registration|’s [=active worker=] is true.
+  </section>
+
+  <section algorithm>
+    <h3 id="purge-service-worker-registration-algorithm"><dfn export>Purge Service Worker Registrations</dfn></h3>
+
+      : Input
+      :: |origin|, an [=/origin=]
+      : Output
+      :: None
+
+      1. [=map/For each=] <var ignore=''>scope</var> → |registration| of [=scope to registration map=]:
+          1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
+          1. If |scopeURL|'s [=/origin=] is not |origin|, [=continue=].
+          1. Let |job| be the result of running [=Create Job=] with *unregister*, |scopeURL|, null, null, and null.
+          1. Set |job|'s [=immediate unregister flag=].
+          1. Let |jobQueue| be [=scope to job queue map=][|job|'s [=job/scope url=], [=URL serializer|serialized=]].
+          1. Assert: |jobQueue| is not null.
+          1. [=While=] |jobQueue| is not empty:
+              1. Let |job| be the first item in |jobQueue|.
+              1. Invoke [=Reject Job Promise=] with |job| and a <code>TypeError</code>.
+              1. [=queue/Dequeue=] from |jobQueue|.
+          1. Invoke [=Schedule Job=] with |job|.
   </section>
 
   <section algorithm>
