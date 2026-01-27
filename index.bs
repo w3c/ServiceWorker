@@ -3299,7 +3299,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                       1. Set |routedResponse|'s [=service worker timing info=] be set to |timingInfo|.
                   1. Set |routedResponse|'s [=service worker timing info=]'s [=service worker timing info/worker final router source=] be set to |result|'s [=race result/used route=].
                   1. Return |routedResponse|.
-            1. Else if |source| is {{RouterSourceEnum/"race-network-and-cache"}}, and |request|'s [=request/method=] is \`<code>GET</code>\` then:
+            1. Else if |source| is {{RouterSourceEnum/"race-network-and-cache"}}, or |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=], and |request|'s [=request/method=] is \`<code>GET</code>\` then:
                 1. If |shouldSoftUpdate| is true, then [=in parallel=] run the [=Soft Update=] algorithm with |registration|.
                 1. Let |queue| be an empty [=queue=] of [=race result=].
                 1. Let |raceFetchController| be null.
@@ -3319,8 +3319,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                     1. Else:
                         1. Set |environment| to |client|.
                     1. Let |caches| be the result of running [=obtain a local storage bottle map=] with |environment| and "<code>caches</code>".
-                    1. [=map/For each=] |raceNetworkAndCacheCacheName| &#x2192; |cache| of |caches|.
-                        1. If |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=string/is=] not |raceNetworkAndCacheCacheName|, [=continue=].
+                    1. [=map/For each=] |cacheName| &#x2192; |cache| of |caches|.
+                        1. If |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=map/exists=] and |source|["{{RouterSourceDict/raceNetworkAndCacheCacheName}}"] [=string/is=] not |cacheName|, [=continue=].
                         1. Let |requestResponses| be the result of running [=Query Cache=] with |request|, a new {{CacheQueryOptions}}, and |cache|.
                         1. If |requestResponses| is an empty [=list=], [=continue=].
                         1. Else:
