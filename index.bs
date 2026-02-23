@@ -100,8 +100,6 @@ spec: html; urlPrefix: https://html.spec.whatwg.org/multipage/
         urlPrefix: interaction.html
             text: visibilityState; for: Document; url: page-visibility
     type: dfn
-        urlPrefix: nav-history-apis.html
-            text: ancestor origins list; for: Location; url: concept-location-ancestor-origins-list
         urlPrefix: syntax.html
             text: delay the load event; for: document; url: delay-the-load-event
         urlPrefix: browsers.html
@@ -1319,7 +1317,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Let |frameType| be the result of running [=Get Frame Type=] with [=this=]'s [=WindowClient/browsing context=].
             1. Let |visibilityState| be [=this=]'s [=WindowClient/browsing context=]'s [=active document=]'s {{Document/visibilityState}} attribute value.
             1. Let |focusState| be the result of running the [=has focus steps=] with [=this=]'s [=WindowClient/browsing context=]'s [=active document=].
-            1. Let |ancestorOriginsList| be [=this=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+            1. Let |ancestorOriginsList| be [=this=]'s [=WindowClient/browsing context=]'s [=active document=]'s [=Document/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                 1. Let |windowClient| be the result of running [=Create Window Client=] with [=this=]'s associated [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
                 1. If |windowClient|'s [=focus state=] is true, resolve |promise| with |windowClient|.
@@ -1346,7 +1344,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. Let |frameType| be the result of running [=Get Frame Type=] with |browsingContext|.
             1. Let |visibilityState| be |browsingContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
             1. Let |focusState| be the result of running the [=has focus steps=] with |browsingContext|'s [=active document=].
-            1. Let |ancestorOriginsList| be |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+            1. Let |ancestorOriginsList| be |browsingContext|'s [=active document=]'s [=Document/ancestor origins list=]'s associated list.
             1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                 1. If |browsingContext|'s {{Window}} object's <a>environment settings object</a>'s <a>creation URL</a>'s [=url/origin=] is not the <a lt="same origin">same</a> as the [=ServiceWorkerGlobalScope/service worker=]'s [=environment settings object/origin=], resolve |promise| with null and abort these steps.
                 1. Let |windowClient| be the result of running [=Create Window Client=] with [=this=]'s [=Client/service worker client=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
@@ -1428,7 +1426,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                         1. Set |windowData|["`frameType`"] to the result of running [=Get Frame Type=] with |browsingContext|.
                         1. Set |windowData|["`visibilityState`"] to |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
                         1. Set |windowData|["`focusState`"] to the result of running the [=has focus steps=] with |browsingContext|'s [=active document=] as the argument.
-                        1. If |client| is a [=window client=], then set |windowData|["`ancestorOriginsList`"] to |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+                        1. If |client| is a [=window client=], then set |windowData|["`ancestorOriginsList`"] to |browsingContext|'s [=active document=]'s [=Document/ancestor origins list=]'s associated list.
                     1. Wait for |task| to have executed.
 
                         Note: Wait is a blocking wait, but implementers may run the iterations in parallel as long as the state is not broken.
@@ -1474,7 +1472,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Let |frameType| be the result of running [=Get Frame Type=] with |newContext|.
                 1. Let |visibilityState| be |newContext|'s <a>active document</a>'s {{Document/visibilityState}} attribute value.
                 1. Let |focusState| be the result of running the <a>has focus steps</a> with |newContext|'s <a>active document</a> as the argument.
-                1. Let |ancestorOriginsList| be |newContext|'s <a>active document</a>'s <a>relevant global object</a>'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+                1. Let |ancestorOriginsList| be |newContext|'s <a>active document</a>'s [=Document/ancestor origins list=]'s associated list.
                 1. [=Queue a task=] to run the following steps on |serviceWorkerEventLoop| using the [=DOM manipulation task source=]:
                     1. If the result of running [=obtain a storage key=] given |newContext|'s {{Window}} object's [=environment settings object=] is not [=storage key/equal=] to the [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=], then resolve |promise| with null and abort these steps.
                     1. Let |client| be the result of running [=Create Window Client=] with |newContext|'s {{Window}} object's [=environment settings object=], |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList| as the arguments.
@@ -3300,7 +3298,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Assert: |source| is "{{RouterSourceEnum/fetch-event}}"
       1. Let |responseForAutoPreload| be null.
       1. If |request| is a [=navigation request=], |request|'s [=request/method=] is \`<code>GET</code>\`, |registration|'s [=active worker=]'s [=set of event types to handle=] [=set/contains=] <code>fetch</code>, and |registration|'s [=active worker=]'s [=all fetch listeners are empty flag=] is not set then:
-          1. If |registration|'s [=navigation preload enabled flag=] is set then: 
+          1. If |registration|'s [=navigation preload enabled flag=] is set then:
 
               Note: If the above is true except |registration|'s [=active worker=]'s <a>set of event types to handle</a> **does not** contain <code>fetch</code>, then the user agent may wish to show a console warning, as the developer's intent isn't clear.
 
@@ -4007,7 +4005,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Let |visibilityState| be |browsingContext|'s [=active document=]'s {{Document/visibilityState}} attribute value.
               1. Let |focusState| be the result of running the [=has focus steps=] with |browsingContext|'s [=active document=] as the argument.
               1. Let |ancestorOriginsList| be the empty list.
-              1. If |client| is a [=window client=], set |ancestorOriginsList| to |browsingContext|'s [=active document=]'s [=relevant global object=]'s {{Location}} object's [=Location/ancestor origins list=]'s associated list.
+              1. If |client| is a [=window client=], set |ancestorOriginsList| to |browsingContext|'s [=active document=]'s [=Document/ancestor origins list=]'s associated list.
               1. [=Queue a task=] to run the following steps on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=]:
                   1. If |client|'s [=discarded flag=] is set, resolve |promise| with undefined and abort these steps.
                   1. Let |windowClient| be the result of running [=Create Window Client=] with |client|, |frameType|, |visibilityState|, |focusState|, and |ancestorOriginsList|.
