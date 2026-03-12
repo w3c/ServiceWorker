@@ -515,15 +515,15 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                         <dt>Otherwise</dt>
                         <dd>a new {{Client}} object that represents |incumbentGlobal|'s associated worker</dd>
                     </dl>
-                1. Let |origin| be the [=serialization of an origin|serialization=] of |incumbentSettings|'s [=environment settings object/origin=].
+                1. Let |origin| be |incumbentSettings|'s [=environment settings object/origin=].
                 1. Let |destination| be the {{ServiceWorkerGlobalScope}} object associated with |serviceWorker|.
                 1.  Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=global object/Realm=]).
 
-                    If this throws an exception, let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/messageerror!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin| and the {{ExtendableMessageEvent/source}} attribute initialized to |source|.
+                    If this throws an exception, let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/messageerror!!event}}, using {{ExtendableMessageEvent}}, with its [=ExtendableMessageEvent/origin=] initialized to |origin| and the {{ExtendableMessageEvent/source}} attribute initialized to |source|.
                 1. Else:
                     1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
                     1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any, maintaining their relative order.
-                    1. Let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/message!!event}}, using {{ExtendableMessageEvent}}, with the {{ExtendableMessageEvent/origin}} attribute initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
+                    1. Let |e| be the result of [=creating an event=] named {{ServiceWorkerGlobalScope/message!!event}}, using {{ExtendableMessageEvent}}, with its [=ExtendableMessageEvent/origin=] initialized to |origin|, the {{ExtendableMessageEvent/source}} attribute initialized to |source|, the {{ExtendableMessageEvent/data}} attribute initialized to |messageClone|, and the {{ExtendableMessageEvent/ports}} attribute initialized to |newPorts|.
                 1. [=Dispatch=] |e| at |destination|.
                 1. Invoke [=Update Service Worker Extended Events Set=] with |serviceWorker| and |e|.
     </section>
@@ -1276,14 +1276,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. If |targetClient| is null, return.
             1. Let |destination| be the {{ServiceWorkerContainer}} object whose associated [=ServiceWorkerContainer/service worker client=] is |targetClient|.
             1. Add a [=task=] that runs the following steps to |destination|'s [=ServiceWorkerContainer/client message queue=]:
-                1. Let |origin| be the [=serialization of an origin|serialization=] of |sourceSettings|'s [=environment settings object/origin=].
+                1. Let |origin| be |sourceSettings|'s [=environment settings object/origin=].
                 1. Let |source| be the result of [=getting the service worker object=] that represents |contextObject|'s [=relevant global object=]'s [=ServiceWorkerGlobalScope/service worker=] in |targetClient|.
                 1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
 
-                    If this throws an exception, catch it, [=fire an event=] named {{ServiceWorkerContainer/messageerror!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
+                    If this throws an exception, catch it, [=fire an event=] named {{ServiceWorkerContainer/messageerror!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
                 1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
                 1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any.
-                1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with the {{MessageEvent/origin}} attribute initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
+                1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
     </section>
 
     <section>
@@ -1819,6 +1819,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       };
     </pre>
 
+    Each {{ExtendableMessageEvent}} has an <dfn for="ExtendableMessageEvent">origin</dfn> (an [=/origin=], a string, or null), initially null.
+
     [=/Service workers=] define the <a method lt="waitUntil()" for="ExtendableEvent">extendable</a> {{ServiceWorkerGlobalScope/message!!event}} event to allow extending the lifetime of the event. For the {{ServiceWorkerGlobalScope/message!!event}} event, [=/service workers=] use the {{ExtendableMessageEvent}} interface which extends the {{ExtendableEvent}} interface.
 
     <section>
@@ -1830,13 +1832,23 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
     <section>
       <h4 id="extendablemessage-event-origin">{{ExtendableMessageEvent/origin|event.origin}}</h4>
 
-      The <dfn attribute for="ExtendableMessageEvent">origin</dfn> attribute *must* return the value it was initialized to. When the object is created, this attribute *must* be initialized to the empty string. It represents the [=environment settings object/origin=] of the [=/service worker client=] that sent the message.
+      The <dfn attribute for="ExtendableMessageEvent">origin</dfn> attribute represents the [=environment settings object/origin=] of the [=/service worker client=] that sent the message.
+
+      The {{ExtendableMessageEvent/origin}} getter steps are:
+
+      1. If [=this=]'s [=ExtendableMessageEvent/origin=] is an [=/origin=], then return the [=serialization of an origin|serialization=] of [=this=]'s [=ExtendableMessageEvent/origin=].
+      1. If [=this=]'s [=ExtendableMessageEvent/origin=] is null, then return the empty string.
+      1. Return [=this=]'s [=ExtendableMessageEvent/origin=].
+
+      When the {{ExtendableMessageEvent/origin}} attribute is "initialized" (during {{ExtendableMessageEvent}}'s constructor, for example), the initialization value is placed into the object's [=ExtendableMessageEvent/origin=].
     </section>
 
     <section>
       <h4 id="extendablemessage-event-lasteventid">{{ExtendableMessageEvent/lastEventId|event.lastEventId}}</h4>
 
       The <dfn attribute for="ExtendableMessageEvent">lastEventId</dfn> attribute *must* return the value it was initialized to. When the object is created, this attribute *must* be initialized to the empty string.
+
+      Objects implementing the {{ExtendableMessageEvent}} interface's [=extract an origin=] steps are to return [=this=]'s [=ExtendableMessageEvent/origin=] if it is an [=/origin=]; otherwise null.
     </section>
 
     <section>
