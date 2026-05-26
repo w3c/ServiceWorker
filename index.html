@@ -5,9 +5,9 @@
   <title>Service Workers Nightly</title>
   <meta content="ED" name="w3c-status">
   <link href="https://www.w3.org/StyleSheets/TR/2021/W3C-ED" rel="stylesheet">
-  <meta content="Bikeshed version 0ef803fdf, updated Tue Jan 6 11:59:39 2026 -0800" name="generator">
+  <meta content="Bikeshed version 0a3d88311, updated Mon May 4 18:07:03 2026 +0000" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="d04904e0ec53fc2e4e8af1a8053f22e91d485b69" name="revision">
+  <meta content="28e78e758d183062215c5cbedfaebc66c2096439" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -303,7 +303,7 @@ pre .property::before, pre .property::after {
 </style>
 <style>/* Boilerplate: style-counters */
 body {
-    counter-reset: example figure issue;
+    counter-reset: example figure issue table;
 }
 .issue {
     counter-increment: issue;
@@ -328,6 +328,13 @@ figcaption {
 }
 figcaption:not(.no-marker)::before {
     content: "Figure " counter(figure) " ";
+}
+
+figure.table figcaption {
+    counter-increment: table;
+}
+figure.table figcaption:not(.no-marker)::before {
+    content: "Table " counter(table) " ";
 }
 </style>
 <style>/* Boilerplate: style-dfn-panel */
@@ -914,6 +921,30 @@ c-[il] { color: #000000 } /* Literal.Number.Integer.Long */
     c-[vm] { color: #cb4b16 } /* Name.Variable.Magic */
     c-[il] { color: #657b83 } /* Literal.Number.Integer.Long */
 }
+
+@media print {
+    /* Darken colors for print that would otherwise print too faintly */
+    c-[c]  { color: #555555 } /* Comment */
+    c-[d]  { color: #555555 } /* Comment.Multiline */
+    c-[cp] { color: #555555 } /* Comment.Preproc */
+    c-[c1] { color: #555555 } /* Comment.Single */
+    c-[cs] { color: #555555 } /* Comment.Special */
+    c-[o]  { color: #222222 } /* Operator */
+    c-[p]  { color: #222222 } /* Punctuation */
+    c-[ow] { color: #222222 } /* Operator.Word */
+    c-[s]  { color: #664400 } /* Literal.String */
+    c-[t]  { color: #664400 } /* Literal.String.Single */
+    c-[u]  { color: #664400 } /* Literal.String.Double */
+    c-[sb] { color: #664400 } /* Literal.String.Backtick */
+    c-[sc] { color: #664400 } /* Literal.String.Char */
+    c-[sd] { color: #664400 } /* Literal.String.Doc */
+    c-[se] { color: #664400 } /* Literal.String.Escape */
+    c-[sh] { color: #664400 } /* Literal.String.Heredoc */
+    c-[si] { color: #664400 } /* Literal.String.Interpol */
+    c-[sx] { color: #664400 } /* Literal.String.Other */
+    c-[sr] { color: #664400 } /* Literal.String.Regex */
+    c-[ss] { color: #664400 } /* Literal.String.Symbol */
+}
 </style>
 <style>/* Boilerplate: style-var-click-highlighting */
 /*
@@ -966,7 +997,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">Service Workers Nightly</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>,
-    <time class="dt-updated" datetime="2026-04-09">9 April 2026</time></p>
+    <time class="dt-updated" datetime="2026-05-26">26 May 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -1310,7 +1341,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
      <a href="#references"><span class="secno"></span> <span class="content">References</span></a>
      <ol class="toc">
       <li><a href="#normative"><span class="secno"></span> <span class="content">Normative References</span></a>
-      <li><a href="#informative"><span class="secno"></span> <span class="content">Informative References</span></a>
+      <li><a href="#informative"><span class="secno"></span> <span class="content">Non-Normative References</span></a>
      </ol>
     <li><a href="#idl-index"><span class="secno"></span> <span class="content">IDL Index</span></a>
     <li><a href="#issues-index"><span class="secno"></span> <span class="content">Issues Index</span></a>
@@ -5408,9 +5439,7 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
                  </ol>
                 <li data-md>
                  <p>If <var>globalObject</var> is null, return <var>timingInfo</var>.</p>
-               </ol>
-               <p class="note" role="note"><span class="marker">Note:</span> This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.</p>
-               <ol>
+                 <p class="note" role="note"><span class="marker">Note:</span> This only creates a ServiceWorkerGlobalScope because CORS checks require that. It is not expected that implementations will actually create a ServiceWorkerGlobalScope here.</p>
                 <li data-md>
                  <p>If <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-type" id="ref-for-concept-response-type③">type</a> is "<code>opaque</code>", and <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#cross-origin-resource-policy-check" id="ref-for-cross-origin-resource-policy-check①">cross-origin resource policy check</a> with <var>globalObject</var>’s <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin" id="ref-for-concept-settings-object-origin①⑥">origin</a>, <var>globalObject</var>, "", and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-internal-response" id="ref-for-concept-internal-response①">internal response</a> returns <b>blocked</b>, then return <var>timingInfo</var>.</p>
                 <li data-md>
@@ -8335,7 +8364,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <dt id="biblio-webidl">[WEBIDL]
    <dd>Edgar Chen; Timothy Gu. <a href="https://webidl.spec.whatwg.org/"><cite>Web IDL Standard</cite></a>. Living Standard. URL: <a href="https://webidl.spec.whatwg.org/">https://webidl.spec.whatwg.org/</a>
   </dl>
-  <h3 class="heading no-num no-ref settled" id="informative"><span class="content">Informative References</span><a class="self-link" href="#informative"></a></h3>
+  <h3 class="heading no-num no-ref settled" id="informative"><span class="content">Non-Normative References</span><a class="self-link" href="#informative"></a></h3>
   <dl>
    <dt id="biblio-unsanctioned-tracking">[UNSANCTIONED-TRACKING]
    <dd><a href="https://www.w3.org/2001/tag/doc/unsanctioned-tracking/"><cite>Unsanctioned Web Tracking</cite></a>. 17 July 2015. Finding of the W3C TAG. URL: <a href="https://www.w3.org/2001/tag/doc/unsanctioned-tracking/">https://www.w3.org/2001/tag/doc/unsanctioned-tracking/</a>
