@@ -2815,13 +2815,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
           1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
               1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
               1. Asynchronously complete these steps with a [=network error=].
-          1. Let |serviceWorkerAllowed| be the result of [=extracting header list values=] given \`<code>Service-Worker-Allowed</code>\` and |response|'s [=response/header list=].
+          1. Let |serviceWorkerAllowed| be the result of [=header list/get=] \`<code>Service-Worker-Allowed</code>\` from |response|'s [=response/header list=].
 
               Note: See the definition of the [=Service-Worker-Allowed=] header in Appendix B: Extended HTTP headers.
 
+          1. If |serviceWorkerAllowed| is not null, then set |serviceWorkerAllowed| to the result of [=isomorphic decode=] |serviceWorkerAllowed|.
           1. Set |policyContainer| to the result of <a>creating a policy container from a fetch response</a> given |response|.
-          1. If |serviceWorkerAllowed| is failure, then:
-              1. Asynchronously complete these steps with a <a>network error</a>.
           1. Let |scopeURL| be |registration|'s [=service worker registration/scope url=].
           1. Let |maxScopeString| be null.
           1. If |serviceWorkerAllowed| is null, then:
@@ -2832,6 +2831,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. Else:
               1. Let |maxScope| be the result of [=URL parser|parsing=] |serviceWorkerAllowed| using |job|'s [=job/script url=] as the [=base URL=].
+              1. If |maxScope| is failure, then:
+                  1. Asynchronously complete these steps with a <a>network error</a>.
               1. If |maxScope|'s [=url/origin=] is |job|'s [=job/script url=]'s [=url/origin=], then:
                   1. Set |maxScopeString| to "`/`", followed by the strings in |maxScope|'s [=url/path=] (including empty strings), separated from each other by "`/`".
           1. Let |scopeString| be "`/`", followed by the strings in |scopeURL|'s [=url/path=] (including empty strings), separated from each other by "`/`".
