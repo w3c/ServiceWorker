@@ -7,7 +7,7 @@
   <link href="https://www.w3.org/StyleSheets/TR/2021/W3C-ED" rel="stylesheet">
   <meta content="Bikeshed version d113b2e81, updated Tue Jun 9 14:57:55 2026 -0700" name="generator">
   <link href="https://www.w3.org/TR/service-workers/" rel="canonical">
-  <meta content="2fd367a434488635d5da594f7106deb1de673310" name="revision">
+  <meta content="e91ddffa33848efd54de3f57b9c76425b66fe65b" name="revision">
   <meta content="dark light" name="color-scheme">
   <link href="https://www.w3.org/StyleSheets/TR/2021/dark.css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css">
 <style>/* Boilerplate: style-autolinks */
@@ -997,7 +997,7 @@ var[data-var-color="6"] { --var-vg: #FFBCF2; }
 </p>
    <h1 class="no-ref p-name" id="title">Service Workers Nightly</h1>
    <p id="w3c-state"><a href="https://www.w3.org/standards/types/#ED">Editor’s Draft</a>,
-    <time class="dt-updated" datetime="2026-06-22">22 June 2026</time></p>
+    <time class="dt-updated" datetime="2026-07-06">6 July 2026</time></p>
    <details open>
     <summary>More details about this document</summary>
     <div data-fill-with="spec-metadata">
@@ -4612,16 +4612,12 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
            <p>Asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error④">network error</a>.</p>
          </ol>
         <li data-md>
-         <p>Let <var>serviceWorkerAllowed</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#extract-header-list-values" id="ref-for-extract-header-list-values">extracting header list values</a> given `<code>Service-Worker-Allowed</code>` and <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list④">header list</a>.</p>
+         <p>Let <var>serviceWorkerAllowed</var> be the result of <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-header-list-get" id="ref-for-concept-header-list-get">get</a> `<code>Service-Worker-Allowed</code>` from <var>response</var>’s <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-response-header-list" id="ref-for-concept-response-header-list④">header list</a>.</p>
          <p class="note" role="note"><span class="marker">Note:</span> See the definition of the <a data-link-type="dfn" href="#service-worker-allowed" id="ref-for-service-worker-allowed①">Service-Worker-Allowed</a> header in Appendix B: Extended HTTP headers.</p>
         <li data-md>
-         <p>Set <var>policyContainer</var> to the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#creating-a-policy-container-from-a-fetch-response" id="ref-for-creating-a-policy-container-from-a-fetch-response">creating a policy container from a fetch response</a> given <var>response</var>.</p>
+         <p>If <var>serviceWorkerAllowed</var> is not null, then set <var>serviceWorkerAllowed</var> to the result of <a data-link-type="dfn" href="https://infra.spec.whatwg.org/#isomorphic-decode" id="ref-for-isomorphic-decode">isomorphic decode</a> <var>serviceWorkerAllowed</var>.</p>
         <li data-md>
-         <p>If <var>serviceWorkerAllowed</var> is failure, then:</p>
-         <ol>
-          <li data-md>
-           <p>Asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error⑤">network error</a>.</p>
-         </ol>
+         <p>Set <var>policyContainer</var> to the result of <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/browsers.html#creating-a-policy-container-from-a-fetch-response" id="ref-for-creating-a-policy-container-from-a-fetch-response">creating a policy container from a fetch response</a> given <var>response</var>.</p>
         <li data-md>
          <p>Let <var>scopeURL</var> be <var>registration</var>’s <a data-link-type="dfn" href="#dfn-scope-url" id="ref-for-dfn-scope-url①③">scope url</a>.</p>
         <li data-md>
@@ -4640,6 +4636,12 @@ self<c- p>.</c->addEventListener<c- p>(</c-><c- u>"fetch"</c-><c- p>,</c-> event
          <ol>
           <li data-md>
            <p>Let <var>maxScope</var> be the result of <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-parser" id="ref-for-concept-url-parser⑦">parsing</a> <var>serviceWorkerAllowed</var> using <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url⑨">script url</a> as the <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-script-base-url" id="ref-for-concept-script-base-url①">base URL</a>.</p>
+          <li data-md>
+           <p>If <var>maxScope</var> is failure, then:</p>
+           <ol>
+            <li data-md>
+             <p>Asynchronously complete these steps with a <a data-link-type="dfn" href="https://fetch.spec.whatwg.org/#concept-network-error" id="ref-for-concept-network-error⑤">network error</a>.</p>
+           </ol>
           <li data-md>
            <p>If <var>maxScope</var>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin⑥">origin</a> is <var>job</var>’s <a data-link-type="dfn" href="#dfn-job-script-url" id="ref-for-dfn-job-script-url①⓪">script url</a>’s <a data-link-type="dfn" href="https://url.spec.whatwg.org/#concept-url-origin" id="ref-for-concept-url-origin⑦">origin</a>, then:</p>
            <ol>
@@ -7926,12 +7928,12 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="3ae34c95">destination</span>
      <li><span class="dfn-paneled" id="a0fdc68e">encoded size</span>
      <li><span class="dfn-paneled" id="3743dd5f">extract a MIME type</span>
-     <li><span class="dfn-paneled" id="3be1d4ac">extracting header list values</span>
      <li><span class="dfn-paneled" id="a33db89a">fetch</span>
      <li><span class="dfn-paneled" id="6bb42fbb">fetch controller</span>
      <li><span class="dfn-paneled" id="00f91d3b">fetch(input, init)</span>
      <li><span class="dfn-paneled" id="de82addd">filtered response</span>
      <li><span class="dfn-paneled" id="f7bf85cd">forbidden method</span>
+     <li><span class="dfn-paneled" id="d47d0690">get</span>
      <li><span class="dfn-paneled" id="99d701c5">guard</span>
      <li><span class="dfn-paneled" id="c9e7c11a">header</span>
      <li><span class="dfn-paneled" id="6ee0eab1">header list <small>(for request)</small></span>
@@ -8141,6 +8143,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
      <li><span class="dfn-paneled" id="860300d4">implementation-defined</span>
      <li><span class="dfn-paneled" id="7a87d819">is</span>
      <li><span class="dfn-paneled" id="dd460c8e">is not empty</span>
+     <li><span class="dfn-paneled" id="d8b963e8">isomorphic decode</span>
      <li><span class="dfn-paneled" id="5afbefcd">item <small>(for list)</small></span>
      <li><span class="dfn-paneled" id="c88f3887">item <small>(for struct)</small></span>
      <li><span class="dfn-paneled" id="d14a6f26">key</span>
@@ -8348,7 +8351,7 @@ navigator<c- p>.</c->serviceWorker<c- p>.</c->register<c- p>(</c-><c- u>"/foo/ba
    <dt id="biblio-rfc2119">[RFC2119]
    <dd>S. Bradner. <a href="https://datatracker.ietf.org/doc/html/rfc2119"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://datatracker.ietf.org/doc/html/rfc2119">https://datatracker.ietf.org/doc/html/rfc2119</a>
    <dt id="biblio-rfc5234">[RFC5234]
-   <dd>D. Crocker, Ed.; P. Overell. <a href="https://www.rfc-editor.org/rfc/rfc5234"><cite>Augmented BNF for Syntax Specifications: ABNF</cite></a>. January 2008. Internet Standard. URL: <a href="https://www.rfc-editor.org/rfc/rfc5234">https://www.rfc-editor.org/rfc/rfc5234</a>
+   <dd>D. Crocker, Ed.; P. Overell. <a href="https://www.rfc-editor.org/info/rfc5234/"><cite>Augmented BNF for Syntax Specifications: ABNF</cite></a>. January 2008. Internet Standard. URL: <a href="https://www.rfc-editor.org/info/rfc5234/">https://www.rfc-editor.org/info/rfc5234/</a>
    <dt id="biblio-rfc7230">[RFC7230]
    <dd>R. Fielding, Ed.; J. Reschke, Ed.. <a href="https://httpwg.org/specs/rfc7230.html"><cite>Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing</cite></a>. June 2014. Proposed Standard. URL: <a href="https://httpwg.org/specs/rfc7230.html">https://httpwg.org/specs/rfc7230.html</a>
    <dt id="biblio-rfc7231">[RFC7231]
@@ -10409,7 +10412,6 @@ let dfnPanelData = {
 "3b0ee7a3": {"dfnID":"3b0ee7a3","dfnText":"base URL","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-script-base-url"},{"id":"ref-for-concept-script-base-url\u2460"},{"id":"ref-for-concept-script-base-url\u2461"}],"title":"Update"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#concept-script-base-url"},
 "3b90bdcd": {"dfnID":"3b90bdcd","dfnText":"resolve","external":true,"refSections":[{"refs":[{"id":"ref-for-resolve"},{"id":"ref-for-resolve\u2460"}],"title":"Create Fetch Event and Dispatch"}],"url":"https://webidl.spec.whatwg.org/#resolve"},
 "3bd18bd6": {"dfnID":"3bd18bd6","dfnText":"error","external":true,"refSections":[{"refs":[{"id":"ref-for-readablestream-error"}],"title":"4.6.7. event.respondWith(r)"}],"url":"https://streams.spec.whatwg.org/#readablestream-error"},
-"3be1d4ac": {"dfnID":"3be1d4ac","dfnText":"extracting header list values","external":true,"refSections":[{"refs":[{"id":"ref-for-extract-header-list-values"}],"title":"Update"}],"url":"https://fetch.spec.whatwg.org/#extract-header-list-values"},
 "3de9e659": {"dfnID":"3de9e659","dfnText":"byte sequence","external":true,"refSections":[{"refs":[{"id":"ref-for-byte-sequence"}],"title":"2.3. Service Worker Registration"}],"url":"https://infra.spec.whatwg.org/#byte-sequence"},
 "3e12e042": {"dfnID":"3e12e042","dfnText":"environment settings object","external":true,"refSections":[{"refs":[{"id":"ref-for-environment-settings-object"}],"title":"2.4. Service Worker Client"},{"refs":[{"id":"ref-for-environment-settings-object\u2460"}],"title":"2.5.2. The worker client case"},{"refs":[{"id":"ref-for-environment-settings-object\u2461"},{"id":"ref-for-environment-settings-object\u2462"}],"title":"3.1.1. Getting ServiceWorker instances"},{"refs":[{"id":"ref-for-environment-settings-object\u2463"},{"id":"ref-for-environment-settings-object\u2464"}],"title":"3.2.1. Getting ServiceWorkerRegistration instances"},{"refs":[{"id":"ref-for-environment-settings-object\u2465"}],"title":"4.2.4. type"},{"refs":[{"id":"ref-for-environment-settings-object\u2466"}],"title":"4.2.11. navigate(url)"},{"refs":[{"id":"ref-for-environment-settings-object\u2467"},{"id":"ref-for-environment-settings-object\u2468"}],"title":"4.3.2. matchAll(options)"},{"refs":[{"id":"ref-for-environment-settings-object\u2460\u24ea"},{"id":"ref-for-environment-settings-object\u2460\u2460"},{"id":"ref-for-environment-settings-object\u2460\u2461"}],"title":"4.3.3. openWindow(url)"},{"refs":[{"id":"ref-for-environment-settings-object\u2460\u2462"},{"id":"ref-for-environment-settings-object\u2460\u2463"},{"id":"ref-for-environment-settings-object\u2460\u2464"},{"id":"ref-for-environment-settings-object\u2460\u2465"},{"id":"ref-for-environment-settings-object\u2460\u2466"}],"title":"Update"},{"refs":[{"id":"ref-for-environment-settings-object\u2460\u2467"}],"title":"Install"},{"refs":[{"id":"ref-for-environment-settings-object\u2460\u2468"}],"title":"Setup ServiceWorkerGlobalScope"},{"refs":[{"id":"ref-for-environment-settings-object\u2461\u24ea"}],"title":"Handle Fetch"},{"refs":[{"id":"ref-for-environment-settings-object\u2461\u2460"}],"title":"Update Worker State"},{"refs":[{"id":"ref-for-environment-settings-object\u2461\u2461"}],"title":"Notify Controller Change"},{"refs":[{"id":"ref-for-environment-settings-object\u2461\u2462"},{"id":"ref-for-environment-settings-object\u2461\u2463"},{"id":"ref-for-environment-settings-object\u2461\u2464"}],"title":"Resolve Get Client Promise"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#environment-settings-object"},
 "3e8c0e5f": {"dfnID":"3e8c0e5f","dfnText":"MessageEvent","external":true,"refSections":[{"refs":[{"id":"ref-for-messageevent"},{"id":"ref-for-messageevent\u2460"}],"title":"3.5. Events"},{"refs":[{"id":"ref-for-messageevent\u2461"},{"id":"ref-for-messageevent\u2462"}],"title":"4.2.6. postMessage(message, options)"}],"url":"https://html.spec.whatwg.org/multipage/comms.html#messageevent"},
@@ -10666,9 +10668,11 @@ let dfnPanelData = {
 "d25dfb2c": {"dfnID":"d25dfb2c","dfnText":"AbortError","external":true,"refSections":[{"refs":[{"id":"ref-for-aborterror"}],"title":"5.4.4. addAll(requests)"}],"url":"https://webidl.spec.whatwg.org/#aborterror"},
 "d3d229b5": {"dfnID":"d3d229b5","dfnText":"opaque filtered response","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-filtered-response-opaque"}],"title":"6.4. Cross-Origin Resources and CORS"}],"url":"https://fetch.spec.whatwg.org/#concept-filtered-response-opaque"},
 "d438bc09": {"dfnID":"d438bc09","dfnText":"set up","external":true,"refSections":[{"refs":[{"id":"ref-for-readablestream-set-up"}],"title":"4.6.7. event.respondWith(r)"}],"url":"https://streams.spec.whatwg.org/#readablestream-set-up"},
+"d47d0690": {"dfnID":"d47d0690","dfnText":"get","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-header-list-get"}],"title":"Update"}],"url":"https://fetch.spec.whatwg.org/#concept-header-list-get"},
 "d5434eef": {"dfnID":"d5434eef","dfnText":"contains","external":true,"refSections":[{"refs":[{"id":"ref-for-header-list-contains"}],"title":"Request Matches Cached Item"}],"url":"https://fetch.spec.whatwg.org/#header-list-contains"},
 "d7af7adc": {"dfnID":"d7af7adc","dfnText":"incumbent settings object","external":true,"refSections":[{"refs":[{"id":"ref-for-incumbent-settings-object"}],"title":"3.1.5. postMessage(message, options)"}],"url":"https://html.spec.whatwg.org/multipage/webappapis.html#incumbent-settings-object"},
 "d86d4046": {"dfnID":"d86d4046","dfnText":"VisibilityState","external":true,"refSections":[{"refs":[{"id":"ref-for-page-visibility"},{"id":"ref-for-page-visibility\u2460"}],"title":"4.2. Client"},{"refs":[{"id":"ref-for-page-visibility\u2461"}],"title":"4.2.10. focus()"},{"refs":[{"id":"ref-for-page-visibility\u2462"}],"title":"4.2.11. navigate(url)"},{"refs":[{"id":"ref-for-page-visibility\u2463"}],"title":"4.3.2. matchAll(options)"},{"refs":[{"id":"ref-for-page-visibility\u2464"}],"title":"4.3.3. openWindow(url)"},{"refs":[{"id":"ref-for-page-visibility\u2465"}],"title":"Resolve Get Client Promise"}],"url":"https://html.spec.whatwg.org/multipage/interaction.html#page-visibility"},
+"d8b963e8": {"dfnID":"d8b963e8","dfnText":"isomorphic decode","external":true,"refSections":[{"refs":[{"id":"ref-for-isomorphic-decode"}],"title":"Update"}],"url":"https://infra.spec.whatwg.org/#isomorphic-decode"},
 "d8beb430": {"dfnID":"d8beb430","dfnText":"Run CSP initialization for a global object","external":true,"refSections":[{"refs":[{"id":"ref-for-run-global-object-csp-initialization"}],"title":"Setup ServiceWorkerGlobalScope"}],"url":"https://w3c.github.io/webappsec-csp/#run-global-object-csp-initialization"},
 "d9482602": {"dfnID":"d9482602","dfnText":"handleEvent(event)","external":true,"refSections":[{"refs":[{"id":"ref-for-dom-eventlistener-handleevent"},{"id":"ref-for-dom-eventlistener-handleevent\u2460"}],"title":"All Fetch Listeners Are Empty"}],"url":"https://dom.spec.whatwg.org/#dom-eventlistener-handleevent"},
 "dacc9b46": {"dfnID":"dacc9b46","dfnText":"CORS filtered response","external":true,"refSections":[{"refs":[{"id":"ref-for-concept-filtered-response-cors"}],"title":"6.4. Cross-Origin Resources and CORS"}],"url":"https://fetch.spec.whatwg.org/#concept-filtered-response-cors"},
@@ -11909,6 +11913,7 @@ let refsData = {
 "https://fetch.spec.whatwg.org/#concept-header-extract-mime-type": {"displayText":"extract a MIME type","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"extract a mime type","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-extract-mime-type"},
 "https://fetch.spec.whatwg.org/#concept-header-list-append": {"displayText":"append","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"append","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-list-append"},
 "https://fetch.spec.whatwg.org/#concept-header-list-combine": {"displayText":"combine","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"combine","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-list-combine"},
+"https://fetch.spec.whatwg.org/#concept-header-list-get": {"displayText":"get","export":true,"for_":["header list"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"get","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-list-get"},
 "https://fetch.spec.whatwg.org/#concept-header-name": {"displayText":"name","export":true,"for_":["header"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"name","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-name"},
 "https://fetch.spec.whatwg.org/#concept-header-value": {"displayText":"value","export":true,"for_":["header"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"value","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-value"},
 "https://fetch.spec.whatwg.org/#concept-header-value-normalize": {"displayText":"normalize","export":true,"for_":["header value"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"normalize","type":"dfn","url":"https://fetch.spec.whatwg.org/#concept-header-value-normalize"},
@@ -11949,7 +11954,6 @@ let refsData = {
 "https://fetch.spec.whatwg.org/#deserialize-a-serialized-abort-reason": {"displayText":"deserialize a serialized abort reason","export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"deserialize a serialized abort reason","type":"dfn","url":"https://fetch.spec.whatwg.org/#deserialize-a-serialized-abort-reason"},
 "https://fetch.spec.whatwg.org/#dom-global-fetch": {"displayText":"fetch(input, init)","export":true,"for_":["WindowOrWorkerGlobalScope"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"fetch(input, init)","type":"method","url":"https://fetch.spec.whatwg.org/#dom-global-fetch"},
 "https://fetch.spec.whatwg.org/#dom-requestdestination-report": {"displayText":"\"report\"","export":true,"for_":["RequestDestination"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"\"report\"","type":"enum-value","url":"https://fetch.spec.whatwg.org/#dom-requestdestination-report"},
-"https://fetch.spec.whatwg.org/#extract-header-list-values": {"displayText":"extracting header list values","export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"extracting header list values","type":"dfn","url":"https://fetch.spec.whatwg.org/#extract-header-list-values"},
 "https://fetch.spec.whatwg.org/#fetch-controller": {"displayText":"fetch controller","export":true,"for_":[],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"fetch controller","type":"dfn","url":"https://fetch.spec.whatwg.org/#fetch-controller"},
 "https://fetch.spec.whatwg.org/#fetch-controller-abort": {"displayText":"abort","export":true,"for_":["fetch controller"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"abort","type":"dfn","url":"https://fetch.spec.whatwg.org/#fetch-controller-abort"},
 "https://fetch.spec.whatwg.org/#fetch-controller-serialized-abort-reason": {"displayText":"serialized abort reason","export":true,"for_":["fetch controller"],"level":"1","normative":true,"shortname":"fetch","spec":"fetch","status":"current","text":"serialized abort reason","type":"dfn","url":"https://fetch.spec.whatwg.org/#fetch-controller-serialized-abort-reason"},
@@ -12104,6 +12108,7 @@ let refsData = {
 "https://infra.spec.whatwg.org/#byte-sequence": {"displayText":"byte sequence","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"byte sequence","type":"dfn","url":"https://infra.spec.whatwg.org/#byte-sequence"},
 "https://infra.spec.whatwg.org/#if-aborted": {"displayText":"if aborted","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"if aborted","type":"dfn","url":"https://infra.spec.whatwg.org/#if-aborted"},
 "https://infra.spec.whatwg.org/#implementation-defined": {"displayText":"implementation-defined","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"implementation-defined","type":"dfn","url":"https://infra.spec.whatwg.org/#implementation-defined"},
+"https://infra.spec.whatwg.org/#isomorphic-decode": {"displayText":"isomorphic decode","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"isomorphic decode","type":"dfn","url":"https://infra.spec.whatwg.org/#isomorphic-decode"},
 "https://infra.spec.whatwg.org/#iteration-break": {"displayText":"break","export":true,"for_":["iteration"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"break","type":"dfn","url":"https://infra.spec.whatwg.org/#iteration-break"},
 "https://infra.spec.whatwg.org/#iteration-continue": {"displayText":"continue","export":true,"for_":["iteration"],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"continue","type":"dfn","url":"https://infra.spec.whatwg.org/#iteration-continue"},
 "https://infra.spec.whatwg.org/#list": {"displayText":"list","export":true,"for_":[],"level":"1","normative":true,"shortname":"infra","spec":"infra","status":"current","text":"list","type":"dfn","url":"https://infra.spec.whatwg.org/#list"},
