@@ -1706,7 +1706,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       <dfn attribute for="FetchEvent"><code>clientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
 
-      Note: {{FetchEvent/clientId}} is |request|'s [=request/client=]'s [=environment/id=] for [=subresource requests=], and the empty string otherwise (including for [=non-subresource requests=] such as [=navigation requests=], or when |request|'s [=request/client=] is null). See {{FetchEvent/resultingClientId}} for the environment associated with the resulting document of a [=navigation request=].
+      Note: {{FetchEvent/clientId}} is the [=environment/id=] of |request|'s [=request/client=] when the [=/request=] has an associated initiating [=/service worker client=]. This is the case for [=subresource requests=], and also for [=non-subresource requests=] that were initiated by an existing client (such as [=worker=] script fetches, or a [=navigation request=] initiated by an existing document). It is the empty string when |request|'s [=request/client=] is null (e.g., a top-level [=navigation request=] triggered by the user typing a URL in the address bar). See {{FetchEvent/resultingClientId}} for the environment associated with the resulting document of a [=navigation request=].
     </section>
 
     <section>
@@ -3414,7 +3414,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Initialize |e|’s {{Event/cancelable}} attribute to true.
               1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
               1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
-              1. If |request| is a <a>subresource request</a> and |client| is not null, initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
+              1. If |client| is not null, initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
               1. If |request| is a <a>non-subresource request</a>, |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, and |reservedClient| is not null, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=].
               1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=].
               1. Initialize |e|’s {{FetchEvent/handled}} to |eventHandled|.
