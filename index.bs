@@ -1705,12 +1705,16 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       <h4 id="fetch-event-clientid">{{FetchEvent/clientId|event.clientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>clientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
+
+      Note: {{FetchEvent/clientId}} is the [=environment/id=] of |request|'s [=request/client=] when the [=/request=] has an initiating [=/service worker client=], and the empty string otherwise (e.g., a top-level [=navigation request=] with no initiator). See {{FetchEvent/resultingClientId}} for the environment associated with the resulting document of a [=navigation request=].
     </section>
 
     <section>
       <h4 id="fetch-event-resultingclientid">{{FetchEvent/resultingClientId|event.resultingClientId}}</h4>
 
       <dfn attribute for="FetchEvent"><code>resultingClientId</code></dfn> attribute *must* return the value it was initialized to. When an <a>event</a> is created the attribute *must* be initialized to the empty string.
+
+      Note: {{FetchEvent/resultingClientId}} is |request|'s [=request/reserved client=]'s [=environment/id=]. It is the empty string for [=subresource requests=], for requests whose [=request/destination=] is {{RequestDestination/"report"}}, and when |request|'s [=request/reserved client=] is null.
     </section>
 
     <section>
@@ -3410,9 +3414,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
               1. Initialize |e|’s {{Event/cancelable}} attribute to true.
               1. Initialize |e|’s {{FetchEvent/request}} attribute to |requestObject|.
               1. Initialize |e|’s {{FetchEvent/preloadResponse}} to |preloadResponse|.
-              1. Initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
-              1. If |request| is a <a>non-subresource request</a> and |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=], and to the empty string otherwise.
-              1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=], and to the empty string otherwise.
+              1. If |client| is not null, initialize |e|'s {{FetchEvent/clientId}} attribute to |client|'s [=environment/id=].
+              1. If |request| is a <a>non-subresource request</a>, |request|'s [=request/destination=] is not {{RequestDestination/"report"}}, and |reservedClient| is not null, initialize |e|'s {{FetchEvent/resultingClientId}} attribute to |reservedClient|'s [=environment/id=].
+              1. If |request| is a <a>navigation request</a>, initialize |e|'s {{FetchEvent/replacesClientId}} attribute to |request|'s [=request/replaces client id=].
               1. Initialize |e|’s {{FetchEvent/handled}} to |eventHandled|.
               1. Let |timingInfo|'s [=service worker timing info/fetch event dispatch time=] to the [=coarsened shared current time=] given |useHighResPerformanceTimers|.
               1. <a>Dispatch</a> |e| at |activeWorker|'s [=service worker/global object=].
