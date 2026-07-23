@@ -1283,10 +1283,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Let |source| be the result of [=getting the service worker object=] that represents |contextObject|'s [=relevant global object=]'s [=ServiceWorkerGlobalScope/service worker=] in |targetClient|.
                 1. Let |deserializeRecord| be <a abstract-op>StructuredDeserializeWithTransfer</a>(|serializeWithTransferResult|, |destination|'s [=relevant Realm=]).
 
-                    If this throws an exception, catch it, [=fire an event=] named {{ServiceWorkerContainer/messageerror!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
+                    If this throws an exception, catch it, [=queue a task=] on |targetClient|'s [=responsible event loop=], using the [=DOM manipulation task source=], to [=fire an event=] named {{ServiceWorkerContainer/messageerror!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin| and the {{MessageEvent/source}} attribute initialized to |source|, and then abort these steps.
                 1. Let |messageClone| be |deserializeRecord|.\[[Deserialized]].
                 1. Let |newPorts| be a new [=frozen array type|frozen array=] consisting of all {{MessagePort}} objects in |deserializeRecord|.\[[TransferredValues]], if any.
-                1. [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
+                1. [=Queue a task=] on |targetClient|'s [=responsible event loop=], using the [=DOM manipulation task source=], to [=Dispatch|Dispatch an event=] named {{Window/message!!event}} at |destination|, using {{MessageEvent}}, with its [=MessageEvent/origin=] initialized to |origin|, the {{MessageEvent/source}} attribute initialized to |source|, the {{MessageEvent/data}} attribute initialized to |messageClone|, and the {{MessageEvent/ports}} attribute initialized to |newPorts|.
     </section>
 
     <section>
@@ -1396,8 +1396,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. For each [=/service worker client=] |client| where the result of running [=obtain a storage key=] given |client| [=storage key/equals=] the associated [=ServiceWorkerGlobalScope/service worker=]'s [=containing service worker registration=]'s [=service worker registration/storage key=]:
                 1. If |client|'s [=environment/id=] is not |id|, [=continue=].
                 1. Wait for either |client|'s [=environment/execution ready flag=] to be set or for |client|'s [=discarded flag=] to be set.
-                1. If |client|'s [=environment/execution ready flag=] is set, then invoke [=Resolve Get Client Promise=] with |client| and |promise|, and abort these steps.
-            1. Resolve |promise| with undefined.
+                1. If |client|'s [=environment/execution ready flag=] is set, [=queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                    1. Invoke [=Resolve Get Client Promise=] with |client| and |promise|.
+                    1. Abort these steps.
+            1. [=Queue a task=]  on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with undefined.
         1. Return |promise|.
     </section>
 
@@ -1504,7 +1506,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                     1. Invoke <a>Handle Service Worker Client Unload</a> with |client| as the argument.
                     1. Set |client|'s <a>active service worker</a> to [=ServiceWorkerGlobalScope/service worker=].
                     1. Invoke <a>Notify Controller Change</a> algorithm with |client| as the argument.
-            1. Resolve |promise| with undefined.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=] to resolve |promise| with undefined.
         1. Return |promise|.
     </section>
   </section>
