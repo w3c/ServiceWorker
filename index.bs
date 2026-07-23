@@ -1973,6 +1973,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is an <a>ordered map</a> whose [=map/entry=] consists of a [=map/key=] (a string that represents the name of a [=request response list=]) and a [=map/value=] (a [=request response list=]).
 
+    A [=name to cache map=] has an associated <dfn>name to cache map parallel queue</dfn> (a [=parallel queue=]) used to serialize reads and writes on the [=name to cache map=].
+
     The <dfn>relevant name to cache map</dfn> for a {{CacheStorage}} object is the [=name to cache map=] associated with the result of running [=obtain a local storage bottle map=] with the object's [=relevant settings object=] and "<code>caches</code>".
   </section>
 
@@ -2288,12 +2290,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="CacheStorage"><code>match(|request|, |options|)</code></dfn> method steps are:
 
         1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] [=map/exists=], then:
-            1. Return [=a new promise=] |promise| and run the following substeps [=in parallel=]:
+            1. Let |promise| be [=a new promise=].
+            1. [=queue/Enqueue=] the following steps to the [=relevant name to cache map=]'s [=name to cache map parallel queue=]:
                 1. [=map/For each=] |cacheName| → |cache| of the [=relevant name to cache map=]:
                     1. If |options|["{{MultiCacheQueryOptions/cacheName}}"] matches |cacheName|, then:
-                        1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}.)
-                        1. Abort these steps.
-                1. Resolve |promise| with undefined.
+                        1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                            1. Resolve |promise| with the result of running the algorithm specified in {{Cache/match(request, options)}} method of {{Cache}} interface with |request| and |options| (providing |cache| as thisArgument to the `\[[Call]]` internal method of {{Cache/match(request, options)}}).
+                            1. Abort these steps.
+                1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with undefined.
         1. Else:
             1. Let |promise| be [=a promise resolved with=] undefined.
             1. [=map/For each=] <var ignore>cacheName</var> → |cache| of the [=relevant name to cache map=]:
@@ -2309,10 +2313,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="CacheStorage"><code>has(|cacheName|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
-        1. Run the following substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to the [=relevant name to cache map=]'s [=name to cache map parallel queue=]:
             1. [=map/For each=] |key| → <var ignore>value</var> of the [=relevant name to cache map=]:
-                1. If |cacheName| matches |key|, resolve |promise| with true and abort these steps.
-            1. Resolve |promise| with false.
+                1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                    1. If |cacheName| matches |key|, resolve |promise| with true.
+                    1. Abort these steps.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with false.
         1. Return |promise|.
     </section>
 
@@ -2322,14 +2328,18 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="CacheStorage"><code>open(|cacheName|)</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
-        1. Run the following substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to the [=relevant name to cache map=]'s [=name to cache map parallel queue=]:
             1. [=map/For each=] |key| → |value| of the [=relevant name to cache map=]:
                 1. If |cacheName| matches |key|, then:
-                    1. Resolve |promise| with a new {{Cache}} object that represents |value|.
-                    1. Abort these steps.
+                    1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                        1. Resolve |promise| with a new {{Cache}} object that represents |value|.
+                        1. Abort these steps.
             1. Let |cache| be a new [=request response list=].
-            1. [=map/Set=] the [=relevant name to cache map=][|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, reject |promise| with a {{QuotaExceededError}} and abort these steps.
-            1. Resolve |promise| with a new {{Cache}} object that represents |cache|.
+            1. [=map/Set=] the [=relevant name to cache map=][|cacheName|] to |cache|. If this cache write operation failed due to exceeding the granted quota limit, then:
+                1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following steps:
+                    1. Reject |promise| with a "{{QuotaExceededError}}" {{DOMException}}.
+                    1. Abort these steps.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with a new {{Cache}} object that represents |cache|.
         1. Return |promise|.
     </section>
 
@@ -2343,9 +2353,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
             1. If |cacheExists| is false, then:
                 1. Return false.
             1. Let |cacheJobPromise| be [=a new promise=].
-            1. Run the following substeps [=in parallel=]:
+            1. [=queue/Enqueue=] the following steps to the [=relevant name to cache map=]'s [=name to cache map parallel queue=]:
                 1. [=map/Remove=] the [=relevant name to cache map=][|cacheName|].
-                1. Resolve |cacheJobPromise| with true.
+                1.  [=Queue a task=] on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |cacheJobPromise| with true.
 
                 Note: After this step, the existing DOM objects (i.e. the currently referenced Cache, Request, and Response objects) should remain functional.
 
@@ -2358,12 +2368,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       The <dfn method for="CacheStorage"><code>keys()</code></dfn> method steps are:
 
         1. Let |promise| be [=a new promise=].
-        1. Run the following substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to the [=relevant name to cache map=]'s [=name to cache map parallel queue=]:
             1. Let |cacheKeys| be the result of [=map/get the keys|getting the keys=] of the [=relevant name to cache map=].
 
                 Note: The [=list/items=] in the result [=ordered set=] are in the order that their corresponding entry was added to the [=name to cache map=].
 
-            1. Resolve |promise| with |cacheKeys|.
+            1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with |cacheKeys|.
         1. Return |promise|.
     </section>
   </section>
