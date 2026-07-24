@@ -2037,14 +2037,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |promise| be [=a new promise=].
         1. Run these substeps [=in parallel=]:
             1. Let |p| be the result of running the algorithm specified in {{Cache/matchAll(request, options)}} method with |request| and |options|.
-            1. Wait until |p| settles.
+            1. Wait until |p| settles.          
             1. If |p| rejects with an exception, then:
-                1. Reject |promise| with that exception.
+                1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to reject |promise| with that exception.
             1. Else if |p| resolves with an array, |responses|, then:
                 1. If |responses| is an empty array, then:
-                    1. Resolve |promise| with undefined.
+                    1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with undefined.
                 1. Else:
-                    1. Resolve |promise| with the first element of |responses|.
+                    1. [=Queue a task=] on |promise|'s [=relevant settings object=]'s [=responsible event loop=], using the [=DOM manipulation task source=], to resolve |promise| with the first element of |responses|.
         1. Return |promise|.
     </section>
 
@@ -2072,7 +2072,10 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. [=list/For each=] |requestResponse| of |requestResponses|:
                     1. Add a copy of |requestResponse|'s response to |responses|.
             1. [=list/For each=] |response| of |responses|:
-                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], |promise|'s [=relevant settings object=], "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then reject |promise| with a `TypeError` and abort these steps.
+                1. If |response|'s [=response/type=] is "`opaque`" and [=cross-origin resource policy check=] with |promise|'s [=relevant settings object=]'s [=environment settings object/origin=], |promise|'s [=relevant settings object=], "", and |response|'s [=filtered response/internal response=] returns <b>blocked</b>, then:
+                    1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
+                        1. Reject |promise| with a `TypeError`.
+                        1. Abort these steps.
             1. [=Queue a task=], on |promise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following steps:
                 1. Let |responseList| be a [=list=].
                 1. [=list/For each=] |response| of |responses|:
