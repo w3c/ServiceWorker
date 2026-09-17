@@ -1972,6 +1972,8 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
     A <dfn id="dfn-request-response-list">request response list</dfn> is a [=list=] of [=tuples=] consisting of a request (a [=/request=]) and a response (a [=/response=]).
 
+    A [=request response list=] has an associated <dfn>request response list parallel queue</dfn> (a [=parallel queue=]) used to serialize reads and writes on the [=request response list=].
+
     The <dfn id="dfn-relevant-request-response-list">relevant request response list</dfn> is the instance that [=this=] represents.
 
     A <dfn id="dfn-name-to-cache-map">name to cache map</dfn> is an <a>ordered map</a> whose [=map/entry=] consists of a [=map/key=] (a string that represents the name of a [=request response list=]) and a [=map/value=] (a [=request response list=]).
@@ -2065,7 +2067,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
         1. Let |realm| be [=this=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
-        1. Run these substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to [=this=]'s [=relevant request response list=]'s [=request response list parallel queue=]:
             1. Let |responses| be an empty [=list=].
             1. If the optional argument |request| is omitted, then:
                 1. [=list/For each=] |requestResponse| of the [=relevant request response list=]:
@@ -2145,7 +2147,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Increment |index| by one.
             1. Let |realm| be [=this=]'s [=relevant realm=].
             1. Let |cacheJobPromise| be [=a new promise=].
-            1. Run the following substeps [=in parallel=]:
+            1. [=queue/Enqueue=] the following steps to [=this=]'s [=relevant request response list=]'s [=request response list parallel queue=]:
                 1. Let |errorData| be null.
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
@@ -2190,7 +2192,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. Let |realm| be [=this=]'s [=relevant realm=].
         1. Return the result of the [=Upon fulfillment|fulfillment=] of |bodyReadPromise|:
             1. Let |cacheJobPromise| be [=a new promise=].
-            1. Return |cacheJobPromise| and run these steps [=in parallel=]:
+            1. Return |cacheJobPromise| and [=queue/Enqueue=] the following steps to [=this=]'s [=relevant request response list=]'s [=request response list parallel queue=]:
                 1. Let |errorData| be null.
                 1. Invoke [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
                 1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
@@ -2217,7 +2219,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
         1. [=list/Append=] |operation| to |operations|.
         1. Let |realm| be [=this=]'s [=relevant realm=].
         1. Let |cacheJobPromise| be [=a new promise=].
-        1. Run the following substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to [=this=]'s [=relevant request response list=]'s [=request response list parallel queue=]:
             1. Let |errorData| be null.
             1. Let |requestResponses| be the result of running [=Batch Cache Operations=] with |operations|. If this [=throws=] an exception, set |errorData| to the exception.
             1. [=Queue a task=], on |cacheJobPromise|'s [=relevant settings object=]'s [=responsible event loop=] using the [=DOM manipulation task source=], to perform the following substeps:
@@ -2242,7 +2244,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
                 1. Set |r| to the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this [=throws=] an exception, return [=a promise rejected with=] that exception.
         1. Let |realm| be [=this=]'s [=relevant realm=].
         1. Let |promise| be [=a new promise=].
-        1. Run these substeps [=in parallel=]:
+        1. [=queue/Enqueue=] the following steps to [=this=]'s [=relevant request response list=]'s [=request response list parallel queue=]:
             1. Let |requests| be an empty [=list=].
             1. If the optional argument |request| is omitted, then:
                 1. [=list/For each=] |requestResponse| of the [=relevant request response list=]:
