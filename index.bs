@@ -3783,6 +3783,27 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
+    <h3 id="unregister-service-workers-algorithm"><dfn export>Unregister Service Workers</dfn></h3>
+
+      : Input
+      :: |storage key|, a [=/storage key=]
+      : Output
+      :: none
+
+      1. Let |scopes| be an empty [=list=].
+      1. [=list/For each=] (|entry storage key|, |serialized scope|) of [=registration map=]'s [=map/keys=]:
+          1. If |entry storage key| does not [=storage key/equal=] |storage key|, [=continue=].
+          1. Let |scope URL| be the result of <a lt="URL parser">parsing</a> |serialized scope|.
+          1. If |scope URL| is failure, [=continue=].
+          1. [=list/Append=] |scope URL| to |scopes|.
+      1. [=list/For each=] |scope| of |scopes|:
+          1. Let |job| be the result of running <a>Create Job</a> with *unregister*, |storage key|, |scope|, null, null, and null.
+          1. Invoke <a>Schedule Job</a> with |job|.
+
+      Note: This algorithm does not wait for the unregister jobs to finish. Specifications that invoke it cannot assume the matching [=registration map=] entries have been removed when it returns. Even after an unregister job finishes, [=Clear Registration=] can be delayed while a [=/service worker client=] is [=using=] the registration or the [=extend lifetime promises=] for the registration's service workers have not settled.
+  </section>
+
+  <section algorithm>
     <h3 id="set-registration-algorithm"><dfn>Set Registration</dfn></h3>
 
       : Input
