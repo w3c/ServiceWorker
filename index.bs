@@ -2709,6 +2709,24 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </section>
 
   <section algorithm>
+    <h3 id="validate-and-normalize-service-worker-url-algorithm"><dfn>Validate and Normalize a Service Worker URL</dfn></h3>
+
+      : Input
+      :: |url|, a [=/URL=] or failure
+      : Output
+      :: A [=/URL=] or failure
+
+      1. If |url| is failure, return failure.
+      1. Let |normalizedURL| be a copy of |url|.
+      1. Set |normalizedURL|'s [=url/fragment=] to null.
+      1. If |normalizedURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", return failure.
+      1. If any of the strings in |normalizedURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", return failure.
+      1. Return |normalizedURL|.
+
+      Note: The user agent does not store the [=url/fragment=] of a [=service worker/script url=] or [=service worker registration/scope url=]. The [=url/fragment=] therefore does not affect the identity of a [=/service worker=] or [=/service worker registration=].
+  </section>
+
+  <section algorithm>
     <h3 id="start-register-algorithm"><dfn>Start Register</dfn></h3>
 
       : Input
@@ -2722,24 +2740,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: none
 
+      1. Set |scriptURL| to the result of running [=Validate and Normalize a Service Worker URL=] with |scriptURL|.
       1. If |scriptURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
-      1. Set |scriptURL|'s [=url/fragment=] to null.
-
-          Note: The user agent does not store the [=url/fragment=] of the script's url. This means that the [=url/fragment=] does not have an effect on identifying [=/service workers=].
-
-      1. If |scriptURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
-      1. If any of the strings in |scriptURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. If |scopeURL| is null, set |scopeURL| to the result of <a lt="URL parser">parsing</a> the string "<code>./</code>" with |scriptURL|.
 
           Note: The scope url for the registration is set to the location of the service worker script by default.
 
+      1. Set |scopeURL| to the result of running [=Validate and Normalize a Service Worker URL=] with |scopeURL|.
       1. If |scopeURL| is failure, reject |promise| with a <code>TypeError</code> and abort these steps.
-      1. Set |scopeURL|'s [=url/fragment=] to null.
-
-          Note: The user agent does not store the [=url/fragment=] of the scope url. This means that the [=url/fragment=] does not have an effect on identifying [=/service worker registrations=].
-
-      1. If |scopeURL|'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
-      1. If any of the strings in |scopeURL|'s [=url/path=] contains either <a>ASCII case-insensitive</a> "<code>%2f</code>" or <a>ASCII case-insensitive</a> "<code>%5c</code>", reject |promise| with a <code>TypeError</code> and abort these steps.
       1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
       1. Let |job| be the result of running [=Create Job=] with *register*, |storage key|, |scopeURL|, |scriptURL|, |promise|, and |client|.
       1. Set |job|'s [=job/worker type=] to |workerType|.
@@ -2756,7 +2764,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       : Output
       :: none
 
-      1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trusted</code>, then:
+      1. If the result of running <a>potentially trustworthy origin</a> with the [=environment settings object/origin=] of |job|'s [=job/script url=] as the argument is <code>Not Trustworthy</code>, then:
           1. Invoke [=Reject Job Promise=] with |job| and "{{SecurityError}}" {{DOMException}}.
           1. Invoke <a>Finish Job</a> with |job| and abort these steps.
       1. If |job|'s [=job/script url=]'s [=url/origin=] and |job|'s [=job/referrer=]'s [=url/origin=] are not [=same origin=], then:
@@ -2774,6 +2782,33 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
       1. Else:
           1. Invoke <a>Set Registration</a> algorithm with |job|'s [=job/storage key=], |job|'s [=job/scope url=], and |job|'s [=job/update via cache mode=].
       1. Invoke <a>Update</a> algorithm passing |job| as the argument.
+  </section>
+
+  <section algorithm>
+    <h3 id="register-a-service-worker-algorithm"><dfn export>Register a Service Worker</dfn></h3>
+
+    Note: Because this algorithm has no calling [=/service worker client=], the [=job/referrer=] is not set by [=Create Job=]. This algorithm explicitly sets the job's [=job/referrer=] to |scriptURL| so that [=Register=]'s same-origin checks use the origin required by this algorithm.
+
+      : Input
+      :: |storageKey|, a [=/storage key=]
+      :: |scriptURL|, a [=/URL=]
+      :: |scopeURL|, a [=/URL=]
+      :: |workerType|, a [=job/worker type=]
+      :: |updateViaCache|, a [=service worker registration/update via cache mode=]
+      : Output
+      :: none
+
+      1. Set |scriptURL| to the result of running [=Validate and Normalize a Service Worker URL=] with |scriptURL|.
+      1. If |scriptURL| is failure, return.
+      1. Set |scopeURL| to the result of running [=Validate and Normalize a Service Worker URL=] with |scopeURL|.
+      1. If |scopeURL| is failure, return.
+      1. If |scriptURL|'s [=url/origin=] and |scopeURL|'s [=url/origin=] are not [=same origin=], return.
+      1. If the result of running <a>potentially trustworthy origin</a> with |scriptURL|'s [=url/origin=] as the argument is <code>Not Trustworthy</code>, return.
+      1. Let |job| be the result of running <a>Create Job</a> with *register*, |storageKey|, |scopeURL|, |scriptURL|, null, and null.
+      1. Set |job|'s [=job/worker type=] to |workerType|.
+      1. Set |job|'s [=job/update via cache mode=] to |updateViaCache|.
+      1. Set |job|'s [=job/referrer=] to |scriptURL|.
+      1. Invoke <a>Schedule Job</a> with |job|.
   </section>
 
   <section algorithm>
