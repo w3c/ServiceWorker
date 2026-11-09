@@ -264,7 +264,7 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   <section dfn-for="service worker registration">
     <h3 id="service-worker-registration-concept">Service Worker Registration</h3>
 
-    A <dfn export id="dfn-service-worker-registration" for="">service worker registration</dfn> is a tuple of a [=service worker registration/scope url=], a [=/storage key=], and a set of [=/service workers=], an <a>installing worker</a>, a <a>waiting worker</a>, and an <a>active worker</a>. A user agent *may* enable many [=/service worker registrations=] at a single origin so long as the [=service worker registration/scope url=] of the [=/service worker registration=] differs. A [=/service worker registration=] of an identical [=service worker registration/scope url=] when one already exists in the user agent causes the existing [=/service worker registration=] to be replaced.
+    A <dfn export id="dfn-service-worker-registration" for="">service worker registration</dfn> is a tuple of a [=service worker registration/scope url=], a [=/storage key=], and a set of [=/service workers=], an <a>installing worker</a>, a <a>waiting worker</a>, and an <a>active worker</a>. The [=registration map=] distinguishes [=/service worker registrations=] by their [=service worker registration/storage key=] and [=service worker registration/scope url=]. [=/Service worker registrations=] with identical [=service worker registration/scope urls=] but [=service worker registration/storage key=] values that are not [=storage key/equal=] are distinct.
 
     A [=/service worker registration=] has an associated <dfn export for="service worker registration">storage key</dfn> (a [=/storage key=]).
 
@@ -2569,14 +2569,14 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
   </div>
 
 
-  Two <a>jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a>job type</a> is the same and:
+  Two <a>jobs</a> are <dfn id="dfn-job-equivalent">equivalent</dfn> when their <a>job type</a> is the same, their [=job/storage key=] values are [=storage key/equal=], and:
 
     * For *register* and *update* <a>jobs</a>, their [=job/scope url=], [=job/script url=], [=job/worker type=], and [=job/update via cache mode=] are the same.
     * For *unregister* <a>jobs</a>, their [=job/scope url=] is the same.
 
   A <dfn id="dfn-job-queue">job queue</dfn> is a thread safe [=queue=] used to synchronize the set of concurrent [=jobs=]. The [=job queue=] contains [=jobs=] as its [=queue/items=]. A [=job queue=] is initially empty.
 
-  A <dfn id="dfn-scope-to-job-queue-map">scope to job queue map</dfn> is an <a>ordered map</a> where the keys are [=service worker registration/scope urls=], [=URL serializer|serialized=], and the values are [=job queues=].
+  A <dfn id="dfn-scope-to-job-queue-map">scope to job queue map</dfn> is an <a>ordered map</a> where the keys are [=tuples=] consisting of a [=/storage key=] and a [=URL serializer|serialized=] [=service worker registration/scope url=], and the values are [=job queues=].
 
   A <dfn id="dfn-bad-import-script-response">bad import script response</dfn> is a [=/response=] for which any of the following conditions are met:
 
@@ -2626,8 +2626,9 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       1. Let |jobQueue| be null.
       1. Let |jobScope| be |job|'s [=job/scope url=], [=URL serializer|serialized=].
-      1. If [=scope to job queue map=][|jobScope|] does not [=map/exist=], [=map/set=] [=scope to job queue map=][|jobScope|] to a new [=job queue=].
-      1. Set |jobQueue| to [=scope to job queue map=][|jobScope|].
+      1. Let |jobKey| be the [=tuple=] (|job|'s [=job/storage key=], |jobScope|).
+      1. If [=scope to job queue map=][|jobKey|] does not [=map/exist=], [=map/set=] [=scope to job queue map=][|jobKey|] to a new [=job queue=].
+      1. Set |jobQueue| to [=scope to job queue map=][|jobKey|].
       1. If |jobQueue| is empty, then:
           1. Set |job|'s [=containing job queue=] to |jobQueue|, and [=queue/enqueue=] |job| to |jobQueue|.
           1. Invoke [=Run Job=] with |jobQueue|.
@@ -3033,7 +3034,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           Note: Make sure to design activation handlers to do non-essential work (like cleanup). This is because activation handlers may not all run to completion, especially in the case of browser termination during activation. A Service Worker should be designed to function properly, even if the activation handlers do not all complete successfully.
 
-      1. Let |matchedClients| be a [=list=] of [=/service worker clients=] whose <a>creation URL</a> <a lt="Match Service Worker Registration">matches</a> |registration|'s [=service worker registration/storage key=] and |registration|'s [=service worker registration/scope url=].
+      1. Let |matchedClients| be a new [=list=].
+      1. For each [=/service worker client=] |client|:
+          1. If |client| is not an [=environment settings object=], [=continue=].
+          1. Let |storage key| be the result of running [=obtain a storage key=] given |client|.
+          1. If |storage key| is failure, [=continue=].
+          1. If the result of running [=Match Service Worker Registration=] given |storage key| and |client|'s [=creation URL=] is |registration|, [=append=] |client| to |matchedClients|.
       1. [=list/For each=] |client| of |matchedClients|, [=queue a task=] on |client|'s [=responsible event loop=], using the [=DOM manipulation task source=], to run the following substeps:
           1. Let |readyPromise| be |client|'s [=environment settings object/global object=]'s {{ServiceWorkerContainer}} object's [=ServiceWorkerContainer/ready promise=].
           1. If |readyPromise| is null, then [=continue=].
