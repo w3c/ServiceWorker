@@ -2806,10 +2806,6 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           To [=fetching scripts/perform the fetch hook=] given |request|, run the following steps:
 
-          1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
-
-            Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
-
           1. Set |request|'s [=request/cache mode=] to "<code>no-cache</code>" if any of the following are true:
               * |registration|'s [=service worker registration/update via cache mode=] is not "`all`".
               * |job|'s [=force bypass cache flag=] is set.
@@ -2819,6 +2815,12 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
           1. Set |request|'s [=service-workers mode=] to "`none`".
           1. If the [=fetching scripts/isTopLevel=] flag is unset, then return the result of [=/fetching=] |request|.
+          1. Append \`<code>Service-Worker</code>\`/\`<code>script</code>\` to |request|'s [=request/header list=].
+
+            Note: See the definition of the Service-Worker header in Appendix B: Extended HTTP headers.
+
+            Note: The header is only added to the request for the top-level script. As with scripts fetched by <a>importScripts()</a>, modules statically imported by a module service worker are fetched without it, so the header does not cause a CORS preflight for a cross-origin import.
+
           1. Set |request|'s [=request/redirect mode=] to "<code>error</code>".
           1. [=/Fetch=] |request|, and asynchronously wait to run the remaining steps as part of fetch's [=fetch/processResponse=] for the [=/response=] |response|.
           1. [=Extract a MIME type=] from the |response|'s [=response/header list=]. If this MIME type (ignoring parameters) is not a [=JavaScript MIME type=], then:
