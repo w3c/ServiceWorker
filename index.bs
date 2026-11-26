@@ -2098,19 +2098,18 @@ spec: storage; urlPrefix: https://storage.spec.whatwg.org/
 
       The <dfn method for="Cache"><code>addAll(|requests|)</code></dfn> method steps are:
 
-        1. Let |responsePromises| be an empty [=list=].
         1. Let |requestList| be an empty [=list=].
         1. For each |request| whose type is {{Request}} in |requests|:
             1. Let |r| be |request|'s [=Request/request=].
             1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "`http`" and "`https`", or |r|'s [=request/method=] is not \``GET`\`, return [=a promise rejected with=] a `TypeError`.
-        1. Let |fetchControllers| be a [=/list=] of [=fetch controllers=].
         1. For each |request| in |requests|:
             1. Let |r| be the associated [=Request/request=] of the result of invoking the initial value of {{Request}} as constructor with |request| as its argument. If this <a>throws</a> an exception, return [=a promise rejected with=] that exception.
-            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", then:
-                1. [=list/For each=] |fetchController| of |fetchControllers|, [=fetch controller/abort=] |fetchController|.
-                1. Return [=a promise rejected with=] a `TypeError`.
+            1. If |r|'s [=request/url=]'s [=url/scheme=] is not one of "<code>http</code>" and "<code>https</code>", return [=a promise rejected with=] a `TypeError`.
             1. If |r|'s [=request/client=]'s [=environment settings object/global object=] is a {{ServiceWorkerGlobalScope}} object, set |request|'s [=service-workers mode=] to "`none`".
-            1. Add |r| to |requestList|.
+            1. [=list/Append=] |r| to |requestList|.
+        1. Let |responsePromises| be an empty [=list=].
+        1. Let |fetchControllers| be a [=/list=] of [=fetch controllers=].
+        1. [=list/For each=] |r| of |requestList|:
             1. Let |responsePromise| be [=a new promise=].
             1. Run the following substeps [=in parallel=]:
                 * [=list/Append=] the result of [=/fetching=] |r|.
